@@ -1,0 +1,115 @@
+import React, { Component } from 'react';
+import PropTypes from 'prop-types';
+import GoogleMapReact from 'google-map-react';
+import controllable from 'react-controllables';
+
+import Marker from './Marker.js';
+import {K_SIZE} from './MarkerStyle.js';
+
+function createMapOptions(maps) {
+    return {
+        //this controls where and how the zoom control is rendered
+        zoomControlOptions: {
+            position: maps.ControlPosition.RIGHT_CENTER,
+            style: maps.ZoomControlStyle.SMALL
+        },
+        //this allows the user to change the type of map that is shown
+        mapTypeControl: false,
+        //this controls where and how different map options are rendered
+        mapTypeControlOptions: {
+            position: maps.ControlPosition.TOP_RIGHT
+        },
+    };
+}
+
+const Map = controllable(['center', 'zoom', 'hoverKey', 'clickKey'])(
+class Map extends Component {
+    static propTypes = {
+        center: PropTypes.array,
+        zoom: PropTypes.number,
+        //hoverKey: PropTypes.string,
+        clickKey: PropTypes.string,
+        onCenterChange: PropTypes.func,
+        onZoomChange: PropTypes.func,
+        onHoverKeyChange: PropTypes.func,
+
+        greatPlaces: PropTypes.any,
+        cities: PropTypes.any,
+    }
+
+    static defaultProps = {
+        center: [40.7, -74],
+        zoom: 4,
+    }
+
+    constructor(props) {
+        super(props);
+
+        this.state = {
+            api_key: "AIzaSyBpXqyXMWAbXFs6XCxkMUFX09ZuHzjpKHU",
+        }
+    }
+
+    _onBoundsChange = (center, zoom) => {
+        this.props.onCenterChange(center);
+        this.props.onZoomChange(zoom);
+    }
+
+    _onChildClick = (key, childProps) => {
+        this.props.onCenterChange([childProps.lat, childProps.lng]);
+    }
+
+    _onChildMouseEnter = (key) => {
+        this.props.onHoverKeyChange(key);
+    }
+
+    _onChildMouseLeave = () => {
+        this.props.onHoverKeyChange(null);
+    }
+
+    handleApiLoaded(map, maps) {
+        //console.log(map, maps);
+    }
+
+    render() {
+        console.log("RENDER")
+        let places = this.props.cities ? this.props.cities.map(place => {
+          return (<Marker
+            key={place.pk}
+            lat={place.latitude}
+            lng={place.longitude}
+            city={place.city}
+            country={place.country}
+            urls={place.urls}
+            pk={place.pk}
+            //data={place.fields}
+            hover={this.props.hoverKey === place.pk} 
+            handleEditCity={this.props.handleEditCity}
+            handleGetCity={this.props.handleGetCity}
+          />)
+        }) : null;
+        
+        return (
+          <div style={{ height: '100vh', width: '100%' }}>
+            <GoogleMapReact
+              bootstrapURLKeys={{ key: this.state.api_key }}
+              center={this.props.center}
+              zoom={this.props.zoom}
+              hoverDistance={K_SIZE / 2}
+              onBoundsChange={this._onBoundsChange}
+              onChildClick={this._onChildClick}
+              onChildMouseEnter={this._onChildMouseEnter}
+              onChildMouseLeave={this._onChildMouseLeave}
+              //options={createMapOptions}
+              //yesIWantToUseGoogleMapApiInternals
+              //onGoogleApiLoaded={({ map, maps }) => this.handleApiLoaded(map, maps)}
+            >
+             {places}
+            </GoogleMapReact>
+          </div>
+        )
+    }
+}
+)
+
+export default Map;

@@ -1,0 +1,125 @@
+import React from 'react';
+import ReactDOM from 'react-dom';
+import PropTypes from 'prop-types';
+import {
+    Button,
+    Form,
+    Input,
+    InputGroup,
+    Modal, 
+    ModalHeader,
+    ModalBody,
+    ModalFooter,
+} from 'reactstrap';
+
+class AddCity extends React.Component {
+    constructor(props) {
+        super(props);
+        this.state = {
+          modalAdd: false,
+          city: "",
+          country: "",
+          latitude: "",
+          longitude: "",
+          username: "",
+        };
+
+        this.toggleAdd = this.toggleAdd.bind(this);
+        this.submitForm = this.submitForm.bind(this);
+
+        this.formRef = React.createRef();
+    }
+
+    handle_change = e => {
+      const name = e.target.name;
+      const value = e.target.value;
+      this.setState(prevState => {
+        const newState = { ...prevState };
+        newState[name] = value;
+        return newState;
+      });
+    };
+
+    onClick() {
+        console.log("click");
+    }
+
+    toggleAdd() {
+      this.setState(prevState => ({
+        modalAdd: !prevState.modalAdd,
+      }));
+    }
+
+    submitForm() {
+      ReactDOM.findDOMNode(this.formAddCity).dispatchEvent(new Event("submit"))
+      this.toggleAdd();
+    }
+
+    render() {
+      return (
+        <React.Fragment>
+        <svg
+          className="add-icon"
+          viewBox="0 0 1024 1024"
+          version="1.1"
+          xmlns="http://www.w3.org/2000/svg"
+          onClick={this.toggleAdd}
+        >
+          <path
+            d="M512 16C240 16 16 240 16 512s224 496 496 496 496-224 496-496S784 16 512 16z m0 960C256 976 48 768 48 512S256 48 512 48 976 256 976 512 768 976 512 976z"
+            fill="#737373"
+          />
+          <path
+            d="M736 480h-192V288c0-19.2-12.8-32-32-32s-32 12.8-32 32v192H288c-19.2 0-32 12.8-32 32s12.8 32 32 32h192v192c0 19.2 12.8 32 32 32s32-12.8 32-32v-192h192c19.2 0 32-12.8 32-32s-12.8-32-32-32z"
+            fill="#737373"
+          />
+        </svg>
+
+        <Modal isOpen={this.state.modalAdd} toggle={this.toggleAdd}>
+          <ModalHeader toggle={this.toggleAdd}>Add</ModalHeader>
+            <ModalBody>
+              <Form id="addCityForm" ref={ref => this.formAddCity = ref} onSubmit={e => this.props.handleAddCity(e, this.state)}>
+                <Input
+                  type="text"
+                  name="city"
+                  placeholder="City"
+                  value={this.state.city}
+                  onChange={this.handle_change}
+                />
+                <br />
+                <Input
+                  type="text"
+                  name="country"
+                  placeholder="Country"
+                  value={this.state.country}
+                  onChange={this.handle_change}
+                />
+                <br />
+                <Input 
+                  type="text"
+                  name="latitude"
+                  placeholder="Latitude"
+                  value={this.state.latitude}
+                  onChange={this.handle_change}
+                />
+                <br />
+                <Input
+                  type="text"
+                  name="longitude"
+                  placeholder="Longitude"
+                  value={this.state.longitude}
+                  onChange={this.handle_change}
+                />
+                <br />
+              </Form>
+            </ModalBody>
+          <ModalFooter>
+            <Button onClick={this.submitForm}>Submit</Button>
+          </ModalFooter>
+        </Modal>
+        </React.Fragment>
+      )
+    }
+}
+
+export default AddCity;
