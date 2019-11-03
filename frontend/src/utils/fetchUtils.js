@@ -50,10 +50,10 @@ export function putEditCity(token, data) {
   form.append('country', data.country);
   form.append('latitude', data.latitude);
   form.append('longitude', data.longitude);
-  // for (var i=0; i<data.files.length; i++) {
-  //   form.append('images', data.files[i]);
-  // }
-  form.append('images', data.files);
+  for (var i=0; i<data.files.length; i++) {
+    form.append('images', data.files[i]);
+  }
+  // form.append('images', data.files);
 
   return fetch(baseURL + "core/destinations/" + data.pk + "/", {
     method: "PUT",

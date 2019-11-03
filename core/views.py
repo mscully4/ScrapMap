@@ -12,6 +12,7 @@ from .serializers import UserSerializerLogin, UserSerializerSignUp, DestinationS
 from .models import Destination, DestinationImages
 from django.core import serializers
 import json
+import copy
 
 import logging
 logger = logging.getLogger('django')
@@ -95,14 +96,9 @@ class DestinationView(APIView):
         #the files will be handled by the serializer
         logger.info("There are files: {}".format(bool(request.FILES)))
         instance = Destination.objects.get(pk=pk)
-        logger.info(request.data);
-        #only allow the update to take place if the user owns the data
+        # only allow the update to take place if the user owns the data
         if request.user.id == instance.user_id:
-            #the request data is immutable, so make a copy
-            data = request.data.copy()
-            #add the user's id to the data, 
-            data['user'] = instance.user_id
-            serializer = DestinationSerializer(instance, data=data, context={'request': request})
+            serializer = DestinationSerializer(instance, data=request.data, context={'request': request})
             if serializer.is_valid():
                 serializer.save()
                 return Response(serializer.data)

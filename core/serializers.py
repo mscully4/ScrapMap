@@ -55,8 +55,8 @@ class DestinationListSerializer(serializers.ModelSerializer):
     urls = serializers.SerializerMethodField()
     def get_urls(self, obj):
         urls = [obj.image.url for obj in DestinationImages.objects.filter(destination=obj.pk)]
-        if len(urls) > 2: 
-            return random.sample(urls, 2)
+        # if len(urls) > 2: 
+        #     return random.sample(urls, 2)
         return urls
     
     class Meta:
@@ -73,8 +73,13 @@ class DestinationSerializer(serializers.ModelSerializer):
     #retrieve the image urls that correspond to the destination
     urls = serializers.SerializerMethodField()
     def get_urls(self, obj):
-        urls = [obj.image.url for obj in DestinationImages.objects.filter(destination=obj.pk)]
+        logger.info(obj.user_id)
+        urls = [el.image.url for el in DestinationImages.objects.filter(destination=obj.pk)]
         return urls
+
+    user = serializers.SerializerMethodField()
+    def get_user(self, obj):
+        return obj.user_id
 
     class Meta:
         model = Destination
@@ -88,7 +93,7 @@ class DestinationSerializer(serializers.ModelSerializer):
         instance.longitude = validated_data.get('longitude', instance.longitude)
         instance.save()
 
-        #if the request has files attached to it
+        # #if the request has files attached to it
         if self.context['request'].FILES:
             images = self.context['request'].FILES.getlist('images')
             #iterate over the list of images

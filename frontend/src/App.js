@@ -54,6 +54,7 @@ class App extends Component {
     if (this.state.loggedIn) {
       fetchCurrentUser(localStorage.getItem("token"))
       .then(data => {
+        console.log(data)
           this.setState({ 
             username: data.user.username, 
             cities: data.destinations
@@ -75,6 +76,7 @@ class App extends Component {
       e.preventDefault();
       fetchToken(data)
       .then(json => {
+        console.log(json)
         if (json) {
           localStorage.setItem('token', json.token);
           this.setState({
