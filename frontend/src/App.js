@@ -22,14 +22,15 @@ import LoginForm from "./components/LoginForm";
 import SignUpForm from "./components/SignUpForm";
 import AddCity from "./components/AddCity";
 
-import {fetchCurrentUser, fetchToken, putNewUser, postNewCity, putEditCity } from "./utils/fetchUtils" 
+import {fetchCurrentUser, fetchToken, putNewUser, postNewCity, putEditCity, deleteCity } from "./utils/fetchUtils" 
 
 import { library } from '@fortawesome/fontawesome-svg-core';
-import { faEdit } from '@fortawesome/free-solid-svg-icons';
+import { faEdit, faTrash } from '@fortawesome/free-solid-svg-icons';
 
 import "./App.css";
 
 library.add(faEdit);
+library.add(faTrash)
 
 
 class App extends Component {
@@ -112,7 +113,7 @@ class App extends Component {
           "latitude": data.latitude, 
           "longitude": data.longitude, 
         };
-        postNewCity(localStorage.getItem('token'), entry)
+        postNewCity(localStorage.getItem('token'), data)
         .then(res => {
           console.log(res)
         })
@@ -121,49 +122,23 @@ class App extends Component {
 
     handleEditCity = (e, data) => {
       e.preventDefault();
-      // const entry = {
-      //   "pk": data.pk,
-      //   "city": data.city,
-      //   "country": data.country,
-      //   "latitude": data.latitude,
-      //   "longitude": data.longitude,
-      //   "images": data.files,
-      // }
-     
-      console.log(data)
-      const form = new FormData();
-      form.append('pk', data.pk);
-      form.append('city', data.city);
-      form.append('country', data.country);
-      form.append("latitude", data.latitude)
-      form.append("longitude", data.longitude)
-
-      // for (var i=0; i<data.files.length; i++) {
-      //   form.append('images', data.files[i]);
-      // }
-       form.append('images', data.files);
-
       putEditCity(localStorage.getItem('token'), data)
       .then(json => {
-        console.log(json)
         this.setState({
           cities: this.state.cities.map(el => el.pk === json.pk ? json : el)
         })
       })
     }
-    
-    handleGetCity = (pk) => {
-        fetch("http://127.0.0.1:8000/core/destinations/" + pk + "/", {
-          method: "GET",
-          headers: {
-            Authorization: `JWT ${localStorage.getItem('token')}`,
-            "Content-Type": "application/json",
-          },
-        })
-        .then(function(res) {
-          console.log(res);
-        })
 
+    handleDeleteCity = (e, data) => {
+      e.preventDefault();
+      deleteCity(localStorage.getItem('token'), data)
+      .then(json => {
+        this.setState({
+          //why is this json.destinations?
+          cities: json.destinations
+        })
+      })
     }
 
     handleLogout = () => {
@@ -268,7 +243,7 @@ class App extends Component {
             cities={ this.state.cities }
             logged_in={ this.state.loggedIn }
             handleEditCity={this.handleEditCity}
-            handleGetCity={this.handelGetCity}
+            handleDeleteCity={this.handleDeleteCity}
           />
           <div className="space"></div>
         </React.Fragment>

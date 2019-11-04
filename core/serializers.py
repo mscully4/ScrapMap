@@ -67,13 +67,22 @@ class DestinationListSerializer(serializers.ModelSerializer):
         validated_data['user'] = self.context['request'].user
         #image_data = self.context.get('view').request.FILES
         #logger.info(image_data)
-        return Destination.objects.create(**validated_data)
+        instance = Destination.objects.create(**validated_data)
+
+        # #if the request has files attached to it
+        if self.context['request'].FILES:
+            images = self.context['request'].FILES.getlist('images')
+            #iterate over the list of images
+            for i in range(len(images)):
+                #And create a new image object
+                DestinationImages.objects.create(destination=instance, image=images[i])
+        
+        return instance
 
 class DestinationSerializer(serializers.ModelSerializer):
     #retrieve the image urls that correspond to the destination
     urls = serializers.SerializerMethodField()
     def get_urls(self, obj):
-        logger.info(obj.user_id)
         urls = [el.image.url for el in DestinationImages.objects.filter(destination=obj.pk)]
         return urls
 

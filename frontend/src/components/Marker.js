@@ -12,11 +12,9 @@ import {
     ModalFooter,
 } from 'reactstrap';
 import { MarkerStyle, MarkerStyleHover, BoxStyle, BoxStyleHover } from './MarkerStyle.js';
-import { putEditCity } from "../utils/fetchUtils" 
+// import { putEditCity } from "../utils/fetchUtils" 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import ImageViewer from './ImageViewer.js';
-
-//import shouldPureComponentUpdate from 'react-pure-render/function';
 
 export default class Marker extends Component {
     static propTypes = {
@@ -86,20 +84,22 @@ export default class Marker extends Component {
     }
 
     //function for toggling whether the image viewer is open or not
-    toggleImageViewer = () => {
-      this.setState(prevState=> ({
-        imageViewerOpen: !prevState.imageViewerOpen,
-      }));
+    setImageViewerOpen = (boolean) => {
+      this.setState({
+        imageViewerOpen: boolean,
+      }, this.props.setImgViewerIsOpen(boolean));
     }
 
     //function for opening the Image Viewer when one of the thumbnails is clicked on 
     imgOnClick = (e) => {
+      console.log("OPEN")
       e.preventDefault();
-      this.toggleImageViewer();
+      //this.setImageViewerOpen(true);
       this.setState({
         currImg: parseInt(e.target.getAttribute('number')),
         imageViewerOpen: true,
       })
+      this.props.setImgViewerIsOpen(true);
     }
 
     //function for changing the current image in the Image Viewer
@@ -108,37 +108,6 @@ export default class Marker extends Component {
         currImg: i,
       })
     }
-
-    // handleEditCity = (e) => {
-    //   console.log(this.state)
-    //   e.preventDefault();
-    //   // const entry = {
-    //   //   "pk": data.pk,
-    //   //   "city": data.city,
-    //   //   "country": data.country,
-    //   //   "latitude": data.latitude,
-    //   //   "longitude": data.longitude,
-    //   //   "images": data.files,
-    //   // }
-     
-    //   // const form = new FormData();
-    //   // form.append('pk', this.state.pk);
-    //   // form.append('city', this.state.city);
-    //   // form.append('country', this.state.country);
-
-    //   // for (var i=0; i<data.files.length; i++) {
-    //   //   form.append('images', data.files[i]);
-    //   // }
-    //   // form.append('images', data.files);
-
-    //   putEditCity(localStorage.getItem('token'), this.state)
-    //   .then(json => {console.log(json); this.setState({
-    //     city: json.city,
-    //     country: json.country,
-    //     latitude: json.latitude,
-    //     longitude: json.longitude
-    //   })})
-    // }
 
     onMouseEnter = (e) => {
       this.setState({
@@ -153,7 +122,6 @@ export default class Marker extends Component {
     }
 
     render() {
-      // console.log("RENDER")
         const style = this.props.$hover ? MarkerStyleHover : MarkerStyle;
         
         //if there are images, iterate over the urls and return img tags with data
@@ -186,18 +154,21 @@ export default class Marker extends Component {
               <div className="tail1"></div>
               <div className="tail2"></div>
               
-              <FontAwesomeIcon icon={"edit"} onClick={this.toggleEditForm}/>
+              <FontAwesomeIcon icon={"edit"} style={{margin: 5}} onClick={this.toggleEditForm}/>
+              <FontAwesomeIcon icon={"trash"} style={{ margin: 5}} onClick={(e) => this.props.handleDeleteCity(e, this.state)}/>
               
               {images}            
               
-              {/* <ImageViewer 
+              <ImageViewer 
                 isOpen={this.state.imageViewerOpen} 
-                toggleImageViewer={this.toggleImageViewer}
+                setImageViewerOpen={this.setImageViewerOpen}
                 urls={ this.props.urls }
                 currImg={ this.state.currImg }
                 changeCurrImg={ this.changeCurrImg }
-                setCurrImg={ this.setCurrImg } 
-              /> */}
+                setCurrImg={ this.setCurrImg }
+                backdropClosable={true}
+                
+              />
               
               <Modal isOpen={this.state.editorIsOpen} toggle={this.toggleEditForm}>
                 <ModalHeader toggle={this.toggleEditForm}>Edit</ModalHeader>

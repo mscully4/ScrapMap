@@ -57,7 +57,7 @@ class CreateUser(APIView):
         logger.error("Cannot Create New User: %s" % serializer.errors)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-class DestinationList(APIView):
+class DestinationListView(APIView):
     '''
     Access destination data and create new destination entries
     '''
@@ -70,8 +70,9 @@ class DestinationList(APIView):
         return Response({"destinations" : data.data})
     
     def post(self, request, format=None):
-        logger.info(request)
+        logger.info("CHORK")
         serializer = DestinationListSerializer(data=request.data, context={'request': request})
+        logger.info("BOOF")
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
@@ -106,6 +107,11 @@ class DestinationView(APIView):
                 logger.info(serializer.errors)
                 return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         return Response({'error': 'You are not authorized to edit that information'}, status=status.HTTP_403_FORBIDDEN)
+
+    def delete(self, request, pk, format=None):
+        Destination.objects.get(pk=pk).delete()
+        data = DestinationListSerializer(Destination.objects.filter(user=request.user), many=True)
+        return Response({"destinations" : data.data})
         
 
 class DestinationImagesView(APIView):

@@ -31,13 +31,24 @@ export function putNewUser(data) {
 }
 
 export function postNewCity(token, data) {
+  const form = new FormData();
+  form.append("pk", data.pk);
+  form.append('city', data.city);
+  form.append('country', data.country);
+  form.append('latitude', data.latitude);
+  form.append('longitude', data.longitude);
+  for (var i=0; i<data.files.length; i++) {
+    form.append('images', data.files[i]);
+  }
+
+
   return fetch(baseURL + "core/destinations/", {
     method: "POST",
     headers: {
       Authorization: `JWT ${token}`,
-      "Content-Type": "application/json",
+      //"Content-Type": "application/json",
     },
-    body: JSON.stringify(data)
+    body: form,
   })
   .then(response => response.ok ? response.json() : null)
 }
@@ -53,7 +64,6 @@ export function putEditCity(token, data) {
   for (var i=0; i<data.files.length; i++) {
     form.append('images', data.files[i]);
   }
-  // form.append('images', data.files);
 
   return fetch(baseURL + "core/destinations/" + data.pk + "/", {
     method: "PUT",
@@ -62,6 +72,17 @@ export function putEditCity(token, data) {
       //"Content-Type": "application/json",
     },
     body: form,
+  })
+  .then(response => response.ok ? response.json() : null)
+}
+
+export function deleteCity(token, data) {
+  return fetch(baseURL + "core/destinations/" + data.pk + "/", {
+    method: "DELETE",
+    headers: {
+      Authorization: `JWT ${token}`,
+      //"Content-Type": "application/json",
+    }
   })
   .then(response => response.ok ? response.json() : null)
 }

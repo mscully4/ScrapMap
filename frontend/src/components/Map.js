@@ -6,22 +6,6 @@ import controllable from 'react-controllables';
 import Marker from './Marker.js';
 import {K_SIZE} from './MarkerStyle.js';
 
-function createMapOptions(maps) {
-    return {
-        //this controls where and how the zoom control is rendered
-        zoomControlOptions: {
-            position: maps.ControlPosition.RIGHT_CENTER,
-            style: maps.ZoomControlStyle.SMALL
-        },
-        //this allows the user to change the type of map that is shown
-        mapTypeControl: false,
-        //this controls where and how different map options are rendered
-        mapTypeControlOptions: {
-            position: maps.ControlPosition.TOP_RIGHT
-        },
-    };
-}
-
 const Map = controllable(['center', 'zoom', 'hoverKey', 'clickKey'])(
 class Map extends Component {
     static propTypes = {
@@ -47,6 +31,7 @@ class Map extends Component {
 
         this.state = {
             api_key: "AIzaSyBpXqyXMWAbXFs6XCxkMUFX09ZuHzjpKHU",
+            imgViewerIsOpen: false,
         }
     }
 
@@ -71,23 +56,47 @@ class Map extends Component {
         //console.log(map, maps);
     }
 
+    setImgViewerIsOpen = (boolean) => {
+      this.setState({
+        imgViewerIsOpen: boolean,
+      })
+    }
+
+    createMapOptions = (maps) => {
+        return {
+            //this controls where and how the zoom control is rendered
+            zoomControlOptions: {
+                position: maps.ControlPosition.RIGHT_CENTER,
+                style: maps.ZoomControlStyle.SMALL
+            },
+            //this allows the user to change the type of map that is shown
+            mapTypeControl: false,
+            //this controls where and how different map options are rendered
+            mapTypeControlOptions: {
+                position: maps.ControlPosition.TOP_RIGHT
+            },
+            gestureHandling: "cooperative",
+            keyboardShortcuts: false,
+        };
+    }
+
     render() {
-        console.log("RENDER")
-        let places = this.props.cities ? this.props.cities.map(place => {
-          return (<Marker
-            key={place.pk}
-            lat={place.latitude}
-            lng={place.longitude}
-            city={place.city}
-            country={place.country}
-            urls={place.urls}
-            pk={place.pk}
-            //data={place.fields}
-            hover={this.props.hoverKey === place.pk} 
-            handleEditCity={this.props.handleEditCity}
-            handleGetCity={this.props.handleGetCity}
-          />)
-        }) : null;
+      let places = this.props.cities ? this.props.cities.map(place => {
+        return (<Marker
+          key={place.pk}
+          lat={place.latitude}
+          lng={place.longitude}
+          city={place.city}
+          country={place.country}
+          urls={place.urls}
+          pk={place.pk}
+          //data={place.fields}
+          hover={this.props.hoverKey === place.pk} 
+          handleEditCity={this.props.handleEditCity}
+          handleDeleteCity={this.props.handleDeleteCity}
+          setImgViewerIsOpen={this.setImgViewerIsOpen}
+        />)
+      }) : null;
         
         return (
           <div style={{ height: '100vh', width: '100%' }}>
@@ -100,7 +109,8 @@ class Map extends Component {
               onChildClick={this._onChildClick}
               onChildMouseEnter={this._onChildMouseEnter}
               onChildMouseLeave={this._onChildMouseLeave}
-              //options={createMapOptions}
+              keyboardShortcuts={false}
+              options={this.createMapOptions}
               //yesIWantToUseGoogleMapApiInternals
               //onGoogleApiLoaded={({ map, maps }) => this.handleApiLoaded(map, maps)}
             >

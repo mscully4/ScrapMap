@@ -22,6 +22,7 @@ class AddCity extends React.Component {
           latitude: "",
           longitude: "",
           username: "",
+          files: [],
         };
 
         this.toggleAdd = this.toggleAdd.bind(this);
@@ -30,7 +31,7 @@ class AddCity extends React.Component {
         this.formRef = React.createRef();
     }
 
-    handle_change = e => {
+    handleChange = e => {
       const name = e.target.name;
       const value = e.target.value;
       this.setState(prevState => {
@@ -39,6 +40,15 @@ class AddCity extends React.Component {
         return newState;
       });
     };
+
+    handleImageChange = e => {
+      const name = e.target.name;
+      const value = e.target.value;
+        console.log(name, value);
+        this.setState({
+            files: e.target.files,
+        })
+    }
 
     onClick() {
         console.log("click");
@@ -84,7 +94,7 @@ class AddCity extends React.Component {
                   name="city"
                   placeholder="City"
                   value={this.state.city}
-                  onChange={this.handle_change}
+                  onChange={this.handleChange}
                 />
                 <br />
                 <Input
@@ -92,7 +102,7 @@ class AddCity extends React.Component {
                   name="country"
                   placeholder="Country"
                   value={this.state.country}
-                  onChange={this.handle_change}
+                  onChange={this.handleChange}
                 />
                 <br />
                 <Input 
@@ -100,7 +110,7 @@ class AddCity extends React.Component {
                   name="latitude"
                   placeholder="Latitude"
                   value={this.state.latitude}
-                  onChange={this.handle_change}
+                  onChange={this.handleChange}
                 />
                 <br />
                 <Input
@@ -108,9 +118,15 @@ class AddCity extends React.Component {
                   name="longitude"
                   placeholder="Longitude"
                   value={this.state.longitude}
-                  onChange={this.handle_change}
+                  onChange={this.handleChange}
                 />
                 <br />
+                <Input
+                  multiple
+                  type="file"
+                  name="file"
+                  onChange={this.handleImageChange}
+                  />
               </Form>
             </ModalBody>
           <ModalFooter>
