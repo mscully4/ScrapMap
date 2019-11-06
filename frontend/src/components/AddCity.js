@@ -12,6 +12,14 @@ import {
     ModalFooter,
 } from 'reactstrap';
 
+const styles = {
+  addIcon: {
+    height: 40,
+    width: 40,
+    cursor: 'pointer',
+  }
+}
+
 class AddCity extends React.Component {
     constructor(props) {
         super(props);
@@ -69,7 +77,7 @@ class AddCity extends React.Component {
       return (
         <React.Fragment>
         <svg
-          className="add-icon"
+          style={styles.addIcon}
           viewBox="0 0 1024 1024"
           version="1.1"
           xmlns="http://www.w3.org/2000/svg"

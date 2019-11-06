@@ -13,7 +13,7 @@ class SignUpForm extends React.Component {
       password: "",
     };
 
-    handle_change = e => {
+    handleChange = e => {
       const name = e.target.name;
       const value = e.target.value;
       this.setState(prevState => {
@@ -25,13 +25,13 @@ class SignUpForm extends React.Component {
 
     render() {
       return (
-        <Form onSubmit={e => this.props.handle_signup(e, this.state)}>
+        <Form onSubmit={e => this.props.handleSignup(e, this.state)}>
           <Input
             type="text"
             name="username"
             placeholder="username"
             value={this.state.username}
-            onChange={this.handle_change}
+            onChange={this.handleChange}
           />
           <br />
           <Input
@@ -39,7 +39,7 @@ class SignUpForm extends React.Component {
             name="password"
             placeholder="password"
             value={this.state.password}
-            onChange={this.handle_change}
+            onChange={this.handleChange}
           />
           <br />
           <Button type="submit">Submit</Button>
@@ -51,5 +51,5 @@ class SignUpForm extends React.Component {
 export default SignUpForm;
 
 SignUpForm.propTypes = {
-    handle_signup: PropTypes.func.isRequired
+    handleSignup: PropTypes.func.isRequired
 }

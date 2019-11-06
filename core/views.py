@@ -70,9 +70,7 @@ class DestinationListView(APIView):
         return Response({"destinations" : data.data})
     
     def post(self, request, format=None):
-        logger.info("CHORK")
         serializer = DestinationListSerializer(data=request.data, context={'request': request})
-        logger.info("BOOF")
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)

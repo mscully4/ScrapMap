@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
-import ImgsViewer from 'react-images-viewer';
-import { Modal } from 'reactstrap'
+// import ImgsViewer from 'react-images-viewer';
+import Viewer from 'react-viewer';
+import { Modal } from 'reactstrap';
 
 export default class ImageViewer extends Component {
     constructor(props) {
@@ -47,21 +48,31 @@ export default class ImageViewer extends Component {
     
     render() {
       return (
-            <ImgsViewer 
-                imgs={this.state.imgs}
-                isOpen={ this.props.isOpen }
-                currImg={ this.props.currImg }
-                onClickPrev={this.gotoPrev}
-                onClickNext={this.gotoNext}
-                onClose={this.onClose}
-                closeBtnTitle={"Close"}
-                leftArrowTitle={"Previous"}
-                rightArrowTitle={"Next"}
-                onClickImg={this.gotoNext}
-                backdropCloseable={true}
-                showThumbnails={true}
-                onClickThumbnail={(i) => { this.props.setCurrImg(i) }}
-              />
+            // <ImgsViewer 
+            //     imgs={this.state.imgs}
+            //     isOpen={ this.props.isOpen }
+            //     currImg={ this.props.currImg }
+            //     onClickPrev={this.gotoPrev}
+            //     onClickNext={this.gotoNext}
+            //     onClose={this.onClose}
+            //     closeBtnTitle={"Close"}
+            //     leftArrowTitle={"Previous"}
+            //     rightArrowTitle={"Next"}
+            //     onClickImg={this.gotoNext}
+            //     backdropCloseable={true}
+            //     showThumbnails={true}
+            //     onClickThumbnail={(i) => { this.props.setCurrImg(i) }}
+            //   />
+
+            <Viewer
+              visible={this.props.isOpen}
+              onClose={this.onClose}
+              images={this.state.imgs}
+              disableMouseZoom={true}
+              loop={false}
+              onChange={() => console.log("BOOF")}
+              noImgDetails={true}
+            />
       )
     }
 }

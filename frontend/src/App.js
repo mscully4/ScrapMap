@@ -21,6 +21,7 @@ import SubmitForm from './components/SubmitForm';
 import LoginForm from "./components/LoginForm";
 import SignUpForm from "./components/SignUpForm";
 import AddCity from "./components/AddCity";
+import Navigation from "./components/NavBar";
 
 import {fetchCurrentUser, fetchToken, putNewUser, postNewCity, putEditCity, deleteCity } from "./utils/fetchUtils" 
 
@@ -32,6 +33,20 @@ import "./App.css";
 library.add(faEdit);
 library.add(faTrash)
 
+const styles = {
+  space: {
+    height: 200,
+    width: '100%',
+  },
+  quote: {
+    fontFamily: "Parisienne",
+    fontSize: 32,
+    color: '#000',  
+   /* color: #429bf5 !important,*/
+    textAlign: 'center',
+    margin: '20px 0',
+  }
+}
 
 class App extends Component {
   constructor(props) {
@@ -42,7 +57,7 @@ class App extends Component {
     this.state = {
         loggedIn: token && (jwt_decode(token).exp > (Date.now()/1000)) ? true : false,
         username: null,
-        modalLogin: false,
+        showLoginModal: false,
         modalSignUp: false,
 
         width: window.innerWidth * .8,
@@ -146,97 +161,31 @@ class App extends Component {
         this.setState({
             loggedIn: false,
             username: '',
-            modalLogin: false,
+            showModalLogin: false,
             modalSignUp: false,
             cities: null,
         })
     };
 
-    toggleLogin = () => {
-        this.setState(prevState => ({
-            modalLogin: !prevState.modalLogin,
-        }));
-    }
-
-    toggleSignUp = () => {
-        this.setState(prevState => ({
-            modalSignUp: !prevState.modalSignUp,
-        }));
-    }
-
     render = () => {
       //this.updateWindowDimensions();
-      let form, username, submitForm, addCity;
-      
-      if (this.state.loggedIn) {
-        form = 
-        <Nav className="ml-auto" navbar>
-          <NavItem>
-            <h3 className="nav-user"> Hello, {this.state.username} </h3>
-          </NavItem>
-          <NavItem>
-            <h3 className="nav-divider"> | </h3>
-          </NavItem>
-          <NavItem>
-            <Button className="nav-button" onClick={this.handleLogout}>Logout</Button>
-          </NavItem>
-          <NavItem>
-            <AddCity handleAddCity={ this.handleAddCity }/>
-          </NavItem>
-        </Nav>
-        
-      
-      } else { 
-      
-      form = 
-        <Nav className="ml-auto" navbar>
-          <NavItem>
-            <Button className="nav-button" onClick={this.toggleLogin}>Login</Button>
-            <Modal isOpen={this.state.modalLogin} toggle={this.toggleLogin}>
-              <ModalHeader toggle={this.toggleLogin}>Login</ModalHeader>
-                <ModalBody>
-                  <LoginForm handle_login={ this.handleLogin }/>
-                </ModalBody>
-              <ModalFooter>
-              </ModalFooter>
-            </Modal>
-          </NavItem>
-          <br />
-          <NavItem>
-            <Button className="nav-button" onClick={this.toggleSignUp}>Sign Up</Button>
-            <Modal isOpen={this.state.modalSignUp} toggle={this.toggleSignUp}>
-              <ModalHeader toggle={this.toggleSignUp}>Sign Up</ModalHeader>
-                <ModalBody>
-                  <SignUpForm handle_signup={ this.handleSignup }/>
-                </ModalBody>
-              <ModalFooter>
-              </ModalFooter>
-            </Modal>
-          </NavItem>
-        </Nav>
-
-      addCity = null;
-      }
-
-      username = this.state.username;
-      if (username) {
-        submitForm = <SubmitForm endpoint="http://localhost:8000/core/destinations/" username={ username }/>;
-      } else {
-        submitForm = null;
-      }
 
           //console.log(this.state.cities);
           //this.state.logged_in ? `Hello, ${this.state.username}` : 'Please Log In'
       return (
         <React.Fragment>
-          <Navbar color="light" light expand="md">
-            <NavbarBrand className="title" href="/">ScrapMap</NavbarBrand>
-            <NavbarToggler />
-            {form}
-          </Navbar>
-          <h1 className="quote">
-          "To Travel is to Live"
-          </h1>
+            <Navigation 
+              loggedIn={this.state.loggedIn} 
+              username={this.state.username} 
+              handleLogout={this.handleLogout} 
+              handleAddCity={this.handleAddCity} 
+              toggleLoggedIn={this.toggleLogIn}
+              toggleSignUp={this.toggleSignUp}
+              handleLogin={this.handleLogin}
+              handleSignup={this.handleSignup}
+              username={this.state.username}
+            />
+          <h1 style={styles.quote}>"To Travel is to Live"</h1>
           <Map 
             width={ this.state.width } 
             height={ this.state.height } 
@@ -245,7 +194,7 @@ class App extends Component {
             handleEditCity={this.handleEditCity}
             handleDeleteCity={this.handleDeleteCity}
           />
-          <div className="space"></div>
+          <div style={styles.space}></div>
         </React.Fragment>
       );
     }

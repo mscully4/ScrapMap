@@ -6,6 +6,14 @@ import controllable from 'react-controllables';
 import Marker from './Marker.js';
 import {K_SIZE} from './MarkerStyle.js';
 
+const styles = {
+  map: {
+    width: '80%',
+    height: '100vh',
+    margin: 'auto'
+  }
+}
+
 const Map = controllable(['center', 'zoom', 'hoverKey', 'clickKey'])(
 class Map extends Component {
     static propTypes = {
@@ -95,11 +103,12 @@ class Map extends Component {
           handleEditCity={this.props.handleEditCity}
           handleDeleteCity={this.props.handleDeleteCity}
           setImgViewerIsOpen={this.setImgViewerIsOpen}
+          
         />)
       }) : null;
         
         return (
-          <div style={{ height: '100vh', width: '100%' }}>
+          <div style={styles.map}>
             <GoogleMapReact
               bootstrapURLKeys={{ key: this.state.api_key }}
               center={this.props.center}
@@ -111,6 +120,7 @@ class Map extends Component {
               onChildMouseLeave={this._onChildMouseLeave}
               keyboardShortcuts={false}
               options={this.createMapOptions}
+              
               //yesIWantToUseGoogleMapApiInternals
               //onGoogleApiLoaded={({ map, maps }) => this.handleApiLoaded(map, maps)}
             >

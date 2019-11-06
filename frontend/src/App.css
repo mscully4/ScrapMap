@@ -23,61 +23,10 @@
   color: #61dafb;
 }
 
-/* Navigation Menu */
-.title {
-    font-family: "Kaushan Script";
-    font-size: 28px;
-    color: #429bf5 !important;
-}
-
-.nav-user {
-    font-family: "Kaushan Script";
-    font-size: 24px;
-    margin: 0 10px;
-}
-
-.nav-divider {
-    margin: 0 10px;
-}
-
-.nav-button {
-    margin: 0 10px;
-    background-color: #4E6196;  
-    width: 100px;
-    display: block;
-}
-
-.add-icon {
-    height: 40px;
-    width: 40px;
-    cursor: pointer;
-}
-
-.quote {
-    font-family: "Parisienne";
-    font-size: 32px;
-    color: #000;  
-   /* color: #429bf5 !important;*/
-    text-align: center;
-    margin: 20px 0;
-}
-
-
-.map {
-    display: block;
-    margin: auto;
-    border: solid 2px black;
-}
-
-.space {
-    height: 200px;
-    width: 100%;
-}
-
-rect {
+/* rect {
     fill: white;
     opacity: 1;
-}
+} */
 
 @keyframes App-logo-spin {
   from {
