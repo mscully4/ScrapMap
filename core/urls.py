@@ -6,5 +6,5 @@ urlpatterns = [
     path('users/', CreateUser.as_view()),
     path('destinations/', DestinationListView.as_view()),
     path('destinations/<int:pk>/', DestinationView.as_view()),
-    path('upload/', DestinationImagesView.as_view())
+    path('images/<int:pk>/<str:image>', DestinationImagesView.as_view())
 ]

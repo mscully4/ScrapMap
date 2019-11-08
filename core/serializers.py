@@ -124,7 +124,7 @@ class FileSerializer(serializers.ModelSerializer):
         return super(FileSerializer, self).create(validated_data)
 
 
-class DestinationImageSerializer(serializers.ModelSerializer):
+class DestinationImagesSerializer(serializers.ModelSerializer):
     class Meta:
         model = DestinationImages
-        fields=('images',)
+        fields=("__all__")

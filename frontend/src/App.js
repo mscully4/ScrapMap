@@ -26,12 +26,13 @@ import Navigation from "./components/NavBar";
 import {fetchCurrentUser, fetchToken, putNewUser, postNewCity, putEditCity, deleteCity } from "./utils/fetchUtils" 
 
 import { library } from '@fortawesome/fontawesome-svg-core';
-import { faEdit, faTrash } from '@fortawesome/free-solid-svg-icons';
+import { faEdit, faTrash, faSync  } from '@fortawesome/free-solid-svg-icons';
 
 import "./App.css";
 
 library.add(faEdit);
-library.add(faTrash)
+library.add(faTrash);
+library.add(faSync);
 
 const styles = {
   space: {
@@ -92,7 +93,7 @@ class App extends Component {
       e.preventDefault();
       fetchToken(data)
       .then(json => {
-        console.log(json)
+        console.log(json.token)
         if (json) {
           localStorage.setItem('token', json.token);
           this.setState({
