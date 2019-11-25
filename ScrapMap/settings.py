@@ -26,7 +26,7 @@ SECRET_KEY = 'sp#6fij*svc2g-e*tpo%p)$8g1gfpidfhah7hkn&^c(2l&1(2^'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ["*"]
 
 
 # Application definition
@@ -95,16 +95,46 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'ScrapMap.wsgi.application'
 
-
+print(os.getenv('DATABASE_USER'))
+print(os.getenv('DATABASE_PASSWORD'))
 # Database
 # https://docs.djangoproject.com/en/2.2/ref/settings/#databases
 
+
+# Database
+# https://docs.djangoproject.com/en/2.2/ref/settings/#databases
+# import pymysql
+# pymysql.install_as_MySQLdb()
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+        # If you are using Cloud SQL for MySQL rather than PostgreSQL, set
+        #'ENGINE': 'django.db.backends.mysql' instead of the following.
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'data', #database name
+        'USER': os.getenv('DATABASE_USER'),
+        'PASSWORD': os.getenv('DATABASE_PASSWORD'),
+        'HOST': '127.0.0.1',
+        'PORT': '5432',
     }
 }
+
+
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.sqlite3',
+#         'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+#     }
+# }
+
+# DATABASES = {
+#         'default': {
+#         'ENGINE': 'djongo',
+#         'NAME': 'ScrapMapDB',
+#         'HOST': 'mongodb+srv://michael:<password>@scrapmapdb-prtgd.gcp.mongodb.net/test?retryWrites=true&w=majority',
+#         'USER': 'michael',
+#         'PASSWORD': 'ditto4',
+#     }
+# }
 
 
 # Password validation
@@ -144,7 +174,7 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/2.2/howto/static-files/
 
 STATIC_URL = '/static/'
-STATIC_ROOT = 'C:/Users/Michael.Scully/CodingProjects/ScrapMap/ScrapMap/static'
+STATIC_ROOT = 'http://storage.googleapis.com/scrapmap-static/static/'
 
-MEDIA_URL = '/media/'
-MEDIA_ROOT = 'C:/Users/Michael.Scully/CodingProjects/ScrapMap/ScrapMap/media'
+# MEDIA_URL = '/media/'
+# MEDIA_ROOT = 'C:/Users/Michael.Scully/CodingProjects/ScrapMap/ScrapMap/media'
