@@ -11,7 +11,7 @@ import {
     ModalBody,
     ModalFooter,
 } from 'reactstrap';
-
+import PlacesAutocomplete from './PlacesAutocomplete';
 const styles = {
   addIcon: {
     height: 40,
@@ -25,12 +25,10 @@ class AddCity extends React.Component {
         super(props);
         this.state = {
           modalAdd: false,
-          city: "",
-          country: "",
-          latitude: "",
-          longitude: "",
+          data: {city: "", country: "", latitude: "", longitude: ""},
           username: "",
           files: [],
+          disabled: false,  //figure out a way to keep this true until a key is entered in city, maybe use an event listener
         };
 
         this.toggleAdd = this.toggleAdd.bind(this);
@@ -40,6 +38,7 @@ class AddCity extends React.Component {
     }
 
     handleChange = e => {
+      console.log(e.target.name)
       const name = e.target.name;
       const value = e.target.value;
       this.setState(prevState => {
@@ -73,7 +72,13 @@ class AddCity extends React.Component {
       this.toggleAdd();
     }
 
-    render() {
+    selectAutoSuggest = (obj) => {
+      this.setState({
+        data: obj
+      })
+    }
+
+    render() {      
       return (
         <React.Fragment>
         <svg
@@ -94,39 +99,48 @@ class AddCity extends React.Component {
         </svg>
 
         <Modal isOpen={this.state.modalAdd} toggle={this.toggleAdd}>
-          <ModalHeader toggle={this.toggleAdd}>Add</ModalHeader>
+          <ModalHeader toggle={this.toggleAdd}>Add City</ModalHeader>
             <ModalBody>
               <Form id="addCityForm" ref={ref => this.formAddCity = ref} onSubmit={e => this.props.handleAddCity(e, this.state)}>
-                <Input
+                <PlacesAutocomplete
+                  name="city"
+                  placeholder="city"
+                  value={this.state.data.city}
+                  selectAutoSuggest={this.selectAutoSuggest}
+                />
+                {/* <Input
                   type="text"
                   name="city"
                   placeholder="City"
                   value={this.state.city}
                   onChange={this.handleChange}
-                />
+                /> */}
                 <br />
                 <Input
                   type="text"
                   name="country"
                   placeholder="Country"
-                  value={this.state.country}
+                  value={this.state.data.country}
                   onChange={this.handleChange}
+                  disabled={this.state.disabled}
                 />
                 <br />
                 <Input 
                   type="text"
                   name="latitude"
                   placeholder="Latitude"
-                  value={this.state.latitude}
+                  value={this.state.data.latitude}
                   onChange={this.handleChange}
+                  disabled={this.state.disabled}
                 />
                 <br />
                 <Input
                   type="text"
                   name="longitude"
                   placeholder="Longitude"
-                  value={this.state.longitude}
+                  value={this.state.data.longitude}
                   onChange={this.handleChange}
+                  disabled={this.state.disabled}
                 />
                 <br />
                 <Input

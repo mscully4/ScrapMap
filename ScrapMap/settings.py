@@ -95,8 +95,8 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'ScrapMap.wsgi.application'
 
-print(os.getenv('DATABASE_USER'))
-print(os.getenv('DATABASE_PASSWORD'))
+# print(os.getenv('DATABASE_USER'))
+# print(os.getenv('DATABASE_PASSWORD'))
 # Database
 # https://docs.djangoproject.com/en/2.2/ref/settings/#databases
 
@@ -105,26 +105,26 @@ print(os.getenv('DATABASE_PASSWORD'))
 # https://docs.djangoproject.com/en/2.2/ref/settings/#databases
 # import pymysql
 # pymysql.install_as_MySQLdb()
-DATABASES = {
-    'default': {
-        # If you are using Cloud SQL for MySQL rather than PostgreSQL, set
-        #'ENGINE': 'django.db.backends.mysql' instead of the following.
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'data', #database name
-        'USER': os.getenv('DATABASE_USER'),
-        'PASSWORD': os.getenv('DATABASE_PASSWORD'),
-        'HOST': '127.0.0.1',
-        'PORT': '5432',
-    }
-}
-
-
 # DATABASES = {
 #     'default': {
-#         'ENGINE': 'django.db.backends.sqlite3',
-#         'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+#         # If you are using Cloud SQL for MySQL rather than PostgreSQL, set
+#         #'ENGINE': 'django.db.backends.mysql' instead of the following.
+#         'ENGINE': 'django.db.backends.postgresql',
+#         'NAME': 'data', #database name
+#         'USER': os.getenv('DATABASE_USER'),
+#         'PASSWORD': os.getenv('DATABASE_PASSWORD'),
+#         'HOST': '127.0.0.1',
+#         'PORT': '5432',
 #     }
 # }
+
+
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+    }
+}
 
 # DATABASES = {
 #         'default': {
@@ -176,5 +176,5 @@ USE_TZ = True
 STATIC_URL = '/static/'
 STATIC_ROOT = 'http://storage.googleapis.com/scrapmap-static/static/'
 
-# MEDIA_URL = '/media/'
-# MEDIA_ROOT = 'C:/Users/Michael.Scully/CodingProjects/ScrapMap/ScrapMap/media'
+MEDIA_URL = '/media/'
+MEDIA_ROOT = 'C:/Users/Michael.Scully/CodingProjects/ScrapMap/ScrapMap/media'

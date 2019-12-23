@@ -93,7 +93,7 @@ class App extends Component {
       e.preventDefault();
       fetchToken(data)
       .then(json => {
-        console.log(json.token)
+        // console.log(json.token)
         if (json) {
           localStorage.setItem('token', json.token);
           this.setState({
@@ -186,7 +186,7 @@ class App extends Component {
               handleSignup={this.handleSignup}
               username={this.state.username}
             />
-          <h1 style={styles.quote}>"To Travel is to Live"</h1>
+          <h1 style={styles.quote}>"To Travel is to BOOF"</h1>
           <Map 
             width={ this.state.width } 
             height={ this.state.height } 

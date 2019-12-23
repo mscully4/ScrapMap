@@ -1,4 +1,4 @@
-const baseURL = 'http://localhost:8000/'
+const baseURL = 'http://35.223.155.224/'
 
 export function fetchCurrentUser(token) {
   return fetch(baseURL + 'core/current_user/', {
@@ -86,3 +86,5 @@ export function deleteCity(token, data) {
   })
   .then(response => response.ok ? response.json() : null)
 }
+
+export function getCityData() {return ""}

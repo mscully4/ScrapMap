@@ -1,5 +1,6 @@
 from django.urls import path
 from .views import CurrentUser, CreateUser, DestinationListView, DestinationImagesView, DestinationView
+from django.conf.urls.static import static
 
 urlpatterns = [
     path('current_user/', CurrentUser.as_view()),
@@ -8,3 +9,6 @@ urlpatterns = [
     path('destinations/<int:pk>/', DestinationView.as_view()),
     path('images/<int:pk>/<str:image>', DestinationImagesView.as_view())
 ]
+
+# if settings.DEBUG:
+#     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

@@ -3,6 +3,8 @@ from rest_framework_jwt.settings import api_settings
 from django.contrib.auth.models import User
 from .models import Destination, DestinationImages
 import random
+# from PIL import image
+# from PIL.ExifTags import TAGS, GPSTAGS
 
 import logging
 
@@ -107,6 +109,7 @@ class DestinationSerializer(serializers.ModelSerializer):
             images = self.context['request'].FILES.getlist('images')
             #iterate over the list of images
             for i in range(len(images)):
+                # print(gpsphoto.getGPSData(image[i]))
                 #And create a new image object
                 DestinationImages.objects.create(destination=instance, image=images[i])
         return instance
