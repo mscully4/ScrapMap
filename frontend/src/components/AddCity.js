@@ -12,6 +12,8 @@ import {
     ModalFooter,
 } from 'reactstrap';
 import PlacesAutocomplete from './PlacesAutocomplete';
+import ImageUploader from './ImageUploader';
+
 const styles = {
   addIcon: {
     height: 40,
@@ -25,9 +27,10 @@ class AddCity extends React.Component {
         super(props);
         this.state = {
           modalAdd: false,
-          data: {city: "", country: "", latitude: "", longitude: ""},
+          data: {city: "", country: "", latitude: null, longitude: null},
           username: "",
-          files: [],
+          pictures: [],
+          pictureNames: [],
           disabled: false,  //figure out a way to keep this true until a key is entered in city, maybe use an event listener
         };
 
@@ -48,13 +51,33 @@ class AddCity extends React.Component {
       });
     };
 
-    handleImageChange = e => {
-      const name = e.target.name;
-      const value = e.target.value;
-        console.log(name, value);
-        this.setState({
-            files: e.target.files,
-        })
+    // handleImageChange = e => {
+    //   const name = e.target.name;
+    //   const value = e.target.value;
+    //     console.log(name, value);
+    //     this.setState({
+    //         files: e.target.files,
+    //     })
+    // }
+
+    handleImageChange = (files, URLs) => {
+      let pictures = this.state.pictures;
+      let pictureNames = this.state.pictureNames
+      for (let i=0; i<files.length; ++i) {
+        console.log(files[i])
+        if (!pictureNames.includes(files[i].name)) {
+          pictures.push(files[i])
+          pictureNames.push(files[i].name)
+        }
+      }
+
+      this.setState({
+        data: {
+          ...this.state.data,
+          pictures: pictures
+        },
+        pictureNames: pictureNames,
+      }, () => console.log(this.state))
     }
 
     onClick() {
@@ -73,6 +96,7 @@ class AddCity extends React.Component {
     }
 
     selectAutoSuggest = (obj) => {
+      console.log(obj)
       this.setState({
         data: obj
       })
@@ -143,12 +167,15 @@ class AddCity extends React.Component {
                   disabled={this.state.disabled}
                 />
                 <br />
-                <Input
+                {/* <Input
                   multiple
                   type="file"
                   name="file"
                   onChange={this.handleImageChange}
-                  />
+                /> */}
+                <ImageUploader
+                  onChange={this.handleImageChange}
+                />
               </Form>
             </ModalBody>
           <ModalFooter>

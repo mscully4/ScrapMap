@@ -1,4 +1,5 @@
-const baseURL = 'http://35.223.155.224/'
+//const baseURL = 'http://35.223.155.224/'
+const baseURL = 'http://127.0.0.1:8000/'
 
 export function fetchCurrentUser(token) {
   return fetch(baseURL + 'core/current_user/', {
@@ -31,14 +32,15 @@ export function putNewUser(data) {
 }
 
 export function postNewCity(token, data) {
+  console.log(data)
   const form = new FormData();
-  form.append("pk", data.pk);
-  form.append('city', data.city);
-  form.append('country', data.country);
-  form.append('latitude', data.latitude);
-  form.append('longitude', data.longitude);
-  for (var i=0; i<data.files.length; i++) {
-    form.append('images', data.files[i]);
+  //form.append("pk", data.pk);
+  form.append('city', data.data.city);
+  form.append('country', data.data.country);
+  form.append('latitude', data.data.latitude);
+  form.append('longitude', data.data.longitude);
+   for (var i=0; i<data.pictures.length; i++) {
+     form.append('images', data.pictures[i]);
   }
 
 
