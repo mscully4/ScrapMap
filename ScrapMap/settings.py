@@ -12,6 +12,10 @@ https://docs.djangoproject.com/en/2.2/ref/settings/
 
 import os
 import datetime
+import configparser
+
+config = configparser.ConfigParser()
+config.read('./ScrapMap/config.ini')
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -21,7 +25,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # See https://docs.djangoproject.com/en/2.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'sp#6fij*svc2g-e*tpo%p)$8g1gfpidfhah7hkn&^c(2l&1(2^'
+SECRET_KEY = config['DJANGO'].get('SECRET_KEY', "", raw=True)
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -125,17 +129,6 @@ DATABASES = {
         'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
     }
 }
-
-# DATABASES = {
-#         'default': {
-#         'ENGINE': 'djongo',
-#         'NAME': 'ScrapMapDB',
-#         'HOST': 'mongodb+srv://michael:<password>@scrapmapdb-prtgd.gcp.mongodb.net/test?retryWrites=true&w=majority',
-#         'USER': 'michael',
-#         'PASSWORD': 'ditto4',
-#     }
-# }
-
 
 # Password validation
 # https://docs.djangoproject.com/en/2.2/ref/settings/#auth-password-validators

@@ -27,21 +27,19 @@ class AddCity extends React.Component {
         super(props);
         this.state = {
           modalAdd: false,
-          data: {city: "", country: "", latitude: null, longitude: null},
-          username: "",
+          city: "", 
+          country: "", 
+          latitude: null, 
+          longitude: null,
           pictures: [],
           pictureNames: [],
           disabled: false,  //figure out a way to keep this true until a key is entered in city, maybe use an event listener
         };
 
-        this.toggleAdd = this.toggleAdd.bind(this);
-        this.submitForm = this.submitForm.bind(this);
-
         this.formRef = React.createRef();
     }
 
     handleChange = e => {
-      console.log(e.target.name)
       const name = e.target.name;
       const value = e.target.value;
       this.setState(prevState => {
@@ -50,15 +48,6 @@ class AddCity extends React.Component {
         return newState;
       });
     };
-
-    // handleImageChange = e => {
-    //   const name = e.target.name;
-    //   const value = e.target.value;
-    //     console.log(name, value);
-    //     this.setState({
-    //         files: e.target.files,
-    //     })
-    // }
 
     handleImageChange = (files, URLs) => {
       let pictures = this.state.pictures;
@@ -77,32 +66,40 @@ class AddCity extends React.Component {
           pictures: pictures
         },
         pictureNames: pictureNames,
-      }, () => console.log(this.state))
+      })
     }
 
-    onClick() {
-        console.log("click");
-    }
-
-    toggleAdd() {
+    toggleAdd = () => {
+      this.clear();
       this.setState(prevState => ({
         modalAdd: !prevState.modalAdd,
       }));
     }
 
-    submitForm() {
+    submitForm = () => {
       ReactDOM.findDOMNode(this.formAddCity).dispatchEvent(new Event("submit"))
       this.toggleAdd();
     }
 
     selectAutoSuggest = (obj) => {
-      console.log(obj)
       this.setState({
-        data: obj
+        ...obj
       })
     }
 
-    render() {      
+    clear = () => {
+      this.setState({
+        city: "",
+        country: "",
+        latitude: null,
+        longitude: null,
+        pictureNames: [],
+        pictures: [],
+      })
+    }
+
+    render() {     
+      console.log(this.state) 
       return (
         <React.Fragment>
         <svg
@@ -129,22 +126,15 @@ class AddCity extends React.Component {
                 <PlacesAutocomplete
                   name="city"
                   placeholder="city"
-                  value={this.state.data.city}
+                  value={this.state.city}
                   selectAutoSuggest={this.selectAutoSuggest}
                 />
-                {/* <Input
-                  type="text"
-                  name="city"
-                  placeholder="City"
-                  value={this.state.city}
-                  onChange={this.handleChange}
-                /> */}
                 <br />
                 <Input
                   type="text"
                   name="country"
                   placeholder="Country"
-                  value={this.state.data.country}
+                  value={this.state.country}
                   onChange={this.handleChange}
                   disabled={this.state.disabled}
                 />
@@ -153,7 +143,7 @@ class AddCity extends React.Component {
                   type="text"
                   name="latitude"
                   placeholder="Latitude"
-                  value={this.state.data.latitude}
+                  value={this.state.latitude}
                   onChange={this.handleChange}
                   disabled={this.state.disabled}
                 />
@@ -162,17 +152,11 @@ class AddCity extends React.Component {
                   type="text"
                   name="longitude"
                   placeholder="Longitude"
-                  value={this.state.data.longitude}
+                  value={this.state.longitude}
                   onChange={this.handleChange}
                   disabled={this.state.disabled}
                 />
                 <br />
-                {/* <Input
-                  multiple
-                  type="file"
-                  name="file"
-                  onChange={this.handleImageChange}
-                /> */}
                 <ImageUploader
                   onChange={this.handleImageChange}
                 />

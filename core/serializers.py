@@ -70,7 +70,7 @@ class DestinationListSerializer(serializers.ModelSerializer):
         #image_data = self.context.get('view').request.FILES
         #logger.info(image_data)
         instance = Destination.objects.create(**validated_data)
-
+        print(validated_data)
         # #if the request has files attached to it
         if self.context['request'].FILES:
             images = self.context['request'].FILES.getlist('images')

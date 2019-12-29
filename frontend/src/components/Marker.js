@@ -121,33 +121,33 @@ export default class Marker extends Component {
       })
     }
 
-    render() {
-        const style = this.props.$hover ? MarkerStyleHover : MarkerStyle;
-        
-        //if there are images, iterate over the urls and return img tags with data
-        const images = this.props.urls ? this.props.urls.map((url, i) => {
-          return (<img 
-              key={i} 
-              number={i} 
-              src={"http://localhost:8000" + url} 
-              style={{"height": 40, "width": 40}} 
-              onClick={this.imgOnClick}
-              />)
-        }) : null;
+  render() {
+    const style = this.props.$hover ? MarkerStyleHover : MarkerStyle;
+    
+    //if there are images, iterate over the urls and return img tags with data
+    const images = this.props.urls ? this.props.urls.map((url, i) => {
+      return (<img 
+        key={i} 
+        number={i} 
+        src={"http://localhost:8000" + url} 
+        style={{"height": 40, "width": 40}} 
+        onClick={this.imgOnClick}
+        />)
+    }) : null;
 
         return (
           <div style={style} className="marker" onMouseEnter={this.onMouseEnter} onMouseLeave={this.onMouseLeave}>
             <div className="box" style={{
-               display: 'inline-block',
-               backgroundColor: "#ffffff",
-               minWidth: 150,
-               height: 150,
-               left: 19,
-               position: 'relative',
-               borderRadius: 4,
-               boxShadow: '0px 0px 8px -1px black',
-               top: -19,
-               visibility: this.state.hover ? "visible" : "hidden",
+              display: 'inline-block',
+              backgroundColor: "#ffffff",
+              minWidth: 150,
+              height: 150,
+              left: 19,
+              position: 'relative',
+              borderRadius: 4,
+              boxShadow: '0px 0px 8px -1px black',
+              top: -19,
+              visibility: this.state.hover ? "visible" : "hidden",
             }}>
               <p className="city-text">{this.props.city},<br />{this.props.country}</p>
               <div className="tailShadow"></div>

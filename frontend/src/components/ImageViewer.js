@@ -1,9 +1,9 @@
 import React, { Component } from 'react';
-//import ImgsViewer from 'react-images-viewer';
- import ImgsViewer from './react-images-viewer/ImgsViewer'
-//import Viewer from 'react-viewer';
+import ImgsViewer from 'react-images-viewer';
+//import ImgsViewer from './react-images-viewer/ImgsViewer'
 import { Modal } from 'reactstrap';
-import update from 'react-addons-update';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { ImgEditor} from './ImageEditor';
 
 export default class ImageViewer extends Component {
     constructor(props) {
@@ -19,6 +19,7 @@ export default class ImageViewer extends Component {
             modifications: {},
           }
         }),
+        editorIsOpen: false,
       } 
     }
 
@@ -49,52 +50,59 @@ export default class ImageViewer extends Component {
       }
     }
 
-    handleImageModification = (e, i, mods) => {
-      console.log(i)
-      let imgs = [...this.state.imgs];
-      imgs[i] = {
-        ...this.state.imgs[i],
-        modifications: {
-          ...this.state.imgs[i].modifications,
-          [mods.type]: (this.state.imgs[i].modifications[mods.type] ? this.state.imgs[i].modifications[mods.type] : 0) + mods.value
-        }
-      }
+    toggleEditor = () => {
+      const editorWillBeOpen = !this.state.editorIsOpen;
       this.setState({
-        imgs: imgs
-      }, () => console.log(this.state.imgs))
+        editorIsOpen: editorWillBeOpen,
+      })
+      this.props.setImageViewerOpen(!editorWillBeOpen)
     }
+
+    // handleImageModification = (e, i, mods) => {
+    //   console.log(i)
+    //   let imgs = [...this.state.imgs];
+    //   imgs[i] = {
+    //     ...this.state.imgs[i],
+    //     modifications: {
+    //       ...this.state.imgs[i].modifications,
+    //       [mods.type]: (this.state.imgs[i].modifications[mods.type] ? this.state.imgs[i].modifications[mods.type] : 0) + mods.value
+    //     }
+    //   }
+    //   this.setState({
+    //     imgs: imgs
+    //   }, () => console.log(this.state.imgs))
+    // }
     
     render() {
       //console.log(window.innerWidth)
+      console.log("EDITOR IS OPEN: ", this.state.editorIsOpen)
       return (
-            <ImgsViewer 
-                imgs={this.state.imgs}
-                isOpen={ this.props.isOpen }
-                currImg={ this.props.currImg }
-                onClickPrev={this.gotoPrev}
-                onClickNext={this.gotoNext}
-                onClose={this.onClose}
-                closeBtnTitle={"Close"}
-                leftArrowTitle={"Previous"}
-                rightArrowTitle={"Next"}
-                onClickImg={this.gotoNext}
-                backdropCloseable={true}
-                showThumbnails={true}
-                onClickThumbnail={(i) => { this.props.setCurrImg(i) }}
-                customControls={<div>Chork</div>}
-                handleImageModification={this.handleImageModification}
-              />
-
-            // <Viewer
-            //   visible={this.props.isOpen}
-            //   onClose={this.onClose}
-            //   images={this.state.imgs}
-            //   disableMouseZoom={true}
-            //   loop={false}
-            //   onChange={() => console.log("BOOF")}
-            //   noImgDetails={true}
-            //   drag={false}
-            // />
+        <React.Fragment>
+          <ImgsViewer 
+            imgs={this.state.imgs}
+            isOpen={ this.props.isOpen }
+            currImg={ this.props.currImg }
+            onClickPrev={this.gotoPrev}
+            onClickNext={this.gotoNext}
+            onClose={this.onClose}
+            closeBtnTitle={"Close"}
+            leftArrowTitle={"Previous"}
+            rightArrowTitle={"Next"}
+            onClickImg={this.gotoNext}
+            backdropCloseable={true}
+            showThumbnails={true}
+            onClickThumbnail={(i) => { this.props.setCurrImg(i) }}
+            customControls={[<FontAwesomeIcon icon={"edit"} style={{
+              color: 'white', 
+              width: '7.5%', 
+              height: '100%', 
+              left: 0}} 
+              value={"BOOF"} onClick={() => this.toggleEditor()}/>]}
+          />
+          <Modal isOpen={this.state.editorIsOpen} toggle={this.toggleEditor} size={"lg"}>
+            <ImgEditor/>
+          </Modal>
+        </React.Fragment>
       )
     }
 }

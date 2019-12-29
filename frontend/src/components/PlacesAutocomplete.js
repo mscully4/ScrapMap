@@ -24,7 +24,6 @@ class PlacesAutoComplete extends React.Component {
           placeholder={"City"}
           onSelect={(selection) => {
             const city = selection.terms[0].value
-            this.setState({city: city})
             const country = selection.terms[selection.terms.length - 1].value;
             geocodeByPlaceId(selection.place_id).then((data) => {
               const latitude = parseFloat(data[0].geometry.location.lat().toFixed(4));

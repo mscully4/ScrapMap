@@ -22,6 +22,7 @@ import LoginForm from "./components/LoginForm";
 import SignUpForm from "./components/SignUpForm";
 import AddCity from "./components/AddCity";
 import Navigation from "./components/NavBar";
+import {ImgEditor} from './components/ImageEditor';
 
 import {fetchCurrentUser, fetchToken, putNewUser, postNewCity, putEditCity, deleteCity } from "./utils/fetchUtils" 
 
@@ -71,7 +72,6 @@ class App extends Component {
     if (this.state.loggedIn) {
       fetchCurrentUser(localStorage.getItem("token"))
       .then(data => {
-        console.log(data)
           this.setState({ 
             username: data.user.username, 
             cities: data.destinations
@@ -123,15 +123,13 @@ class App extends Component {
     handleAddCity = (e, data) => {
       e.preventDefault();
       if (this.state.loggedIn) {
-        const entry = { 
-          "city": data.city, 
-          "country": data.country, 
-          "latitude": data.latitude, 
-          "longitude": data.longitude, 
-        };
         postNewCity(localStorage.getItem('token'), data)
         .then(res => {
-          console.log(res)
+          if (res) {
+            this.setState({
+              cities: this.state.cities.concat([res])
+            })
+          }
         })
       }
     }
@@ -196,6 +194,7 @@ class App extends Component {
             handleDeleteCity={this.handleDeleteCity}
           />
           <div style={styles.space}></div>
+          <ImgEditor/>
         </React.Fragment>
       );
     }

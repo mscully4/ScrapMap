@@ -35,10 +35,10 @@ export function postNewCity(token, data) {
   console.log(data)
   const form = new FormData();
   //form.append("pk", data.pk);
-  form.append('city', data.data.city);
-  form.append('country', data.data.country);
-  form.append('latitude', data.data.latitude);
-  form.append('longitude', data.data.longitude);
+  form.append('city', data.city);
+  form.append('country', data.country);
+  form.append('latitude', data.latitude);
+  form.append('longitude', data.longitude);
    for (var i=0; i<data.pictures.length; i++) {
      form.append('images', data.pictures[i]);
   }
