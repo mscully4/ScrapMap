@@ -10,13 +10,11 @@ export default class ImageViewer extends Component {
       super(props);
       this.state = {
         // isOpen: false,
-        currImg: 1,
         imgs: this.props.urls.map((e, i) => {
           return {
             src: "http://localhost:8000" + e, 
             num: i,
             caption: "Have you boofed yet?",
-            modifications: {},
           }
         }),
         editorIsOpen: false,
@@ -75,7 +73,6 @@ export default class ImageViewer extends Component {
     
     render() {
       //console.log(window.innerWidth)
-      console.log("EDITOR IS OPEN: ", this.state.editorIsOpen)
       return (
         <React.Fragment>
           <ImgsViewer 
@@ -99,8 +96,12 @@ export default class ImageViewer extends Component {
               left: 0}} 
               value={"BOOF"} onClick={() => this.toggleEditor()}/>]}
           />
-          <Modal isOpen={this.state.editorIsOpen} toggle={this.toggleEditor} size={"lg"}>
-            <ImgEditor/>
+          <Modal isOpen={this.state.editorIsOpen} toggle={this.toggleEditor} size={"xl"}>
+            <ImgEditor 
+            img={this.state.imgs[this.props.currImg]}
+            handleImageOverwrite={this.props.handleImageOverwrite}
+            
+            />
           </Modal>
         </React.Fragment>
       )

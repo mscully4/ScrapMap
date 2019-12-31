@@ -1,5 +1,4 @@
 import React, { Component } from 'react';
-import axios from 'axios';
 import Dimensions from 'react-dimensions';
 import jwt_decode from "jwt-decode";
 import {
@@ -57,13 +56,15 @@ class App extends Component {
     let token = localStorage.getItem("token");
 
     this.state = {
-        loggedIn: token && (jwt_decode(token).exp > (Date.now()/1000)) ? true : false,
-        username: null,
-        showLoginModal: false,
-        modalSignUp: false,
+      loggedIn: token && (jwt_decode(token).exp > (Date.now()/1000)) ? true : false,
+      username: null,
+      showLoginModal: false,
+      modalSignUp: false,
 
-        width: window.innerWidth * .8,
-        height: window.innerHeight * .8,
+      cities: [],
+
+      width: window.innerWidth * .8,
+      height: window.innerHeight * .8,
     }
   }
 
@@ -80,124 +81,125 @@ class App extends Component {
     }
   }
 
-    componentWillUnmount() {
-        window.removeEventListener('resize', this.updateWindowDimensions);
-    }
+  componentWillUnmount() {
+    window.removeEventListener('resize', this.updateWindowDimensions);
+  }
 
-    updateWindowDimensions = () => {
-        this.setState({ width: window.innerWidth * .8, height: window.innerHeight * .8 });
-    }
+  updateWindowDimensions = () => {
+      this.setState({ width: window.innerWidth * .8, height: window.innerHeight * .8 });
+  }
 
     // baseURL + token-auth/
-    handleLogin = (e, data) => {
-      e.preventDefault();
-      fetchToken(data)
-      .then(json => {
-        // console.log(json.token)
-        if (json) {
-          localStorage.setItem('token', json.token);
-          this.setState({
-            loggedIn: true,
-            username: json.user.username,
-            cities: json.destinations,
-          })
-        }
-      }) 
-    }
-
-    //baseURL + core/users/
-    handleSignup = (e, data) => {
-      e.preventDefault();
-      putNewUser(data)
-      .then(json => {
-        if (json) {
-          localStorage.setItem("token", json.token);
-          this.setState({
-            loggedIn: true,
-            username: json.username
-          })
-        }
-      })  
-    };
-
-    handleAddCity = (e, data) => {
-      e.preventDefault();
-      if (this.state.loggedIn) {
-        postNewCity(localStorage.getItem('token'), data)
-        .then(res => {
-          if (res) {
-            this.setState({
-              cities: this.state.cities.concat([res])
-            })
-          }
+  handleLogin = (e, data) => {
+    e.preventDefault();
+    fetchToken(data)
+    .then(json => {
+      // console.log(json.token)
+      if (json) {
+        localStorage.setItem('token', json.token);
+        this.setState({
+          loggedIn: true,
+          username: json.user.username,
+          cities: json.destinations,
         })
       }
-    }
+    }) 
+  }
 
-    handleEditCity = (e, data) => {
-      e.preventDefault();
-      putEditCity(localStorage.getItem('token'), data)
-      .then(json => {
+    //baseURL + core/users/
+  handleSignup = (e, data) => {
+    e.preventDefault();
+    putNewUser(data)
+    .then(json => {
+      if (json) {
+        localStorage.setItem("token", json.token);
         this.setState({
-          cities: this.state.cities.map(el => el.pk === json.pk ? json : el)
+          loggedIn: true,
+          username: json.username
         })
+      }
+    })  
+  };
+
+  handleAddCity = (e, data) => {
+    e.preventDefault();
+    if (this.state.loggedIn) {
+      postNewCity(localStorage.getItem('token'), data)
+      .then(res => {
+        if (res) {
+          this.setState({
+            cities: this.state.cities.concat([res])
+          })
+        }
       })
     }
+  }
 
-    handleDeleteCity = (e, data) => {
-      e.preventDefault();
-      deleteCity(localStorage.getItem('token'), data)
-      .then(json => {
-        this.setState({
-          //why is this json.destinations?
-          cities: json.destinations
-        })
+  handleEditCity = (e, data) => {
+    e.preventDefault();
+    putEditCity(localStorage.getItem('token'), data)
+    .then(json => {
+      this.setState({
+        cities: this.state.cities.map(el => el.pk === json.pk ? json : el)
       })
-    }
+    })
+  }
 
-    handleLogout = () => {
-        localStorage.removeItem("token");
-        this.setState({
-            loggedIn: false,
-            username: '',
-            showModalLogin: false,
-            modalSignUp: false,
-            cities: null,
-        })
-    };
+  handleDeleteCity = (e, data) => {
+    e.preventDefault();
+    deleteCity(localStorage.getItem('token'), data)
+    .then(json => {
+      this.setState({
+        //why is this json.destinations?
+        cities: json.destinations
+      })
+    })
+  }
 
-    render = () => {
-      //this.updateWindowDimensions();
+  handleLogout = () => {
+    localStorage.removeItem("token");
+    this.setState({
+      loggedIn: false,
+      username: '',
+      showModalLogin: false,
+      modalSignUp: false,
+      cities: null,
+    })
+  };
 
-          //console.log(this.state.cities);
-          //this.state.logged_in ? `Hello, ${this.state.username}` : 'Please Log In'
-      return (
-        <React.Fragment>
-            <Navigation 
-              loggedIn={this.state.loggedIn} 
-              username={this.state.username} 
-              handleLogout={this.handleLogout} 
-              handleAddCity={this.handleAddCity} 
-              toggleLoggedIn={this.toggleLogIn}
-              toggleSignUp={this.toggleSignUp}
-              handleLogin={this.handleLogin}
-              handleSignup={this.handleSignup}
-              username={this.state.username}
-            />
-          <h1 style={styles.quote}>"To Travel is to BOOF"</h1>
-          <Map 
-            width={ this.state.width } 
-            height={ this.state.height } 
-            cities={ this.state.cities }
-            logged_in={ this.state.loggedIn }
-            handleEditCity={this.handleEditCity}
-            handleDeleteCity={this.handleDeleteCity}
-          />
-          <div style={styles.space}></div>
-          <ImgEditor/>
-        </React.Fragment>
-      );
-    }
+  handleImageOverwrite = (img, dataURL) => {
+    //overwrite the image file in S3
+  }
+
+  render = () => {
+    //this.updateWindowDimensions();
+    return (
+      <React.Fragment>
+        <Navigation 
+          loggedIn={this.state.loggedIn} 
+          username={this.state.username} 
+          handleLogout={this.handleLogout} 
+          handleAddCity={this.handleAddCity} 
+          toggleLoggedIn={this.toggleLogIn}
+          toggleSignUp={this.toggleSignUp}
+          handleLogin={this.handleLogin}
+          handleSignup={this.handleSignup}
+          username={this.state.username}
+        />
+        <h1 style={styles.quote}>"To Travel is to BOOF"</h1>
+        <Map 
+          width={ this.state.width } 
+          height={ this.state.height } 
+          cities={ this.state.cities }
+          logged_in={ this.state.loggedIn }
+          handleEditCity={this.handleEditCity}
+          handleDeleteCity={this.handleDeleteCity}
+          handleImageOverwrite={this.handleImageOverwrite}
+        />
+        <div style={styles.space}></div>
+      </React.Fragment>
+    );
+  }
 }
 
 export default Dimensions()(App);

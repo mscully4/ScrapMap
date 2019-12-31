@@ -170,4 +170,5 @@ STATIC_URL = '/static/'
 STATIC_ROOT = 'http://storage.googleapis.com/scrapmap-static/static/'
 
 MEDIA_URL = '/media/'
-MEDIA_ROOT = 'C:/Users/Michael.Scully/CodingProjects/ScrapMap/ScrapMap/media'
+MEDIA_ROOT = os.getcwd() + "ScrapMap/media"
+print(os.getcwd() + "ScrapMap/media")

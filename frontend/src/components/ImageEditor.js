@@ -1,11 +1,13 @@
 import React from 'react';
 import 'tui-image-editor/dist/tui-image-editor.css'
 import ImageEditor from '@toast-ui/react-image-editor'
+import { Button } from 'reactstrap';
 
 const icona = require("tui-image-editor/dist/svg/icon-a.svg");
 const iconb = require("tui-image-editor/dist/svg/icon-b.svg");
 const iconc = require("tui-image-editor/dist/svg/icon-c.svg");
 const icond = require("tui-image-editor/dist/svg/icon-d.svg");
+
 
 const myTheme = {
   "menu.backgroundColor": "white",
@@ -25,21 +27,24 @@ export class ImgEditor extends React.Component {
     this.state = {
 
     }
-    const imageEditor = React.createRef();
+    this.imageEditor = React.createRef();
+  }
+
+  saveChanges = () => {
+    const editor = this.imageEditor.current.getInstance();
+    this.props.handleImageOverwrite(this.props.img, editor.toDataURL())
   }
 
   render = () => {
-    //should move this to constants at some point
-    const baseURL = 'http://localhost:8000'
-    const test = baseURL + this.props.urls;
-    const url='http://localhost:8000/media/IMG_2457.JPEG'
-    // if (test === url) {
-
+     if (this.props.img.src) {
       return (
-        <ImageEditor
+        <div>
+          <Button onClick={this.saveChanges}>Save</Button>
+          <ImageEditor
+          ref={this.imageEditor}
           includeUI={{
             loadImage: {
-              path: url,
+              path: this.props.img.src,
               name: 'SampleImage'
             },
             theme: myTheme,
@@ -52,14 +57,19 @@ export class ImgEditor extends React.Component {
             },
             menuBarPosition: 'bottom'
           }}
-          cssMaxHeight={500}
-          cssMaxWidth={700}
+          //cssMaxHeight={500}
+          //cssMaxWidth={"100%"}
           selectionStyle={{
             cornerSize: 20,
             rotatingPointOffset: 70
           }}
         usageStatistics={true}
-      />)
+      />
+        </div>
+        )
+    } else return <div></div>
+
+      
 
     // }
     // return null

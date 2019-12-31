@@ -167,6 +167,7 @@ export default class Marker extends Component {
                 changeCurrImg={ this.changeCurrImg }
                 setCurrImg={ this.setCurrImg }
                 backdropClosable={true}
+                handleImageOverwrite={this.props.handleImageOverwrite}
                 
               />
               

@@ -16,119 +16,120 @@ const styles = {
 
 const Map = controllable(['center', 'zoom', 'hoverKey', 'clickKey'])(
 class Map extends Component {
-    static propTypes = {
-        center: PropTypes.array,
-        zoom: PropTypes.number,
-        //hoverKey: PropTypes.string,
-        clickKey: PropTypes.string,
-        onCenterChange: PropTypes.func,
-        onZoomChange: PropTypes.func,
-        onHoverKeyChange: PropTypes.func,
+  static propTypes = {
+    center: PropTypes.array,
+    zoom: PropTypes.number,
+    //hoverKey: PropTypes.string,
+    clickKey: PropTypes.string,
+    onCenterChange: PropTypes.func,
+    onZoomChange: PropTypes.func,
+    onHoverKeyChange: PropTypes.func,
 
-        greatPlaces: PropTypes.any,
-        cities: PropTypes.any,
+    greatPlaces: PropTypes.any,
+    cities: PropTypes.any,
+  }
+
+  static defaultProps = {
+    center: [40.7, -74],
+    zoom: 4,
+  }
+
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      api_key: "AIzaSyBpXqyXMWAbXFs6XCxkMUFX09ZuHzjpKHU",
+      imgViewerIsOpen: false,
     }
+  }
 
-    static defaultProps = {
-        center: [40.7, -74],
-        zoom: 4,
-    }
+  _onBoundsChange = (center, zoom) => {
+    this.props.onCenterChange(center);
+    this.props.onZoomChange(zoom);
+  }
 
-    constructor(props) {
-        super(props);
+  _onChildClick = (key, childProps) => {
+    this.props.onCenterChange([childProps.lat, childProps.lng]);
+  }
 
-        this.state = {
-            api_key: "AIzaSyBpXqyXMWAbXFs6XCxkMUFX09ZuHzjpKHU",
-            imgViewerIsOpen: false,
-        }
-    }
+  _onChildMouseEnter = (key) => {
+    this.props.onHoverKeyChange(key);
+  }
 
-    _onBoundsChange = (center, zoom) => {
-        this.props.onCenterChange(center);
-        this.props.onZoomChange(zoom);
-    }
+  _onChildMouseLeave = () => {
+    this.props.onHoverKeyChange(null);
+  }
 
-    _onChildClick = (key, childProps) => {
-        this.props.onCenterChange([childProps.lat, childProps.lng]);
-    }
+  handleApiLoaded(map, maps) {
+    //console.log(map, maps);
+  }
 
-    _onChildMouseEnter = (key) => {
-        this.props.onHoverKeyChange(key);
-    }
+  setImgViewerIsOpen = (boolean) => {
+    this.setState({
+      imgViewerIsOpen: boolean,
+    })
+  }
 
-    _onChildMouseLeave = () => {
-        this.props.onHoverKeyChange(null);
-    }
+  createMapOptions = (maps) => {
+    return {
+      //this controls where and how the zoom control is rendered
+      zoomControlOptions: {
+        position: maps.ControlPosition.RIGHT_CENTER,
+        style: maps.ZoomControlStyle.SMALL
+      },
+      //this allows the user to change the type of map that is shown
+      mapTypeControl: false,
+      //this controls where and how different map options are rendered
+      mapTypeControlOptions: {
+        position: maps.ControlPosition.TOP_RIGHT
+      },
+      gestureHandling: "cooperative",
+      keyboardShortcuts: false,
+    };
+  }
 
-    handleApiLoaded(map, maps) {
-        //console.log(map, maps);
-    }
-
-    setImgViewerIsOpen = (boolean) => {
-      this.setState({
-        imgViewerIsOpen: boolean,
-      })
-    }
-
-    createMapOptions = (maps) => {
-        return {
-            //this controls where and how the zoom control is rendered
-            zoomControlOptions: {
-                position: maps.ControlPosition.RIGHT_CENTER,
-                style: maps.ZoomControlStyle.SMALL
-            },
-            //this allows the user to change the type of map that is shown
-            mapTypeControl: false,
-            //this controls where and how different map options are rendered
-            mapTypeControlOptions: {
-                position: maps.ControlPosition.TOP_RIGHT
-            },
-            gestureHandling: "cooperative",
-            keyboardShortcuts: false,
-        };
-    }
-
-    render() {
-      let places = this.props.cities ? this.props.cities.map(place => {
-        return (<Marker
-          key={place.pk}
-          lat={place.latitude}
-          lng={place.longitude}
-          city={place.city}
-          country={place.country}
-          urls={place.urls}
-          pk={place.pk}
-          //data={place.fields}
-          hover={this.props.hoverKey === place.pk} 
-          handleEditCity={this.props.handleEditCity}
-          handleDeleteCity={this.props.handleDeleteCity}
-          setImgViewerIsOpen={this.setImgViewerIsOpen}
-          
-        />)
-      }) : null;
+  render() {
+    let places = this.props.cities ? this.props.cities.map(place => {
+      return (<Marker
+        key={place.pk}
+        lat={place.latitude}
+        lng={place.longitude}
+        city={place.city}
+        country={place.country}
+        urls={place.urls}
+        pk={place.pk}
+        //data={place.fields}
+        hover={this.props.hoverKey === place.pk} 
+        handleEditCity={this.props.handleEditCity}
+        handleDeleteCity={this.props.handleDeleteCity}
+        handleImageOverwrite={this.props.handleImageOverwrite}
+        setImgViewerIsOpen={this.setImgViewerIsOpen}
         
-        return (
-          <div style={styles.map}>
-            <GoogleMapReact
-              bootstrapURLKeys={{ key: this.state.api_key }}
-              center={this.props.center}
-              zoom={this.props.zoom}
-              hoverDistance={K_SIZE / 2}
-              onBoundsChange={this._onBoundsChange}
-              onChildClick={this._onChildClick}
-              onChildMouseEnter={this._onChildMouseEnter}
-              onChildMouseLeave={this._onChildMouseLeave}
-              keyboardShortcuts={false}
-              options={this.createMapOptions}
-              
-              //yesIWantToUseGoogleMapApiInternals
-              //onGoogleApiLoaded={({ map, maps }) => this.handleApiLoaded(map, maps)}
-            >
-             {places}
-            </GoogleMapReact>
-          </div>
-        )
-    }
+      />)
+    }) : null;
+      
+    return (
+      <div style={styles.map}>
+        <GoogleMapReact
+          bootstrapURLKeys={{ key: this.state.api_key }}
+          center={this.props.center}
+          zoom={this.props.zoom}
+          hoverDistance={K_SIZE / 2}
+          onBoundsChange={this._onBoundsChange}
+          onChildClick={this._onChildClick}
+          onChildMouseEnter={this._onChildMouseEnter}
+          onChildMouseLeave={this._onChildMouseLeave}
+          keyboardShortcuts={false}
+          options={this.createMapOptions}
+          
+          //yesIWantToUseGoogleMapApiInternals
+          //onGoogleApiLoaded={({ map, maps }) => this.handleApiLoaded(map, maps)}
+        >
+          {places}
+        </GoogleMapReact>
+      </div>
+    )
+  }
 }
 )
 
