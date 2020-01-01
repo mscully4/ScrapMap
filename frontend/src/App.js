@@ -1,27 +1,23 @@
 import React, { Component } from 'react';
 import Dimensions from 'react-dimensions';
 import jwt_decode from "jwt-decode";
-import {
-    Button,
-    Nav,
-    Navbar,
-    NavbarToggler,
-    NavbarBrand,
-    NavItem,
-    Modal,
-    ModalHeader,
-    ModalBody,
-    ModalFooter,
-    ModalItem
-} from 'reactstrap'
+// import {
+//     Button,
+//     Nav,
+//     Navbar,
+//     NavbarToggler,
+//     NavbarBrand,
+//     NavItem,
+//     Modal,
+//     ModalHeader,
+//     ModalBody,
+//     ModalFooter,
+//     ModalItem
+// } from 'reactstrap'
 
 import Map from './components/Map';
-import SubmitForm from './components/SubmitForm';
-import LoginForm from "./components/LoginForm";
-import SignUpForm from "./components/SignUpForm";
-import AddCity from "./components/AddCity";
 import Navigation from "./components/NavBar";
-import {ImgEditor} from './components/ImageEditor';
+import S3 from 'react-aws-s3';
 
 import {fetchCurrentUser, fetchToken, putNewUser, postNewCity, putEditCity, deleteCity } from "./utils/fetchUtils" 
 
@@ -48,6 +44,19 @@ const styles = {
     margin: '20px 0',
   }
 }
+
+const config = {
+  bucketName: 'scrapmap',
+  //dirName: 'media', /* optional */
+  region: 'us-east-1',
+  accessKeyId: 'AKIA2WIZHBHNCAZFMXVM',
+  secretKeyAccess: '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',
+  s3Url: 'http://scrapmap.s3.amazonaws.com/', /* optional */
+}
+
+//const S3Client = new S3(config)
+
+
 
 class App extends Component {
   constructor(props) {
@@ -168,8 +177,31 @@ class App extends Component {
   };
 
   handleImageOverwrite = (img, dataURL) => {
-    //overwrite the image file in S3
+    var AWS = require('aws-sdk/dist/aws-sdk-react-native');
+    const credentials = { accessKeyId: config.accessKeyId, secretAccessKey: config.secretKeyAccess, region: config.region }
+    AWS.config.update(credentials)
+    var s3Bucket = new AWS.S3( { params: {Bucket: 'scrapmap'} } );
+
+    const buf = new Buffer(dataURL.replace(/^data:image\/\w+;base64,/, ""),'base64')
+    const type = dataURL.split(';')[0].split('/')[1];
+    
+    var data = {
+      Key: `BOOF/NY1.${type}`, 
+      Body: buf,
+      ContentEncoding: 'base64',
+      ContentType: `image/${type}`
+    };
+    console.log(data)
+    s3Bucket.putObject(data, function(err, data){
+        if (err) { 
+          console.log(err);
+          console.log('Error uploading data: ', data); 
+        } else {
+          console.log('succesfully uploaded the image!');
+        }
+    });
   }
+
 
   render = () => {
     //this.updateWindowDimensions();
