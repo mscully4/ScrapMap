@@ -100,7 +100,8 @@ export default class ImageViewer extends Component {
             <ImgEditor 
             img={this.state.imgs[this.props.currImg]}
             handleImageOverwrite={this.props.handleImageOverwrite}
-            
+            setImageViewerOpen={this.props.setImageViewerOpen}
+            setImageEditorOpen={(isOpen) => {this.setState({editorIsOpen: isOpen})}}
             />
           </Modal>
         </React.Fragment>

@@ -47,12 +47,16 @@ const styles = {
 
 const config = {
   bucketName: 'scrapmap',
-  //dirName: 'media', /* optional */
+  dirName: 'media', /* optional */
   region: 'us-east-1',
   accessKeyId: 'AKIA2WIZHBHNCAZFMXVM',
   secretKeyAccess: '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',
   s3Url: 'http://scrapmap.s3.amazonaws.com/', /* optional */
 }
+
+var AWS = require('aws-sdk/dist/aws-sdk-react-native');
+AWS.config.update({ accessKeyId: config.accessKeyId, secretAccessKey: config.secretKeyAccess, region: config.region })
+var s3Bucket = new AWS.S3( { params: {Bucket: config.bucketName} } );
 
 //const S3Client = new S3(config)
 
@@ -177,29 +181,23 @@ class App extends Component {
   };
 
   handleImageOverwrite = (img, dataURL) => {
-    var AWS = require('aws-sdk/dist/aws-sdk-react-native');
-    const credentials = { accessKeyId: config.accessKeyId, secretAccessKey: config.secretKeyAccess, region: config.region }
-    AWS.config.update(credentials)
-    var s3Bucket = new AWS.S3( { params: {Bucket: 'scrapmap'} } );
+    var name = Math.random().toString(36).substr(2) + Math.random().toString(36).substr(2) + Math.random().toString(36).substr(2) + Math.random().toString(36).substr(2);
+    return new Promise(function(resolve, reject) {
+      const buf = new Buffer(dataURL.replace(/^data:image\/\w+;base64,/, ""),'base64')
+      const type = dataURL.split(';')[0].split('/')[1];
 
-    const buf = new Buffer(dataURL.replace(/^data:image\/\w+;base64,/, ""),'base64')
-    const type = dataURL.split(';')[0].split('/')[1];
-    
-    var data = {
-      Key: `BOOF/NY1.${type}`, 
-      Body: buf,
-      ContentEncoding: 'base64',
-      ContentType: `image/${type}`
-    };
-    console.log(data)
-    s3Bucket.putObject(data, function(err, data){
-        if (err) { 
-          console.log(err);
-          console.log('Error uploading data: ', data); 
-        } else {
-          console.log('succesfully uploaded the image!');
-        }
-    });
+      var params = {
+        Bucket: "scrapmap",
+        Key: `BOOF/NY2.${type}`, 
+        Body: buf,
+        ContentEncoding: 'base64',
+        ContentType: `image/${type}`
+      };
+      s3Bucket.putObject(params, function(err, data){
+        if (err) return reject(err)
+        else return resolve(params)
+      })
+    })
   }
 
 
