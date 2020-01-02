@@ -17,7 +17,7 @@ import jwt_decode from "jwt-decode";
 
 import Map from './components/Map';
 import Navigation from "./components/NavBar";
-import S3 from 'react-aws-s3';
+import Table from './components/Table'
 
 import {fetchCurrentUser, fetchToken, putNewUser, postNewCity, putEditCity, deleteCity } from "./utils/fetchUtils" 
 
@@ -203,6 +203,7 @@ class App extends Component {
 
   render = () => {
     //this.updateWindowDimensions();
+    
     return (
       <React.Fragment>
         <Navigation 
@@ -226,6 +227,7 @@ class App extends Component {
           handleDeleteCity={this.handleDeleteCity}
           handleImageOverwrite={this.handleImageOverwrite}
         />
+        <Table cities={this.state.cities}/>
         <div style={styles.space}></div>
       </React.Fragment>
     );
