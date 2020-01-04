@@ -38,23 +38,6 @@
 }
 
 /* Markers */
-.box {
-    /* display: inline-block;
-    background-color: #ffffff;
-    min-width: 150px;
-    height: 150px;
-    left: 19px;
-    position: relative;
-    border-radius: 4px;
-    box-shadow: 0px 0px 8px -1px black;
-    top: -19px;
-    visibility: hidden; */
-}
-
-.marker:hover .box {
-    /* visibility: visible; */
-}
-
 #tailShadow {
     background-color: transparent;
     width: 4px;
@@ -93,4 +76,16 @@
 
 .suggestion:hover {
   background-color: #f0f0f0
+}
+
+.tableRow-A {
+  background-color: #bbbbbb;
+}
+
+.tableRow-B {
+  background-color: #666666
+}
+
+.tableRow-A:hover, .tableRow-B:hover {
+  background-color: #121212;
 }

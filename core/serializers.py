@@ -52,7 +52,7 @@ class UserSerializerSignUp(serializers.ModelSerializer):
         #serialize these fields
         fields = ('token', 'username', 'password')
 
-#This is the serializer for new cities entered
+#This is the serializer for new cities entered or when the user has a token stored on the browser
 class DestinationListSerializer(serializers.ModelSerializer):
     urls = serializers.SerializerMethodField()
     def get_urls(self, obj):
@@ -63,7 +63,7 @@ class DestinationListSerializer(serializers.ModelSerializer):
     
     class Meta:
         model = Destination
-        fields = ('pk', "city", "country", "latitude", "longitude", "urls")
+        fields = ('pk', "city", "country", "countryCode", "latitude", "longitude", "urls")
 
     def create(self, validated_data):
         validated_data['user'] = self.context['request'].user

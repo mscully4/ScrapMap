@@ -95,11 +95,12 @@ class AddCity extends React.Component {
         longitude: null,
         pictureNames: [],
         pictures: [],
+        hover: false,
       })
     }
 
     render() {     
-      console.log(this.state) 
+      //console.log(this.state) 
       return (
         <React.Fragment>
         <svg

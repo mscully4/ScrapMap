@@ -90,21 +90,26 @@ class Map extends Component {
 
   render() {
     let places = this.props.cities ? this.props.cities.map(place => {
+      // console.log(place.hover)
       return (<Marker
         key={place.pk}
         lat={place.latitude}
         lng={place.longitude}
-        city={place.city}
-        country={place.country}
-        urls={place.urls}
-        pk={place.pk}
-        //data={place.fields}
-        hover={this.props.hoverKey === place.pk} 
+        place={place}
+        // city={place.city}
+        // country={place.country}
+        // urls={place.urls}
+        // pk={place.pk}
+        // data={place.fields}
+        // hover={place.hover } 
         handleEditCity={this.props.handleEditCity}
         handleDeleteCity={this.props.handleDeleteCity}
         handleImageOverwrite={this.props.handleImageOverwrite}
         setImgViewerIsOpen={this.setImgViewerIsOpen}
-        
+        backendURL={this.props.backendURL}
+        changeHoverState={this.props.changeHoverState}
+        hoverIndex={this.props.hoverIndex}
+        changeHoverIndex={this.props.changeHoverIndex}
       />)
     }) : null;
       

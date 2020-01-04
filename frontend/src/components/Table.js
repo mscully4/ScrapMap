@@ -2,20 +2,30 @@ import React, { Component } from 'react';
 import {Column, Table} from 'react-virtualized';
 import clsx from 'clsx';
 import { withStyles} from '@material-ui/styles';
+import { Scrollbars } from 'react-custom-scrollbars';
 import 'react-virtualized/styles.css'; // only needs to be imported once
+import "flag-icon-css/css/flag-icon.min.css";
 
 const styles = theme => ({
   tableRow: {
     cursor: 'pointer',
-    backgroundColor: '#ffff00',
     width: "100%",
     height: "100%",
+    '&:focus': {
+      outline: "none"
+    },
+    '&:hover': {
+      backgroundColor: "#BBBBBB",
+    }
+  },
+  white: {
+    backgroundColor: "#f3f3f3"
+  },
+  gray: {
+    backgroundColor: "#ffffff"
   },
   tableRowHover: {
-    '&:hover': {
-      backgroundColor: "#00ffff",
-      color: "red"
-    }
+    backgroundColor: "#BBBBBB",
   }
 })
 
@@ -23,53 +33,73 @@ class VirtualTable extends Component {
   constructor(props) {
     super(props)
     this.state ={
-
+      scrollTop: 0
     }
   }
 
-  getRowClassName = ({index}) => {
-    const classes = this.props.classes;
-    return clsx(classes.tableRow, classes.tableRowHover)
-  }
+  handleScroll = ({ target: { scrollTop } }) => {
+    this.setState({ scrollTop });
+  };
 
-  getRowStyling = () => {
-    console.log(1)
+  getRowClassName = ({index}) => {
+    console.log(this.props.hoverIndex, index)
+    const classes = this.props.classes;
+    return clsx({[classes.tableRow]: index !== -1}, 
+      {[classes.tableRowHover]: index === this.props.hoverIndex}, 
+      {[classes.white]: index % 2 === 0}, 
+      {[classes.gray]: index % 2 === 1},
+    )
   }
 
   cellRenderer = (cellData) => {
-    //console.log(cellData)
+    //TODO Find a better way to pick an image, maybe based on size
+    const img = cellData.rowData.urls.length ? 
+      <img style={{width: 100, height: 100}} src={this.props.backendURL + cellData.rowData.urls[0]}></img> :
+       null;
     return (
-      <div>{cellData.rowData.city}, {cellData.rowData.country}</div>
+      <div>
+        {cellData.rowData.city}, {cellData.rowData.country} <span className={`flag-icon flag-icon-` + cellData.rowData.countryCode}></span>{img}
+      </div>
     )
   }
 
   render = () => {
     const list = this.props.cities;
-    console.log(this.props)
-    //   {city: 'Dublin', country: 'Ireland'},
-    //   {city: "Budapest", country: 'Hungary'}
-    //   // And so on...
-    // ];
+    const { scrollTop } = this.state;
+    const HEIGHT = 400;
+    const WIDTH = 700;
+    const HEADER_HEIGHT = 40;
+
     return (
-      <Table
-      width={300}
-      height={300}
-      headerHeight={20}
-      rowHeight={200}
-      rowCount={list.length}
-      rowGetter={({index}) => list[index]}
-      rowClassName={this.getRowClassName}
+      <Scrollbars
+      style={{ height: 500, width: WIDTH + 8 }}
+      onScroll={this.handleScroll}
       >
-      <Column 
-        label="Destination" 
-        dataKey="destination" 
-        width={300} 
-        cellRenderer={this.cellRenderer}
-        cellDataGetter={({dataKey, rowData}) => {return rowData}}
-        //style={styles.tableRow}
-      />
-    </Table>)
-      }
+        <Table
+        autoHeight
+        scrollTop={scrollTop}
+        width={WIDTH}
+        height={300}
+        headerHeight={HEADER_HEIGHT}
+        rowHeight={200}
+        rowCount={list.length}
+        rowGetter={({index}) => list[index]}
+        rowClassName={this.getRowClassName}
+        onRowMouseOver={(obj) => this.props.changeHoverIndex(obj.rowData.index)}
+        onRowMouseOut={(obj) => this.props.changeHoverIndex(null)}
+        >
+          <Column 
+          label="Destination" 
+          dataKey="destination" 
+          width={300} 
+          cellRenderer={this.cellRenderer}
+          cellDataGetter={({dataKey, rowData}) => {return rowData}}
+          //style={styles.tableRow}
+          />
+        </Table>
+      </Scrollbars>
+    )
+  }
 } 
 
 export default withStyles(styles)(VirtualTable);

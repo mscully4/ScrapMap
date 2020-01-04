@@ -39,6 +39,7 @@ export function postNewCity(token, data) {
   form.append('country', data.country);
   form.append('latitude', data.latitude);
   form.append('longitude', data.longitude);
+  form.append('countryCode', data.countryCode)
    for (var i=0; i<data.pictures.length; i++) {
      form.append('images', data.pictures[i]);
   }

@@ -23,12 +23,15 @@ class PlacesAutoComplete extends React.Component {
           autocompletionRequest = {options}
           placeholder={"City"}
           onSelect={(selection) => {
+            console.log(selection)
             const city = selection.terms[0].value
             const country = selection.terms[selection.terms.length - 1].value;
             geocodeByPlaceId(selection.place_id).then((data) => {
+              console.log(data)
               const latitude = parseFloat(data[0].geometry.location.lat().toFixed(4));
               const longitude = parseFloat(data[0].geometry.location.lng().toFixed(4));
-              this.props.selectAutoSuggest({city, country, latitude, longitude})
+              const countryCode = data[0].address_components[data[0].address_components.length - 1].short_name.toLowerCase()
+              this.props.selectAutoSuggest({city, country, latitude, longitude, countryCode})
             })
           }}
           renderInput={(props) => { 

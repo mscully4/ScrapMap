@@ -30,6 +30,8 @@ library.add(faEdit);
 library.add(faTrash);
 library.add(faSync);
 
+const BACKEND_URL = "http://localhost:8000";
+
 const styles = {
   space: {
     height: 200,
@@ -78,19 +80,15 @@ class App extends Component {
 
       width: window.innerWidth * .8,
       height: window.innerHeight * .8,
+
+      hoverIndex: null,
     }
   }
 
   componentDidMount() {
     window.addEventListener('resize', this.updateWindowDimensions);
     if (this.state.loggedIn) {
-      fetchCurrentUser(localStorage.getItem("token"))
-      .then(data => {
-          this.setState({ 
-            username: data.user.username, 
-            cities: data.destinations
-          })
-      });
+      this.handleLoadSession()
     }
   }
 
@@ -100,6 +98,21 @@ class App extends Component {
 
   updateWindowDimensions = () => {
       this.setState({ width: window.innerWidth * .8, height: window.innerHeight * .8 });
+  }
+
+  handleLoadSession = () => {
+    fetchCurrentUser(localStorage.getItem("token"))
+      .then(data => {
+        this.setState({ 
+          username: data.user.username, 
+          //Need to add hover=false for the linkage of the map with the table
+          //TODO look into whether it would be better to add hover column to DB
+          cities: data.destinations.map((el, i) => {
+            el.index=i;
+            return el;
+          })
+        })
+      });
   }
 
     // baseURL + token-auth/
@@ -113,7 +126,10 @@ class App extends Component {
         this.setState({
           loggedIn: true,
           username: json.user.username,
-          cities: json.destinations,
+          cities: json.destinations.map((el, i) => {
+            el.index = i;
+            return el;
+          }),
         })
       }
     }) 
@@ -140,6 +156,7 @@ class App extends Component {
       postNewCity(localStorage.getItem('token'), data)
       .then(res => {
         if (res) {
+          res.index=this.state.cities.length;
           this.setState({
             cities: this.state.cities.concat([res])
           })
@@ -164,7 +181,10 @@ class App extends Component {
     .then(json => {
       this.setState({
         //why is this json.destinations?
-        cities: json.destinations
+        cities: json.destinations.map((el, i) => {
+          el.index = i;
+          return el;
+        }),
       })
     })
   }
@@ -179,6 +199,12 @@ class App extends Component {
       cities: null,
     })
   };
+
+  changeHoverIndex = (index) => {
+    this.setState({
+      hoverIndex: index
+    })
+  }
 
   handleImageOverwrite = (img, dataURL) => {
     var name = Math.random().toString(36).substr(2) + Math.random().toString(36).substr(2) + Math.random().toString(36).substr(2) + Math.random().toString(36).substr(2);
@@ -226,8 +252,16 @@ class App extends Component {
           handleEditCity={this.handleEditCity}
           handleDeleteCity={this.handleDeleteCity}
           handleImageOverwrite={this.handleImageOverwrite}
+          backendURL={BACKEND_URL}
+          hoverIndex={this.state.hoverIndex}
+          changeHoverIndex={this.changeHoverIndex}
         />
-        <Table cities={this.state.cities}/>
+        <Table 
+        cities={this.state.cities}
+        backendURL={BACKEND_URL}
+        hoverIndex={this.state.hoverIndex}
+        changeHoverIndex={this.changeHoverIndex}
+        />
         <div style={styles.space}></div>
       </React.Fragment>
     );
