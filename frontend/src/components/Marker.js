@@ -1,21 +1,23 @@
 import React, { Component } from 'react';
 import ReactDOM from 'react-dom';
 import PropTypes from 'prop-types';
-import {
-    Button,
-    Form,
-    Input,
-    InputGroup,
-    Modal,
-    ModalHeader,
-    ModalBody,
-    ModalFooter,
-} from 'reactstrap';
+// import {
+//     Button,
+//     Form,
+//     Input,
+//     InputGroup,
+//     Modal,
+//     ModalHeader,
+//     ModalBody,
+//     ModalFooter,
+// } from 'reactstrap';
 // import { putEditCity } from "../utils/fetchUtils" 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import ImageViewer from './ImageViewer.js';
 import { withStyles} from '@material-ui/styles';
 import clsx from 'clsx';
+
+import ImageViewer from './ImageViewer.js';
+import EditCity from './EditCity.js'
 
 const K_WIDTH = 40;
 const K_HEIGHT = 40;
@@ -77,7 +79,7 @@ class Marker extends Component {
   };
 
   static defaultProps = {
-    place: {city: "", country: "", countryCode: "", lat: null, lng: null, index: null, urls: []},
+    data: {city: "", country: "", countryCode: "", lat: null, lng: null, index: null, urls: []},
   };
 
     //shouldComponentUpdate = shouldPureComponentUpdate;
@@ -86,7 +88,8 @@ class Marker extends Component {
     super(props);
     this.state = {
       //the data for the destination
-      place: {city: "", country: "", countryCode: "", lat: null, lng: null, index: null, urls: []},
+      //place: {city: "", country: "", countryCode: "", lat: null, lng: null, index: null, urls: []},
+      ...this.props.data,
       //whether the marker is hovered over
       //Whether the editor modal is open
       editorIsOpen: false,
@@ -98,34 +101,28 @@ class Marker extends Component {
     }
   }
 
+  shouldComponentUpdate(nextProps, nextState) {
+    return true;
+  }
+
     //function for handling changes to the text fields in the editor
     handleChange = e => {
       const name = e.target.name;
       const value = e.target.value;
       this.setState(prevState => {
         const newState = { ...prevState };
-        newState.place[name] = value;
+        newState[name] = value;
         return newState;
       });
     };
 
-    //function for handling addition of images to the editor
-    handleImageChange = e => {
-      const name = e.target.name;
-      const value = e.target.value;
-      //console.log(name, value);
-      this.setState({
-        place: {
-          ...this.state.place,
-          urls: e.target.files
-        }
-      })
-    }
-
     //function for toggling whether the editor is open or not
     toggleEditForm = () => {
+      //if the editor is about to open, hide the hover box
+      this.props.changeHoverIndex(null)
       this.setState(prevState => ({
         editorIsOpen: !prevState.editorIsOpen,
+        hover: false,
       }));
     }
 
@@ -163,20 +160,14 @@ class Marker extends Component {
 
     onMouseEnter = (e) => {
       this.setState({
-        place: {
-          ...this.state.place,
-          hover: true,
-        }
+        hover: true,
       })
-      this.props.changeHoverIndex(this.props.place.index)
+      this.props.changeHoverIndex(this.props.data.index)
     }
 
     onMouseLeave = (e) => {
       this.setState({
-        place: {
-          ...this.state.place, 
-          hover: false,
-        }
+        hover: false,
       })
       this.props.changeHoverIndex(null)
     }
@@ -184,19 +175,15 @@ class Marker extends Component {
     generateClassNames = (element) => {
       const classes = this.props.classes;
       if (element === "Marker") {
-        return clsx(this.props.classes.MarkerStyle, {[this.props.classes.MarkerStyleHover]: this.props.hoverIndex === this.props.place.index});
+        return clsx(this.props.classes.MarkerStyle, {[this.props.classes.MarkerStyleHover]: this.props.hoverIndex === this.props.data.index});
       } else if (element === "Box") {
-        return clsx(classes.BoxStyle, classes.BoxStyleHover, {[classes.BoxStyleMouseLeave]: !this.state.place.hover})
+        return clsx(classes.BoxStyle, classes.BoxStyleHover, {[classes.BoxStyleMouseLeave]: !this.state.hover})
       }
     }
 
   render() {
-  //console.log(this.props.classes)
-    //const style = this.props.$hover ? this.props.themes.MarkerStyleHover : this.props.themes.MarkerStyle;
-    //console.log("HOVER: ", this.props.hover, this.state.hover)
-    
     //if there are images, iterate over the urls and return img tags with data
-    const images = this.props.place.urls ? this.props.place.urls.map((url, i) => {
+    const images = this.props.data.urls ? this.props.data.urls.map((url, i) => {
       return (<img 
         key={i} 
         number={i} 
@@ -209,7 +196,7 @@ class Marker extends Component {
     return (
       <div className={this.generateClassNames("Marker")} onMouseEnter={this.onMouseEnter} onMouseLeave={this.onMouseLeave}>
         <div className={this.generateClassNames("Box")}>
-          <p className="city-text">{this.props.place.city},<br />{this.props.place.country}</p>
+          <p className="city-text">{this.props.data.city},<br />{this.props.data.country}</p>
           <div className="tailShadow"></div>
           <div className="tail1"></div>
           <div className="tail2"></div>
@@ -222,7 +209,7 @@ class Marker extends Component {
           <ImageViewer 
             isOpen={this.state.imageViewerOpen} 
             setImageViewerOpen={this.setImageViewerOpen}
-            urls={ this.props.place.urls }
+            urls={ this.props.data.urls }
             currImg={ this.state.currImg }
             changeCurrImg={ this.changeCurrImg }
             setCurrImg={ this.setCurrImg }
@@ -230,8 +217,13 @@ class Marker extends Component {
             handleImageOverwrite={this.props.handleImageOverwrite}
             
           />
-          
-          <Modal isOpen={this.state.editorIsOpen} toggle={this.toggleEditForm}>
+          <EditCity
+          isOpen={this.state.editorIsOpen}
+          toggle={this.toggleEditForm}
+          handleEditCity={this.props.handleEditCity}
+          data={this.props.data}
+          />
+          {/* <Modal isOpen={this.state.editorIsOpen} toggle={this.toggleEditForm}>
             <ModalHeader toggle={this.toggleEditForm}>Edit</ModalHeader>
             <ModalBody>
               <Form id="" ref={ref => this.formEditCity = ref} onSubmit={e => this.props.handleEditCity(e, this.state)} >
@@ -278,7 +270,7 @@ class Marker extends Component {
             <ModalFooter>
               <Button onClick={this.submitForm}>Submit</Button>
             </ModalFooter>
-          </Modal>
+          </Modal> */}
         
         </div>
       </div>

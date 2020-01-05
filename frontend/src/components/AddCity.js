@@ -35,8 +35,6 @@ class AddCity extends React.Component {
           pictureNames: [],
           disabled: false,  //figure out a way to keep this true until a key is entered in city, maybe use an event listener
         };
-
-        this.formRef = React.createRef();
     }
 
     handleChange = e => {

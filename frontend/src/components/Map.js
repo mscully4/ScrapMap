@@ -8,7 +8,7 @@ import {K_SIZE} from './MarkerStyle.js';
 
 const styles = {
   map: {
-    width: '80%',
+    width: '100%',
     height: '100vh',
     margin: 'auto'
   }
@@ -38,7 +38,7 @@ class Map extends Component {
     super(props);
 
     this.state = {
-      api_key: "AIzaSyBpXqyXMWAbXFs6XCxkMUFX09ZuHzjpKHU",
+      apiKey: "AIzaSyBpXqyXMWAbXFs6XCxkMUFX09ZuHzjpKHU",
       imgViewerIsOpen: false,
     }
   }
@@ -89,13 +89,13 @@ class Map extends Component {
   }
 
   render() {
-    let places = this.props.cities ? this.props.cities.map(place => {
+    let places = this.props.cities ? this.props.cities.map(data => {
       // console.log(place.hover)
       return (<Marker
-        key={place.pk}
-        lat={place.latitude}
-        lng={place.longitude}
-        place={place}
+        key={data.pk}
+        lat={data.latitude}
+        lng={data.longitude}
+        data={data}
         // city={place.city}
         // country={place.country}
         // urls={place.urls}
@@ -116,7 +116,7 @@ class Map extends Component {
     return (
       <div style={styles.map}>
         <GoogleMapReact
-          bootstrapURLKeys={{ key: this.state.api_key }}
+          bootstrapURLKeys={{ key: this.state.apiKey }}
           center={this.props.center}
           zoom={this.props.zoom}
           hoverDistance={K_SIZE / 2}

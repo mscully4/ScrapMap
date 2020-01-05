@@ -57,15 +57,15 @@ export function postNewCity(token, data) {
 }
 
 export function putEditCity(token, data) {
-  //console.log(data)
+  console.log(data)
   const form = new FormData();
   form.append("pk", data.pk);
   form.append('city', data.city);
   form.append('country', data.country);
   form.append('latitude', data.latitude);
   form.append('longitude', data.longitude);
-  for (var i=0; i<data.files.length; i++) {
-    form.append('images', data.files[i]);
+  for (var i=0; i<data.pictures.length; i++) {
+    form.append('images', data.pictures[i]);
   }
 
   return fetch(baseURL + "core/destinations/" + data.pk + "/", {

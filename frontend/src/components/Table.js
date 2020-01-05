@@ -7,6 +7,10 @@ import 'react-virtualized/styles.css'; // only needs to be imported once
 import "flag-icon-css/css/flag-icon.min.css";
 
 const styles = theme => ({
+  scrollBar: {
+    width: "100%",
+    height: "100%",
+  },
   tableRow: {
     cursor: 'pointer',
     width: "100%",
@@ -42,7 +46,7 @@ class VirtualTable extends Component {
   };
 
   getRowClassName = ({index}) => {
-    console.log(this.props.hoverIndex, index)
+    //console.log(this.props.hoverIndex, index)
     const classes = this.props.classes;
     return clsx({[classes.tableRow]: index !== -1}, 
       {[classes.tableRowHover]: index === this.props.hoverIndex}, 
@@ -72,13 +76,13 @@ class VirtualTable extends Component {
 
     return (
       <Scrollbars
-      style={{ height: 500, width: WIDTH + 8 }}
+      className={clsx(this.props.classes.scrollBar)}
       onScroll={this.handleScroll}
       >
         <Table
         autoHeight
         scrollTop={scrollTop}
-        width={WIDTH}
+        width={300}
         height={300}
         headerHeight={HEADER_HEIGHT}
         rowHeight={200}

@@ -1,20 +1,8 @@
 import React, { Component } from 'react';
 import Dimensions from 'react-dimensions';
 import jwt_decode from "jwt-decode";
-// import {
-//     Button,
-//     Nav,
-//     Navbar,
-//     NavbarToggler,
-//     NavbarBrand,
-//     NavItem,
-//     Modal,
-//     ModalHeader,
-//     ModalBody,
-//     ModalFooter,
-//     ModalItem
-// } from 'reactstrap'
 
+import Main from './views/Main';
 import Map from './components/Map';
 import Navigation from "./components/NavBar";
 import Table from './components/Table'
@@ -244,7 +232,21 @@ class App extends Component {
           username={this.state.username}
         />
         <h1 style={styles.quote}>"To Travel is to BOOF"</h1>
-        <Map 
+
+        <Main 
+        width={this.state.width}
+        height={this.state.height}
+        cities={this.state.cities}
+        //Map Props
+        handleEditCity={this.handleEditCity}
+        handleDeleteCity={this.handleDeleteCity}
+        handleImageOverwrite={this.handleImageOverwrite}
+        backendURL={BACKEND_URL}
+        hoverIndex={this.state.hoverIndex}
+        changeHoverIndex={this.changeHoverIndex}
+        />
+
+        {/* <Map 
           width={ this.state.width } 
           height={ this.state.height } 
           cities={ this.state.cities }
@@ -261,7 +263,7 @@ class App extends Component {
         backendURL={BACKEND_URL}
         hoverIndex={this.state.hoverIndex}
         changeHoverIndex={this.changeHoverIndex}
-        />
+        /> */}
         <div style={styles.space}></div>
       </React.Fragment>
     );
