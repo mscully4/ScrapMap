@@ -39,7 +39,6 @@ class Map extends Component {
 
     this.state = {
       apiKey: "AIzaSyBpXqyXMWAbXFs6XCxkMUFX09ZuHzjpKHU",
-      imgViewerIsOpen: false,
     }
   }
 
@@ -64,11 +63,11 @@ class Map extends Component {
     //console.log(map, maps);
   }
 
-  setImgViewerIsOpen = (boolean) => {
-    this.setState({
-      imgViewerIsOpen: boolean,
-    })
-  }
+  // setImgViewerIsOpen = (boolean) => {
+  //   this.setState({
+  //     imgViewerIsOpen: boolean,
+  //   })
+  // }
 
   createMapOptions = (maps) => {
     return {
@@ -105,11 +104,13 @@ class Map extends Component {
         handleEditCity={this.props.handleEditCity}
         handleDeleteCity={this.props.handleDeleteCity}
         handleImageOverwrite={this.props.handleImageOverwrite}
-        setImgViewerIsOpen={this.setImgViewerIsOpen}
+        //setImgViewerIsOpen={this.setImgViewerIsOpen}
         backendURL={this.props.backendURL}
         changeHoverState={this.props.changeHoverState}
         hoverIndex={this.props.hoverIndex}
         changeHoverIndex={this.props.changeHoverIndex}
+        toggleImageViewerOpen={this.props.toggleImageViewerOpen}
+        setCurrImg={this.props.setCurrImg}
       />)
     }) : null;
       

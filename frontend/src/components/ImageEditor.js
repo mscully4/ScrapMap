@@ -1,7 +1,8 @@
 import React from 'react';
 import 'tui-image-editor/dist/tui-image-editor.css'
 import ImageEditor from '@toast-ui/react-image-editor'
-import { Button } from 'reactstrap';
+import { Button, Modal } from 'reactstrap';
+
 
 import Loader from 'react-loader-spinner'
 import "react-loader-spinner/dist/loader/css/react-spinner-loader.css"
@@ -47,34 +48,39 @@ export class ImgEditor extends React.Component {
   }
 
   componentDidMount = () => {
-    let headerButtons = document.getElementsByClassName("tui-image-editor-header-buttons")[0];
-    while (headerButtons.children.length>0) {
-      headerButtons.removeChild(headerButtons.children[0])
-    }
+
+    // let headerButtons = document.getElementsByClassName("tui-image-editor-header-buttons")[0];
+    // while (headerButtons.children.length>0) {
+    //   headerButtons.removeChild(headerButtons.children[0])
+    // }
     //download.parentNode.removeChild(download)
     //load.parentNode.removeChild(load)
   }
 
   render = () => {
-    if (this.state.showLoader) {
-      return (
-        <div style={{height: "100%", width: "100%", backgroundColor: "white"}}>
-          <Loader
-          type="Puff"
-          color="#00BFFF"
-          height={80}
-          width={80}
-          />  
-        </div>)
-    } else {
-      return (
-        <div>
+    console.log(this.props)
+
+    return (
+    // if (this.state.showLoader) {
+    //   return (
+    //     <div style={{height: "100%", width: "100%", backgroundColor: "white"}}>
+    //       <Loader
+    //       type="Puff"
+    //       color="#00BFFF"
+    //       height={80}
+    //       width={80}
+    //       />  
+    //     </div>)
+    // } else {
+    //   return (
+        <Modal isOpen={this.props.isOpen} toggle={this.props.toggleEditor} size={"xl"}>
+          <div>
           <Button onClick={this.saveChanges}>Save</Button>
           <ImageEditor
           ref={this.imageEditor}
           includeUI={{
             loadImage: {
-              path: this.props.img.src,
+              path: this.props.image ? this.props.backendURL + this.props.image.src : null,
               name: 'SampleImage'
             },
             theme: myTheme,
@@ -94,8 +100,8 @@ export class ImgEditor extends React.Component {
             rotatingPointOffset: 70
           }}
         usageStatistics={true}
-      />
-      </div>)
-    }
-  }
+        />
+          </div>
+        </Modal>
+  )}
 };

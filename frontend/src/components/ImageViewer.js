@@ -1,5 +1,4 @@
 import React, { Component } from 'react';
-import ImgsViewer from 'react-images-viewer';
 import Carousel, { Modal, ModalGateway } from 'react-images';
 //import ImgsViewer from './react-images-viewer/ImgsViewer'
 //import { Modal } from 'reactstrap';
@@ -22,6 +21,7 @@ const theme = {
     padding: 10,
     paddingBottom: 20,
     linearGgradient: 'rgba(0, 0, 0, 0.33), rgba(0, 0, 0, 0)',
+    zIndex: 9999,
  
   },
   closeButton: {
@@ -52,8 +52,8 @@ export default class ImageViewer extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      // isOpen: false,
-      imgs: this.props.images.map((obj, i) => {
+      isOpen: false,
+      imgs: this.props.views.map((obj, i) => {
         return {
           src: "http://localhost:8000" + obj.src, 
           //num: i,
@@ -91,13 +91,13 @@ export default class ImageViewer extends Component {
       }
     }
 
-    toggleEditor = () => {
-      const editorWillBeOpen = !this.state.editorIsOpen;
-      this.setState({
-        editorIsOpen: editorWillBeOpen,
-      })
-      this.props.setImageViewerOpen(!editorWillBeOpen)
-    }
+    // toggleEditor = () => {
+    //   const editorWillBeOpen = !this.state.editorIsOpen;
+    //   this.setState({
+    //     editorIsOpen: editorWillBeOpen,
+    //   })
+    //   this.props.setImageViewerOpen(!editorWillBeOpen)
+    // }
 
     // handleImageModification = (e, i, mods) => {
     //   console.log(i)
@@ -118,7 +118,7 @@ export default class ImageViewer extends Component {
       <div style={theme.headerDiv}>
         { isModal ?  
         <span>
-          <button role="button" value="boof" style={theme.closeButton} onClick={() => this.props.setImageViewerOpen(false)}>
+          <button role="button" value="boof" style={theme.closeButton} onClick={() => this.props.toggleViewer(false)}>
             <svg
             version="1.1"
             xmlns="http://www.w3.org/2000/svg"
@@ -129,7 +129,7 @@ export default class ImageViewer extends Component {
               <path d={closePath} />
             </svg>
           </button> 
-          <button role="button" style={theme.closeButton}>
+          <button role="button" style={theme.closeButton} onClick={() => {this.props.toggleViewer(false); this.props.toggleEditor(true)}}>
             <svg
             xmlns="http://www.w3.org/2000/svg"
             width="7.11111in" height="7.11111in"
@@ -145,14 +145,14 @@ export default class ImageViewer extends Component {
 
 
     render() {
-      //console.log(window.innerWidth)
+      const views = this.props.views.map((obj) => {
+        return {src: this.props.backendURL + obj.src}
+      })
       return (
         <ModalGateway>
           { this.props.isOpen ? 
-          <Modal onClose={() => this.props.setImageViewerOpen(false)}>
-            {this.state.imgs.length ? <Carousel views={this.state.imgs} 
-            components={{ Header: this.CustomHeader }}
-            />: <div></div>}
+          <Modal onClose={() => this.props.toggleViewer(false)}>
+            {views.length ? <Carousel views={views} currentIndex={this.props.currentIndex} components={{ Header: this.CustomHeader }}/>: <div></div>}
           </Modal>
           : null }
         </ModalGateway>

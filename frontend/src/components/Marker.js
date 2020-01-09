@@ -133,22 +133,24 @@ class Marker extends Component {
     }
 
     //function for toggling whether the image viewer is open or not
-    setImageViewerOpen = (boolean) => {
-      this.setState({
-        imageViewerOpen: boolean,
-      }, this.props.setImgViewerIsOpen(boolean));
-    }
+    // setImageViewerOpen = (boolean) => {
+    //   this.setState({
+    //     imageViewerOpen: boolean,
+    //   }, this.props.setImgViewerIsOpen(boolean));
+    // }
 
     //function for opening the Image Viewer when one of the thumbnails is clicked on 
     imgOnClick = (e) => {
       //console.log("OPEN")
       e.preventDefault();
       //this.setImageViewerOpen(true);
-      this.setState({
-        currImg: parseInt(e.target.getAttribute('number')),
-        imageViewerOpen: true,
-      })
-      this.props.setImgViewerIsOpen(true);
+      this.props.setCurrImg(e.target.getAttribute('number'))
+      this.props.toggleImageViewerOpen(true)
+      // this.setState({
+      //   currImg: parseInt(e.target.getAttribute('number')),
+      //   imageViewerOpen: true,
+      // })
+      //this.props.setImgViewerIsOpen(true);
     }
 
     //function for changing the current image in the Image Viewer
@@ -193,6 +195,7 @@ class Marker extends Component {
         />)
     }) : null;
 
+
     return (
       <div className={this.generateClassNames("Marker")} onMouseEnter={this.onMouseEnter} onMouseLeave={this.onMouseLeave}>
         <div className={this.generateClassNames("Box")}>
@@ -206,72 +209,23 @@ class Marker extends Component {
           
           {images}            
           
-          <ImageViewer 
-            isOpen={this.state.imageViewerOpen} 
+          {/* <ImageViewer 
+            isOpen={true} 
             setImageViewerOpen={this.setImageViewerOpen}
             images={ this.props.data.images }
             currImg={ this.state.currImg }
-            changeCurrImg={ this.changeCurrImg }
+            //changeCurrImg={ this.changeCurrImg }
             setCurrImg={ this.setCurrImg }
             backdropClosable={true}
             handleImageOverwrite={this.props.handleImageOverwrite}
             
-          />
+          /> */}
           <EditCity
           isOpen={this.state.editorIsOpen}
           toggle={this.toggleEditForm}
           handleEditCity={this.props.handleEditCity}
           data={this.props.data}
           />
-          {/* <Modal isOpen={this.state.editorIsOpen} toggle={this.toggleEditForm}>
-            <ModalHeader toggle={this.toggleEditForm}>Edit</ModalHeader>
-            <ModalBody>
-              <Form id="" ref={ref => this.formEditCity = ref} onSubmit={e => this.props.handleEditCity(e, this.state)} >
-                <Input
-                  type="text"
-                  name="city"
-                  placeholder={this.props.place.city}
-                  value={this.state.place.city}
-                  onChange={this.handleChange}
-                />
-                <br />
-                <Input
-                  type="text"
-                  name="country"
-                  placeholder={this.props.place.country}
-                  value={this.state.place.country}
-                  onChange={this.handleChange}
-                />
-                <br />
-                  <Input
-                  type="text"
-                  name="latitude"
-                  placeholder={this.props.lat}
-                  value={this.state.place.latitude}
-                  onChange={this.handleChange}
-                />
-                <br />
-                  <Input
-                  type="text"
-                  name="longitude"
-                  placeholder={this.props.lng}
-                  value={this.state.place.longitude}
-                  onChange={this.handleChange}
-                />
-                <br />
-                <Input
-                  multiple
-                  type="file"
-                  name="file"
-                  onChange={this.handleImageChange}
-                />
-              </Form>
-            </ModalBody>
-            <ModalFooter>
-              <Button onClick={this.submitForm}>Submit</Button>
-            </ModalFooter>
-          </Modal> */}
-        
         </div>
       </div>
         );
