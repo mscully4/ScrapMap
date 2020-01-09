@@ -36,13 +36,14 @@ export class ImgEditor extends React.Component {
   saveChanges = () => {
     this.setState({ showLoader: true })
     const editor = this.imageEditor.current.getInstance();
-    this.props.handleImageOverwrite(this.props.img, editor.toDataURL()).then(res => {
-      if (res) {
-        this.setState({showLoader: false})
-        this.props.setImageEditorOpen(false)
-        this.props.setImageViewerOpen(true)
-      } 
-    })
+    console.log(editor.getCanvasSize())
+    // this.props.handleImageOverwrite(this.props.img, editor.toDataURL()).then(res => {
+    //   if (res) {
+    //     this.setState({showLoader: false})
+    //     this.props.setImageEditorOpen(false)
+    //     this.props.setImageViewerOpen(true)
+    //   } 
+    // })
   }
 
   componentDidMount = () => {

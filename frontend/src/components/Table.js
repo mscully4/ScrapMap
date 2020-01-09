@@ -13,7 +13,7 @@ const styles = theme => ({
   },
   tableRow: {
     cursor: 'pointer',
-    width: "100%",
+    width: "97.5%",
     height: "100%",
     '&:focus': {
       outline: "none"
@@ -30,6 +30,25 @@ const styles = theme => ({
   },
   tableRowHover: {
     backgroundColor: "#BBBBBB",
+  },
+  cell: {
+    display: "grid",
+    gridTemplateRows: "1fr",
+    gridTemplateColumns: "1fr 1fr 1fr",
+    alignItems: 'center'
+  },
+  cellFlag: {
+    width: 100,
+    height: 100,
+    margin: 'auto'
+  },
+  cellText: {
+
+  },
+  cellImage: {
+    width: 100,
+    height: 100,
+    margin: 'auto'
   }
 })
 
@@ -37,7 +56,8 @@ class VirtualTable extends Component {
   constructor(props) {
     super(props)
     this.state ={
-      scrollTop: 0
+      scrollTop: 0,
+      images: []
     }
   }
 
@@ -56,52 +76,69 @@ class VirtualTable extends Component {
   }
 
   cellRenderer = (cellData) => {
+    const classes = this.props.classes;
     //TODO Find a better way to pick an image, maybe based on size
-    const img = cellData.rowData.urls.length ? 
-      <img style={{width: 100, height: 100}} src={this.props.backendURL + cellData.rowData.urls[0]}></img> :
-       null;
     return (
-      <div>
-        {cellData.rowData.city}, {cellData.rowData.country} <span className={`flag-icon flag-icon-` + cellData.rowData.countryCode}></span>{img}
+      <div className={clsx(classes.cell)}>
+        <span className={clsx(`flag-icon flag-icon-` + cellData.rowData.countryCode, classes.cellFlag)}></span>
+        <span>{cellData.rowData.city}{cellData.rowData.country}</span>
+        {cellData.rowData.images.length ? <img className={clsx(classes.cellImage)} src={this.props.backendURL + cellData.rowData.images[0].src}></img> : null}
       </div>
     )
   }
 
+  onRowClick = (obj) => {
+    const images = obj.rowData.images.map(img => {
+      img.src = this.props.backendURL + img.src;
+      return img;
+    })
+    this.setState({
+      galleryOpen: true,
+      images: images
+
+    })
+  }
+
   render = () => {
+    const WIDTH = window.innerWidth * .3;
+    //TODO Make this the height of the main component not the whole page
+    const HEIGHT = window.innerHeight;
     const list = this.props.cities;
-    const { scrollTop } = this.state;
-    const HEIGHT = 400;
-    const WIDTH = 700;
     const HEADER_HEIGHT = 40;
 
     return (
-      <Scrollbars
-      className={clsx(this.props.classes.scrollBar)}
-      onScroll={this.handleScroll}
-      >
-        <Table
-        autoHeight
-        scrollTop={scrollTop}
-        width={300}
-        height={300}
-        headerHeight={HEADER_HEIGHT}
-        rowHeight={200}
-        rowCount={list.length}
-        rowGetter={({index}) => list[index]}
-        rowClassName={this.getRowClassName}
-        onRowMouseOver={(obj) => this.props.changeHoverIndex(obj.rowData.index)}
-        onRowMouseOut={(obj) => this.props.changeHoverIndex(null)}
+      <div>
+
+        <Scrollbars
+        className={clsx(this.props.classes.scrollBar)}
+        onScroll={this.handleScroll}
         >
-          <Column 
-          label="Destination" 
-          dataKey="destination" 
-          width={300} 
-          cellRenderer={this.cellRenderer}
-          cellDataGetter={({dataKey, rowData}) => {return rowData}}
-          //style={styles.tableRow}
-          />
-        </Table>
-      </Scrollbars>
+          <Table
+          autoHeight
+          scrollTop={this.state.scrollTop}
+          width={WIDTH * .97}
+          height={HEIGHT}
+          headerHeight={HEADER_HEIGHT}
+          rowHeight={HEIGHT / 2}
+          rowCount={list.length}
+          rowGetter={({index}) => list[index]}
+          rowClassName={this.getRowClassName}
+          onRowMouseOver={(obj) => this.props.changeHoverIndex(obj.rowData.index)}
+          onRowMouseOut={(obj) => this.props.changeHoverIndex(null)}
+          onRowClick={this.props.tableRowClick}
+          >
+            <Column 
+            label="Destination" 
+            dataKey="destination" 
+            width={WIDTH - 5} 
+            cellRenderer={this.cellRenderer}
+            cellDataGetter={({dataKey, rowData}) => {return rowData}}
+            //style={styles.tableRow}
+            />
+          </Table>
+        </Scrollbars>
+      </div>
+      
     )
   }
 } 

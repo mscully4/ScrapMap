@@ -79,7 +79,7 @@ class Marker extends Component {
   };
 
   static defaultProps = {
-    data: {city: "", country: "", countryCode: "", lat: null, lng: null, index: null, urls: []},
+    data: {city: "", country: "", countryCode: "", lat: null, lng: null, index: null, urls: [[]]},
   };
 
     //shouldComponentUpdate = shouldPureComponentUpdate;
@@ -183,11 +183,11 @@ class Marker extends Component {
 
   render() {
     //if there are images, iterate over the urls and return img tags with data
-    const images = this.props.data.urls ? this.props.data.urls.map((url, i) => {
+    const images = this.props.data.images.length > 0 ? this.props.data.images.map((obj, i) => {
       return (<img 
         key={i} 
         number={i} 
-        src={this.props.backendURL + url} 
+        src={this.props.backendURL + obj.src} 
         style={{"height": 40, "width": 40}} 
         onClick={this.imgOnClick}
         />)
@@ -209,7 +209,7 @@ class Marker extends Component {
           <ImageViewer 
             isOpen={this.state.imageViewerOpen} 
             setImageViewerOpen={this.setImageViewerOpen}
-            urls={ this.props.data.urls }
+            images={ this.props.data.images }
             currImg={ this.state.currImg }
             changeCurrImg={ this.changeCurrImg }
             setCurrImg={ this.setCurrImg }

@@ -54,16 +54,19 @@ class UserSerializerSignUp(serializers.ModelSerializer):
 
 #This is the serializer for new cities entered or when the user has a token stored on the browser
 class DestinationListSerializer(serializers.ModelSerializer):
-    urls = serializers.SerializerMethodField()
-    def get_urls(self, obj):
-        urls = [obj.image.url for obj in DestinationImages.objects.filter(destination=obj.pk)]
+    images = serializers.SerializerMethodField()
+    def get_images(self, obj):
+        images = [{'src': obj.image.url, 'width': obj.image.width, 'height': obj.image.height} for obj in DestinationImages.objects.filter(destination=obj.pk)]
+        #for obj in DestinationImages.objects.filter(destination=obj.pk):
+            # dic = {'src': obj.image.url, 'width': obj.image.width, 'height': obj.image.height}
+            # urls.append(dic)
         # if len(urls) > 2: 
         #     return random.sample(urls, 2)
-        return urls
+        return images
     
     class Meta:
         model = Destination
-        fields = ('pk', "city", "country", "countryCode", "latitude", "longitude", "urls")
+        fields = ('pk', "city", "country", "countryCode", "latitude", "longitude", "images")
 
     def create(self, validated_data):
         validated_data['user'] = self.context['request'].user
@@ -83,10 +86,10 @@ class DestinationListSerializer(serializers.ModelSerializer):
 
 class DestinationSerializer(serializers.ModelSerializer):
     #retrieve the image urls that correspond to the destination
-    urls = serializers.SerializerMethodField()
-    def get_urls(self, obj):
-        urls = [el.image.url for el in DestinationImages.objects.filter(destination=obj.pk)]
-        return urls
+    images = serializers.SerializerMethodField()
+    def get_images(self, obj):
+        images = [{'src': obj.image.url, 'width': obj.image.width, 'height': obj.image.height} for obj in DestinationImages.objects.filter(destination=obj.pk)]
+        return images
 
     user = serializers.SerializerMethodField()
     def get_user(self, obj):
@@ -94,7 +97,7 @@ class DestinationSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Destination
-        fields = ('pk', "city", "country", "latitude", "longitude", "user", "urls")
+        fields = ('pk', "city", "country", "latitude", "longitude", "user", "images")
 
     def update(self, instance, validated_data):
         #update all the fields of the Destination Model object

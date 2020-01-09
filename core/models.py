@@ -18,7 +18,7 @@ class Destination(models.Model):
 
 class DestinationImages(models.Model):
     destination = models.ForeignKey(Destination, on_delete=models.CASCADE)
-    image = models.FileField(blank=True, null=True)
+    image = models.ImageField(blank=True, null=True)
 
     def __str__(self):
         return self.image.name

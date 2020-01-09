@@ -91,6 +91,7 @@ class App extends Component {
   handleLoadSession = () => {
     fetchCurrentUser(localStorage.getItem("token"))
       .then(data => {
+        console.log(data)
         this.setState({ 
           username: data.user.username, 
           //Need to add hover=false for the linkage of the map with the table
@@ -245,25 +246,6 @@ class App extends Component {
         hoverIndex={this.state.hoverIndex}
         changeHoverIndex={this.changeHoverIndex}
         />
-
-        {/* <Map 
-          width={ this.state.width } 
-          height={ this.state.height } 
-          cities={ this.state.cities }
-          logged_in={ this.state.loggedIn }
-          handleEditCity={this.handleEditCity}
-          handleDeleteCity={this.handleDeleteCity}
-          handleImageOverwrite={this.handleImageOverwrite}
-          backendURL={BACKEND_URL}
-          hoverIndex={this.state.hoverIndex}
-          changeHoverIndex={this.changeHoverIndex}
-        />
-        <Table 
-        cities={this.state.cities}
-        backendURL={BACKEND_URL}
-        hoverIndex={this.state.hoverIndex}
-        changeHoverIndex={this.changeHoverIndex}
-        /> */}
         <div style={styles.space}></div>
       </React.Fragment>
     );

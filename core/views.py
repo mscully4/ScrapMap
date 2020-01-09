@@ -57,6 +57,7 @@ class CreateUser(APIView):
         logger.error("Cannot Create New User: %s" % serializer.errors)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+#this returns the list of all destinations for a specified user and allows users to create new locations
 class DestinationListView(APIView):
     '''
     Access destination data and create new destination entries
@@ -69,6 +70,7 @@ class DestinationListView(APIView):
         data = DestinationListSerializer(Destination.objects.filter(user=request.user), many=True)
         return Response({"destinations" : data.data})
     
+    #this has to be here because there is no pk in the url path
     def post(self, request, format=None):
         serializer = DestinationListSerializer(data=request.data, context={'request': request})
         if serializer.is_valid():
@@ -77,6 +79,7 @@ class DestinationListView(APIView):
         logger.error("Cannot Create Destination: %s" % serializer.errors)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+#this is for individual destinations, for retreiving the data/editing or deleting existing ones
 class DestinationView(APIView):
     permission_classes = (permissions.IsAuthenticated,)
     parser_class = (FileUploadParser,)
@@ -85,6 +88,8 @@ class DestinationView(APIView):
     def get(self, request, pk, format=None):
         data = Destination.objects.get(pk=pk)
         serializer = DestinationSerializer(data)
+        #for now users can only see their own data
+        #TODO change this to allow all to see each others data
         if request.user.id == data.user_id:
 #            logger.info(DestinationImages.objects.filter(destination=data.pk))
             return Response(serializer.data)
@@ -108,6 +113,7 @@ class DestinationView(APIView):
 
     def delete(self, request, pk, format=None):
         Destination.objects.get(pk=pk).delete()
+        #rturn an updated list of cities to user
         data = DestinationListSerializer(Destination.objects.filter(user=request.user), many=True)
         return Response({"destinations" : data.data})
         
