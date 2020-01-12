@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { ReactDOM } from 'react';
 import 'tui-image-editor/dist/tui-image-editor.css'
 import ImageEditor from '@toast-ui/react-image-editor'
 import { Button, Modal } from 'reactstrap';
@@ -38,28 +38,28 @@ export class ImgEditor extends React.Component {
     this.setState({ showLoader: true })
     const editor = this.imageEditor.current.getInstance();
     console.log(editor.getCanvasSize())
-    // this.props.handleImageOverwrite(this.props.img, editor.toDataURL()).then(res => {
-    //   if (res) {
-    //     this.setState({showLoader: false})
-    //     this.props.setImageEditorOpen(false)
-    //     this.props.setImageViewerOpen(true)
-    //   } 
-    // })
+    this.props.handleImageOverwrite(this.props.image, editor.toDataURL())
+    .then(res => {
+      console.log(res)
+
+      // if (res) {
+      //   this.setState({showLoader: false})
+      //   this.props.toggleEditor(false)
+      //   this.props.toggleViewer(true)
+      // } 
+    })
   }
 
   componentDidMount = () => {
-
-    // let headerButtons = document.getElementsByClassName("tui-image-editor-header-buttons")[0];
-    // while (headerButtons.children.length>0) {
-    //   headerButtons.removeChild(headerButtons.children[0])
-    // }
-    //download.parentNode.removeChild(download)
-    //load.parentNode.removeChild(load)
+    setTimeout(function() {
+      const headerButtons = document.getElementsByClassName("tui-image-editor-header-buttons")[0];
+      while (headerButtons.children.length>0) {
+        headerButtons.removeChild(headerButtons.children[0])
+      }
+    }, 1)
   }
 
   render = () => {
-    console.log(this.props)
-
     return (
     // if (this.state.showLoader) {
     //   return (

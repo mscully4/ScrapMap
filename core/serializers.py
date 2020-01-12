@@ -2,13 +2,21 @@ from rest_framework import serializers
 from rest_framework_jwt.settings import api_settings
 from django.contrib.auth.models import User
 from .models import Destination, DestinationImages
-import random
+import random, hashlib, io
+from PIL import Image
+from django.core.files.uploadedfile import InMemoryUploadedFile
+
 # from PIL import image
 # from PIL.ExifTags import TAGS, GPSTAGS
 
 import logging
 
 logger = logging.getLogger('django')
+
+def pictures_2png(file):
+    buffer = StringIO()
+    Image.open(file).save(buffer, "PNG")
+    return InMemoryUploadedFile(buffer, None, 'test.png', 'image/png', buffer.nbytes, None)
 
 #Serializer for User log-ins
 class UserSerializerLogin(serializers.ModelSerializer):
@@ -56,7 +64,8 @@ class UserSerializerSignUp(serializers.ModelSerializer):
 class DestinationListSerializer(serializers.ModelSerializer):
     images = serializers.SerializerMethodField()
     def get_images(self, obj):
-        images = [{'src': obj.image.url, 'width': obj.image.width, 'height': obj.image.height} for obj in DestinationImages.objects.filter(destination=obj.pk)]
+        
+        images = [{'src': obj.image.url, 'width': obj.image.width, 'height': obj.image.height, 'name': obj.image.__str__()} for obj in DestinationImages.objects.filter(destination=obj.pk)]
         #for obj in DestinationImages.objects.filter(destination=obj.pk):
             # dic = {'src': obj.image.url, 'width': obj.image.width, 'height': obj.image.height}
             # urls.append(dic)
@@ -68,6 +77,7 @@ class DestinationListSerializer(serializers.ModelSerializer):
         model = Destination
         fields = ('pk', "city", "country", "countryCode", "latitude", "longitude", "images")
 
+    #called when a new city is ccreated
     def create(self, validated_data):
         validated_data['user'] = self.context['request'].user
         #image_data = self.context.get('view').request.FILES
@@ -79,8 +89,17 @@ class DestinationListSerializer(serializers.ModelSerializer):
             images = self.context['request'].FILES.getlist('images')
             #iterate over the list of images
             for i in range(len(images)):
-                #And create a new image object
-                DestinationImages.objects.create(destination=instance, image=images[i])
+                image = images[i]
+                name = hashlib.sha224(images[i].__dict__['file'].getvalue()).hexdigest() + ".png"
+                if images[i].__dict__['content_type'] != "image/png":
+                    #convert all incoming images to PNG for consistency/the Image Editor needs all images to be PNGs
+                    buffer = io.BytesIO()
+                    Image.open(images[i]).save(buffer, "PNG")
+                    #generate a unique name for the image
+                    #TODO run check to see if the image had already been uploaded for the user
+                    image = InMemoryUploadedFile(buffer, None, name, 'image/png', buffer.getbuffer().nbytes, None)
+                    #new.__dict__["_name"] = name
+                DestinationImages.objects.create(destination=instance, image=image)
         
         return instance
 
@@ -88,7 +107,8 @@ class DestinationSerializer(serializers.ModelSerializer):
     #retrieve the image urls that correspond to the destination
     images = serializers.SerializerMethodField()
     def get_images(self, obj):
-        images = [{'src': obj.image.url, 'width': obj.image.width, 'height': obj.image.height} for obj in DestinationImages.objects.filter(destination=obj.pk)]
+        print(obj.image, obj.name)
+        images = [{'src': obj.image.url, 'width': obj.image.width, 'height': obj.image.height, 'name': obj.name, 'name': obj.image.__str__() } for obj in DestinationImages.objects.filter(destination=obj.pk)]
         return images
 
     user = serializers.SerializerMethodField()

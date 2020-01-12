@@ -38,6 +38,7 @@ class Main extends React.Component {
       currImg: null,
       //Editor
       editorOpen: false,
+      showLoader: false
     }
   }
 
@@ -95,9 +96,15 @@ class Main extends React.Component {
 
   toggleEditor = (value) => {
     const boolean = typeof(value)  === 'boolean' ? value : !this.state.editorOpen;
-    console.log(value)
+    //console.log(value)
     this.setState({
       editorOpen: boolean
+    })
+  }
+
+  showLoader = (value) => {
+    this.setState({
+      showLoader: value
     })
   }
 
@@ -113,7 +120,6 @@ class Main extends React.Component {
         logged_in={ this.props.loggedIn }
         handleEditCity={this.props.handleEditCity}
         handleDeleteCity={this.props.handleDeleteCity}
-        handleImageOverwrite={this.props.handleImageOverwrite}
         backendURL={this.props.backendURL}
         hoverIndex={this.props.hoverIndex}
         changeHoverIndex={this.props.changeHoverIndex}
@@ -127,7 +133,7 @@ class Main extends React.Component {
         hoverIndex={this.props.hoverIndex}
         changeHoverIndex={this.props.changeHoverIndex}
         tableRowClick={this.tableRowClick}
-        setSelectedCity
+        //setSelectedCity
         />
 
         <Modal className={"Poopy"} isOpen={this.state.galleryOpen} toggle={this.toggleGallery} size={"xl"}>
@@ -149,16 +155,19 @@ class Main extends React.Component {
             //backdropClosable={true}
             handleImageOverwrite={this.props.handleImageOverwrite}
             toggleEditor={this.toggleEditor}
+            showLoader={this.showLoader}
 
           />
 
+          { this.state.editorOpen ?
           <ImgEditor 
           isOpen={this.state.editorOpen}
           toggleEditor={this.toggleEditor}
           //TODO implement default props here/use the load from url in the image editor
           image={this.state.selectedCity ? this.state.selectedCity.images[this.state.currImg] : null}
           backendURL={this.props.backendURL}
-          />
+          handleImageOverwrite={this.props.handleImageOverwrite}
+          /> : null}
 
       </div>
     ) 

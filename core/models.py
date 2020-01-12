@@ -19,6 +19,7 @@ class Destination(models.Model):
 class DestinationImages(models.Model):
     destination = models.ForeignKey(Destination, on_delete=models.CASCADE)
     image = models.ImageField(blank=True, null=True)
+    name = models.CharField(max_length=500, blank=True, null=True)
 
     def __str__(self):
         return self.image.name

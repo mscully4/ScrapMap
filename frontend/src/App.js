@@ -94,8 +94,6 @@ class App extends Component {
         console.log(data)
         this.setState({ 
           username: data.user.username, 
-          //Need to add hover=false for the linkage of the map with the table
-          //TODO look into whether it would be better to add hover column to DB
           cities: data.destinations.map((el, i) => {
             el.index=i;
             return el;
@@ -196,14 +194,16 @@ class App extends Component {
   }
 
   handleImageOverwrite = (img, dataURL) => {
-    var name = Math.random().toString(36).substr(2) + Math.random().toString(36).substr(2) + Math.random().toString(36).substr(2) + Math.random().toString(36).substr(2);
+    console.log(img)
+    const username = this.state.username;
     return new Promise(function(resolve, reject) {
       const buf = new Buffer(dataURL.replace(/^data:image\/\w+;base64,/, ""),'base64')
       const type = dataURL.split(';')[0].split('/')[1];
+      
 
       var params = {
         Bucket: "scrapmap",
-        Key: `BOOF/NY2.${type}`, 
+        Key: `${username}/${img.name}`, 
         Body: buf,
         ContentEncoding: 'base64',
         ContentType: `image/${type}`
@@ -235,6 +235,9 @@ class App extends Component {
         <h1 style={styles.quote}>"To Travel is to BOOF"</h1>
 
         <Main 
+        //user info
+        username={this.state.username}
+
         width={this.state.width}
         height={this.state.height}
         cities={this.state.cities}

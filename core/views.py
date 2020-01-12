@@ -73,6 +73,7 @@ class DestinationListView(APIView):
     #this has to be here because there is no pk in the url path
     def post(self, request, format=None):
         serializer = DestinationListSerializer(data=request.data, context={'request': request})
+        print(request.data)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
