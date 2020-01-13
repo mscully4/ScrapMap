@@ -55,11 +55,14 @@ const styles = theme => ({
     backgroundColor: "#ffffff",
     minWidth: 150,
     height: 150,
-    left: 19,
-    position: 'relative',
-    borderRadius: 4,
-    boxShadow: '0px 0px 8px -1px black',
-    top: -19,
+    left: 30,
+    position: 'absolute',
+    zIndex: 9999,
+    // borderRadius: 4,
+    // boxShadow: '0px 0px 8px -1px black',
+    boxShadow: "2px 2px 12px rgba(0, 0, 0, .75)",
+    border: "solid 1px rgba(0, 0, 0, .1)",
+    top: -14,
   },
   BoxStyleMouseEnter: {
     visibility: "visible",
@@ -185,15 +188,15 @@ class Marker extends Component {
 
   render() {
     //if there are images, iterate over the urls and return img tags with data
-    const images = this.props.data.images.length > 0 ? this.props.data.images.map((obj, i) => {
-      return (<img 
-        key={i} 
-        number={i} 
-        src={this.props.backendURL + obj.src} 
-        style={{"height": 40, "width": 40}} 
-        onClick={this.imgOnClick}
-        />)
-    }) : null;
+    // const images = this.props.data.images.length > 0 ? this.props.data.images.map((obj, i) => {
+    //   return (<img 
+    //     key={i} 
+    //     number={i} 
+    //     src={this.props.backendURL + obj.src} 
+    //     style={{"height": 40, "width": 40}} 
+    //     onClick={this.imgOnClick}
+    //     />)
+    // }) : null;
 
 
     return (
@@ -207,7 +210,6 @@ class Marker extends Component {
           <FontAwesomeIcon icon={"edit"} style={{margin: 5}} onClick={this.toggleEditForm}/>
           <FontAwesomeIcon icon={"trash"} style={{ margin: 5}} onClick={(e) => this.props.handleDeleteCity(e, this.state)}/>
           
-          {images}            
           
           {/* <ImageViewer 
             isOpen={true} 

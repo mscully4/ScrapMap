@@ -10,13 +10,14 @@ import Table from './components/Table'
 import {fetchCurrentUser, fetchToken, putNewUser, postNewCity, putEditCity, deleteCity } from "./utils/fetchUtils" 
 
 import { library } from '@fortawesome/fontawesome-svg-core';
-import { faEdit, faTrash, faSync  } from '@fortawesome/free-solid-svg-icons';
+import { faEdit, faTrash, faSync, fsEllipsisH, faEllipsisH  } from '@fortawesome/free-solid-svg-icons';
 
 import "./App.css";
 
 library.add(faEdit);
 library.add(faTrash);
 library.add(faSync);
+library.add(faEllipsisH)
 
 const BACKEND_URL = "http://localhost:8000";
 
@@ -69,7 +70,6 @@ class App extends Component {
       width: window.innerWidth * .8,
       height: window.innerHeight * .8,
 
-      hoverIndex: null,
     }
   }
 
@@ -187,12 +187,6 @@ class App extends Component {
     })
   };
 
-  changeHoverIndex = (index) => {
-    this.setState({
-      hoverIndex: index
-    })
-  }
-
   handleImageOverwrite = (img, dataURL) => {
     console.log(img)
     const username = this.state.username;
@@ -246,8 +240,7 @@ class App extends Component {
         handleDeleteCity={this.handleDeleteCity}
         handleImageOverwrite={this.handleImageOverwrite}
         backendURL={BACKEND_URL}
-        hoverIndex={this.state.hoverIndex}
-        changeHoverIndex={this.changeHoverIndex}
+        mapCenter={this.state.mapCenter}
         />
         <div style={styles.space}></div>
       </React.Fragment>

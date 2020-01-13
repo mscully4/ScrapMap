@@ -5,6 +5,8 @@ import { withStyles} from '@material-ui/styles';
 import { Scrollbars } from 'react-custom-scrollbars';
 import 'react-virtualized/styles.css'; // only needs to be imported once
 import "flag-icon-css/css/flag-icon.min.css";
+import { faEllipsisH } from '@fortawesome/free-solid-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 const styles = theme => ({
   scrollBar: {
@@ -38,8 +40,8 @@ const styles = theme => ({
     alignItems: 'center'
   },
   cellFlag: {
-    width: 100,
-    height: 100,
+    width: 40,
+    height: 40,
     margin: 'auto'
   },
   cellText: {
@@ -81,23 +83,26 @@ class VirtualTable extends Component {
     return (
       <div className={clsx(classes.cell)}>
         <span className={clsx(`flag-icon flag-icon-` + cellData.rowData.countryCode, classes.cellFlag)}></span>
-        <span>{cellData.rowData.city}{cellData.rowData.country}</span>
+        <span>{cellData.rowData.city}, {cellData.rowData.country}</span>
         {cellData.rowData.images.length ? <img className={clsx(classes.cellImage)} src={this.props.backendURL + cellData.rowData.images[0].src}></img> : null}
+        <div style={{position: 'absolute', width: 50, top: 10, right: 20}}>
+          <FontAwesomeIcon onClick={() => console.log('click')} style={{ width: '100%', height: '100%'}} icon="ellipsis-h"/>
+        </div>
       </div>
     )
   }
 
-  onRowClick = (obj) => {
-    const images = obj.rowData.images.map(img => {
-      img.src = this.props.backendURL + img.src;
-      return img;
-    })
-    this.setState({
-      galleryOpen: true,
-      images: images
+  // onRowClick = (obj) => {
+  //   const images = obj.rowData.images.map(img => {
+  //     img.src = this.props.backendURL + img.src;
+  //     return img;
+  //   })
+  //   this.setState({
+  //     galleryOpen: true,
+  //     images: images
 
-    })
-  }
+  //   })
+  // }
 
   render = () => {
     const WIDTH = window.innerWidth * .3;
@@ -119,11 +124,14 @@ class VirtualTable extends Component {
           width={WIDTH * .97}
           height={HEIGHT}
           headerHeight={HEADER_HEIGHT}
-          rowHeight={HEIGHT / 2}
+          rowHeight={HEIGHT / 5}
           rowCount={list.length}
           rowGetter={({index}) => list[index]}
           rowClassName={this.getRowClassName}
-          onRowMouseOver={(obj) => this.props.changeHoverIndex(obj.rowData.index)}
+          onRowMouseOver={(obj) => {
+            this.props.changeHoverIndex(obj.rowData.index);
+            this.props.changeMapCenter(obj.rowData);
+          }}
           onRowMouseOut={(obj) => this.props.changeHoverIndex(null)}
           onRowClick={this.props.tableRowClick}
           >

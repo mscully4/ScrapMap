@@ -16,23 +16,24 @@ const styles = {
 
 const Map = controllable(['center', 'zoom', 'hoverKey', 'clickKey'])(
 class Map extends Component {
-  static propTypes = {
-    center: PropTypes.array,
-    zoom: PropTypes.number,
-    //hoverKey: PropTypes.string,
-    clickKey: PropTypes.string,
-    onCenterChange: PropTypes.func,
-    onZoomChange: PropTypes.func,
-    onHoverKeyChange: PropTypes.func,
+  
+  // static propTypes = {
+  //   center: PropTypes.array,
+  //   zoom: PropTypes.number,
+  //   //hoverKey: PropTypes.string,
+  //   clickKey: PropTypes.string,
+  //   onCenterChange: PropTypes.func,
+  //   onZoomChange: PropTypes.func,
+  //   onHoverKeyChange: PropTypes.func,
 
-    greatPlaces: PropTypes.any,
-    cities: PropTypes.any,
-  }
+  //   greatPlaces: PropTypes.any,
+  //   cities: PropTypes.any,
+  // }
 
-  static defaultProps = {
-    center: [40.7, -74],
-    zoom: 4,
-  }
+  // static defaultProps = {
+  //   center: {lat: 40.7, lng: -74},
+  //   zoom: 4,
+  // }
 
   constructor(props) {
     super(props);
@@ -40,8 +41,10 @@ class Map extends Component {
     this.state = {
       apiKey: "AIzaSyBpXqyXMWAbXFs6XCxkMUFX09ZuHzjpKHU",
     }
-  }
 
+    this.mapRef = React.createRef();
+  }
+  
   _onBoundsChange = (center, zoom) => {
     this.props.onCenterChange(center);
     this.props.onZoomChange(zoom);
@@ -57,6 +60,11 @@ class Map extends Component {
 
   _onChildMouseLeave = () => {
     this.props.onHoverKeyChange(null);
+  }
+
+  _onChange = ({center, zoom}) => {
+    this.props.onCenterChange(center)
+    this.props.onZoomChange(zoom)
   }
 
   handleApiLoaded(map, maps) {
@@ -106,9 +114,8 @@ class Map extends Component {
         handleImageOverwrite={this.props.handleImageOverwrite}
         //setImgViewerIsOpen={this.setImgViewerIsOpen}
         backendURL={this.props.backendURL}
-        changeHoverState={this.props.changeHoverState}
-        hoverIndex={this.props.hoverIndex}
         changeHoverIndex={this.props.changeHoverIndex}
+        hoverIndex={this.props.hoverIndex}
         toggleImageViewerOpen={this.props.toggleImageViewerOpen}
         setCurrImg={this.props.setCurrImg}
       />)
@@ -121,14 +128,16 @@ class Map extends Component {
           center={this.props.center}
           zoom={this.props.zoom}
           hoverDistance={K_SIZE / 2}
-          onBoundsChange={this._onBoundsChange}
+          //onBoundsChange={this._onBoundsChange}
+          onChange={this._onChange}
           onChildClick={this._onChildClick}
           onChildMouseEnter={this._onChildMouseEnter}
           onChildMouseLeave={this._onChildMouseLeave}
           keyboardShortcuts={false}
           options={this.createMapOptions}
+          onChange={this._onChange}
           
-          //yesIWantToUseGoogleMapApiInternals
+          yesIWantToUseGoogleMapApiInternals
           //onGoogleApiLoaded={({ map, maps }) => this.handleApiLoaded(map, maps)}
         >
           {places}

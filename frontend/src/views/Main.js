@@ -31,6 +31,15 @@ class Main extends React.Component {
     this.state = {
       //General
       selectedCity: null,
+      //Hover
+      hoverIndex: null,
+      //Map
+      //TODO change these to be the location of the first city in the saved data
+      mapCenter: {
+        lat: 33.7490, 
+        lng: -84.3880
+      },
+      mapZoom: 4,
       //Gallery
       galleryOpen: false,
       //ImageViewer
@@ -40,6 +49,32 @@ class Main extends React.Component {
       editorOpen: false,
       showLoader: false
     }
+  }
+
+  changeHoverIndex = (index) => {
+    this.setState({
+      hoverIndex: index,
+    })
+
+    //console.log(index, this.props.cities[index])
+
+    // if (index !== null) {
+    //   this.setState({
+    //     mapCenter: {
+    //       lat: this.props.cities[index].latitude,
+    //       lng: this.props.cities[index].longitude
+    //     }
+    //   })
+    // }
+  }
+
+  changeMapCenter = (obj) => {
+    this.setState({
+      mapCenter: {
+        lat: obj.latitude,
+        lng: obj.longitude
+      }
+    })
   }
 
   setSelectedCity = (obj) => {
@@ -73,12 +108,16 @@ class Main extends React.Component {
       })
   }
 
-  tableRowClick = (obj) => {
-    this.setState({
-      galleryOpen: true,
-      //images: images,
-      selectedCity: obj.rowData,
-    })
+  tableRowClick = (obj, e) => {
+    console.log(obj.event.target)
+    //TODO once this gets changed from FA Icon to a regular SVG assign a role to both the SVG and Path so that this function will only fire when they are not selected
+    //if (obj.event.target.attributes.role.value === "row") {
+      this.setState({
+        galleryOpen: true,
+        //images: images,
+        selectedCity: obj.rowData,
+      })
+    //}
   }
 
   toggleViewer = (value) => {
@@ -102,6 +141,12 @@ class Main extends React.Component {
     })
   }
 
+  //Map Functions
+  setMapCenter = ( obj ) => {
+    this.setState({mapCenter: obj})
+  }
+
+  //Loader Functions
   showLoader = (value) => {
     this.setState({
       showLoader: value
@@ -109,20 +154,20 @@ class Main extends React.Component {
   }
 
   render() {
-    const images = [{src: "https://images.pexels.com/photos/414612/pexels-photo-414612.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940"}];
+    //console.log(this.props.cities)
     return (
       <div style={style.main}>
-
+       
         <Map 
-        width={ this.props.width } 
-        height={ this.props.height } 
+        center={this.state.mapCenter} 
+        zoom={this.state.mapZoom}
         cities={ this.props.cities }
         logged_in={ this.props.loggedIn }
         handleEditCity={this.props.handleEditCity}
         handleDeleteCity={this.props.handleDeleteCity}
         backendURL={this.props.backendURL}
-        hoverIndex={this.props.hoverIndex}
-        changeHoverIndex={this.props.changeHoverIndex}
+        hoverIndex={this.state.hoverIndex}
+        changeHoverIndex={this.changeHoverIndex}
         setCurrImg={this.setCurrImg}
         toggleImageViewerOpen={this.toggleImageViewerOpen}
         />
@@ -130,11 +175,14 @@ class Main extends React.Component {
         <Table 
         cities={this.props.cities}
         backendURL={this.props.backendURL}
-        hoverIndex={this.props.hoverIndex}
-        changeHoverIndex={this.props.changeHoverIndex}
+        hoverIndex={this.state.hoverIndex}
+        changeHoverIndex={this.changeHoverIndex}
+        changeMapCenter={this.changeMapCenter}
         tableRowClick={this.tableRowClick}
         //setSelectedCity
         />
+
+        {/* <button onClick={() => {this.setState({mapCenter: {lat: 25, lng: 25}}, () => console.log(this.state))}}>Click Me</button> */}
 
         <Modal className={"Poopy"} isOpen={this.state.galleryOpen} toggle={this.toggleGallery} size={"xl"}>
           <Gallery 

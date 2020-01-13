@@ -12,6 +12,18 @@ class PlacesAutoComplete extends React.Component {
     this.state = {} 
   }
 
+  onSelect = (selection) => {
+    const city = selection.terms[0].value
+    const country = selection.terms[selection.terms.length - 1].value;
+    geocodeByPlaceId(selection.place_id).then((data) => {
+      const state = data[0].address_components[3] === "United States" ? data[0].address_components[2].long_name : null;
+      const latitude = parseFloat(data[0].geometry.location.lat().toFixed(4));
+      const longitude = parseFloat(data[0].geometry.location.lng().toFixed(4));
+      const countryCode = data[0].address_components[3].short_name.toLowerCase()
+      this.props.selectAutoSuggest({city, country, latitude, longitude, countryCode, state})
+    })
+  }
+
   
   render = () => {
     const options = {
@@ -20,20 +32,22 @@ class PlacesAutoComplete extends React.Component {
     return (
       <div>
         <GooglePlacesAutocomplete
-          autocompletionRequest = {options}
+          autocompletionRequest={options}
           placeholder={"City"}
-          onSelect={(selection) => {
-            console.log(selection)
-            const city = selection.terms[0].value
-            const country = selection.terms[selection.terms.length - 1].value;
-            geocodeByPlaceId(selection.place_id).then((data) => {
-              console.log(data)
-              const latitude = parseFloat(data[0].geometry.location.lat().toFixed(4));
-              const longitude = parseFloat(data[0].geometry.location.lng().toFixed(4));
-              const countryCode = data[0].address_components[data[0].address_components.length - 1].short_name.toLowerCase()
-              this.props.selectAutoSuggest({city, country, latitude, longitude, countryCode})
-            })
-          }}
+          onSelect={this.onSelect
+            // (selection) => {
+            // console.log(selection)
+            // const city = selection.terms[0].value
+            // const country = selection.terms[selection.terms.length - 1].value;
+            // geocodeByPlaceId(selection.place_id).then((data) => {
+            //   console.log(data)
+            //   const latitude = parseFloat(data[0].geometry.location.lat().toFixed(4));
+            //   const longitude = parseFloat(data[0].geometry.location.lng().toFixed(4));
+            //   const countryCode = data[0].address_components[data[0].address_components.length - 1].short_name.toLowerCase()
+            //   this.props.selectAutoSuggest({city, country, latitude, longitude, countryCode})
+            // })
+        //  }
+        }
           renderInput={(props) => { 
             if (props.autoComplete === "off") {
               props.value = props.value.split(',')[0]; 
