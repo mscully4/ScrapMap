@@ -5,8 +5,7 @@ import { withStyles} from '@material-ui/styles';
 import { Scrollbars } from 'react-custom-scrollbars';
 import 'react-virtualized/styles.css'; // only needs to be imported once
 import "flag-icon-css/css/flag-icon.min.css";
-import { faEllipsisH } from '@fortawesome/free-solid-svg-icons';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { Dropdown, DropdownMenu, DropdownToggle, DropdownItem } from 'reactstrap';  
 
 const styles = theme => ({
   scrollBar: {
@@ -59,8 +58,18 @@ class VirtualTable extends Component {
     super(props)
     this.state ={
       scrollTop: 0,
-      images: []
+      images: [],
+      dropdownOpen: false
     }
+  }
+
+  toggleDropdown = () => {
+    const dropdownOpen = this.state.dropdownOpen;
+    console.log(dropdownOpen)
+    //if (value === undefined) value = this.state.dropdownOpen;
+    this.setState({
+      dropdownOpen: !dropdownOpen
+    })
   }
 
   handleScroll = ({ target: { scrollTop } }) => {
@@ -85,9 +94,48 @@ class VirtualTable extends Component {
         <span className={clsx(`flag-icon flag-icon-` + cellData.rowData.countryCode, classes.cellFlag)}></span>
         <span>{cellData.rowData.city}, {cellData.rowData.country}</span>
         {cellData.rowData.images.length ? <img className={clsx(classes.cellImage)} src={this.props.backendURL + cellData.rowData.images[0].src}></img> : null}
-        <div style={{position: 'absolute', width: 50, top: 10, right: 20}}>
-          <FontAwesomeIcon onClick={() => console.log('click')} style={{ width: '100%', height: '100%'}} icon="ellipsis-h"/>
-        </div>
+         
+         {/* <Dropdown isOpen={this.state.dropdownOpen} toggle={() => this.toggleDropdown()} style={{position: "absolute"}}>
+    <DropdownToggle>
+      BOOF
+
+    </DropdownToggle>
+    <DropdownMenu>
+      <DropdownItem toggle={false} onClick={()=>console.log(23)}>Edit</DropdownItem>
+      <DropdownItem toggle={false} onClick={()=>console.log(22)}>Delete</DropdownItem>
+    </DropdownMenu>
+  </Dropdown> */}
+          {/* <FontAwesomeIcon onClick={() => console.log('click')} style={{ width: '100%', height: '100%'}} icon="ellipsis-h"/> */}
+          {/* <svg
+          version="1.1"
+          xmlns="http://www.w3.org/2000/svg"
+          role="presentation"
+          viewBox="0 180 512 150"
+          style={{ position: 'absolute', width: 25, top: 5, right: 15, width: 50}}
+          value="ELLIPSIS"
+          onClick={() => {}}
+          >
+            <path d={ellipsis} value="ELLIPSIS"/>
+          </svg> */}
+            {/* <Dropdown isOpen={true} toggle={this.toggleDropdown} style={{position: 'absolute', left: 0, top: 0}}>
+    <DropdownToggle tag="div" tag="span" data-toggle="dropdown" aria-expanded={this.state.dropdownOpen} id="dropdown-custom-components">    
+    <svg
+          version="1.1"
+          xmlns="http://www.w3.org/2000/svg"
+          role="presentation"
+          viewBox="0 180 512 150"
+          style={{ position: 'absolute', width: 25, top: 5, left: 15, width: 50}}
+          value="ELLIPSIS"
+          onClick={() => {}}
+          >
+            <path d={ellipsis} value="ELLIPSIS"/>
+          </svg>
+          </DropdownToggle>
+    <DropdownMenu>
+      <DropdownItem toggle={false} onClick={()=>console.log(23)}>Edit</DropdownItem>
+      <DropdownItem toggle={false} onClick={()=>console.log(22)}>Delete</DropdownItem>
+    </DropdownMenu>
+  </Dropdown> */}
       </div>
     )
   }
@@ -113,7 +161,13 @@ class VirtualTable extends Component {
 
     return (
       <div>
-
+ <Dropdown isOpen={this.state.dropdownOpen} toggle={this.toggleDropdown}>
+    <DropdownToggle>BOOF</DropdownToggle>
+    <DropdownMenu>
+      <DropdownItem toggle={false} onClick={()=>console.log(23)}>Edit</DropdownItem>
+      <DropdownItem toggle={false} onClick={()=>console.log(22)}>Delete</DropdownItem>
+    </DropdownMenu>
+  </Dropdown>
         <Scrollbars
         className={clsx(this.props.classes.scrollBar)}
         onScroll={this.handleScroll}
@@ -151,5 +205,6 @@ class VirtualTable extends Component {
   }
 } 
 
+const ellipsis = "M328 256c0 39.8-32.2 72-72 72s-72-32.2-72-72 32.2-72 72-72 72 32.2 72 72zm104-72c-39.8 0-72 32.2-72 72s32.2 72 72 72 72-32.2 72-72-32.2-72-72-72zm-352 0c-39.8 0-72 32.2-72 72s32.2 72 72 72 72-32.2 72-72-32.2-72-72-72z"
 export default withStyles(styles)(VirtualTable);
  

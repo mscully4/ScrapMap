@@ -109,15 +109,13 @@ class Main extends React.Component {
   }
 
   tableRowClick = (obj, e) => {
-    console.log(obj.event.target)
-    //TODO once this gets changed from FA Icon to a regular SVG assign a role to both the SVG and Path so that this function will only fire when they are not selected
-    //if (obj.event.target.attributes.role.value === "row") {
+    if (obj.event.target.getAttribute("value") !== "ELLIPSIS") {
       this.setState({
         galleryOpen: true,
         //images: images,
         selectedCity: obj.rowData,
       })
-    //}
+    }
   }
 
   toggleViewer = (value) => {
@@ -184,12 +182,12 @@ class Main extends React.Component {
 
         {/* <button onClick={() => {this.setState({mapCenter: {lat: 25, lng: 25}}, () => console.log(this.state))}}>Click Me</button> */}
 
-        <Modal className={"Poopy"} isOpen={this.state.galleryOpen} toggle={this.toggleGallery} size={"xl"}>
+        {/* <Modal className={"Poopy"} isOpen={this.state.galleryOpen} toggle={this.toggleGallery} size={"xl"}>
           <Gallery 
           photos={this.state.selectedCity ? this.prepareImageURLS(this.state.selectedCity) : null} 
           onClick={this.galleryOnClick}
           />
-        </Modal>
+        </Modal> */}
 
 
          <ImageViewer 
