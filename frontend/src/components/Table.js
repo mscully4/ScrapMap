@@ -5,7 +5,8 @@ import { withStyles} from '@material-ui/styles';
 import { Scrollbars } from 'react-custom-scrollbars';
 import 'react-virtualized/styles.css'; // only needs to be imported once
 import "flag-icon-css/css/flag-icon.min.css";
-import { Dropdown, DropdownMenu, DropdownToggle, DropdownItem } from 'reactstrap';  
+//import { Dropdown, DropdownMenu, DropdownToggle, DropdownItem } from 'reactstrap';  
+import OptionsDropdown from './Dropdown';
 
 const styles = theme => ({
   scrollBar: {
@@ -94,63 +95,26 @@ class VirtualTable extends Component {
         <span className={clsx(`flag-icon flag-icon-` + cellData.rowData.countryCode, classes.cellFlag)}></span>
         <span>{cellData.rowData.city}, {cellData.rowData.country}</span>
         {cellData.rowData.images.length ? <img className={clsx(classes.cellImage)} src={this.props.backendURL + cellData.rowData.images[0].src}></img> : null}
+      <OptionsDropdown 
+        toggleEditForm={this.props.toggleEditForm} 
+        cellData={cellData} 
+      />
          
-         {/* <Dropdown isOpen={this.state.dropdownOpen} toggle={() => this.toggleDropdown()} style={{position: "absolute"}}>
-    <DropdownToggle>
-      BOOF
-
-    </DropdownToggle>
-    <DropdownMenu>
-      <DropdownItem toggle={false} onClick={()=>console.log(23)}>Edit</DropdownItem>
-      <DropdownItem toggle={false} onClick={()=>console.log(22)}>Delete</DropdownItem>
-    </DropdownMenu>
-  </Dropdown> */}
-          {/* <FontAwesomeIcon onClick={() => console.log('click')} style={{ width: '100%', height: '100%'}} icon="ellipsis-h"/> */}
-          {/* <svg
-          version="1.1"
-          xmlns="http://www.w3.org/2000/svg"
-          role="presentation"
-          viewBox="0 180 512 150"
-          style={{ position: 'absolute', width: 25, top: 5, right: 15, width: 50}}
-          value="ELLIPSIS"
-          onClick={() => {}}
-          >
-            <path d={ellipsis} value="ELLIPSIS"/>
-          </svg> */}
-            {/* <Dropdown isOpen={true} toggle={this.toggleDropdown} style={{position: 'absolute', left: 0, top: 0}}>
-    <DropdownToggle tag="div" tag="span" data-toggle="dropdown" aria-expanded={this.state.dropdownOpen} id="dropdown-custom-components">    
-    <svg
-          version="1.1"
-          xmlns="http://www.w3.org/2000/svg"
-          role="presentation"
-          viewBox="0 180 512 150"
-          style={{ position: 'absolute', width: 25, top: 5, left: 15, width: 50}}
-          value="ELLIPSIS"
-          onClick={() => {}}
-          >
-            <path d={ellipsis} value="ELLIPSIS"/>
-          </svg>
-          </DropdownToggle>
-    <DropdownMenu>
-      <DropdownItem toggle={false} onClick={()=>console.log(23)}>Edit</DropdownItem>
-      <DropdownItem toggle={false} onClick={()=>console.log(22)}>Delete</DropdownItem>
-    </DropdownMenu>
-  </Dropdown> */}
       </div>
     )
   }
 
-  // onRowClick = (obj) => {
-  //   const images = obj.rowData.images.map(img => {
-  //     img.src = this.props.backendURL + img.src;
-  //     return img;
-  //   })
-  //   this.setState({
-  //     galleryOpen: true,
-  //     images: images
+  onRowClick = (obj) => {
+    const images = obj.rowData.images.map(img => {
+      img.src = this.props.backendURL + img.src;
+      return img;
+    })
+    this.setState({
+      galleryOpen: true,
+      images: images
 
-  //   })
-  // }
+    })
+  }
 
   render = () => {
     const WIDTH = window.innerWidth * .3;
@@ -161,13 +125,7 @@ class VirtualTable extends Component {
 
     return (
       <div>
- <Dropdown isOpen={this.state.dropdownOpen} toggle={this.toggleDropdown}>
-    <DropdownToggle>BOOF</DropdownToggle>
-    <DropdownMenu>
-      <DropdownItem toggle={false} onClick={()=>console.log(23)}>Edit</DropdownItem>
-      <DropdownItem toggle={false} onClick={()=>console.log(22)}>Delete</DropdownItem>
-    </DropdownMenu>
-  </Dropdown>
+
         <Scrollbars
         className={clsx(this.props.classes.scrollBar)}
         onScroll={this.handleScroll}

@@ -4,6 +4,8 @@ import Table from '../components/Table'
 import ImageViewer from '../components/ImageViewer';
 import Carousel, { ModalGateway } from 'react-images';
 import { ImgEditor} from '../components/ImageEditor';
+import EditCity from '../components/EditCity.js'
+
 
 
 
@@ -47,7 +49,9 @@ class Main extends React.Component {
       currImg: null,
       //Editor
       editorOpen: false,
-      showLoader: false
+      showLoader: false,
+      //EditForm
+      editFormOpen: false
     }
   }
 
@@ -109,13 +113,11 @@ class Main extends React.Component {
   }
 
   tableRowClick = (obj, e) => {
-    if (obj.event.target.getAttribute("value") !== "ELLIPSIS") {
-      this.setState({
-        galleryOpen: true,
-        //images: images,
-        selectedCity: obj.rowData,
-      })
-    }
+    this.setState({
+      galleryOpen: obj.event.target.getAttribute("value") !== "DROPDOWN",
+      //images: images,
+      selectedCity: obj.rowData,
+    })
   }
 
   toggleViewer = (value) => {
@@ -151,8 +153,18 @@ class Main extends React.Component {
     })
   }
 
+  toggleEditForm = (value) => {
+    value = typeof(value) === 'boolean' ? value : !this.state.editFormOpen;
+    //if the editor is about to open, hide the hover box
+    //this.props.changeHoverIndex(null)
+    this.setState(prevState => ({
+      editFormOpen: value,
+      //hover: false,
+    }));
+  }
+
   render() {
-    //console.log(this.props.cities)
+    console.log(this.state.selectedCity)
     return (
       <div style={style.main}>
        
@@ -177,31 +189,31 @@ class Main extends React.Component {
         changeHoverIndex={this.changeHoverIndex}
         changeMapCenter={this.changeMapCenter}
         tableRowClick={this.tableRowClick}
-        //setSelectedCity
+        toggleEditForm={this.toggleEditForm}
         />
 
         {/* <button onClick={() => {this.setState({mapCenter: {lat: 25, lng: 25}}, () => console.log(this.state))}}>Click Me</button> */}
 
-        {/* <Modal className={"Poopy"} isOpen={this.state.galleryOpen} toggle={this.toggleGallery} size={"xl"}>
+        <Modal className={"Poopy"} isOpen={this.state.galleryOpen} toggle={this.toggleGallery} size={"xl"}>
           <Gallery 
           photos={this.state.selectedCity ? this.prepareImageURLS(this.state.selectedCity) : null} 
           onClick={this.galleryOnClick}
           />
-        </Modal> */}
+        </Modal>
 
 
          <ImageViewer 
-            backendURL={this.props.backendURL}
-            isOpen={this.state.imageViewerOpen} 
-            toggleViewer={this.toggleViewer}
-            views={this.props.cities.length ? this.props.cities[0].images : [{src: ""}]}
-            currentIndex={ this.state.currImg }
-            //changeCurrImg={ this.changeCurrImg }
-            //setCurrImg={ this.setCurrImg }
-            //backdropClosable={true}
-            handleImageOverwrite={this.props.handleImageOverwrite}
-            toggleEditor={this.toggleEditor}
-            showLoader={this.showLoader}
+          backendURL={this.props.backendURL}
+          isOpen={this.state.imageViewerOpen} 
+          toggleViewer={this.toggleViewer}
+          views={this.props.cities.length ? this.props.cities[0].images : [{src: ""}]}
+          currentIndex={ this.state.currImg }
+          //changeCurrImg={ this.changeCurrImg }
+          //setCurrImg={ this.setCurrImg }
+          //backdropClosable={true}
+          handleImageOverwrite={this.props.handleImageOverwrite}
+          toggleEditor={this.toggleEditor}
+          showLoader={this.showLoader}
 
           />
 
@@ -214,6 +226,14 @@ class Main extends React.Component {
           backendURL={this.props.backendURL}
           handleImageOverwrite={this.props.handleImageOverwrite}
           /> : null}
+
+          { this.state.editFormOpen ? 
+          <EditCity
+            isOpen={this.state.editFormOpen}
+            toggle={this.toggleEditForm}
+            handleEditCity={this.props.handleEditCity}
+            data={this.state.selectedCity}
+          /> : null }
 
       </div>
     ) 
