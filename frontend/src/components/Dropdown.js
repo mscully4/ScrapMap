@@ -49,7 +49,7 @@ export default class OptionsDropdown extends React.Component {
           </DropdownToggle>
           <DropdownMenu style={theme.dropdownMenu} value="DROPDOWN">
             <DropdownItem value="DROPDOWN" onClick={() => this.props.toggleEditForm(true)}>Edit</DropdownItem>
-            <DropdownItem value="DROPDOWN" onClick={()=>console.log(22)}>Delete</DropdownItem>
+            <DropdownItem value="DROPDOWN" onClick={(e) => this.props.handleDeleteCity(e, this.props.cellData.cellData)}>Delete</DropdownItem>
           </DropdownMenu>
         </Dropdown> 
     )

@@ -77,7 +77,6 @@ class EditCity extends React.Component {
     }
 
     render() {    
-      console.log(this.props.data) 
       return (
         <Modal isOpen={this.props.isOpen} toggle={this.props.toggle}>
         <ModalHeader toggle={this.props.toggle}>Edit</ModalHeader>

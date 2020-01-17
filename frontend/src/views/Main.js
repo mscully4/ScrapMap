@@ -164,7 +164,6 @@ class Main extends React.Component {
   }
 
   render() {
-    console.log(this.state.selectedCity)
     return (
       <div style={style.main}>
        
@@ -190,6 +189,7 @@ class Main extends React.Component {
         changeMapCenter={this.changeMapCenter}
         tableRowClick={this.tableRowClick}
         toggleEditForm={this.toggleEditForm}
+        handleDeleteCity={this.props.handleDeleteCity}
         />
 
         {/* <button onClick={() => {this.setState({mapCenter: {lat: 25, lng: 25}}, () => console.log(this.state))}}>Click Me</button> */}

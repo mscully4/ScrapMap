@@ -45,9 +45,9 @@ const config = {
   s3Url: 'http://scrapmap.s3.amazonaws.com/', /* optional */
 }
 
-var AWS = require('aws-sdk/dist/aws-sdk-react-native');
-AWS.config.update({ accessKeyId: config.accessKeyId, secretAccessKey: config.secretKeyAccess, region: config.region })
-var s3Bucket = new AWS.S3( { params: {Bucket: config.bucketName} } );
+// var AWS = require('aws-sdk/dist/aws-sdk-react-native');
+// AWS.config.update({ accessKeyId: config.accessKeyId, secretAccessKey: config.secretKeyAccess, region: config.region })
+// var s3Bucket = new AWS.S3( { params: {Bucket: config.bucketName} } );
 
 //const S3Client = new S3(config)
 
@@ -156,6 +156,7 @@ class App extends Component {
     e.preventDefault();
     putEditCity(localStorage.getItem('token'), data)
     .then(json => {
+      console.log(json, this.state.cities)
       this.setState({
         cities: this.state.cities.map(el => el.pk === json.pk ? json : el)
       })
@@ -189,24 +190,24 @@ class App extends Component {
 
   handleImageOverwrite = (img, dataURL) => {
     console.log(img)
-    const username = this.state.username;
-    return new Promise(function(resolve, reject) {
-      const buf = new Buffer(dataURL.replace(/^data:image\/\w+;base64,/, ""),'base64')
-      const type = dataURL.split(';')[0].split('/')[1];
+    // const username = this.state.username;
+    // return new Promise(function(resolve, reject) {
+    //   const buf = new Buffer(dataURL.replace(/^data:image\/\w+;base64,/, ""),'base64')
+    //   const type = dataURL.split(';')[0].split('/')[1];
       
 
-      var params = {
-        Bucket: "scrapmap",
-        Key: `${username}/${img.name}`, 
-        Body: buf,
-        ContentEncoding: 'base64',
-        ContentType: `image/${type}`
-      };
-      s3Bucket.putObject(params, function(err, data){
-        if (err) return reject(err)
-        else return resolve(params)
-      })
-    })
+    //   var params = {
+    //     Bucket: "scrapmap",
+    //     Key: `${username}/${img.name}`, 
+    //     Body: buf,
+    //     ContentEncoding: 'base64',
+    //     ContentType: `image/${type}`
+    //   };
+    //   s3Bucket.putObject(params, function(err, data){
+    //     if (err) return reject(err)
+    //     else return resolve(params)
+    //   })
+    // })
   }
 
 

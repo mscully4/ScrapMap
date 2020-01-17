@@ -107,7 +107,7 @@ class DestinationSerializer(serializers.ModelSerializer):
     #retrieve the image urls that correspond to the destination
     images = serializers.SerializerMethodField()
     def get_images(self, obj):
-        print(obj.image, obj.name)
+        print(obj)
         images = [{'src': obj.image.url, 'width': obj.image.width, 'height': obj.image.height, 'name': obj.name, 'name': obj.image.__str__() } for obj in DestinationImages.objects.filter(destination=obj.pk)]
         return images
 
