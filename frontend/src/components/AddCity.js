@@ -29,6 +29,7 @@ class AddCity extends React.Component {
           modalAdd: false,
           city: "", 
           country: "", 
+          countryCode: "",
           latitude: null, 
           longitude: null,
           pictures: [],
@@ -91,14 +92,20 @@ class AddCity extends React.Component {
         country: "",
         latitude: null,
         longitude: null,
+        countryCode: null,
         pictureNames: [],
         pictures: [],
         hover: false,
       })
     }
 
+    allFieldsValid = () => {
+      console.log()
+    }
+
     render() {     
       //console.log(this.state) 
+      this.allFieldsValid()
       return (
         <React.Fragment>
         <svg
@@ -121,7 +128,7 @@ class AddCity extends React.Component {
         <Modal isOpen={this.state.modalAdd} toggle={this.toggleAdd}>
           <ModalHeader toggle={this.toggleAdd}>Add City</ModalHeader>
             <ModalBody>
-              <Form id="addCityForm" ref={ref => this.formAddCity = ref} onSubmit={e => this.props.handleAddCity(e, this.state)}>
+              <Form id="addCityForm" ref={ref => this.formAddCity = ref} onSubmit={e => this.props.handleAddCity(e, this.state)} autoComplete="new-password">
                 <PlacesAutocomplete
                   name="city"
                   placeholder="city"
@@ -136,6 +143,17 @@ class AddCity extends React.Component {
                   value={this.state.country}
                   onChange={this.handleChange}
                   disabled={this.state.disabled}
+                  autoComplete={"new-password"}
+                />
+                <br />
+                <Input
+                  type="text"
+                  name="countryCode"
+                  placeholder="Country Code"
+                  value={this.state.countryCode}
+                  onChange={this.handleChange}
+                  disabled={this.state.disabled}
+                  autoComplete={"new-password"}
                 />
                 <br />
                 <Input 
@@ -145,6 +163,7 @@ class AddCity extends React.Component {
                   value={this.state.latitude}
                   onChange={this.handleChange}
                   disabled={this.state.disabled}
+                  autoComplete={"new-password"}
                 />
                 <br />
                 <Input
@@ -154,6 +173,7 @@ class AddCity extends React.Component {
                   value={this.state.longitude}
                   onChange={this.handleChange}
                   disabled={this.state.disabled}
+                  autoComplete={"new-password"}
                 />
                 <br />
                 <ImageUploader

@@ -19,37 +19,43 @@ import clsx from 'clsx';
 import ImageViewer from './ImageViewer.js';
 import EditCity from './EditCity.js'
 
-const K_WIDTH = 40;
-const K_HEIGHT = 40;
-const K_SIZE = 10;
+const K_WIDTH = 30;
+const K_HEIGHT = 30;
+const K_SIZE = 20;
 
 const styles = theme => ({
+  MarkerContainer: {
+    width: K_SIZE,
+    height: K_SIZE,
+    position: 'absolute',
+    left: -K_SIZE / 2,
+    top: -K_SIZE,
+  },
   MarkerStyle: {
     // initially any map object has left top corner at lat lng coordinates
     // it's on you to set object origin to 0,0 coordinates
-    position: 'absolute',
+    // position: 'absolute',
     width: K_SIZE,
     height: K_SIZE,
     left: -K_SIZE / 2,
     top: -K_SIZE / 2,
-  
-    border: '5px solid #f44336',
-    borderRadius: K_SIZE,
-    backgroundColor: 'white',
-    textAlign: 'center',
-    color: '#3f51b5',
-    fontSize: 16,
-    fontWeight: 'bold',
-    padding: 4,
     cursor: 'pointer',
-    "&:hover": {
-      backgroundColor: "#ffffff"
-    }
+    fill: "red",
+    backgroundColor: "blue",
+  
+    // border: '5px solid #f44336',
+    // borderRadius: K_SIZE,
+    // backgroundColor: 'white',
+    // textAlign: 'center',
+    // color: '#3f51b5',
+    // fontSize: 16,
+    // fontWeight: 'bold',
+    // padding: 4,
+    // cursor: 'pointer',
+     "&:hover": {
+       fill: "black"
+     }
   }, 
-  MarkerStyleHover: {
-    border: '5px solid #3f51b5',
-    backgroundColor: '#f44343',
-  },
   BoxStyle: {
     display: 'inline-block',
     backgroundColor: "#ffffff",
@@ -180,7 +186,7 @@ class Marker extends Component {
     generateClassNames = (element) => {
       const classes = this.props.classes;
       if (element === "Marker") {
-        return clsx(this.props.classes.MarkerStyle, {[this.props.classes.MarkerStyleHover]: this.props.hoverIndex === this.props.data.index});
+        return clsx(this.props.classes.MarkerStyle);
       } else if (element === "Box") {
         return clsx(classes.BoxStyle, classes.BoxStyleHover, {[classes.BoxStyleMouseLeave]: !this.state.hover})
       }
@@ -200,34 +206,24 @@ class Marker extends Component {
 
 
     return (
-      <div className={this.generateClassNames("Marker")} onMouseEnter={this.onMouseEnter} onMouseLeave={this.onMouseLeave}>
-        <div className={this.generateClassNames("Box")}>
+    
+      <div onMouseEnter={this.onMouseEnter} onMouseLeave={this.onMouseLeave} className={clsx(this.props.classes.MarkerContainer)}>
+        <svg
+          style={styles.addIcon}
+          viewBox="0 0 288 512"
+          version="1.1"
+          xmlns="http://www.w3.org/2000/svg"
+          className={this.generateClassNames("Marker")}
+        >
+          <path
+            d={pin}
+          />
+        </svg>
+         <div className={this.generateClassNames("Box")}>
           <p className="city-text">{this.props.data.city},<br />{this.props.data.country}</p>
           <div className="tailShadow"></div>
           <div className="tail1"></div>
           <div className="tail2"></div>
-          
-          <FontAwesomeIcon icon={"edit"} style={{margin: 5}} onClick={this.toggleEditForm}/>
-          <FontAwesomeIcon icon={"trash"} style={{ margin: 5}} onClick={(e) => this.props.handleDeleteCity(e, this.state)}/>
-          
-          
-          {/* <ImageViewer 
-            isOpen={true} 
-            setImageViewerOpen={this.setImageViewerOpen}
-            images={ this.props.data.images }
-            currImg={ this.state.currImg }
-            //changeCurrImg={ this.changeCurrImg }
-            setCurrImg={ this.setCurrImg }
-            backdropClosable={true}
-            handleImageOverwrite={this.props.handleImageOverwrite}
-            
-          /> */}
-          <EditCity
-          isOpen={this.state.editorIsOpen}
-          toggle={this.toggleEditForm}
-          handleEditCity={this.props.handleEditCity}
-          data={this.props.data}
-          />
         </div>
       </div>
         );

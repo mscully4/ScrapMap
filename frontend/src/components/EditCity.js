@@ -15,7 +15,6 @@ import ImageUploader from './ImageUploader';
 
 class EditCity extends React.Component {
   static defaultProps = {
-    data: {city: "", country: "", countryCode: "", lat: null, lng: null, index: null, urls: []},
   };
 
   constructor(props) {
@@ -25,7 +24,7 @@ class EditCity extends React.Component {
       ...this.props.data,
       pictures: [],
       pictureNames: [],
-      disabled: false,  //figure out a way to keep this true until a key is entered in city, maybe use an event listener
+      disabled: false,  //TODO figure out a way to keep this true until a key is entered in city, maybe use an event listener
     };
   }
 
@@ -76,7 +75,15 @@ class EditCity extends React.Component {
       this.props.toggle();
     }
 
-    render() {    
+    hasBeenChanged = () => {
+      return (this.state.country !== this.props.data.country ||
+        this.state.city !== this.props.data.city ||
+        this.state.latitude !== this.props.data.latitude ||
+        this.state.longitude !== this.props.data.longitude)
+    }
+
+    render() {
+      const buttonDisabled = !this.hasBeenChanged(); 
       return (
         <Modal isOpen={this.props.isOpen} toggle={this.props.toggle}>
         <ModalHeader toggle={this.props.toggle}>Edit</ModalHeader>
@@ -120,7 +127,7 @@ class EditCity extends React.Component {
           </Form>
         </ModalBody>
         <ModalFooter>
-          <Button onClick={this.submitForm}>Submit</Button>
+          <Button disabled={buttonDisabled} onClick={this.submitForm}>Submit</Button>
         </ModalFooter>
       </Modal>
       )

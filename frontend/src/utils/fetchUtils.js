@@ -62,6 +62,7 @@ export function putEditCity(token, data) {
   form.append("pk", data.pk);
   form.append('city', data.city);
   form.append('country', data.country);
+  form.append('countryCode', data.countryCode)
   form.append('latitude', data.latitude);
   form.append('longitude', data.longitude);
   for (var i=0; i<data.pictures.length; i++) {

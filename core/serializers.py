@@ -117,7 +117,7 @@ class DestinationSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Destination
-        fields = ('pk', "city", "country", "latitude", "longitude", "user", "images")
+        fields = ('pk', "city", "country", "countryCode", "latitude", "longitude", "user", "images")
 
     def update(self, instance, validated_data):
         #update all the fields of the Destination Model object

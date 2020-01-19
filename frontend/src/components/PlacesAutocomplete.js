@@ -5,24 +5,27 @@ import GooglePlacesAutocomplete, {geocodeByPlaceId} from 'react-google-places-au
 import 'react-google-places-autocomplete/dist/assets/index.css';
 import { Dropdown, DropdownItem, DropdownMenu, DropdownToggle, Input} from 'reactstrap';
  
+const SUGGESTIONS = 5;
+const options = {
+  types: ["(cities)"],
+}
+
+const style = {
+  dropdownItem: {
+    cursor: 'pointer'
+  }
+}
+
 class PlacesAutoComplete extends React.Component {
   constructor(props) {
     super(props);
-    this.state = {}
+    this.state = {
+      listIndex: null,
+      suggestions: null,
+    };
+
+    this.myRef = React.createRef();
   }
-
-  componentDidMount() {
-    ReactDOM.findDOMNode(this).addEventListener('keydown', function() {
-      console.log('keydown')
-    })
-
-    ReactDOM.findDOMNode(this).addEventListener('keyup', function() {
-      console.log('keyup')
-    })
-
-  }
-
-
 
   onSelect = (selection) => {
     const city = selection.terms[0].value
@@ -45,14 +48,12 @@ class PlacesAutoComplete extends React.Component {
     })
   }
 
-  
   render = () => {
-    const options = {
-      types: ["(cities)"],
-    }
+    //console.log(this.myRef)
     return (
       <div>
         <GooglePlacesAutocomplete
+          ref={this.myRef}
           autocompletionRequest={options}
           placeholder={"City"}
           onSelect={this.onSelect}
@@ -64,29 +65,42 @@ class PlacesAutoComplete extends React.Component {
             <div>
               <Input
                 {...props}
+                autoComplete={"new-password"}
               />
             </div>
           )}}
-          renderSuggestions={(active, suggestions, onSelectSuggestion) => (
-            // <ul onKeyDown={() => console.log(69)} style={{position: "absolute", width: "100%", backgroundColor: "#fff", border: "solid 3px #dbecff", borderTop: "0", borderRadius: 5}}>
-            //   {
-            //     suggestions.map((suggestion) => (
-            //       <li className="suggestion"
-            //         style={{cursor: "pointer"}}
-            //         onClick={(event) => onSelectSuggestion(suggestion, event)}
-            //       >
-            //         {suggestion.description}
-            //       </li>
-            //     ))
-            //   }
-            // </ul>
+          // renderSuggestions={(active, suggestions, onSelectSuggestion) => {
+          //   if (suggestions !== this.state.suggestions) {
+          //     this.setState({
+          //       suggestions: suggestions
+          //     })
+          //   }
+          //   // <ul onKeyDown={() => console.log(69)} style={{position: "absolute", width: "100%", backgroundColor: "#fff", border: "solid 3px #dbecff", borderTop: "0", borderRadius: 5}}>
+          //   //   {
+          //   //     suggestions.map((suggestion) => (
+          //   //       <li className="suggestion"
+          //   //         style={{cursor: "pointer"}}
+          //   //         onClick={(event) => onSelectSuggestion(suggestion)}
+          //   //       >
+          //   //         {suggestion.description}
+          //   //       </li>
+          //   //     ))
+          //   //   }
+          //   // </ul>
 
-            
-          <DropdownMenu style={{display: 'block', width: '100%'}}>
-             <DropdownItem>Edit</DropdownItem>
-            <DropdownItem>Delete</DropdownItem>
-           </DropdownMenu>
-          )}
+          //   return (
+          //     <DropdownMenu style={{display: 'block', width: '100%'}}>
+          //       { suggestions.map((suggestion) => (
+          //         <DropdownItem style={style.dropdownItem} 
+          //         onClick={() => console.log("Click")} 
+          //         onMouseEnter={() => console.log("Hover")}
+          //         >
+          //           {suggestion.description}
+          //         </DropdownItem>
+          //         //onClick={(event) => onSelectSuggestion(suggestion, event)}                  
+          //       ))}
+          //     </DropdownMenu>
+          // )}}
         />
       </div>
     )}
