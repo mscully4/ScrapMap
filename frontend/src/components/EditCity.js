@@ -76,10 +76,14 @@ class EditCity extends React.Component {
     }
 
     hasBeenChanged = () => {
+      console.log(this.state, this.props)
       return (this.state.country !== this.props.data.country ||
         this.state.city !== this.props.data.city ||
         this.state.latitude !== this.props.data.latitude ||
-        this.state.longitude !== this.props.data.longitude)
+        this.state.longitude !== this.props.data.longitude ||
+        this.state.pictures.length > 0
+        
+        )
     }
 
     render() {

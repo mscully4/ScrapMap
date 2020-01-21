@@ -57,17 +57,16 @@ class PlacesAutoComplete extends React.Component {
           autocompletionRequest={options}
           placeholder={"City"}
           onSelect={this.onSelect}
-          renderInput={(props) => { 
+          renderInput={(props) => {
+            console.log(props)
             if (props.autoComplete === "off") {
               props.value = props.value.split(',')[0]; 
             }
             return(
-            <div>
               <Input
                 {...props}
                 autoComplete={"new-password"}
               />
-            </div>
           )}}
           // renderSuggestions={(active, suggestions, onSelectSuggestion) => {
           //   if (suggestions !== this.state.suggestions) {

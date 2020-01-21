@@ -220,7 +220,6 @@ class App extends Component {
           loggedIn={this.state.loggedIn} 
           username={this.state.username} 
           handleLogout={this.handleLogout} 
-          handleAddCity={this.handleAddCity} 
           toggleLoggedIn={this.toggleLogIn}
           toggleSignUp={this.toggleSignUp}
           handleLogin={this.handleLogin}
@@ -237,6 +236,7 @@ class App extends Component {
         height={this.state.height}
         cities={this.state.cities}
         //Map Props
+        handleAddCity={this.handleAddCity} 
         handleEditCity={this.handleEditCity}
         handleDeleteCity={this.handleDeleteCity}
         handleImageOverwrite={this.handleImageOverwrite}

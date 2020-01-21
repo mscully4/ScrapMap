@@ -68,16 +68,9 @@ class AddCity extends React.Component {
       })
     }
 
-    toggleAdd = () => {
-      this.clear();
-      this.setState(prevState => ({
-        modalAdd: !prevState.modalAdd,
-      }));
-    }
-
     submitForm = () => {
       ReactDOM.findDOMNode(this.formAddCity).dispatchEvent(new Event("submit"))
-      this.toggleAdd();
+      this.toggle();
     }
 
     selectAutoSuggest = (obj) => {
@@ -92,7 +85,7 @@ class AddCity extends React.Component {
         country: "",
         latitude: null,
         longitude: null,
-        countryCode: null,
+        countryCode: "",
         pictureNames: [],
         pictures: [],
         hover: false,
@@ -100,15 +93,24 @@ class AddCity extends React.Component {
     }
 
     allFieldsValid = () => {
-      console.log()
+      console.log(this.state.city,
+      this.state.country, 
+      this.state.countryCode,
+      this.state.latitude,
+      this.state.longitude)
+      return this.state.city !== "" &&
+      this.state.country !== "" && 
+      this.state.countryCode !== "" &&
+      this.state.latitude !== null &&
+      this.state.longitude !== null ? true : false;
     }
 
     render() {     
       //console.log(this.state) 
-      this.allFieldsValid()
+      console.log(this.allFieldsValid())
       return (
         <React.Fragment>
-        <svg
+        {/* <svg
           style={styles.addIcon}
           viewBox="0 0 1024 1024"
           version="1.1"
@@ -123,12 +125,12 @@ class AddCity extends React.Component {
             d="M736 480h-192V288c0-19.2-12.8-32-32-32s-32 12.8-32 32v192H288c-19.2 0-32 12.8-32 32s12.8 32 32 32h192v192c0 19.2 12.8 32 32 32s32-12.8 32-32v-192h192c19.2 0 32-12.8 32-32s-12.8-32-32-32z"
             fill="#737373"
           />
-        </svg>
+        </svg> */}
 
-        <Modal isOpen={this.state.modalAdd} toggle={this.toggleAdd}>
-          <ModalHeader toggle={this.toggleAdd}>Add City</ModalHeader>
+        <Modal isOpen={this.props.isOpen} toggle={this.props.toggle}>
+          <ModalHeader toggle={this.toggle}>Add City</ModalHeader>
             <ModalBody>
-              <Form id="addCityForm" ref={ref => this.formAddCity = ref} onSubmit={e => this.props.handleAddCity(e, this.state)} autoComplete="new-password">
+              <Form ref={ref => this.formAddCity = ref} onSubmit={e => this.props.handleAddCity(e, this.state)} autoComplete={"new-password"}>
                 <PlacesAutocomplete
                   name="city"
                   placeholder="city"

@@ -80,9 +80,6 @@ class Navigation extends React.Component {
           <NavItem>
             <Button className="nav-button" onClick={this.props.handleLogout}>Logout</Button>
           </NavItem>
-          <NavItem>
-            <AddCity handleAddCity={ this.props.handleAddCity }/>
-          </NavItem>
         </Nav>
     } else { 
       form = 
@@ -121,5 +118,6 @@ class Navigation extends React.Component {
     )
   }
 }
+
 
 export default Navigation;

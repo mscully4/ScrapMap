@@ -105,18 +105,6 @@ class VirtualTable extends Component {
     )
   }
 
-  onRowClick = (obj) => {
-    const images = obj.rowData.images.map(img => {
-      img.src = this.props.backendURL + img.src;
-      return img;
-    })
-    this.setState({
-      galleryOpen: true,
-      images: images
-
-    })
-  }
-
   render = () => {
     const WIDTH = window.innerWidth * .3;
     //TODO Make this the height of the main component not the whole page

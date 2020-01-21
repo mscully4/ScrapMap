@@ -15,6 +15,7 @@ import PropTypes from 'prop-types';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { withStyles} from '@material-ui/styles';
 import clsx from 'clsx';
+import ReactTooltip from 'react-tooltip';
 
 import ImageViewer from './ImageViewer.js';
 import EditCity from './EditCity.js'
@@ -41,7 +42,7 @@ const styles = theme => ({
     top: -K_SIZE / 2,
     cursor: 'pointer',
     fill: "red",
-    backgroundColor: "blue",
+    //backgroundColor: "blue",
   
     // border: '5px solid #f44336',
     // borderRadius: K_SIZE,
@@ -204,27 +205,27 @@ class Marker extends Component {
     //     />)
     // }) : null;
 
-
     return (
     
-      <div onMouseEnter={this.onMouseEnter} onMouseLeave={this.onMouseLeave} className={clsx(this.props.classes.MarkerContainer)}>
+      <div onMouseEnter={this.onMouseEnter} onMouseLeave={this.onMouseLeave} className={clsx(this.props.classes.MarkerContainer)} onClick={() => this.props.markerClick(this.props.data)}>
         <svg
           style={styles.addIcon}
           viewBox="0 0 288 512"
           version="1.1"
           xmlns="http://www.w3.org/2000/svg"
           className={this.generateClassNames("Marker")}
+          data-tip
+          data-for={this.props.data.city}
         >
           <path
             d={pin}
           />
         </svg>
-         <div className={this.generateClassNames("Box")}>
-          <p className="city-text">{this.props.data.city},<br />{this.props.data.country}</p>
-          <div className="tailShadow"></div>
-          <div className="tail1"></div>
-          <div className="tail2"></div>
-        </div>
+        <ReactTooltip id={this.props.data.city} place="top" type="light" effect="solid">
+          <span>{this.props.data.city}, {this.props.data.country}</span>
+          <br />
+          <span>Click To View Gallery</span>
+        </ReactTooltip>
       </div>
         );
     }

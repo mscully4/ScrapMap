@@ -1,4 +1,5 @@
-import React, { ReactDOM } from 'react';
+import React from 'react';
+import ReactDOM from 'react-dom'
 import 'tui-image-editor/dist/tui-image-editor.css'
 import ImageEditor from '@toast-ui/react-image-editor'
 import { Button, Modal } from 'reactstrap';
@@ -32,6 +33,7 @@ export class ImgEditor extends React.Component {
       showLoader: false,
     }
     this.imageEditor = React.createRef();
+    this.modalRef = React.createRef();
   }
 
   saveChanges = () => {
@@ -56,7 +58,13 @@ export class ImgEditor extends React.Component {
       while (headerButtons.children.length>0) {
         headerButtons.removeChild(headerButtons.children[0])
       }
-    }, 1)
+    }, 100)
+
+    //TODO Remove this if you feel like it
+    // setTimeout(function() {
+    //   const footerButtons = document.getElementsByClassName("tui-image-editor-menu")[0];
+    //   footerButtons.removeChild(footerButtons.getElementsByClassName('tie-btn-delete'))
+    // }, 100)
   }
 
   render = () => {
@@ -73,11 +81,11 @@ export class ImgEditor extends React.Component {
     //     </div>)
     // } else {
     //   return (
-        <Modal isOpen={this.props.isOpen} toggle={this.props.toggleEditor} size={"xl"}>
+        <Modal isOpen={this.props.isOpen} toggle={this.props.toggleEditor} size={"xl"} ref={(input) => {this.modalRef = input }}>
           <div>
           <Button onClick={this.saveChanges}>Save</Button>
           <ImageEditor
-          ref={this.imageEditor}
+          ref={(input) => {this.imageEditor = input}}
           includeUI={{
             loadImage: {
               path: this.props.image ? this.props.backendURL + this.props.image.src : null,

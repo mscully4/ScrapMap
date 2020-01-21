@@ -118,6 +118,7 @@ class Map extends Component {
         hoverIndex={this.props.hoverIndex}
         toggleImageViewerOpen={this.props.toggleImageViewerOpen}
         setCurrImg={this.props.setCurrImg}
+        markerClick={this.props.markerClick}
       />)
     }) : null;
       
