@@ -73,7 +73,6 @@ export function putEditCity(token, data) {
     method: "PUT",
     headers: {
       Authorization: `JWT ${token}`,
-      //"Content-Type": "application/json",
     },
     body: form,
   })

@@ -125,9 +125,9 @@ class EditCity extends React.Component {
               onChange={this.handleChange}
             />
             <br />
-            <ImageUploader
+            {/* <ImageUploader
               onChange={this.handleImageChange}
-            />
+            /> */}
           </Form>
         </ModalBody>
         <ModalFooter>

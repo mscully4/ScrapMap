@@ -45,10 +45,10 @@ class Map extends Component {
     this.mapRef = React.createRef();
   }
   
-  _onBoundsChange = (center, zoom) => {
-    this.props.onCenterChange(center);
-    this.props.onZoomChange(zoom);
-  }
+  // _onBoundsChange = (center, zoom) => {
+  //   this.props.onCenterChange(center);
+  //   this.props.onZoomChange(zoom);
+  // }
 
   _onChildClick = (key, childProps) => {
     this.props.onCenterChange([childProps.lat, childProps.lng]);
@@ -63,6 +63,9 @@ class Map extends Component {
   }
 
   _onChange = ({center, zoom}) => {
+    //TODO change marker size based on zoom
+    console.log(zoom)
+    this.props.changeGranularity(zoom > 11 ? 0 : 1)
     this.props.onCenterChange(center)
     this.props.onZoomChange(zoom)
   }

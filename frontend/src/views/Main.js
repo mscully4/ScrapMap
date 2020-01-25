@@ -6,7 +6,7 @@ import Carousel, { ModalGateway } from 'react-images';
 import { ImgEditor} from '../components/ImageEditor';
 import EditCity from '../components/EditCity.js';
 import AddCity from '../components/AddCity.js';
-import ImageUploadeer from '../components/ImageUploader.js';
+import ImageUploader from '../components/ImageUploader.js';
 import { withStyles} from '@material-ui/styles';
 import clsx from 'clsx'
 
@@ -15,6 +15,7 @@ import clsx from 'clsx'
 
 import Gallery from "react-photo-gallery";
 import { Modal } from 'reactstrap';
+import { putEditCity } from '../utils/fetchUtils';
 
 const styles = theme => ({
   main: {
@@ -32,7 +33,36 @@ const styles = theme => ({
   addSVG: {
     height: 100,
     width: 100
-  }
+  },
+  imageUploaderPopUp: {
+    position: 'fixed',
+    bottom: 0,
+    right: 0,
+    height: 500,
+    width: 500,
+    backgroundColor: '#fff',
+    // display: 'grid',
+    // gridTemplateRows: '1fr 1fr 1fr',
+    // gridTemplateColumns: '1fr',
+  },
+  // imageUploader: {
+  //   height: '80%',
+  //   width: '100%',
+  //   border: "solid 1px black",
+  //   "& .fileContainer": {
+  //     boxShadow: "none",
+  //   },
+  //   "&& img": {
+  //     width: "150px !important",
+  //     height: "150px !important"
+  //   },
+  //   "&& p": {
+  //     fontSize: '18px'
+  //   },
+  //   "&& button": {
+  //     fontSize: 20
+  //   }
+  // }
 })
 
 class Main extends React.Component {
@@ -45,10 +75,10 @@ class Main extends React.Component {
     this.state = {
       //General
       selectedCity: null,
-      //Hover
       hoverIndex: null,
       //Map
       //TODO change these to be the location of the first city in the saved data
+      granularity: 0,
       mapCenter: {
         lat: 33.7490, 
         lng: -84.3880
@@ -61,6 +91,9 @@ class Main extends React.Component {
       currImg: null,
       //ImageUploader
       uploaderOpen: false,
+      uploaderPK: null,
+      images : [],
+      imageNames: [],
       //Editor
       editorOpen: false,
       showLoader: false,
@@ -69,6 +102,15 @@ class Main extends React.Component {
       //addForm
       addFormOpen: false
     }
+  }
+
+  //General Functions
+  
+
+  setSelectedCity = (obj) => {
+    this.setState({
+      selectedCity: obj
+    })
   }
 
   changeHoverIndex = (index) => {
@@ -88,6 +130,13 @@ class Main extends React.Component {
     // }
   }
 
+  //Map Functions
+  changeGranularity = (granularity) => {
+    this.setState({
+      granularity: granularity
+    })
+  }
+
   changeMapCenter = (obj) => {
     this.setState({
       mapCenter: {
@@ -97,12 +146,7 @@ class Main extends React.Component {
     })
   }
 
-  setSelectedCity = (obj) => {
-    this.setState({
-      selectedCity: obj
-    })
-  }
-
+  //Gallery Functions
   toggleGallery = (value) => {
     const boolean = typeof(value) === 'boolean' ? value : !this.state.galleryOpen;
     console.log(boolean)
@@ -129,8 +173,9 @@ class Main extends React.Component {
   }
 
   tableRowClick = (obj, e) => {
+    //TODO change this to using state logic
     this.setState({
-      galleryOpen: obj.event.target.getAttribute("value") !== "DROPDOWN",
+      galleryOpen: obj.event.target.getAttribute("value") !== "KILL",
       //images: images,
       selectedCity: obj.rowData,
     })
@@ -143,6 +188,7 @@ class Main extends React.Component {
     })
   }
 
+  //Viewer Functions
   toggleViewer = (value) => {
     const boolean = typeof(value)  === 'boolean' ? value : !this.state.editorOpen;
     this.setState({
@@ -150,10 +196,26 @@ class Main extends React.Component {
     })
   }
 
-  toggleUploader = () => {
-    this.setState(prevState => ({
-      uploaderOpen: !prevState.uploaderOpen,
-    }))
+  //Uploader Functions
+  toggleUploader = (pk) => {
+    //If the uploader is already open, close it if the same city was clicked else change the PK to the new city if a new city was clicked
+    //ELSEIf the uploader was closed, open it with the pk selected
+    const uploaderOpen = this.state.uploaderOpen;
+    this.setState({
+      uploaderPK: !uploaderOpen ? pk : pk !== this.state.uploaderPK ? pk : null,
+      uploaderOpen: !uploaderOpen ? true : pk !== this.state.uploaderPK ? true : false,
+    })
+  }
+
+
+  handleImageSubmit= (e, data) => {
+    const formData = {
+      ...data, 
+      ...this.state.selectedCity
+    }
+    console.log(formData, data)
+    
+    this.props.handleEditCity(e, formData)
   }
 
   setCurrImg = (index) => {
@@ -202,6 +264,7 @@ class Main extends React.Component {
   render() {
     return (
       <React.Fragment>
+  <p>Granularity: {this.state.granularity}</p>
         <svg
           className={clsx(this.props.classes.addSVG)}
           viewBox="0 0 1024 1024"
@@ -218,8 +281,8 @@ class Main extends React.Component {
             fill="#737373"
           />
         </svg>
-{/* Make the svg a function so that props can be passed down on invokation */}
-        <svg
+{/* TODO Make the svg a function so that props can be passed down on invokation */}
+        {/* <svg
           className={clsx(this.props.classes.addSVG)}
           viewBox="0 0 1024 1024"
           version="1.1"
@@ -234,7 +297,7 @@ class Main extends React.Component {
             d={Add2}
             fill="#737373"
           />
-        </svg>
+        </svg> */}
 
 
         <div className={clsx(this.props.classes.main)}>
@@ -252,6 +315,7 @@ class Main extends React.Component {
        setCurrImg={this.setCurrImg}
        toggleImageViewerOpen={this.toggleImageViewerOpen}
        markerClick={this.markerClick}
+       changeGranularity={this.changeGranularity}
        />
 
        <Table 
@@ -263,6 +327,7 @@ class Main extends React.Component {
        tableRowClick={this.tableRowClick}
        toggleEditForm={this.toggleEditForm}
        handleDeleteCity={this.props.handleDeleteCity}
+       toggleUploader={this.toggleUploader}
        />
 
        {/* <button onClick={() => {this.setState({mapCenter: {lat: 25, lng: 25}}, () => console.log(this.state))}}>Click Me</button> */}
@@ -274,9 +339,9 @@ class Main extends React.Component {
          />
        </Modal>
 
-      <Modal style={{backgroundColor: "white", height: window.innerHeight * .9}} contentClassName={clsx(this.props.classes.modalContent)} isOpen={this.state.uploaderOpen} toggle={this.toggleUploader} size={"xl"}>
+      {/* <Modal style={{backgroundColor: "white", height: window.innerHeight * .9}} contentClassName={clsx(this.props.classes.modalContent)} isOpen={this.state.uploaderOpen} toggle={this.toggleUploader} size={"xl"}>
         <ImageUploadeer />
-      </Modal> 
+      </Modal>  */}
 
 
         <ImageViewer 
@@ -318,6 +383,17 @@ class Main extends React.Component {
            toggle={this.toggleAddForm}
            handleAddCity={this.props.handleAddCity}
          /> : null }
+
+        { this.state.uploaderOpen ?
+        <div className={clsx(this.props.classes.imageUploaderPopUp)}>
+          {/* <div></div> */}
+          <ImageUploader 
+          className={clsx(this.props.classes.imageUploader)} 
+          handleImageSubmit={this.handleImageSubmit}
+          />
+         </div>
+         : null
+        }
 
      </div>
       </React.Fragment>

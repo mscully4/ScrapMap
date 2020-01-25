@@ -33,23 +33,23 @@ export default class OptionsDropdown extends React.Component {
 
   render() {
     return(
-      <Dropdown value="DROPDOWN" isOpen={this.state.dropdownOpen} toggle={this.toggleDropdown} style={theme.dropdown}>
-        <DropdownToggle value="DROPDOWN" tag="span" data-toggle="dropdown" id="dropdown-custom-components">   
+      <Dropdown value="KILL" isOpen={this.state.dropdownOpen} toggle={this.toggleDropdown} style={theme.dropdown}>
+        <DropdownToggle value="KILL" tag="span" data-toggle="dropdown" id="dropdown-custom-components">   
           <svg
             version="1.1"
             xmlns="http://www.w3.org/2000/svg"
             role="presentation"
             viewBox="0 180 512 150"
             style={theme.svg}
-            value="DROPDOWN"
+            value="KILL"
             onClick={() => {}}
             >
-              <path d={ellipsis} value="DROPDOWN"/>
+              <path d={ellipsis} value="KILL"/>
             </svg>
           </DropdownToggle>
-          <DropdownMenu style={theme.dropdownMenu} value="DROPDOWN">
-            <DropdownItem value="DROPDOWN" onClick={() => this.props.toggleEditForm(true)}>Edit</DropdownItem>
-            <DropdownItem value="DROPDOWN" onClick={(e) => this.props.handleDeleteCity(e, this.props.cellData.cellData)}>Delete</DropdownItem>
+          <DropdownMenu style={theme.dropdownMenu} value="KILL">
+            <DropdownItem value="KILL" onClick={() => this.props.toggleEditForm(true)}>Edit</DropdownItem>
+            <DropdownItem value="KILL" onClick={(e) => this.props.handleDeleteCity(e, this.props.cellData.cellData)}>Delete</DropdownItem>
           </DropdownMenu>
         </Dropdown> 
     )
