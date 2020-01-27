@@ -1,6 +1,7 @@
 import React from 'react';
 import Map from '../components/Map';
 import Table from '../components/Table'
+import { closePath } from "../utils/SVGs"
 import ImageViewer from '../components/ImageViewer';
 import Carousel, { ModalGateway } from 'react-images';
 import { ImgEditor} from '../components/ImageEditor';
@@ -34,35 +35,6 @@ const styles = theme => ({
     height: 100,
     width: 100
   },
-  imageUploaderPopUp: {
-    position: 'fixed',
-    bottom: 0,
-    right: 0,
-    height: 500,
-    width: 500,
-    backgroundColor: '#fff',
-    // display: 'grid',
-    // gridTemplateRows: '1fr 1fr 1fr',
-    // gridTemplateColumns: '1fr',
-  },
-  // imageUploader: {
-  //   height: '80%',
-  //   width: '100%',
-  //   border: "solid 1px black",
-  //   "& .fileContainer": {
-  //     boxShadow: "none",
-  //   },
-  //   "&& img": {
-  //     width: "150px !important",
-  //     height: "150px !important"
-  //   },
-  //   "&& p": {
-  //     fontSize: '18px'
-  //   },
-  //   "&& button": {
-  //     fontSize: 20
-  //   }
-  // }
 })
 
 class Main extends React.Component {
@@ -149,14 +121,12 @@ class Main extends React.Component {
   //Gallery Functions
   toggleGallery = (value) => {
     const boolean = typeof(value) === 'boolean' ? value : !this.state.galleryOpen;
-    console.log(boolean)
     this.setState({
       galleryOpen: boolean
     })
   }
 
   galleryOnClick = (event, obj) => {
-    console.log(obj)
     this.toggleGallery(false)
     this.setCurrImg(obj.photo.i)
     this.toggleViewer(true)
@@ -171,6 +141,8 @@ class Main extends React.Component {
         height: obj.height}
       })
   }
+
+  //Table Functions
 
   tableRowClick = (obj, e) => {
     //TODO change this to using state logic
@@ -203,7 +175,7 @@ class Main extends React.Component {
     const uploaderOpen = this.state.uploaderOpen;
     this.setState({
       uploaderPK: !uploaderOpen ? pk : pk !== this.state.uploaderPK ? pk : null,
-      uploaderOpen: !uploaderOpen ? true : pk !== this.state.uploaderPK ? true : false,
+      uploaderOpen: !uploaderOpen ? true : pk !== this.state.uploaderPK && pk !== null ? true : false,
     })
   }
 
@@ -264,7 +236,7 @@ class Main extends React.Component {
   render() {
     return (
       <React.Fragment>
-  <p>Granularity: {this.state.granularity}</p>
+        <p>Granularity: {this.state.granularity}</p>
         <svg
           className={clsx(this.props.classes.addSVG)}
           viewBox="0 0 1024 1024"
@@ -385,13 +357,10 @@ class Main extends React.Component {
          /> : null }
 
         { this.state.uploaderOpen ?
-        <div className={clsx(this.props.classes.imageUploaderPopUp)}>
-          {/* <div></div> */}
           <ImageUploader 
-          className={clsx(this.props.classes.imageUploader)} 
           handleImageSubmit={this.handleImageSubmit}
+          toggle={this.toggleUploader}
           />
-         </div>
          : null
         }
 

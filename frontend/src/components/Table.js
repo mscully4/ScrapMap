@@ -118,10 +118,12 @@ class VirtualTable extends Component {
           <path
           d={Add1}
           fill="#737373"
+          value={"KILL"}
           />
           <path
           d={Add2}
           fill="#737373"
+          value={"KILL"}
           />
         </svg>
          

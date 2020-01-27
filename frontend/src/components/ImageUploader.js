@@ -3,8 +3,35 @@ import ReactImageUploader from 'react-images-upload';
 import clsx from 'clsx';
 import { withStyles } from '@material-ui/styles'
 import { Button } from 'reactstrap'
+import { closePath } from '../utils/SVGs'
 
 const styles = theme => ({
+  imageUploaderPopUp: {
+    position: 'fixed',
+    bottom: 0,
+    right: 0,
+    height: 500,
+    width: 500,
+    backgroundColor: '#fff',
+    display: 'grid',
+    gridTemplateColumns: '1fr',
+    gridTemplateRows: '1fr 5fr'
+    // display: 'grid',
+    // gridTemplateRows: '1fr 1fr 1fr',
+    // gridTemplateColumns: '1fr',
+  },
+  imageUploaderHeader: {
+    backgroundColor: '#262626'
+  },
+  imageUploaderHeaderClose: {
+    height: '100%',
+    width: 25,
+    fill: '#ffffff',
+    margin: 'auto',
+    cursor: 'pointer',
+    marginRight: 10,
+    float: "right"
+  },
   imageUploaderDiv: {
     display: 'grid',
     gridTemplateRows: '4fr 1fr',
@@ -61,11 +88,11 @@ class ImageUploader extends React.Component {
     let pictures = this.state.pictures;
     let pictureNames = this.state.pictureNames
     for (let i=0; i<files.length; ++i) {
-    //   console.log(files[i])
-    //   if (!pictureNames.includes(files[i].name)) {
+      //TODO find a way to prevent duplicates from being added
+      if (!pictureNames.includes(files[i].name)) {
          pictures.push(files[i])
          pictureNames.push(files[i].name)
-    //   }
+      }
     }
     this.setState({
       pictures: pictures,
@@ -73,34 +100,49 @@ class ImageUploader extends React.Component {
     })
   }
 
-  onSubmit = (data) => {
-    this.props.handleImageSubmit(data)
-
+  onCloseClick = (e) => {
+    this.props.toggle(null)
   }
 
   render() {
     const classes = this.props.classes;
     return (
-      <div className={clsx(classes.imageUploaderDiv)}>
-        <ReactImageUploader
-        className={clsx(classes.imageUploader)}
-        withIcon={true}
-        buttonText='Choose images'
-        onChange={this.onChange}
-        imgExtension={['.jpg', '.gif', '.png', '.jpeg']}
-        maxFileSize={5242880}
-        withPreview={false}
-        label={
-          <div className={this.props.classes.labelDiv}>
-            <span>Upload Your Images!</span><br />
-            <span>Max File Size 5MB</span><br />
-            <span>Supported Extensions: JPG, PNG, JPEG, GIF</span><br />
-            { this.state.pictures.length ? <span>{this.state.pictures.length}</span> : null}
-          </div>
-        }
-        fileTypeError={"Unsupported File Type"}
-        />
-        <Button className={classes.button} onClick={(e) => this.props.handleImageSubmit(e, this.state)}>Submit</Button>
+      <div className={clsx(this.props.classes.imageUploaderPopUp)}>
+        <div className={clsx(this.props.classes.imageUploaderHeader)}>
+        <svg
+          version="1.1"
+          xmlns="http://www.w3.org/2000/svg"
+          role="presentation"
+          viewBox="0 0 24 24"
+          className={clsx(this.props.classes.imageUploaderHeaderClose)}
+          onClick={this.onCloseClick}
+
+          >
+            <path d={closePath} />
+          </svg>
+        </div>
+        <div className={clsx(classes.imageUploaderDiv)}>
+          <ReactImageUploader
+          className={clsx(classes.imageUploader)}
+          withIcon={true}
+          buttonText='Choose images'
+          onChange={this.onChange}
+          imgExtension={['.jpg', '.gif', '.png', '.jpeg']}
+          maxFileSize={5242880}
+          withPreview={false}
+          label={
+            <div className={this.props.classes.labelDiv}>
+              <span>Upload Your Images!</span><br />
+              <span>Max File Size 5MB</span><br />
+              <span>Supported Extensions: JPG, PNG, JPEG, GIF</span><br />
+              { this.state.pictures.length ? <span>{this.state.pictures.length}</span> : null}
+            </div>
+          }
+          fileTypeError={"Unsupported File Type"}
+          />
+          <Button className={classes.button} onClick={(e) => this.props.handleImageSubmit(e, this.state)}>Submit</Button>
+        </div>
+      
       </div>
       
     );
