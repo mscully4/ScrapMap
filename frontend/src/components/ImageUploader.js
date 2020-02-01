@@ -109,17 +109,18 @@ class ImageUploader extends React.Component {
     return (
       <div className={clsx(this.props.classes.imageUploaderPopUp)}>
         <div className={clsx(this.props.classes.imageUploaderHeader)}>
-        <svg
-          version="1.1"
-          xmlns="http://www.w3.org/2000/svg"
-          role="presentation"
-          viewBox="0 0 24 24"
-          className={clsx(this.props.classes.imageUploaderHeaderClose)}
-          onClick={this.onCloseClick}
+          <span>Image Uploader</span>
+          <svg
+            version="1.1"
+            xmlns="http://www.w3.org/2000/svg"
+            role="presentation"
+            viewBox="0 0 24 24"
+            className={clsx(this.props.classes.imageUploaderHeaderClose)}
+            onClick={this.onCloseClick}
 
-          >
-            <path d={closePath} />
-          </svg>
+            >
+              <path d={closePath} />
+            </svg>
         </div>
         <div className={clsx(classes.imageUploaderDiv)}>
           <ReactImageUploader

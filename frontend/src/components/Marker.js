@@ -20,26 +20,23 @@ import ReactTooltip from 'react-tooltip';
 import ImageViewer from './ImageViewer.js';
 import EditCity from './EditCity.js'
 
-const K_WIDTH = 30;
-const K_HEIGHT = 30;
-const K_SIZE = 20;
+const WIDTH = 20;
+const HEIGHT = 20;
 
 const styles = theme => ({
   MarkerContainer: {
-    width: K_SIZE,
-    height: K_SIZE,
+    width: WIDTH,
+    height: HEIGHT,
     position: 'absolute',
-    left: -K_SIZE / 2,
-    top: -K_SIZE,
+    // left: -WIDTH / 2,
+    // top: -HEIGHT,
   },
   MarkerStyle: {
     // initially any map object has left top corner at lat lng coordinates
     // it's on you to set object origin to 0,0 coordinates
     // position: 'absolute',
-    width: K_SIZE,
-    height: K_SIZE,
-    left: -K_SIZE / 2,
-    top: -K_SIZE / 2,
+    // width: K_SIZE,
+    // height: K_SIZE,
     cursor: 'pointer',
     fill: "red",
     //backgroundColor: "blue",
@@ -92,7 +89,7 @@ class Marker extends Component {
   };
 
   static defaultProps = {
-    data: {city: "", country: "", countryCode: "", lat: null, lng: null, index: null, urls: [[]]},
+    //data: {city: "", country: "", countryCode: "", lat: null, lng: null, index: null, urls: [[]]},
   };
 
     //shouldComponentUpdate = shouldPureComponentUpdate;
@@ -130,20 +127,20 @@ class Marker extends Component {
   };
 
   //function for toggling whether the editor is open or not
-  toggleEditForm = () => {
-    //if the editor is about to open, hide the hover box
-    this.props.changeHoverIndex(null)
-    this.setState(prevState => ({
-      editorIsOpen: !prevState.editorIsOpen,
-      hover: false,
-    }));
-  }
+  // toggleEditForm = () => {
+  //   //if the editor is about to open, hide the hover box
+  //   this.props.changeHoverIndex(null)
+  //   this.setState(prevState => ({
+  //     editorIsOpen: !prevState.editorIsOpen,
+  //     hover: false,
+  //   }));
+  // }
 
     //function for submitting the updated form data to the server
-  submitForm = () => {
-    ReactDOM.findDOMNode(this.formEditCity).dispatchEvent(new Event("submit"))
-    this.toggleEditForm();
-  }
+  // submitForm = () => {
+  //   ReactDOM.findDOMNode(this.formEditCity).dispatchEvent(new Event("submit"))
+  //   this.toggleEditForm();
+  // }
 
   //function for toggling whether the image viewer is open or not
   // setImageViewerOpen = (boolean) => {
@@ -153,25 +150,25 @@ class Marker extends Component {
   // }
 
   //function for opening the Image Viewer when one of the thumbnails is clicked on 
-  imgOnClick = (e) => {
-    //console.log("OPEN")
-    e.preventDefault();
-    //this.setImageViewerOpen(true);
-    this.props.setCurrImg(e.target.getAttribute('number'))
-    this.props.toggleImageViewerOpen(true)
-    // this.setState({
-    //   currImg: parseInt(e.target.getAttribute('number')),
-    //   imageViewerOpen: true,
-    // })
-    //this.props.setImgViewerIsOpen(true);
-  }
+  // imgOnClick = (e) => {
+  //   //console.log("OPEN")
+  //   e.preventDefault();
+  //   //this.setImageViewerOpen(true);
+  //   this.props.setCurrImg(e.target.getAttribute('number'))
+  //   this.props.toggleImageViewerOpen(true)
+  //   // this.setState({
+  //   //   currImg: parseInt(e.target.getAttribute('number')),
+  //   //   imageViewerOpen: true,
+  //   // })
+  //   //this.props.setImgViewerIsOpen(true);
+  // }
 
   //function for changing the current image in the Image Viewer
-  setCurrImg = (i) => {
-    this.setState({
-      currImg: i,
-    })
-  }
+  // setCurrImg = (i) => {
+  //   this.setState({
+  //     currImg: i,
+  //   })
+  // }
 
   onMouseEnter = (e) => {
     this.setState({
@@ -198,6 +195,7 @@ class Marker extends Component {
     //     onClick={this.imgOnClick}
     //     />)
     // }) : null;
+    const scale = ((this.props.zoom - 4)/10);
 
     return (
     
@@ -206,6 +204,10 @@ class Marker extends Component {
       onMouseLeave={this.onMouseLeave} 
       className={clsx(this.props.classes.MarkerContainer)} 
       onClick={() => this.props.markerClick(this.props.data)}
+      style={{
+        top: -HEIGHT - (HEIGHT * scale),
+        left: (-WIDTH/2) - ((HEIGHT * scale)/2)
+      }}
       >
         <svg
           style={styles.addIcon}
@@ -215,6 +217,10 @@ class Marker extends Component {
           className={clsx(this.props.classes.MarkerStyle, {[this.props.classes.MarkerStyleHover]: this.props.hoverIndex === this.props.data.index})}
           data-tip
           data-for={this.props.data.city}
+          style={{
+            width: WIDTH + (WIDTH * scale),
+            height: HEIGHT + (HEIGHT * scale),
+          }}
         >
           <path
             d={pin}

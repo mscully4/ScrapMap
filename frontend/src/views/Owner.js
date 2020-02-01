@@ -1,4 +1,10 @@
 import React from 'react';
+import Gallery from "react-photo-gallery";
+import { Modal } from 'reactstrap';
+import { withStyles} from '@material-ui/styles';
+import clsx from 'clsx'
+
+import Navigation from '../components/NavBar'
 import Map from '../components/Map';
 import Table from '../components/Table'
 import { closePath } from "../utils/SVGs"
@@ -8,15 +14,11 @@ import { ImgEditor} from '../components/ImageEditor';
 import EditCity from '../components/EditCity.js';
 import AddCity from '../components/AddCity.js';
 import ImageUploader from '../components/ImageUploader.js';
-import { withStyles} from '@material-ui/styles';
-import clsx from 'clsx'
+
+import { Add1, Add2 } from '../utils/SVGs';
+import { getUser } from '../utils/fetchUtils';
 
 
-
-
-import Gallery from "react-photo-gallery";
-import { Modal } from 'reactstrap';
-import { putEditCity } from '../utils/fetchUtils';
 
 const styles = theme => ({
   main: {
@@ -37,7 +39,7 @@ const styles = theme => ({
   },
 })
 
-class Main extends React.Component {
+class Owner extends React.Component {
   static defaultProps = {
     cities: [],
   }
@@ -76,9 +78,16 @@ class Main extends React.Component {
     }
   }
 
-  //General Functions
-  
+  componentDidMount = () => {
+    console.log("Owner")
 
+    // console.log(this.props)
+    // getUser(localStorage.getItem("token"), this.props.).then(obj => {
+    //   console.log(obj)
+    // })
+  }
+
+  //General Functions
   setSelectedCity = (obj) => {
     this.setState({
       selectedCity: obj
@@ -103,9 +112,10 @@ class Main extends React.Component {
   }
 
   //Map Functions
-  changeGranularity = (granularity) => {
+  changeGranularity = (zoom) => {
     this.setState({
-      granularity: granularity
+      granularity: zoom > 11 ? 0 : 1,
+      mapZoom: zoom,
     })
   }
 
@@ -227,15 +237,26 @@ class Main extends React.Component {
   }
 
   toggleAddForm = () => {
-    console.log(this.state.addFormOpen)
     this.setState(prevState => ({
       addFormOpen: !prevState.addFormOpen
     }));
   }
 
   render() {
+    //console.log(this.props.u)
     return (
       <React.Fragment>
+        <Navigation 
+          loggedIn={this.props.loggedIn} 
+          username={this.props.username} 
+          handleLogout={this.props.handleLogout} 
+          toggleLogin={this.props.toggleLogin}
+          toggleSignUp={this.props.toggleSignUp}
+          handleLogin={this.props.handleLogin}
+          handleSignup={this.props.handleSignup}
+          username={this.props.username}
+        />
+
         <p>Granularity: {this.state.granularity}</p>
         <svg
           className={clsx(this.props.classes.addSVG)}
@@ -253,124 +274,93 @@ class Main extends React.Component {
             fill="#737373"
           />
         </svg>
-{/* TODO Make the svg a function so that props can be passed down on invokation */}
-        {/* <svg
-          className={clsx(this.props.classes.addSVG)}
-          viewBox="0 0 1024 1024"
-          version="1.1"
-          xmlns="http://www.w3.org/2000/svg"
-          onClick={this.toggleUploader}
-        >
-          <path
-            d={Add1}
-            fill="#737373"
-          />
-          <path
-            d={Add2}
-            fill="#737373"
-          />
-        </svg> */}
-
 
         <div className={clsx(this.props.classes.main)}>
-       
-       <Map 
-       center={this.state.mapCenter} 
-       zoom={this.state.mapZoom}
-       cities={ this.props.cities }
-       logged_in={ this.props.loggedIn }
-       handleEditCity={this.props.handleEditCity}
-       handleDeleteCity={this.props.handleDeleteCity}
-       backendURL={this.props.backendURL}
-       hoverIndex={this.state.hoverIndex}
-       changeHoverIndex={this.changeHoverIndex}
-       setCurrImg={this.setCurrImg}
-       toggleImageViewerOpen={this.toggleImageViewerOpen}
-       markerClick={this.markerClick}
-       changeGranularity={this.changeGranularity}
-       />
+          <Map 
+          center={this.state.mapCenter} 
+          zoom={this.state.mapZoom}
+          cities={ this.props.cities }
+          //handleEditCity={this.props.handleEditCity}
+          //handleDeleteCity={this.props.handleDeleteCity}
+          //backendURL={this.props.backendURL}
+          hoverIndex={this.state.hoverIndex}
+          changeHoverIndex={this.changeHoverIndex}
+          //setCurrImg={this.setCurrImg}
+          //toggleImageViewerOpen={this.toggleImageViewerOpen}
+          markerClick={this.markerClick}
+          changeGranularity={this.changeGranularity}
+          />
 
-       <Table 
-       cities={this.props.cities}
-       backendURL={this.props.backendURL}
-       hoverIndex={this.state.hoverIndex}
-       changeHoverIndex={this.changeHoverIndex}
-       changeMapCenter={this.changeMapCenter}
-       tableRowClick={this.tableRowClick}
-       toggleEditForm={this.toggleEditForm}
-       handleDeleteCity={this.props.handleDeleteCity}
-       toggleUploader={this.toggleUploader}
-       />
+          <Table 
+          cities={this.props.cities}
+          backendURL={this.props.backendURL}
+          hoverIndex={this.state.hoverIndex}
+          changeHoverIndex={this.changeHoverIndex}
+          changeMapCenter={this.changeMapCenter}
+          tableRowClick={this.tableRowClick}
+          toggleEditForm={this.toggleEditForm}
+          handleDeleteCity={this.props.handleDeleteCity}
+          toggleUploader={this.toggleUploader}
+          />
 
-       {/* <button onClick={() => {this.setState({mapCenter: {lat: 25, lng: 25}}, () => console.log(this.state))}}>Click Me</button> */}
+          <Modal isOpen={this.state.galleryOpen} toggle={this.toggleGallery} size={"xl"}>
+            <Gallery 
+            photos={this.state.selectedCity ? this.prepareImageURLS(this.state.selectedCity) : null} 
+            onClick={this.galleryOnClick}
+            />
+          </Modal>
 
-       <Modal isOpen={this.state.galleryOpen} toggle={this.toggleGallery} size={"xl"}>
-         <Gallery 
-         photos={this.state.selectedCity ? this.prepareImageURLS(this.state.selectedCity) : null} 
-         onClick={this.galleryOnClick}
-         />
-       </Modal>
+          <ImageViewer 
+          backendURL={this.props.backendURL}
+          isOpen={this.state.imageViewerOpen} 
+          toggleViewer={this.toggleViewer}
+          views={this.props.cities.length ? this.props.cities[0].images : [{src: ""}]}
+          currentIndex={ this.state.currImg }
+          //changeCurrImg={ this.changeCurrImg }
+          //setCurrImg={ this.setCurrImg }
+          //backdropClosable={true}
+          handleImageOverwrite={this.props.handleImageOverwrite}
+          toggleEditor={this.toggleEditor}
+          showLoader={this.showLoader}
+          />
 
-      {/* <Modal style={{backgroundColor: "white", height: window.innerHeight * .9}} contentClassName={clsx(this.props.classes.modalContent)} isOpen={this.state.uploaderOpen} toggle={this.toggleUploader} size={"xl"}>
-        <ImageUploadeer />
-      </Modal>  */}
+          { this.state.editorOpen ?
+          <ImgEditor 
+          isOpen={this.state.editorOpen}
+          toggleEditor={this.toggleEditor}
+          //TODO implement default props here/use the load from url in the image editor
+          image={this.state.selectedCity ? this.state.selectedCity.images[this.state.currImg] : null}
+          backendURL={this.props.backendURL}
+          handleImageOverwrite={this.props.handleImageOverwrite}
+          /> : null}
 
+          { this.state.editFormOpen ? 
+          <EditCity
+          isOpen={this.state.editFormOpen}
+          toggle={this.toggleEditForm}
+          handleEditCity={this.props.handleEditCity}
+          data={this.state.selectedCity}
+          /> : null }
 
-        <ImageViewer 
-         backendURL={this.props.backendURL}
-         isOpen={this.state.imageViewerOpen} 
-         toggleViewer={this.toggleViewer}
-         views={this.props.cities.length ? this.props.cities[0].images : [{src: ""}]}
-         currentIndex={ this.state.currImg }
-         //changeCurrImg={ this.changeCurrImg }
-         //setCurrImg={ this.setCurrImg }
-         //backdropClosable={true}
-         handleImageOverwrite={this.props.handleImageOverwrite}
-         toggleEditor={this.toggleEditor}
-         showLoader={this.showLoader}
+          { this.state.addFormOpen ? 
+          <AddCity
+          isOpen={this.state.addFormOpen}
+          toggle={this.toggleAddForm}
+          handleAddCity={this.props.handleAddCity}
+          /> : null }
 
-         />
-
-         { this.state.editorOpen ?
-         <ImgEditor 
-         isOpen={this.state.editorOpen}
-         toggleEditor={this.toggleEditor}
-         //TODO implement default props here/use the load from url in the image editor
-         image={this.state.selectedCity ? this.state.selectedCity.images[this.state.currImg] : null}
-         backendURL={this.props.backendURL}
-         handleImageOverwrite={this.props.handleImageOverwrite}
-         /> : null}
-
-         { this.state.editFormOpen ? 
-         <EditCity
-           isOpen={this.state.editFormOpen}
-           toggle={this.toggleEditForm}
-           handleEditCity={this.props.handleEditCity}
-           data={this.state.selectedCity}
-         /> : null }
-
-         { this.state.addFormOpen ? 
-         <AddCity
-           isOpen={this.state.addFormOpen}
-           toggle={this.toggleAddForm}
-           handleAddCity={this.props.handleAddCity}
-         /> : null }
-
-        { this.state.uploaderOpen ?
+          { this.state.uploaderOpen ?
           <ImageUploader 
           handleImageSubmit={this.handleImageSubmit}
           toggle={this.toggleUploader}
           />
-         : null
-        }
+          : null
+          }
 
-     </div>
+        </div>
       </React.Fragment>
     ) 
   }
 }
 
-const Add1 ="M512 16C240 16 16 240 16 512s224 496 496 496 496-224 496-496S784 16 512 16z m0 960C256 976 48 768 48 512S256 48 512 48 976 256 976 512 768 976 512 976z"
-const Add2 ="M736 480h-192V288c0-19.2-12.8-32-32-32s-32 12.8-32 32v192H288c-19.2 0-32 12.8-32 32s12.8 32 32 32h192v192c0 19.2 12.8 32 32 32s32-12.8 32-32v-192h192c19.2 0 32-12.8 32-32s-12.8-32-32-32z"
-
-export default withStyles(styles)(Main);
+export default withStyles(styles)(Owner);

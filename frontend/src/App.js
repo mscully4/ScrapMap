@@ -1,11 +1,16 @@
 import React, { Component } from 'react';
 import Dimensions from 'react-dimensions';
 import jwt_decode from "jwt-decode";
+import {
+  BrowserRouter as Router,
+  Switch,
+  Route,
+  Link
+} from "react-router-dom";
 
-import Main from './views/Main';
-import Map from './components/Map';
-import Navigation from "./components/NavBar";
-import Table from './components/Table'
+import Owner from './views/Owner';
+import Viewer from './views/Viewer';
+import Home from './views/Home'
 
 import {fetchCurrentUser, fetchToken, putNewUser, postNewCity, putEditCity, deleteCity } from "./utils/fetchUtils" 
 
@@ -51,8 +56,6 @@ const config = {
 
 //const S3Client = new S3(config)
 
-
-
 class App extends Component {
   constructor(props) {
     super(props);
@@ -76,7 +79,7 @@ class App extends Component {
   componentDidMount() {
     window.addEventListener('resize', this.updateWindowDimensions);
     if (this.state.loggedIn) {
-      this.handleLoadSession()
+      //this.handleLoadSession()
     }
   }
 
@@ -88,7 +91,8 @@ class App extends Component {
       this.setState({ width: window.innerWidth * .8, height: window.innerHeight * .8 });
   }
 
-  handleLoadSession = () => {
+  handleLoadSession = (e) => {
+    e.preventDefault()
     fetchCurrentUser(localStorage.getItem("token"))
       .then(data => {
         console.log(data)
@@ -105,6 +109,7 @@ class App extends Component {
     // baseURL + token-auth/
   handleLogin = (e, data) => {
     e.preventDefault();
+
     fetchToken(data)
     .then(json => {
       // console.log(json.token)
@@ -181,7 +186,7 @@ class App extends Component {
     localStorage.removeItem("token");
     this.setState({
       loggedIn: false,
-      username: '',
+      username: null,
       showModalLogin: false,
       modalSignUp: false,
       cities: null,
@@ -210,13 +215,76 @@ class App extends Component {
     // })
   }
 
+  renderHome = () => {
+    return (
+      <Home
+      loggedIn={this.state.loggedIn} 
+      username={this.state.username} 
+      handleLogout={this.handleLogout} 
+      toggleLogin={this.toggleLogIn}
+      toggleSignUp={this.toggleSignUp}
+      handleLogin={this.handleLogin}
+      handleSignup={this.handleSignup}
+      username={this.state.username} 
+      />
+    )
+  }
+
+  renderOwner = (username) => {
+    return (
+      <Owner
+      //Navigation Props
+      loggedIn={this.state.loggedIn} 
+      username={this.state.username} 
+      handleLogout={this.handleLogout} 
+      toggleLogin={this.toggleLogIn}
+      toggleSignUp={this.toggleSignUp}
+      handleLogin={this.handleLogin}
+      handleSignup={this.handleSignup}
+      //user info
+      u={username}
+      cities={this.state.cities}
+      //Map Props
+      handleAddCity={this.handleAddCity} 
+      handleEditCity={this.handleEditCity}
+      handleDeleteCity={this.handleDeleteCity}
+      handleImageOverwrite={this.handleImageOverwrite}
+      backendURL={BACKEND_URL}
+      />)
+  }
+
+  renderViewer = (username) => {
+    return (
+    <Viewer 
+      loggedIn={this.state.loggedIn} 
+      username={this.state.username} 
+      handleLogout={this.handleLogout} 
+      toggleLogin={this.toggleLogIn}
+      toggleSignUp={this.toggleSignUp}
+      handleLogin={this.handleLogin}
+      handleSignup={this.handleSignup}
+      username={this.state.username} 
+      //user info
+      u={username}
+      // width={this.state.width}
+      // height={this.state.height}
+      cities={this.state.cities}
+      //Map Props
+      // handleAddCity={this.handleAddCity} 
+      // handleEditCity={this.handleEditCity}
+      // handleDeleteCity={this.handleDeleteCity}
+      // handleImageOverwrite={this.handleImageOverwrite}
+      // backendURL={BACKEND_URL}
+      />
+    )
+  }
 
   render = () => {
     //this.updateWindowDimensions();
     
     return (
       <React.Fragment>
-        <Navigation 
+        {/* <Navigation 
           loggedIn={this.state.loggedIn} 
           username={this.state.username} 
           handleLogout={this.handleLogout} 
@@ -225,24 +293,43 @@ class App extends Component {
           handleLogin={this.handleLogin}
           handleSignup={this.handleSignup}
           username={this.state.username}
-        />
-        <h1 style={styles.quote}>"To Travel is to BOOF"</h1>
+        /> */}
+        {/* <h1 style={styles.quote}>"To Travel is to BOOF"</h1> */}
 
-        <Main 
-        //user info
-        username={this.state.username}
+        <Router>
+          <Switch>
+            <Route path="/:username" component={(obj) => {
+              return this.state.username == obj.match.params.username ? this.renderOwner() : this.renderViewer()
+            }}>
+              {/* // return (
+              //   <Owner 
+              //   //Navigation Props
+              //   loggedIn={this.state.loggedIn} 
+              //   username={this.state.username} 
+              //   handleLogout={this.handleLogout} 
+              //   toggleLogin={this.toggleLogIn}
+              //   toggleSignUp={this.toggleSignUp}
+              //   handleLogin={this.handleLogin}
+              //   handleSignup={this.handleSignup}
+              //   username={this.state.username}
+              //   //user info
+              //   u={obj.match.params.username}
+              //   // width={this.state.width}
+              //   // height={this.state.height}
+              //   cities={this.state.cities}
+              //   //Map Props
+              //   handleAddCity={this.handleAddCity} 
+              //   handleEditCity={this.handleEditCity}
+              //   handleDeleteCity={this.handleDeleteCity}
+              //   handleImageOverwrite={this.handleImageOverwrite}
+              //   backendURL={BACKEND_URL} */}
+          </Route>
+          <Route path="/" component={() => this.renderHome()}></Route>
+        </Switch>
+      </Router>
 
-        width={this.state.width}
-        height={this.state.height}
-        cities={this.state.cities}
-        //Map Props
-        handleAddCity={this.handleAddCity} 
-        handleEditCity={this.handleEditCity}
-        handleDeleteCity={this.handleDeleteCity}
-        handleImageOverwrite={this.handleImageOverwrite}
-        backendURL={BACKEND_URL}
-        mapCenter={this.state.mapCenter}
-        />
+
+        
         <div style={styles.space}></div>
       </React.Fragment>
     );

@@ -11,11 +11,20 @@ import { Button,
   NavbarBrand,
   NavbarToggler
 } from 'reactstrap';
+import { withRouter, Link } from 'react-router-dom';
 
-import AddCity from "./AddCity";
+
 import LoginForm from './LoginForm';
 import SignUpForm from './SignUpForm';
-import SubmitForm from './SubmitForm';
+
+// const Button__ = withHistory(({ history }) => (
+//   // <button
+//   //   type='button'
+//   //   onClick={() => { history.push('/') }}
+//   // >
+//   //   Click Me!
+//   // </button>
+// ))
 
 const classes = {
   title: {
@@ -67,7 +76,7 @@ class Navigation extends React.Component {
   render() {
     //this.updateWindowDimensions();
     let form, username, submitForm, addCity;
-      
+      console.log(this.props)
     if (this.props.loggedIn) {
       form = 
         <Nav className="ml-auto" navbar>
@@ -78,7 +87,8 @@ class Navigation extends React.Component {
             <h3 style={{margin: "0 10px"}} className="nav-divider"> | </h3>
           </NavItem>
           <NavItem>
-            <Button className="nav-button" onClick={this.props.handleLogout}>Logout</Button>
+            {/* <Button className="nav-button" onClick={this.props.handleLogout}>Logout</Button> */}
+            <Link onClick={this.props.handleLogout} to="/">Logout</Link>
           </NavItem>
         </Nav>
     } else { 
@@ -89,7 +99,7 @@ class Navigation extends React.Component {
             <Modal isOpen={this.state.showLoginModal} toggle={this.toggleLogin}>
               <ModalHeader toggle={this.toggleLogin}>Login</ModalHeader>
                 <ModalBody>
-                  <LoginForm handleLogin={ this.props.handleLogin }/>
+                  <LoginForm handleLogin={this.props.handleLogin}/>
                 </ModalBody>
               <ModalFooter>
               </ModalFooter>
@@ -101,7 +111,7 @@ class Navigation extends React.Component {
             <Modal isOpen={this.state.showSignUpModal} toggle={this.toggleSignUp}>
               <ModalHeader toggle={this.toggleSignUp}>Sign Up</ModalHeader>
                 <ModalBody>
-                  <SignUpForm handleSignup={ this.props.handleSignup }/>
+                  <SignUpForm handleSignup={this.props.handleSignup}/>
                 </ModalBody>
               <ModalFooter>
               </ModalFooter>
@@ -120,4 +130,4 @@ class Navigation extends React.Component {
 }
 
 
-export default Navigation;
+export default withRouter(Navigation);

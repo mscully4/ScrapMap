@@ -1,6 +1,7 @@
 //const baseURL = 'http://35.223.155.224/'
 const baseURL = 'http://127.0.0.1:8000/'
 
+//General Functions
 export function fetchCurrentUser(token) {
   return fetch(baseURL + 'core/current_user/', {
     headers: {
@@ -31,6 +32,8 @@ export function putNewUser(data) {
   .then(response =>  response.ok ? response.json() : null);
 }
 
+
+//Owner Functions
 export function postNewCity(token, data) {
   console.log(data)
   const form = new FormData();
@@ -45,7 +48,7 @@ export function postNewCity(token, data) {
   }
 
 
-  return fetch(baseURL + "core/destinations/", {
+  return fetch(baseURL + "core/destination/", {
     method: "POST",
     headers: {
       Authorization: `JWT ${token}`,
@@ -69,7 +72,7 @@ export function putEditCity(token, data) {
     form.append('images', data.pictures[i]);
   }
 
-  return fetch(baseURL + "core/destinations/" + data.pk + "/", {
+  return fetch(baseURL + "core/destination/" + data.pk + "/", {
     method: "PUT",
     headers: {
       Authorization: `JWT ${token}`,
@@ -80,7 +83,7 @@ export function putEditCity(token, data) {
 }
 
 export function deleteCity(token, data) {
-  return fetch(baseURL + "core/destinations/" + data.pk + "/", {
+  return fetch(baseURL + "core/destination/" + data.pk + "/", {
     method: "DELETE",
     headers: {
       Authorization: `JWT ${token}`,
@@ -90,4 +93,13 @@ export function deleteCity(token, data) {
   .then(response => response.ok ? response.json() : null)
 }
 
-export function getCityData() {return ""}
+//User Functions
+export function getUser(token, username) {
+  return fetch(baseURL + "core/destinations/" + username + "/",{
+    method: "GET",
+    headers: {
+      Authorization: `JWT ${token}`,
+    }
+  })
+  .then(response => response.ok ? response.json() : null)
+}

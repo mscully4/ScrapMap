@@ -1,4 +1,5 @@
 import React from 'react';
+import ReactDOM from 'react-dom'
 import PropTypes from 'prop-types';
 import {
     Button,
@@ -23,9 +24,14 @@ class LoginForm extends React.Component {
         })
     }
 
+    submitForm = () => {
+      ReactDOM.findDOMNode(this.formLogin).dispatchEvent(new Event("submit"))
+    }
+
     render() {
+      console.log(this.props)
       return (
-        <Form onSubmit={e => this.props.handleLogin(e, this.state)}>
+        <Form ref={ref => this.formLogin = ref} onSubmit={e => this.props.handleLogin(e, this.state)}>
           <Input
             type="text"
             name="username"
@@ -42,7 +48,7 @@ class LoginForm extends React.Component {
             onChange={this.handleChange}
           />
           <br />
-          <Button type="submit" >Submit</Button>
+          <Button type="submit">Submit</Button>
         </Form>
       )
     }

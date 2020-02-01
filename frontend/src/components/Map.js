@@ -64,8 +64,7 @@ class Map extends Component {
 
   _onChange = ({center, zoom}) => {
     //TODO change marker size based on zoom
-    console.log(zoom)
-    this.props.changeGranularity(zoom > 11 ? 0 : 1)
+    this.props.changeGranularity(zoom)
     this.props.onCenterChange(center)
     this.props.onZoomChange(zoom)
   }
@@ -100,28 +99,17 @@ class Map extends Component {
 
   render() {
     let places = this.props.cities ? this.props.cities.map(data => {
-      // console.log(place.hover)
       return (<Marker
         key={data.pk}
         lat={data.latitude}
         lng={data.longitude}
         data={data}
-        // city={place.city}
-        // country={place.country}
-        // urls={place.urls}
-        // pk={place.pk}
-        // data={place.fields}
-        // hover={place.hover } 
-        handleEditCity={this.props.handleEditCity}
-        handleDeleteCity={this.props.handleDeleteCity}
-        handleImageOverwrite={this.props.handleImageOverwrite}
-        //setImgViewerIsOpen={this.setImgViewerIsOpen}
-        backendURL={this.props.backendURL}
         changeHoverIndex={this.props.changeHoverIndex}
         hoverIndex={this.props.hoverIndex}
-        toggleImageViewerOpen={this.props.toggleImageViewerOpen}
-        setCurrImg={this.props.setCurrImg}
+        // toggleImageViewerOpen={this.props.toggleImageViewerOpen}
+        //setCurrImg={this.props.setCurrImg}
         markerClick={this.props.markerClick}
+        zoom={this.props.zoom}
       />)
     }) : null;
       
@@ -132,7 +120,6 @@ class Map extends Component {
           center={this.props.center}
           zoom={this.props.zoom}
           hoverDistance={K_SIZE / 2}
-          //onBoundsChange={this._onBoundsChange}
           onChange={this._onChange}
           onChildClick={this._onChildClick}
           onChildMouseEnter={this._onChildMouseEnter}
