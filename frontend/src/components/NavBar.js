@@ -76,7 +76,7 @@ class Navigation extends React.Component {
   render() {
     //this.updateWindowDimensions();
     let form, username, submitForm, addCity;
-      console.log(this.props)
+      // console.log(this.props)
     if (this.props.loggedIn) {
       form = 
         <Nav className="ml-auto" navbar>

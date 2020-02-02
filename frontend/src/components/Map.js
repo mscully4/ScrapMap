@@ -44,11 +44,6 @@ class Map extends Component {
 
     this.mapRef = React.createRef();
   }
-  
-  // _onBoundsChange = (center, zoom) => {
-  //   this.props.onCenterChange(center);
-  //   this.props.onZoomChange(zoom);
-  // }
 
   _onChildClick = (key, childProps) => {
     this.props.onCenterChange([childProps.lat, childProps.lng]);
@@ -73,11 +68,7 @@ class Map extends Component {
     //console.log(map, maps);
   }
 
-  // setImgViewerIsOpen = (boolean) => {
-  //   this.setState({
-  //     imgViewerIsOpen: boolean,
-  //   })
-  // }
+  
 
   createMapOptions = (maps) => {
     return {
@@ -110,6 +101,7 @@ class Map extends Component {
         //setCurrImg={this.props.setCurrImg}
         markerClick={this.props.markerClick}
         zoom={this.props.zoom}
+        setMarkerRefs={this.props.setMarkerRefs}
       />)
     }) : null;
       

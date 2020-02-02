@@ -129,6 +129,7 @@ export default class ImageViewer extends Component {
               <path d={closePath} />
             </svg>
           </button> 
+          { this.props.context === "Owner" ?
           <button role="button" style={theme.closeButton} onClick={() => {this.props.toggleViewer(false); this.props.toggleEditor(true)}}>
             <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -137,7 +138,7 @@ export default class ImageViewer extends Component {
             style={theme.closeSVG}>
               <path d={editorPath} />
             </svg>
-          </button>
+          </button> : null }
         </span>: null}
       </div>
       )

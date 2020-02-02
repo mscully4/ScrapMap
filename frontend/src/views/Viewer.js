@@ -4,6 +4,9 @@ import { Modal } from 'reactstrap';
 import clsx from 'clsx'
 import { withStyles} from '@material-ui/styles';
 import Carousel, { ModalGateway } from 'react-images';
+import ReactTooltip from 'react-tooltip'
+import SlidingPane from 'react-sliding-pane';
+import 'react-sliding-pane/dist/react-sliding-pane.css';
 
 
 import Map from '../components/Map';
@@ -43,9 +46,12 @@ class Viewer extends React.Component {
   constructor(props) {
     super(props)
     this.state = {
+      cities: [],
       //General
       selectedCity: null,
       hoverIndex: null,
+      markerRefs: {},
+
       //Map
       //TODO change these to be the location of the first city in the saved data
       granularity: 0,
@@ -54,6 +60,8 @@ class Viewer extends React.Component {
         lng: -84.3880
       },
       mapZoom: 4,
+      //Table
+      tableSliderOpen: false,
       //Gallery
       galleryOpen: false,
       //ImageViewer
@@ -76,10 +84,14 @@ class Viewer extends React.Component {
 
   componentDidMount = () => {
     console.log("Viewer")
-    // console.log(this.props.u)
-    // getUser(localStorage.getItem("token"), this.props.u).then(obj => {
-    //   console.log(obj)
-    // })
+    getUser(localStorage.getItem("token"), this.props.owner).then(data => {
+      this.setState({
+        cities: data.destinations.map((el, i) => {
+          el.index=i;
+          return el;
+        })
+      }, () => console.log(this.state.cities))
+    })
   }
 
   //General Functions
@@ -90,20 +102,22 @@ class Viewer extends React.Component {
   }
 
   changeHoverIndex = (index) => {
+    if (index) {
+      //console.log(ReactTooltip.show)
+     // ReactTooltip.show(this.state.markerRefs[this.state.cities[index].city])
+    }
     this.setState({
       hoverIndex: index,
     })
+  }
 
-    //console.log(index, this.props.cities[index])
-
-    // if (index !== null) {
-    //   this.setState({
-    //     mapCenter: {
-    //       lat: this.props.cities[index].latitude,
-    //       lng: this.props.cities[index].longitude
-    //     }
-    //   })
-    // }
+  setMarkerRefs = (key, value) => {
+    const refs = this.state.markerRefs;
+    refs[key] = value
+    console.log(refs, key, value)
+    this.setState({
+      markerRefs: refs,
+    })
   }
 
   //Map Functions
@@ -148,7 +162,6 @@ class Viewer extends React.Component {
   }
 
   //Table Functions
-
   tableRowClick = (obj, e) => {
     //TODO change this to using state logic
     this.setState({
@@ -220,45 +233,27 @@ class Viewer extends React.Component {
     })
   }
 
-  toggleEditForm = (value) => {
-    value = typeof(value) === 'boolean' ? value : !this.state.editFormOpen;
-    //if the editor is about to open, hide the hover box
-    //this.props.changeHoverIndex(null)
-    this.setState(prevState => ({
-      editFormOpen: value,
-      //hover: false,
-    }));
-  }
-
-  toggleAddForm = () => {
-    this.setState(prevState => ({
-      addFormOpen: !prevState.addFormOpen
-    }));
-  }
-
   render() {
     return (
       <React.Fragment>
         <Navigation 
-          loggedIn={this.props.loggedIn} 
-          username={this.props.username} 
-          handleLogout={this.props.handleLogout} 
-          toggleLogin={this.props.toggleLogin}
-          toggleSignUp={this.props.toggleSignUp}
-          handleLogin={this.props.handleLogin}
-          handleSignup={this.props.handleSignup}
-          username={this.props.username}
-          />
+        loggedIn={this.props.loggedIn} 
+        username={this.props.username} 
+        handleLogout={this.props.handleLogout} 
+        toggleLogin={this.props.toggleLogin}
+        toggleSignUp={this.props.toggleSignUp}
+        handleLogin={this.props.handleLogin}
+        handleSignup={this.props.handleSignup}
+        username={this.props.username}
+        />
         <p>Granularity: {this.state.granularity}</p>
 
         <div className={clsx(this.props.classes.main)}>
           <Map 
           center={this.state.mapCenter} 
           zoom={this.state.mapZoom}
-          cities={ this.props.cities }
+          cities={ this.state.cities }
           logged_in={ this.props.loggedIn }
-          //handleEditCity={this.props.handleEditCity}
-          //handleDeleteCity={this.props.handleDeleteCity}
           //backendURL={this.props.backendURL}
           hoverIndex={this.state.hoverIndex}
           changeHoverIndex={this.changeHoverIndex}
@@ -266,10 +261,12 @@ class Viewer extends React.Component {
           toggleImageViewerOpen={this.toggleImageViewerOpen}
           markerClick={this.markerClick}
           changeGranularity={this.changeGranularity}
+          setMarkerRefs={this.setMarkerRefs}
           />
 
           <Table 
-          cities={this.props.cities}
+          context={"Viewer"}
+          cities={this.state.cities}
           backendURL={this.props.backendURL}
           hoverIndex={this.state.hoverIndex}
           changeHoverIndex={this.changeHoverIndex}
@@ -279,6 +276,7 @@ class Viewer extends React.Component {
           handleDeleteCity={this.props.handleDeleteCity}
           toggleUploader={this.toggleUploader}
           />
+          
 
           <Modal isOpen={this.state.galleryOpen} toggle={this.toggleGallery} size={"xl"}>
             <Gallery 
@@ -289,16 +287,15 @@ class Viewer extends React.Component {
 
 
           <ImageViewer 
+          context={"Viewer"}
           backendURL={this.props.backendURL}
           isOpen={this.state.imageViewerOpen} 
           toggleViewer={this.toggleViewer}
-          views={this.props.cities.length ? this.props.cities[0].images : [{src: ""}]}
+          views={this.state.cities.length ? this.state.cities[0].images : [{src: ""}]}
           currentIndex={ this.state.currImg }
           //changeCurrImg={ this.changeCurrImg }
           //setCurrImg={ this.setCurrImg }
-          //backdropClosable={true}
-          handleImageOverwrite={this.props.handleImageOverwrite}
-          toggleEditor={this.toggleEditor}
+          backdropClosable={true}
           showLoader={this.showLoader}
           />
 

@@ -70,7 +70,7 @@ class AddCity extends React.Component {
 
     submitForm = () => {
       ReactDOM.findDOMNode(this.formAddCity).dispatchEvent(new Event("submit"))
-      this.toggle();
+      this.props.toggle();
     }
 
     selectAutoSuggest = (obj) => {

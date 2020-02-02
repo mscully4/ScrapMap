@@ -16,9 +16,11 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { withStyles} from '@material-ui/styles';
 import clsx from 'clsx';
 import ReactTooltip from 'react-tooltip';
+import { pin } from '../utils/SVGs'
 
 import ImageViewer from './ImageViewer.js';
 import EditCity from './EditCity.js'
+import { faHandMiddleFinger } from '@fortawesome/free-solid-svg-icons';
 
 const WIDTH = 20;
 const HEIGHT = 20;
@@ -76,6 +78,34 @@ const styles = theme => ({
   },
   BoxStyleMouseLeave: {
     visibility: "hidden"
+  },
+  Tooltip: {
+    position: 'absolute',
+    backgroundColor: '#fff',
+    padding: '12px 21px',
+    opacity: .9,
+    fontSize: 13,
+    whiteSpace: "nowrap",
+    visibility: "hidden",
+    "&:after": {
+      position: "absolute",
+      content: '""',
+      width: 0,
+      height: 0,
+
+      borderTopColor: "#fff",
+      borderTopStyle: "Solid",
+      borderTopWidth: "6px",
+
+      borderLeft: "8px solid transparent",
+      borderRight: "8px solid transparent",
+      bottom: -6,
+      left: "50%",
+      marginLeft: -8,
+    },
+  },
+  TooltipShow: {
+    visibility: "visible"
   }
 })
 
@@ -108,7 +138,19 @@ class Marker extends Component {
       //Image Viewer Vars
       imageViewerOpen: false,
       currImg: 0,
+      tooltipWidth: null,
+      tooltipHeight: null,
     }
+
+    this.ref = React.createRef()
+  }
+
+  componentDidMount = () => {
+    //this.props.setMarkerRefs(this.props.data.city, this.tooltipRef)
+    this.setState({
+      tooltipWidth: this.ref.current.offsetWidth,
+      tooltipHeight: this.ref.current.offsetHeight
+    }, () => console.log(this.state.tooltipWidth, this.state.tooltipHeight))
   }
 
   shouldComponentUpdate(nextProps, nextState) {
@@ -185,18 +227,13 @@ class Marker extends Component {
   }
 
   render() {
-    //if there are images, iterate over the urls and return img tags with data
-    // const images = this.props.data.images.length > 0 ? this.props.data.images.map((obj, i) => {
-    //   return (<img 
-    //     key={i} 
-    //     number={i} 
-    //     src={this.props.backendURL + obj.src} 
-    //     style={{"height": 40, "width": 40}} 
-    //     onClick={this.imgOnClick}
-    //     />)
-    // }) : null;
     const scale = ((this.props.zoom - 4)/10);
-
+    if (this.props.hoverIndex === this.props.data.index) {
+      // console.log(this.tooltipRef)
+      console.log(this.tooltipRef)
+       ReactTooltip.show(this.tooltipRef)
+    }
+    //console.log(this.state.tooltipHeight)
     return (
     
       <div 
@@ -210,6 +247,7 @@ class Marker extends Component {
       }}
       >
         <svg
+          ref={ref => this.tooltipRef = ref}
           style={styles.addIcon}
           viewBox="0 0 288 512"
           version="1.1"
@@ -226,16 +264,19 @@ class Marker extends Component {
             d={pin}
           />
         </svg>
-        <ReactTooltip id={this.props.data.city} place="top" type="light" effect="solid">
+
+        <div 
+        style={{ left: (-this.state.tooltipWidth / 2) + 10, top: (-this.state.tooltipHeight / 2) - 35 }} 
+        ref={this.ref} 
+        className={clsx(this.props.classes.Tooltip, {[this.props.classes.TooltipShow]: this.props.hoverIndex === this.props.data.index} )}>
           <span>{this.props.data.city}, {this.props.data.country}</span>
           <br />
           <span>Click To View Gallery</span>
-        </ReactTooltip>
+        </div>
+       
       </div>
     );
   }
 }
-
-const pin = "M112 316.94v156.69l22.02 33.02c4.75 7.12 15.22 7.12 19.97 0L176 473.63V316.94c-10.39 1.92-21.06 3.06-32 3.06s-21.61-1.14-32-3.06zM144 0C64.47 0 0 64.47 0 144s64.47 144 144 144 144-64.47 144-144S223.53 0 144 0zm0 76c-37.5 0-68 30.5-68 68 0 6.62-5.38 12-12 12s-12-5.38-12-12c0-50.73 41.28-92 92-92 6.62 0 12 5.38 12 12s-5.38 12-12 12z"
 
 export default withStyles(styles)(Marker);

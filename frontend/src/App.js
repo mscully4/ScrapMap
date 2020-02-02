@@ -79,7 +79,7 @@ class App extends Component {
   componentDidMount() {
     window.addEventListener('resize', this.updateWindowDimensions);
     if (this.state.loggedIn) {
-      //this.handleLoadSession()
+      this.handleLoadSession()
     }
   }
 
@@ -92,7 +92,6 @@ class App extends Component {
   }
 
   handleLoadSession = (e) => {
-    e.preventDefault()
     fetchCurrentUser(localStorage.getItem("token"))
       .then(data => {
         console.log(data)
@@ -114,6 +113,7 @@ class App extends Component {
     .then(json => {
       // console.log(json.token)
       if (json) {
+        console.log(json)
         localStorage.setItem('token', json.token);
         this.setState({
           loggedIn: true,
@@ -122,7 +122,7 @@ class App extends Component {
             el.index = i;
             return el;
           }),
-        })
+        }, () => console.log(this.state))
       }
     }) 
   }
@@ -264,17 +264,10 @@ class App extends Component {
       handleLogin={this.handleLogin}
       handleSignup={this.handleSignup}
       username={this.state.username} 
+      backendURL={BACKEND_URL}
       //user info
-      u={username}
-      // width={this.state.width}
-      // height={this.state.height}
+      owner={username}
       cities={this.state.cities}
-      //Map Props
-      // handleAddCity={this.handleAddCity} 
-      // handleEditCity={this.handleEditCity}
-      // handleDeleteCity={this.handleDeleteCity}
-      // handleImageOverwrite={this.handleImageOverwrite}
-      // backendURL={BACKEND_URL}
       />
     )
   }
@@ -299,7 +292,8 @@ class App extends Component {
         <Router>
           <Switch>
             <Route path="/:username" component={(obj) => {
-              return this.state.username == obj.match.params.username ? this.renderOwner() : this.renderViewer()
+              console.log(this.state.username, obj.match.params.username)
+              return this.state.username == obj.match.params.username ? this.renderOwner() : this.renderViewer(obj.match.params.username)
             }}>
               {/* // return (
               //   <Owner 
@@ -324,7 +318,7 @@ class App extends Component {
               //   handleImageOverwrite={this.handleImageOverwrite}
               //   backendURL={BACKEND_URL} */}
           </Route>
-          <Route path="/" component={() => this.renderHome()}></Route>
+          <Route path="/" component={() => this.state.loggedIn ? this.renderOwner() : this.renderHome()}></Route>
         </Switch>
       </Router>
 

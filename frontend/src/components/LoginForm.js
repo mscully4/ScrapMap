@@ -29,7 +29,6 @@ class LoginForm extends React.Component {
     }
 
     render() {
-      console.log(this.props)
       return (
         <Form ref={ref => this.formLogin = ref} onSubmit={e => this.props.handleLogin(e, this.state)}>
           <Input

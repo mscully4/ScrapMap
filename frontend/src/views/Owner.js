@@ -292,6 +292,7 @@ class Owner extends React.Component {
           />
 
           <Table 
+          context={"Owner"}
           cities={this.props.cities}
           backendURL={this.props.backendURL}
           hoverIndex={this.state.hoverIndex}
@@ -311,6 +312,7 @@ class Owner extends React.Component {
           </Modal>
 
           <ImageViewer 
+          context={"Owner"}
           backendURL={this.props.backendURL}
           isOpen={this.state.imageViewerOpen} 
           toggleViewer={this.toggleViewer}
