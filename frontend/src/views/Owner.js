@@ -13,10 +13,12 @@ import Carousel, { ModalGateway } from 'react-images';
 import { ImgEditor} from '../components/ImageEditor';
 import EditCity from '../components/EditCity.js';
 import AddCity from '../components/AddCity.js';
+import AddPlace from '../components/AddPlace.js';
+
 import ImageUploader from '../components/ImageUploader.js';
 
 import { Add1, Add2 } from '../utils/SVGs';
-import { getUser } from '../utils/fetchUtils';
+import { getDistanceBetweenTwoPoints } from '../utils/Formulas.js';
 
 
 
@@ -50,6 +52,7 @@ class Owner extends React.Component {
       //General
       selectedCity: null,
       hoverIndex: null,
+      closestCity: null,
       //Map
       //TODO change these to be the location of the first city in the saved data
       granularity: 0,
@@ -73,8 +76,10 @@ class Owner extends React.Component {
       showLoader: false,
       //EditForm
       editFormOpen: false,
-      //addForm
-      addFormOpen: false
+      //addCityForm
+      addCityFormOpen: false,
+      //addPlaceForm
+      addPlaceFormOpen: false
     }
   }
 
@@ -128,6 +133,23 @@ class Owner extends React.Component {
     })
   }
 
+  getClosestCity = (centerLat, centerLong) => {
+    var lowest = 99999999, lowestIndex = null, distance
+
+    if (this.props.cities.length > 0)
+    this.props.cities.forEach((obj, i) => {
+      distance = getDistanceBetweenTwoPoints(centerLat, centerLong, obj.latitude, obj.longitude);
+      if (distance < lowest) {
+        lowest = distance;
+        lowestIndex = i
+      }
+    })
+
+    this.setState({
+      closestCity: this.props.cities[lowestIndex]
+    })
+  }
+
   //Gallery Functions
   toggleGallery = (value) => {
     const boolean = typeof(value) === 'boolean' ? value : !this.state.galleryOpen;
@@ -157,7 +179,8 @@ class Owner extends React.Component {
   tableRowClick = (obj, e) => {
     //TODO change this to using state logic
     this.setState({
-      galleryOpen: obj.event.target.getAttribute("value") !== "KILL",
+      //galleryOpen: obj.event.target.getAttribute("value") !== "KILL",
+      mapZoom:12,
       //images: images,
       selectedCity: obj.rowData,
     })
@@ -236,14 +259,22 @@ class Owner extends React.Component {
     }));
   }
 
-  toggleAddForm = () => {
+  //Add Functions
+
+  toggleAddCityForm = () => {
     this.setState(prevState => ({
-      addFormOpen: !prevState.addFormOpen
+      addCityFormOpen: !prevState.addCityFormOpen
     }));
   }
 
+  toggleAddPlaceForm = () => {
+    this.setState(prevState => ({
+      addPlaceFormOpen: !prevState.addPlaceFormOpen
+    }))
+  }
+
   render() {
-    //console.log(this.props.u)
+    //console.log(this.state.granularity)
     return (
       <React.Fragment>
         <Navigation 
@@ -257,13 +288,15 @@ class Owner extends React.Component {
           username={this.props.username}
         />
 
-        <p>Granularity: {this.state.granularity}</p>
         <svg
           className={clsx(this.props.classes.addSVG)}
           viewBox="0 0 1024 1024"
           version="1.1"
           xmlns="http://www.w3.org/2000/svg"
-          onClick={this.toggleAddForm}
+          onClick={() => { 
+            if (this.state.granularity === 1) this.toggleAddCityForm();
+            else this.toggleAddPlaceForm();
+          }}
         >
           <path
             d={Add1}
@@ -274,6 +307,9 @@ class Owner extends React.Component {
             fill="#737373"
           />
         </svg>
+
+        <p>Granularity: {this.state.granularity} Zoom: {this.state.mapZoom} Selected City: {this.state.selectedCity ? this.state.selectedCity.city : ""}</p>
+
 
         <div className={clsx(this.props.classes.main)}>
           <Map 
@@ -287,6 +323,7 @@ class Owner extends React.Component {
           changeHoverIndex={this.changeHoverIndex}
           //setCurrImg={this.setCurrImg}
           //toggleImageViewerOpen={this.toggleImageViewerOpen}
+          getClosestCity={this.getClosestCity}
           markerClick={this.markerClick}
           changeGranularity={this.changeGranularity}
           />
@@ -302,6 +339,7 @@ class Owner extends React.Component {
           toggleEditForm={this.toggleEditForm}
           handleDeleteCity={this.props.handleDeleteCity}
           toggleUploader={this.toggleUploader}
+          toggleGallery={this.toggleGallery}
           />
 
           <Modal isOpen={this.state.galleryOpen} toggle={this.toggleGallery} size={"xl"}>
@@ -344,12 +382,21 @@ class Owner extends React.Component {
           data={this.state.selectedCity}
           /> : null }
 
-          { this.state.addFormOpen ? 
+          { this.state.addCityFormOpen && this.state.granularity === 1 ?  
           <AddCity
-          isOpen={this.state.addFormOpen}
-          toggle={this.toggleAddForm}
+          isOpen={this.state.addCityFormOpen}
+          toggle={this.toggleAddCityForm}
           handleAddCity={this.props.handleAddCity}
           /> : null }
+
+          { this.state.addPlaceFormOpen && this.state.granularity === 0 ? 
+          <AddPlace
+          isOpen={this.state.addPlaceFormOpen}
+          toggle={this.toggleAddPlaceForm}
+          handleAddPlace={null}
+          mapCenter={this.state.mapCenter}
+          /> : null
+          }
 
           { this.state.uploaderOpen ?
           <ImageUploader 

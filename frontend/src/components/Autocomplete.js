@@ -4,11 +4,6 @@ import GooglePlacesAutocomplete, {geocodeByPlaceId} from 'react-google-places-au
 // If you want to use the provided css
 import 'react-google-places-autocomplete/dist/assets/index.css';
 import { Dropdown, DropdownItem, DropdownMenu, DropdownToggle, Input} from 'reactstrap';
- 
-const SUGGESTIONS = 5;
-const options = {
-  types: ["(cities)"],
-}
 
 const style = {
   dropdownItem: {
@@ -16,7 +11,7 @@ const style = {
   }
 }
 
-class PlacesAutoComplete extends React.Component {
+class AutoComplete extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -27,7 +22,8 @@ class PlacesAutoComplete extends React.Component {
     this.myRef = React.createRef();
   }
 
-  onSelect = (selection) => {
+  onSelectCity = (selection) => {
+    console.log("City")
     const city = selection.terms[0].value
     const country = selection.terms[selection.terms.length - 1].value;
     geocodeByPlaceId(selection.place_id).then((data) => {
@@ -43,9 +39,13 @@ class PlacesAutoComplete extends React.Component {
         countryCode = address.types && address.types.includes('country') ? address.short_name.toLowerCase() : countryCode
       }
       console.log({city, country, latitude, longitude, countryCode, state})
-      this.props.selectAutoSuggest({city, country, latitude, longitude, countryCode, state})
+      this.props.selectAutoSuggestCity({city, country, latitude, longitude, countryCode, state})
 
     })
+  }
+
+  onSelectPlace = (selection) => {
+    console.log("Place")
   }
 
   render = () => {
@@ -54,9 +54,9 @@ class PlacesAutoComplete extends React.Component {
       <div>
         <GooglePlacesAutocomplete
           ref={this.myRef}
-          autocompletionRequest={options}
-          placeholder={"City"}
-          onSelect={this.onSelect}
+          autocompletionRequest={this.props.options}
+          placeholder={this.props.autocomplete}
+          onSelect={this.props.context === "City" ? this.onSelectCity : this.onSelectPlace}
           renderInput={(props) => {
             console.log(props)
             if (props.autoComplete === "off") {
@@ -106,4 +106,4 @@ class PlacesAutoComplete extends React.Component {
   }
   
  
-export default PlacesAutoComplete;
+export default AutoComplete;

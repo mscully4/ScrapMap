@@ -15,7 +15,6 @@ import PropTypes from 'prop-types';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { withStyles} from '@material-ui/styles';
 import clsx from 'clsx';
-import ReactTooltip from 'react-tooltip';
 import { pin } from '../utils/SVGs'
 
 import ImageViewer from './ImageViewer.js';
@@ -150,7 +149,7 @@ class Marker extends Component {
     this.setState({
       tooltipWidth: this.ref.current.offsetWidth,
       tooltipHeight: this.ref.current.offsetHeight
-    }, () => console.log(this.state.tooltipWidth, this.state.tooltipHeight))
+    })
   }
 
   shouldComponentUpdate(nextProps, nextState) {
@@ -227,13 +226,7 @@ class Marker extends Component {
   }
 
   render() {
-    const scale = ((this.props.zoom - 4)/10);
-    if (this.props.hoverIndex === this.props.data.index) {
-      // console.log(this.tooltipRef)
-      console.log(this.tooltipRef)
-       ReactTooltip.show(this.tooltipRef)
-    }
-    //console.log(this.state.tooltipHeight)
+    const scale = ((this.props.zoom - 4) / 10);
     return (
     
       <div 

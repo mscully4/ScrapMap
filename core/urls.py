@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import CurrentUser, CreateUser, DestinationListView, DestinationImagesView, DestinationView
+from .views import CurrentUser, CreateUser, DestinationListView, DestinationImagesView, DestinationView, PlaceView
 from django.conf.urls.static import static
 
 urlpatterns = [
@@ -11,6 +11,9 @@ urlpatterns = [
 
     path('destination/<int:pk>/', DestinationView.as_view()),
     path('destination/', DestinationView.as_view()),
+
+    path('place/', PlaceView.as_view()),
+    path('place/<int:pk>/', PlaceView.as_view()),
 
     path('images/<int:pk>/<str:image>', DestinationImagesView.as_view())
 ]

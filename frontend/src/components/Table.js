@@ -6,7 +6,7 @@ import { Scrollbars } from 'react-custom-scrollbars';
 import 'react-virtualized/styles.css'; // only needs to be imported once
 import "flag-icon-css/css/flag-icon.min.css";
 
-import { Add1, Add2, ellipsis} from "../utils/SVGs"
+import { Add1, Add2, photoGallery1} from "../utils/SVGs"
 import OptionsDropdown from './Dropdown';
 
 const styles = theme => ({
@@ -56,10 +56,18 @@ const styles = theme => ({
   addSVG: {
     position: 'absolute',
     top: 10,
-    right: 10,
+    right: 50,
     height: 25,
     width: 25
   },
+  photoGallerySVG: {
+    position: 'absolute',
+    height: 25,
+    width: 30,
+    top: 10,
+    right: 10
+
+  }
 })
 
 class VirtualTable extends Component {
@@ -100,7 +108,7 @@ class VirtualTable extends Component {
     // console.log(cellData.rowData.city)
     //TODO Find a better way to pick an image, maybe based on size
     return (
-      <div className={clsx(classes.cell)} data-tip data-for={cellData.rowData.city}>
+      <div className={clsx(classes.cell)}>
         <span className={clsx(`flag-icon flag-icon-` + cellData.rowData.countryCode, classes.cellFlag)}></span>
         <span>{cellData.rowData.city}, {cellData.rowData.country}</span>
         {cellData.rowData.images.length ? <img className={clsx(classes.cellImage)} src={this.props.backendURL + cellData.rowData.images[0].src}></img> : null}
@@ -134,7 +142,21 @@ class VirtualTable extends Component {
             />
           </svg> : null
         }
-        
+
+        <svg
+          className={clsx(this.props.classes.photoGallerySVG)}
+          viewBox="0 0 512 512"
+          version="1.1"
+          xmlns="http://www.w3.org/2000/svg"
+          onClick={this.props.toggleGallery}
+          //value={"KILL"}
+          >
+            <path
+            d={photoGallery1}
+            fill="#737373"
+            //value={"KILL"}
+             />
+          </svg> 
       </div>
     )
   }

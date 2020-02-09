@@ -11,8 +11,8 @@ import {
     ModalBody,
     ModalFooter,
 } from 'reactstrap';
-
-import Autocomplete from './Autocomplete';
+import PlaceAutocomplete from './PlaceAutocomplete';
+import ImageUploader from './ImageUploader';
 
 const styles = {
   addIcon: {
@@ -92,12 +92,7 @@ class AddCity extends React.Component {
       })
     }
 
-    allFieldsValid = () => {
-      console.log(this.state.city,
-      this.state.country, 
-      this.state.countryCode,
-      this.state.latitude,
-      this.state.longitude)
+    allFieldsValid = () => {  
       return this.state.city !== "" &&
       this.state.country !== "" && 
       this.state.countryCode !== "" &&
@@ -107,67 +102,26 @@ class AddCity extends React.Component {
 
     render() {     
       //console.log(this.state) 
-      console.log(this.allFieldsValid())
+      //console.log(this.allFieldsValid())
       return (
         <React.Fragment>
           <Modal isOpen={this.props.isOpen} toggle={this.props.toggle}>
             <ModalHeader toggle={this.toggle}>Add City</ModalHeader>
               <ModalBody>
                 <Form ref={ref => this.formAddCity = ref} onSubmit={e => this.props.handleAddCity(e, this.state)} autoComplete={"new-password"}>
-                  <Autocomplete
-                    name="city"
-                    placeholder="city"
+                  <PlaceAutocomplete
+                    name="place"
+                    placeholder="place"
                     value={this.state.city}
-                    selectAutoSuggest={this.selectAutoSuggest}
-                    context={"City"}
+                    selectAutoSuggestCity={this.selectAutoSuggest}
+                    context={"Place"}
+                    mapCenter={this.props.mapCenter}
                     options={{
-                      types: ["(cities)"],
+                      location: { lat: 20, lng: 20 },
+                      radius: 50000
                     }}
                   />
                   <br />
-                  <Input
-                    type="text"
-                    name="country"
-                    placeholder="Country"
-                    value={this.state.country}
-                    onChange={this.handleChange}
-                    disabled={this.state.disabled}
-                    autoComplete={"new-password"}
-                  />
-                  <br />
-                  <Input
-                    type="text"
-                    name="countryCode"
-                    placeholder="Country Code"
-                    value={this.state.countryCode}
-                    onChange={this.handleChange}
-                    disabled={this.state.disabled}
-                    autoComplete={"new-password"}
-                  />
-                  <br />
-                  <Input 
-                    type="text"
-                    name="latitude"
-                    placeholder="Latitude"
-                    value={this.state.latitude}
-                    onChange={this.handleChange}
-                    disabled={this.state.disabled}
-                    autoComplete={"new-password"}
-                  />
-                  <br />
-                  <Input
-                    type="text"
-                    name="longitude"
-                    placeholder="Longitude"
-                    value={this.state.longitude}
-                    onChange={this.handleChange}
-                    disabled={this.state.disabled}
-                    autoComplete={"new-password"}
-                  />
-                  <br />
-                  {/* <ImageUploader
-                    onChange={this.handleImageChange}
-                  /> */}
                 </Form>
               </ModalBody>
             <ModalFooter>

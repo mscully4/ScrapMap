@@ -4,7 +4,8 @@ import GoogleMapReact from 'google-map-react';
 import controllable from 'react-controllables';
 
 import Marker from './Marker.js';
-import {K_SIZE} from './MarkerStyle.js';
+
+import { getDistanceBetweenTwoPoints } from '../utils/Formulas.js';
 
 const styles = {
   map: {
@@ -45,6 +46,16 @@ class Map extends Component {
     this.mapRef = React.createRef();
   }
 
+  componentDidMount = () => {
+    // fetch(`https://maps.googleapis.com/maps/api/place/textsearch/json?query=Katz&types=tourist_attraction|point_of_interest&key=${this.state.apiKey}`, {
+    //   method: 'GET',
+    //   headers: {
+    //     'Content-Type': 'application/json'
+    //   }
+    // }).then(res => console.log(res.json()))
+
+  }
+
   _onChildClick = (key, childProps) => {
     this.props.onCenterChange([childProps.lat, childProps.lng]);
   }
@@ -58,10 +69,15 @@ class Map extends Component {
   }
 
   _onChange = ({center, zoom}) => {
+    //console.log(Math.random(), center)
     //TODO change marker size based on zoom
+    // if (this.props.cities.length !== 0) {
+    //   console.log(getDistanceBetweenTwoPoints(center.lat, center.lng, this.props.cities[0].latitude, this.props.cities[0].longitude));
+    // }
     this.props.changeGranularity(zoom)
     this.props.onCenterChange(center)
     this.props.onZoomChange(zoom)
+    this.props.getClosestCity(center.lat, center.lng)
   }
 
   handleApiLoaded(map, maps) {
@@ -111,7 +127,7 @@ class Map extends Component {
           bootstrapURLKeys={{ key: this.state.apiKey }}
           center={this.props.center}
           zoom={this.props.zoom}
-          hoverDistance={K_SIZE / 2}
+          //hoverDistance={K_SIZE / 2}
           onChange={this._onChange}
           onChildClick={this._onChildClick}
           onChildMouseEnter={this._onChildMouseEnter}

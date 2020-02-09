@@ -17,6 +17,7 @@ import Navigation from '../components/NavBar'
 import { Add1, Add2 } from '../utils/SVGs';
 import { getUser } from '../utils/fetchUtils';
 
+//TODO need to hash out what happens if a user not authorized arrives at another users page
 
 
 const styles = theme => ({

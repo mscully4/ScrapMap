@@ -23,3 +23,20 @@ class DestinationImages(models.Model):
 
     def __str__(self):
         return self.image.name
+
+class Place(models.Model):
+    destination = models.ForeignKey(Destination, on_delete=models.CASCADE)
+    name = models.CharField(max_length=240)
+    # address = models.CharField(max_length=240)
+    # city = models.CharField(max_length=120)
+    # country = models.CharField(max_length=120)
+    latitude = models.FloatField(default=0)
+    longitude = models.FloatField(default=0)
+
+class PlaceImages(models.Model):
+    place = models.ForeignKey(Place, on_delete=models.CASCADE)
+    image = models.ImageField(blank=True, null=True)
+    name = models.CharField(max_length=500, blank=True, null=True)
+
+    def __str__(self):
+        return self.image.name
