@@ -5,6 +5,10 @@ import GooglePlacesAutocomplete, {geocodeByPlaceId} from 'react-google-places-au
 import 'react-google-places-autocomplete/dist/assets/index.css';
 import { Dropdown, DropdownItem, DropdownMenu, DropdownToggle, Input} from 'reactstrap';
 
+const placeURL= "https://maps.googleapis.com/maps/api/place/autocomplete/json?types=establishment&strictbounds&"
+const cityURL = "https://maps.googleapis.com/maps/api/place/autocomplete/json?types=(cities)&"
+//input=Amoeba&location=37.76999,-122.44696&radius=500&strictbounds&key=YOUR_API_KEY
+
 const style = {
   dropdownItem: {
     cursor: 'pointer'
@@ -17,10 +21,31 @@ class AutoComplete extends React.Component {
     this.state = {
       listIndex: null,
       suggestions: null,
+      apiKey: "AIzaSyBpXqyXMWAbXFs6XCxkMUFX09ZuHzjpKHU",
+      input: "",
     };
 
     this.myRef = React.createRef();
   }
+
+  handleChange = e => {
+    const name = e.target.name;
+    const value = e.target.value;
+    this.setState(prevState => {
+      const newState = { ...prevState };
+      newState[name] = value;
+      return newState;
+    });
+
+    switch(this.props.context) {
+      case "Place":
+        this.loadPlaceSuggestions(value).then(json => console.log(json.predictions))
+        break;
+      case "City":
+        this.loadCitySuggestions(value).then(json => console.log(json.predictions))
+        break
+    }
+  };
 
   onSelectCity = (selection) => {
     console.log("City")
@@ -44,62 +69,47 @@ class AutoComplete extends React.Component {
     })
   }
 
+  loadPlaceSuggestions = (input) => {
+    const parameters = `input=${input}&location=${this.props.location.lat},${this.props.location.lng}&radius=${this.props.location.radius}&key=${this.state.apiKey}`
+    console.log(parameters)
+    return fetch(placeURL + parameters, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    }).then(resp => resp.json())
+  }
+
+  loadCitySuggestions = (input) => {
+    const parameters = `input=${input}&key=${this.state.apiKey}`
+    console.log(parameters)
+    return fetch(cityURL + parameters, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    }).then(resp => resp.json())
+
+  }
+
+
   onSelectPlace = (selection) => {
     console.log("Place")
   }
 
   render = () => {
-    //console.log(this.myRef)
+    const options={
+      types: "establishment",
+      location: { lat: 20, lng: 20 },
+      radius: 50000
+    }
     return (
       <div>
-        <GooglePlacesAutocomplete
-          ref={this.myRef}
-          autocompletionRequest={this.props.options}
-          placeholder={this.props.autocomplete}
-          onSelect={this.props.context === "City" ? this.onSelectCity : this.onSelectPlace}
-          renderInput={(props) => {
-            console.log(props)
-            if (props.autoComplete === "off") {
-              props.value = props.value.split(',')[0]; 
-            }
-            return(
-              <Input
-                {...props}
-                autoComplete={"new-password"}
-              />
-          )}}
-          // renderSuggestions={(active, suggestions, onSelectSuggestion) => {
-          //   if (suggestions !== this.state.suggestions) {
-          //     this.setState({
-          //       suggestions: suggestions
-          //     })
-          //   }
-          //   // <ul onKeyDown={() => console.log(69)} style={{position: "absolute", width: "100%", backgroundColor: "#fff", border: "solid 3px #dbecff", borderTop: "0", borderRadius: 5}}>
-          //   //   {
-          //   //     suggestions.map((suggestion) => (
-          //   //       <li className="suggestion"
-          //   //         style={{cursor: "pointer"}}
-          //   //         onClick={(event) => onSelectSuggestion(suggestion)}
-          //   //       >
-          //   //         {suggestion.description}
-          //   //       </li>
-          //   //     ))
-          //   //   }
-          //   // </ul>
-
-          //   return (
-          //     <DropdownMenu style={{display: 'block', width: '100%'}}>
-          //       { suggestions.map((suggestion) => (
-          //         <DropdownItem style={style.dropdownItem} 
-          //         onClick={() => console.log("Click")} 
-          //         onMouseEnter={() => console.log("Hover")}
-          //         >
-          //           {suggestion.description}
-          //         </DropdownItem>
-          //         //onClick={(event) => onSelectSuggestion(suggestion, event)}                  
-          //       ))}
-          //     </DropdownMenu>
-          // )}}
+        <Input
+        type="text"
+        name="input"
+        value={this.state.input}
+        onChange={this.handleChange}
         />
       </div>
     )}

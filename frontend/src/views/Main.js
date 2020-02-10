@@ -7,9 +7,7 @@ import clsx from 'clsx'
 import Navigation from '../components/NavBar'
 import Map from '../components/Map';
 import Table from '../components/Table'
-import { closePath } from "../utils/SVGs"
 import ImageViewer from '../components/ImageViewer';
-import Carousel, { ModalGateway } from 'react-images';
 import { ImgEditor} from '../components/ImageEditor';
 import EditCity from '../components/EditCity.js';
 import AddCity from '../components/AddCity.js';
@@ -19,6 +17,7 @@ import ImageUploader from '../components/ImageUploader.js';
 
 import { Add1, Add2 } from '../utils/SVGs';
 import { getDistanceBetweenTwoPoints } from '../utils/Formulas.js';
+import { getUser } from '../utils/fetchUtils.js';
 
 
 
@@ -48,11 +47,15 @@ class Owner extends React.Component {
 
   constructor(props) {
     super(props)
+    console.log(this.props.loggedInCities)
     this.state = {
       //General
       selectedCity: null,
       hoverIndex: null,
       closestCity: null,
+      //View Info
+      viewUser: this.props.viewUser,
+      viewCities: Boolean(this.props.viewUser) === false || this.props.loggedInUser === this.props.viewUser ? this.props.loggedInCities : [],
       //Map
       //TODO change these to be the location of the first city in the saved data
       granularity: 0,
@@ -85,7 +88,16 @@ class Owner extends React.Component {
 
   componentDidMount = () => {
     console.log("Owner")
-
+    if (Boolean(this.props.viewUser) === true && this.props.loggedInUser !== this.props.viewUser) {
+      getUser(localStorage.getItem("token"), this.props.viewUser).then(data => {
+        this.setState({
+          viewCities: data.destinations.map((el, i) => {
+            el.index=i;
+            return el;
+          })
+        }, () => console.log(this.state))
+      })
+    }
     // console.log(this.props)
     // getUser(localStorage.getItem("token"), this.props.).then(obj => {
     //   console.log(obj)
@@ -136,8 +148,8 @@ class Owner extends React.Component {
   getClosestCity = (centerLat, centerLong) => {
     var lowest = 99999999, lowestIndex = null, distance
 
-    if (this.props.cities.length > 0)
-    this.props.cities.forEach((obj, i) => {
+    if (this.state.viewCities.length > 0)
+    this.state.viewCities.forEach((obj, i) => {
       distance = getDistanceBetweenTwoPoints(centerLat, centerLong, obj.latitude, obj.longitude);
       if (distance < lowest) {
         lowest = distance;
@@ -146,7 +158,7 @@ class Owner extends React.Component {
     })
 
     this.setState({
-      closestCity: this.props.cities[lowestIndex]
+      closestCity: lowestIndex
     })
   }
 
@@ -274,20 +286,19 @@ class Owner extends React.Component {
   }
 
   render() {
-    //console.log(this.state.granularity)
     return (
       <React.Fragment>
         <Navigation 
           loggedIn={this.props.loggedIn} 
-          username={this.props.username} 
+          username={this.props.loggedInUser} 
           handleLogout={this.props.handleLogout} 
           toggleLogin={this.props.toggleLogin}
           toggleSignUp={this.props.toggleSignUp}
           handleLogin={this.props.handleLogin}
           handleSignup={this.props.handleSignup}
-          username={this.props.username}
         />
-
+        
+        { this.props.user === this.props.username ?
         <svg
           className={clsx(this.props.classes.addSVG)}
           viewBox="0 0 1024 1024"
@@ -306,7 +317,7 @@ class Owner extends React.Component {
             d={Add2}
             fill="#737373"
           />
-        </svg>
+        </svg> : null }
 
         <p>Granularity: {this.state.granularity} Zoom: {this.state.mapZoom} Selected City: {this.state.selectedCity ? this.state.selectedCity.city : ""}</p>
 
@@ -315,7 +326,7 @@ class Owner extends React.Component {
           <Map 
           center={this.state.mapCenter} 
           zoom={this.state.mapZoom}
-          cities={ this.props.cities }
+          cities={ this.state.viewCities }
           //handleEditCity={this.props.handleEditCity}
           //handleDeleteCity={this.props.handleDeleteCity}
           //backendURL={this.props.backendURL}
@@ -329,8 +340,8 @@ class Owner extends React.Component {
           />
 
           <Table 
-          context={"Owner"}
-          cities={this.props.cities}
+          context={this.props.viewUser === this.props.loggedInUser ? "Owner" : "Viewer"}
+          cities={this.state.viewCities}
           backendURL={this.props.backendURL}
           hoverIndex={this.state.hoverIndex}
           changeHoverIndex={this.changeHoverIndex}
@@ -354,7 +365,7 @@ class Owner extends React.Component {
           backendURL={this.props.backendURL}
           isOpen={this.state.imageViewerOpen} 
           toggleViewer={this.toggleViewer}
-          views={this.props.cities.length ? this.props.cities[0].images : [{src: ""}]}
+          views={this.state.viewCities.length ? this.state.viewCities[0].images : [{src: ""}]}
           currentIndex={ this.state.currImg }
           //changeCurrImg={ this.changeCurrImg }
           //setCurrImg={ this.setCurrImg }
@@ -364,7 +375,7 @@ class Owner extends React.Component {
           showLoader={this.showLoader}
           />
 
-          { this.state.editorOpen ?
+          { this.state.editorOpen & this.props.username === this.props.user ?
           <ImgEditor 
           isOpen={this.state.editorOpen}
           toggleEditor={this.toggleEditor}
@@ -374,7 +385,7 @@ class Owner extends React.Component {
           handleImageOverwrite={this.props.handleImageOverwrite}
           /> : null}
 
-          { this.state.editFormOpen ? 
+          { this.state.editFormOpen  & this.props.username === this.props.user ? 
           <EditCity
           isOpen={this.state.editFormOpen}
           toggle={this.toggleEditForm}
@@ -382,23 +393,25 @@ class Owner extends React.Component {
           data={this.state.selectedCity}
           /> : null }
 
-          { this.state.addCityFormOpen && this.state.granularity === 1 ?  
+          { this.state.addCityFormOpen && this.state.granularity === 1 && this.props.username === this.props.user ?  
           <AddCity
           isOpen={this.state.addCityFormOpen}
           toggle={this.toggleAddCityForm}
           handleAddCity={this.props.handleAddCity}
           /> : null }
 
-          { this.state.addPlaceFormOpen && this.state.granularity === 0 ? 
+          { this.state.addPlaceFormOpen && this.state.granularity === 0 && this.props.username === this.props.user ? 
           <AddPlace
           isOpen={this.state.addPlaceFormOpen}
           toggle={this.toggleAddPlaceForm}
           handleAddPlace={null}
           mapCenter={this.state.mapCenter}
+          cities={this.state.viewCities}
+          default={this.state.closestCity}
           /> : null
           }
 
-          { this.state.uploaderOpen ?
+          { this.state.uploaderOpen && this.props.username === this.props.user ?
           <ImageUploader 
           handleImageSubmit={this.handleImageSubmit}
           toggle={this.toggleUploader}

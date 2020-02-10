@@ -8,11 +8,11 @@ import {
   Link
 } from "react-router-dom";
 
-import Owner from './views/Owner';
+import Owner from './views/Main';
 import Viewer from './views/Viewer';
 import Home from './views/Home'
 
-import {fetchCurrentUser, fetchToken, putNewUser, postNewCity, putEditCity, deleteCity } from "./utils/fetchUtils" 
+import {fetchCurrentUser, fetchToken, putNewUser, postNewCity, putEditCity, deleteCity, getUser } from "./utils/fetchUtils" 
 
 import { library } from '@fortawesome/fontawesome-svg-core';
 import { faEdit, faTrash, faSync, fsEllipsisH, faEllipsisH  } from '@fortawesome/free-solid-svg-icons';
@@ -64,7 +64,7 @@ class App extends Component {
 
     this.state = {
       loggedIn: token && (jwt_decode(token).exp > (Date.now()/1000)) ? true : false,
-      username: null,
+      loggedInUser: null,
       showLoginModal: false,
       modalSignUp: false,
 
@@ -96,7 +96,7 @@ class App extends Component {
       .then(data => {
         console.log(data)
         this.setState({ 
-          username: data.user.username, 
+          loggedInUser: data.user.username, 
           cities: data.destinations.map((el, i) => {
             el.index=i;
             return el;
@@ -117,7 +117,7 @@ class App extends Component {
         localStorage.setItem('token', json.token);
         this.setState({
           loggedIn: true,
-          username: json.user.username,
+          loggedInUser: json.user.username,
           cities: json.destinations.map((el, i) => {
             el.index = i;
             return el;
@@ -136,7 +136,7 @@ class App extends Component {
         localStorage.setItem("token", json.token);
         this.setState({
           loggedIn: true,
-          username: json.username
+          loggedInUser: json.username
         })
       }
     })  
@@ -186,7 +186,7 @@ class App extends Component {
     localStorage.removeItem("token");
     this.setState({
       loggedIn: false,
-      username: null,
+      loggedInUser: null,
       showModalLogin: false,
       modalSignUp: false,
       cities: null,
@@ -219,31 +219,30 @@ class App extends Component {
     return (
       <Home
       loggedIn={this.state.loggedIn} 
-      username={this.state.username} 
+      loggedInUser={this.state.loggedInUser} 
       handleLogout={this.handleLogout} 
       toggleLogin={this.toggleLogIn}
       toggleSignUp={this.toggleSignUp}
       handleLogin={this.handleLogin}
       handleSignup={this.handleSignup}
-      username={this.state.username} 
       />
     )
   }
 
-  renderOwner = (username) => {
+  renderMain = (user) => {
     return (
       <Owner
       //Navigation Props
       loggedIn={this.state.loggedIn} 
-      username={this.state.username} 
+      loggedInUser={this.state.loggedInUser} 
+      loggedInCities={this.state.cities}
       handleLogout={this.handleLogout} 
       toggleLogin={this.toggleLogIn}
       toggleSignUp={this.toggleSignUp}
       handleLogin={this.handleLogin}
       handleSignup={this.handleSignup}
-      //user info
-      u={username}
-      cities={this.state.cities}
+      //view info
+      viewUser={user}
       //Map Props
       handleAddCity={this.handleAddCity} 
       handleEditCity={this.handleEditCity}
@@ -253,72 +252,37 @@ class App extends Component {
       />)
   }
 
-  renderViewer = (username) => {
-    return (
-    <Viewer 
-      loggedIn={this.state.loggedIn} 
-      username={this.state.username} 
-      handleLogout={this.handleLogout} 
-      toggleLogin={this.toggleLogIn}
-      toggleSignUp={this.toggleSignUp}
-      handleLogin={this.handleLogin}
-      handleSignup={this.handleSignup}
-      username={this.state.username} 
-      backendURL={BACKEND_URL}
-      //user info
-      owner={username}
-      cities={this.state.cities}
-      />
-    )
-  }
+  // renderViewer = (username) => {
+  //   return (
+  //   <Viewer 
+  //     loggedIn={this.state.loggedIn} 
+  //     username={this.state.username} 
+  //     handleLogout={this.handleLogout} 
+  //     toggleLogin={this.toggleLogIn}
+  //     toggleSignUp={this.toggleSignUp}
+  //     handleLogin={this.handleLogin}
+  //     handleSignup={this.handleSignup}
+  //     username={this.state.username} 
+  //     backendURL={BACKEND_URL}
+  //     //user info
+  //     owner={username}
+  //     cities={this.state.cities}
+  //     />
+  //   )
+  // }
 
   render = () => {
     //this.updateWindowDimensions();
     
     return (
       <React.Fragment>
-        {/* <Navigation 
-          loggedIn={this.state.loggedIn} 
-          username={this.state.username} 
-          handleLogout={this.handleLogout} 
-          toggleLoggedIn={this.toggleLogIn}
-          toggleSignUp={this.toggleSignUp}
-          handleLogin={this.handleLogin}
-          handleSignup={this.handleSignup}
-          username={this.state.username}
-        /> */}
         {/* <h1 style={styles.quote}>"To Travel is to BOOF"</h1> */}
 
         <Router>
           <Switch>
-            <Route path="/:username" component={(obj) => {
-              console.log(this.state.username, obj.match.params.username)
-              return this.state.username == obj.match.params.username ? this.renderOwner() : this.renderViewer(obj.match.params.username)
-            }}>
-              {/* // return (
-              //   <Owner 
-              //   //Navigation Props
-              //   loggedIn={this.state.loggedIn} 
-              //   username={this.state.username} 
-              //   handleLogout={this.handleLogout} 
-              //   toggleLogin={this.toggleLogIn}
-              //   toggleSignUp={this.toggleSignUp}
-              //   handleLogin={this.handleLogin}
-              //   handleSignup={this.handleSignup}
-              //   username={this.state.username}
-              //   //user info
-              //   u={obj.match.params.username}
-              //   // width={this.state.width}
-              //   // height={this.state.height}
-              //   cities={this.state.cities}
-              //   //Map Props
-              //   handleAddCity={this.handleAddCity} 
-              //   handleEditCity={this.handleEditCity}
-              //   handleDeleteCity={this.handleDeleteCity}
-              //   handleImageOverwrite={this.handleImageOverwrite}
-              //   backendURL={BACKEND_URL} */}
+            <Route path="/:username" component={(obj) => this.renderMain(obj.match.params.username)}>
           </Route>
-          <Route path="/" component={() => this.state.loggedIn ? this.renderOwner() : this.renderHome()}></Route>
+          <Route path="/" component={() => this.state.loggedIn ? this.renderMain() : this.renderHome()}></Route>
         </Switch>
       </Router>
 
