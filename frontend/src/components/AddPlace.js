@@ -43,6 +43,7 @@ class AddPlace extends React.Component {
         closestCity: this.props.cities[this.props.default],
 
         modalAdd: false,
+        place: "",
         city: "",
         country: "", 
         latitude: null, 
@@ -67,6 +68,12 @@ class AddPlace extends React.Component {
       return newState;
     });
   };
+
+  handleAutoCompleteChange = (value) => {
+    this.setState({
+      place: value
+    })
+  }
 
   handleImageChange = (files, URLs) => {
     let pictures = this.state.pictures;
@@ -150,11 +157,12 @@ class AddPlace extends React.Component {
                 <Autocomplete
                   name="place"
                   placeholder="place"
-                  value={this.state.city}
+                  value={this.state.place}
                   selectAutoSuggestCity={this.selectAutoSuggest}
                   context={"Place"}
-                  //mapCenter={this.props.mapCenter}
                   location={{lat: this.state.closestCity.latitude, lng: this.state.closestCity.longitude, radius: 50000}}
+                  value={this.state.place}
+                  handleAutoCompleteChange={this.handleAutoCompleteChange}
                   
                 />
                 <br />

@@ -48,6 +48,12 @@ class AddCity extends React.Component {
       });
     };
 
+    handleAutoCompleteChange = (value) => {
+      this.setState({
+        city: value
+      })
+    }
+
     handleImageChange = (files, URLs) => {
       let pictures = this.state.pictures;
       let pictureNames = this.state.pictureNames
@@ -118,11 +124,10 @@ class AddCity extends React.Component {
                     name="city"
                     placeholder="city"
                     value={this.state.city}
-                    selectAutoSuggest={this.selectAutoSuggest}
+                    selectAutoSuggestCity={this.selectAutoSuggest}
                     context={"City"}
-                    options={{
-                      types: ["(cities)"],
-                    }}
+                    handleAutoCompleteChangeCity={this.handleAutoCompleteChange}
+                    value={this.state.city}
                   />
                   <br />
                   <Input
