@@ -43,11 +43,18 @@ class AddPlace extends React.Component {
         closestCity: this.props.cities[this.props.default],
 
         modalAdd: false,
-        place: "",
+        
+        name: "",
+        houseNumber: "",
+        street: "",
+        neighborhood: "",
         city: "",
+        state: null,
         country: "", 
+
         latitude: null, 
         longitude: null,
+
         pictures: [],
         pictureNames: [],
       };
@@ -71,7 +78,7 @@ class AddPlace extends React.Component {
 
   handleAutoCompleteChange = (value) => {
     this.setState({
-      place: value
+      name: value
     })
   }
 
@@ -108,12 +115,19 @@ class AddPlace extends React.Component {
 
   clear = () => {
     this.setState({
-      place: null,
-      latitude: null,
+      name: "",
+      houseNumber: "",
+      street: "",
+      neighborhood: "",
+      city: "",
+      state: null,
+      country: "", 
+
+      latitude: null, 
       longitude: null,
+      
       pictureNames: [],
       pictures: [],
-      hover: false,
     })
   }
 
@@ -139,7 +153,7 @@ class AddPlace extends React.Component {
         <Modal isOpen={this.props.isOpen} toggle={this.props.toggle}>
           <ModalHeader toggle={this.toggle}>Add Place</ModalHeader>
             <ModalBody>
-              <Form ref={ref => this.formAddCity = ref} onSubmit={e => console.log(this.state)}>
+              <Form ref={ref => this.formAddCity = ref} onSubmit={e => this.props.handleAddPlace(e, this.state)}>
                 <Select
                 className="basic-single"
                 classNamePrefix="select"
@@ -161,21 +175,62 @@ class AddPlace extends React.Component {
                   selectAutoSuggestCity={this.selectAutoSuggest}
                   context={"Place"}
                   location={{lat: this.state.closestCity.latitude, lng: this.state.closestCity.longitude, radius: 50000}}
-                  value={this.state.place}
+                  value={this.state.name}
                   handleAutoCompleteChange={this.handleAutoCompleteChange}
+                  selectAutoSuggestPlace={this.selectAutoSuggest}
                   
                 />
                 <br />
-                {/*} <Input
+                <Input
                    type="text"
-                   name="latitude"
-                   placeholder="Country Code"
-                   value={this.state.countryCode}
+                   name="house number"
+                   placeholder="House Number"
+                   value={this.state.houseNumber}
                    onChange={this.handleChange}
                    // disabled={this.state.disabled}
                    // autoComplete={"new-password"}
                  />
-                  <br />
+                <br />
+                <Input 
+                   type="text"
+                   name="street"
+                   placeholder="Street"
+                   value={this.state.street}
+                   onChange={this.handleChange}
+                   //disabled={this.state.disabled}
+                   //autoComplete={"new-password"}
+                 />
+                 <br />
+                <Input 
+                   type="text"
+                   name="city"
+                   placeholder="City"
+                   value={this.state.city}
+                   onChange={this.handleChange}
+                   //disabled={this.state.disabled}
+                   //autoComplete={"new-password"}
+                 />
+                 <br />
+                <Input 
+                   type="text"
+                   name="state"
+                   placeholder="State"
+                   value={this.state.state}
+                   onChange={this.handleChange}
+                   //disabled={this.state.disabled}
+                   //autoComplete={"new-password"}
+                 />
+                 <br />
+                <Input 
+                   type="text"
+                   name="latitude"
+                   placeholder="Latitude"
+                   value={this.state.latitude}
+                   onChange={this.handleChange}
+                   //disabled={this.state.disabled}
+                   //autoComplete={"new-password"}
+                 />
+                 <br />
                 <Input 
                    type="text"
                    name="longitude"
@@ -184,7 +239,7 @@ class AddPlace extends React.Component {
                    onChange={this.handleChange}
                    //disabled={this.state.disabled}
                    //autoComplete={"new-password"}
-                 /> */}
+                 />
               </Form>
             </ModalBody>
           <ModalFooter>

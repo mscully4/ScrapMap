@@ -12,7 +12,7 @@ import Owner from './views/Main';
 import Viewer from './views/Viewer';
 import Home from './views/Home'
 
-import {fetchCurrentUser, fetchToken, putNewUser, postNewCity, putEditCity, deleteCity, getUser } from "./utils/fetchUtils" 
+import {fetchCurrentUser, fetchToken, putNewUser, postNewCity, putEditCity, deleteCity, getUser, postNewPlace } from "./utils/fetchUtils" 
 
 import { library } from '@fortawesome/fontawesome-svg-core';
 import { faEdit, faTrash, faSync, fsEllipsisH, faEllipsisH  } from '@fortawesome/free-solid-svg-icons';
@@ -157,6 +157,29 @@ class App extends Component {
     }
   }
 
+  handleAddPlace = (e, data) => {
+    const payload = 
+      {
+        destination: data.closestCity.pk,
+        name: data.name,
+        houseNumber: data.houseNumber,
+        street: data.street,
+        neighborhood: data.neighborhood,
+        city: data.closestCity.city,
+        state: data.state,
+        country: data.country,
+        latitude: data.latitude,
+        longitude: data.longitude
+      }
+    e.preventDefault()
+    if (this.state.loggedIn) {
+      postNewPlace(localStorage.getItem('token'), payload)
+      .then(res => {
+        console.log(res)
+      })
+    }
+  }
+
   handleEditCity = (e, data) => {
     e.preventDefault();
     putEditCity(localStorage.getItem('token'), data)
@@ -244,7 +267,8 @@ class App extends Component {
       //view info
       viewUser={user}
       //Map Props
-      handleAddCity={this.handleAddCity} 
+      handleAddCity={this.handleAddCity}
+      handleAddPlace={this.handleAddPlace} 
       handleEditCity={this.handleEditCity}
       handleDeleteCity={this.handleDeleteCity}
       handleImageOverwrite={this.handleImageOverwrite}
@@ -273,7 +297,7 @@ class App extends Component {
 
   render = () => {
     //this.updateWindowDimensions();
-    
+    console.log(this.state.cities)
     return (
       <React.Fragment>
         {/* <h1 style={styles.quote}>"To Travel is to BOOF"</h1> */}

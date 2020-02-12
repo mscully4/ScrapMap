@@ -77,6 +77,18 @@ export function postNewCity(token, data) {
   .then(response => response.ok ? response.json() : null)
 }
 
+export function postNewPlace(token, data) {
+  return fetch(baseURL + "core/place/", {
+    method: "POST",
+    headers: {
+      Authorization: `JWT ${token}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(data)
+  })
+  .then(response => response.ok ? response.json() : null)
+}
+
 export function putEditCity(token, data) {
   console.log(data)
   const form = new FormData();

@@ -187,7 +187,6 @@ class Owner extends React.Component {
   }
 
   //Table Functions
-
   tableRowClick = (obj, e) => {
     //TODO change this to using state logic
     this.setState({
@@ -272,7 +271,6 @@ class Owner extends React.Component {
   }
 
   //Add Functions
-
   toggleAddCityForm = () => {
     this.setState(prevState => ({
       addCityFormOpen: !prevState.addCityFormOpen
@@ -404,7 +402,7 @@ class Owner extends React.Component {
           <AddPlace
           isOpen={this.state.addPlaceFormOpen}
           toggle={this.toggleAddPlaceForm}
-          handleAddPlace={null}
+          handleAddPlace={this.props.handleAddPlace}
           mapCenter={this.state.mapCenter}
           cities={this.state.viewCities}
           default={this.state.closestCity}

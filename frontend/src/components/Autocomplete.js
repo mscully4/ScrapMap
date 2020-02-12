@@ -99,19 +99,19 @@ class AutoComplete extends React.Component {
     const place_id = selection.place_id
 
     const name = selection.terms[0].value
-    const street = selection.terms[1].value
+    //const street = selection.terms[1].value
     const city = selection.terms[2].value
-    const state = selection.terms[4].value === "USA" ? selection.terms[3].value : null
-    const country = selection.terms[4].value === "USA" ? selection.terms[4].value : selection.terms[3].value
+    const state = selection.terms.length  > 4 && selection.terms[4].value === "USA" ? selection.terms[3].value : null
+    const country = selection.terms.length > 4 && selection.terms[4].value === "USA" ? selection.terms[4].value : selection.terms[3].value
     geocodeByPlaceId(place_id).then(data => {
       console.log(data)
-      const street_number = data[0].address_components[0].long_name
-      const street2 = data[0].address_components[1].long_name
+      const houseNumber = data[0].address_components[0].long_name
+      const street = data[0].address_components[1].long_name
       const neighborhood = data[0].address_components[2].long_name
       const latitude = parseFloat(data[0].geometry.location.lat().toFixed(4));
       const longitude = parseFloat(data[0].geometry.location.lng().toFixed(4));
-      console.log(name, street, city, state, country, street_number, street2, neighborhood, latitude, longitude)
-
+      // console.log(name, street, city, state, country, street_number, street2, neighborhood, latitude, longitude)
+      this.props.selectAutoSuggestPlace({name, street, city, state, country, houseNumber, neighborhood, latitude, longitude})
     })
   }
 
@@ -125,38 +125,32 @@ class AutoComplete extends React.Component {
     ];
     return (
       <div>
-        {/* <Input
-        type="text"
-        name="input"
-        value={this.state.input}
-        onChange={this.handleChange}
-        /> */}
-          <ReactAutocomplete
-        // items={[
-        //   { label: 'foo' },
-        //   { label: 'bar' },
-        //   { label: 'baz' },
-        // ]}
-        items={this.state.suggestions}
-        //shouldItemRender={(item, value) => item.label.toLowerCase().indexOf(value.toLowerCase()) > -1}
-        getItemValue={item => item.description}
-        renderItem={(item, highlighted) =>
-          <div
-            key={item.id}
-            style={{ backgroundColor: highlighted ? '#eee' : 'transparent'}}
-          >
-            {item.description}
-          </div>
-        }
-        name={"value"}
-        value={this.props.value}
-        onChange={this.handleChange}
-        onSelect={(value, obj) => this.props.context === "City" ? this.onSelectCity(value, obj) : this.onSelectPlace(value, obj)}
-        renderInput={(props) => {
-          const {ref, ...rest} = props;
-          return <Input {...rest} innerRef={ref}/>
-        }}
-      />
+            <ReactAutocomplete
+          // items={[
+          //   { label: 'foo' },
+          //   { label: 'bar' },
+          //   { label: 'baz' },
+          // ]}
+          items={this.state.suggestions}
+          //shouldItemRender={(item, value) => item.label.toLowerCase().indexOf(value.toLowerCase()) > -1}
+          getItemValue={item => item.description}
+          renderItem={(item, highlighted) =>
+            <div
+              key={item.id}
+              style={{ backgroundColor: highlighted ? '#eee' : 'transparent'}}
+            >
+              {item.description}
+            </div>
+          }
+          name={"value"}
+          value={this.props.value}
+          onChange={this.handleChange}
+          onSelect={(value, obj) => this.props.context === "City" ? this.onSelectCity(value, obj) : this.onSelectPlace(value, obj)}
+          renderInput={(props) => {
+            const {ref, ...rest} = props;
+            return <Input {...rest} innerRef={ref}/>
+          }}
+        />
       </div>
     )}
   }
