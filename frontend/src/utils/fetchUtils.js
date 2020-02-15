@@ -112,6 +112,29 @@ export function putEditCity(token, data) {
   .then(response => response.ok ? response.json() : null)
 }
 
+export function putEditPlace(token, data) {
+  console.log(data)
+  const form = new FormData();
+  form.append("pk", data.pk);
+  form.append('destination', data.city);
+  form.append('name', data.country);
+  form.append('latitude', data.countryCode)
+  form.append('longitude', data.latitude);
+  // for (var i=0; i<data.pictures.length; i++) {
+  //   form.append('images', data.pictures[i]);
+  // }
+
+  return fetch(baseURL + "core/place/" + data.pk + "/", {
+    method: "PUT",
+    headers: {
+      Authorization: `JWT ${token}`,
+    },
+    body: form,
+  })
+  .then(response => response.ok ? response.json() : null)
+}
+
+
 export function deleteCity(token, data) {
   return fetch(baseURL + "core/destination/" + data.pk + "/", {
     method: "DELETE",

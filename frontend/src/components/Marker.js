@@ -145,7 +145,6 @@ class Marker extends Component {
   }
 
   componentDidMount = () => {
-    //this.props.setMarkerRefs(this.props.data.city, this.tooltipRef)
     this.setState({
       tooltipWidth: this.ref.current.offsetWidth,
       tooltipHeight: this.ref.current.offsetHeight
@@ -166,50 +165,6 @@ class Marker extends Component {
       return newState;
     });
   };
-
-  //function for toggling whether the editor is open or not
-  // toggleEditForm = () => {
-  //   //if the editor is about to open, hide the hover box
-  //   this.props.changeHoverIndex(null)
-  //   this.setState(prevState => ({
-  //     editorIsOpen: !prevState.editorIsOpen,
-  //     hover: false,
-  //   }));
-  // }
-
-    //function for submitting the updated form data to the server
-  // submitForm = () => {
-  //   ReactDOM.findDOMNode(this.formEditCity).dispatchEvent(new Event("submit"))
-  //   this.toggleEditForm();
-  // }
-
-  //function for toggling whether the image viewer is open or not
-  // setImageViewerOpen = (boolean) => {
-  //   this.setState({
-  //     imageViewerOpen: boolean,
-  //   }, this.props.setImgViewerIsOpen(boolean));
-  // }
-
-  //function for opening the Image Viewer when one of the thumbnails is clicked on 
-  // imgOnClick = (e) => {
-  //   //console.log("OPEN")
-  //   e.preventDefault();
-  //   //this.setImageViewerOpen(true);
-  //   this.props.setCurrImg(e.target.getAttribute('number'))
-  //   this.props.toggleImageViewerOpen(true)
-  //   // this.setState({
-  //   //   currImg: parseInt(e.target.getAttribute('number')),
-  //   //   imageViewerOpen: true,
-  //   // })
-  //   //this.props.setImgViewerIsOpen(true);
-  // }
-
-  //function for changing the current image in the Image Viewer
-  // setCurrImg = (i) => {
-  //   this.setState({
-  //     currImg: i,
-  //   })
-  // }
 
   onMouseEnter = (e) => {
     this.setState({
@@ -240,18 +195,17 @@ class Marker extends Component {
       }}
       >
         <svg
-          ref={ref => this.tooltipRef = ref}
-          style={styles.addIcon}
-          viewBox="0 0 288 512"
-          version="1.1"
-          xmlns="http://www.w3.org/2000/svg"
-          className={clsx(this.props.classes.MarkerStyle, {[this.props.classes.MarkerStyleHover]: this.props.hoverIndex === this.props.data.index})}
-          data-tip
-          data-for={this.props.data.city}
-          style={{
-            width: WIDTH + (WIDTH * scale),
-            height: HEIGHT + (HEIGHT * scale),
-          }}
+        style={styles.addIcon}
+        viewBox="0 0 288 512"
+        version="1.1"
+        xmlns="http://www.w3.org/2000/svg"
+        className={clsx(this.props.classes.MarkerStyle, {[this.props.classes.MarkerStyleHover]: this.props.hoverIndex === this.props.data.index})}
+        data-tip
+        data-for={this.props.granularity ? this.props.data.city : null}
+        style={{
+          width: WIDTH + (WIDTH * scale),
+          height: HEIGHT + (HEIGHT * scale),
+        }}
         >
           <path
             d={pin}
@@ -261,8 +215,9 @@ class Marker extends Component {
         <div 
         style={{ left: (-this.state.tooltipWidth / 2) + 10, top: (-this.state.tooltipHeight / 2) - 35 }} 
         ref={this.ref} 
-        className={clsx(this.props.classes.Tooltip, {[this.props.classes.TooltipShow]: this.props.hoverIndex === this.props.data.index} )}>
-          <span>{this.props.data.city}, {this.props.data.country}</span>
+        className={clsx(this.props.classes.Tooltip, {[this.props.classes.TooltipShow]: this.props.hoverIndex === this.props.data.index} )}
+        >
+          {this.props.granularity ? <span>{this.props.data.city}, {this.props.data.country}</span> : <span>{this.props.data.name}</span>}
           <br />
           <span>Click To View Gallery</span>
         </div>

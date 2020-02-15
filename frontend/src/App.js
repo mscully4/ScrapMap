@@ -12,7 +12,7 @@ import Owner from './views/Main';
 import Viewer from './views/Viewer';
 import Home from './views/Home'
 
-import {fetchCurrentUser, fetchToken, putNewUser, postNewCity, putEditCity, deleteCity, getUser, postNewPlace } from "./utils/fetchUtils" 
+import {fetchCurrentUser, fetchToken, putNewUser, postNewCity, putEditCity, deleteCity, getUser, postNewPlace, putEditPlace } from "./utils/fetchUtils" 
 
 import { library } from '@fortawesome/fontawesome-svg-core';
 import { faEdit, faTrash, faSync, fsEllipsisH, faEllipsisH  } from '@fortawesome/free-solid-svg-icons';
@@ -68,10 +68,12 @@ class App extends Component {
       showLoginModal: false,
       modalSignUp: false,
 
-      cities: [],
+      loggedInCities: [],
+      loggedInPlaces: [],
 
       width: window.innerWidth * .8,
       height: window.innerHeight * .8,
+      ready: false,
 
     }
   }
@@ -94,13 +96,22 @@ class App extends Component {
   handleLoadSession = (e) => {
     fetchCurrentUser(localStorage.getItem("token"))
       .then(data => {
-        console.log(data)
+        let places = [], index = 0
+        for (var i=0; i<data.destinations.length; ++i) {
+          for (var z=0; z<data.destinations[i].places.length; ++z) {
+            var place = data.destinations[i].places[z];
+            places.push({...place, index})
+            ++index
+          }
+        }
         this.setState({ 
           loggedInUser: data.user.username, 
-          cities: data.destinations.map((el, i) => {
+          loggedInCities: data.destinations.map((el, i) => {
             el.index=i;
             return el;
-          })
+          }),
+          loggedInPlaces: places,
+          ready: true,
         })
       });
   }
@@ -184,10 +195,21 @@ class App extends Component {
     e.preventDefault();
     putEditCity(localStorage.getItem('token'), data)
     .then(json => {
-      console.log(json, this.state.cities)
+      console.log(json, this.state.loggedInCities)
       this.setState({
         cities: this.state.cities.map(el => el.pk === json.pk ? json : el)
       })
+    })
+  }
+
+  handleEditPlace = (e, data) => {
+    e.preventDefault();
+    putEditPlace(localStorage.getItem('token'), data)
+    .then(json => {
+      console.log(json)
+      // this.setState({
+      //   cities: this.state.cities.map(el => el.pk === json.pk ? json : el)
+      // })
     })
   }
 
@@ -258,7 +280,8 @@ class App extends Component {
       //Navigation Props
       loggedIn={this.state.loggedIn} 
       loggedInUser={this.state.loggedInUser} 
-      loggedInCities={this.state.cities}
+      loggedInCities={this.state.loggedInCities}
+      loggedInPlaces={this.state.loggedInPlaces}
       handleLogout={this.handleLogout} 
       toggleLogin={this.toggleLogIn}
       toggleSignUp={this.toggleSignUp}
@@ -297,24 +320,22 @@ class App extends Component {
 
   render = () => {
     //this.updateWindowDimensions();
-    console.log(this.state.cities)
-    return (
-      <React.Fragment>
-        {/* <h1 style={styles.quote}>"To Travel is to BOOF"</h1> */}
-
-        <Router>
-          <Switch>
-            <Route path="/:username" component={(obj) => this.renderMain(obj.match.params.username)}>
-          </Route>
-          <Route path="/" component={() => this.state.loggedIn ? this.renderMain() : this.renderHome()}></Route>
-        </Switch>
-      </Router>
-
-
-        
-        <div style={styles.space}></div>
-      </React.Fragment>
-    );
+    if (this.state.ready) {
+      return (
+        <React.Fragment>
+          {/* <h1 style={styles.quote}>"To Travel is to BOOF"</h1> */}
+          <Router>
+            <Switch>
+              <Route path="/:username" component={(obj) => this.renderMain(obj.match.params.username)}></Route>
+              <Route path="/" component={() => this.state.loggedIn ? this.renderMain() : this.renderHome()}></Route>
+            </Switch>
+          </Router>  
+          <div style={styles.space}></div>
+        </React.Fragment>
+      )
+    } else {
+      return <div></div>
+    }
   }
 }
 

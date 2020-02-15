@@ -62,18 +62,17 @@ class UserSerializerSignUp(serializers.ModelSerializer):
 class DestinationListSerializer(serializers.ModelSerializer):
     images = serializers.SerializerMethodField()
     def get_images(self, obj):
-        
         images = [{'src': obj.image.url, 'width': obj.image.width, 'height': obj.image.height, 'name': obj.image.__str__()} for obj in DestinationImages.objects.filter(destination=obj.pk)]
-        #for obj in DestinationImages.objects.filter(destination=obj.pk):
-            # dic = {'src': obj.image.url, 'width': obj.image.width, 'height': obj.image.height}
-            # urls.append(dic)
-        # if len(urls) > 2: 
-        #     return random.sample(urls, 2)
         return images
-    
+
+    places = serializers.SerializerMethodField()
+    def get_places(self, obj):
+        places = Place.objects.filter(destination=obj.pk)
+        return [PlaceSerializer(place).data for place in Place.objects.filter(destination=obj.pk)]
+
     class Meta:
         model = Destination
-        fields = ('pk', "city", "country", "countryCode", "latitude", "longitude", "images")
+        fields = ('pk', "city", "country", "countryCode", "latitude", "longitude", "images", "places")
 
     #called when a new city is ccreated
     def create(self, validated_data):
@@ -159,23 +158,41 @@ class PlaceSerializer(serializers.ModelSerializer):
         #validated_data['user'] = self.context['request'].user
         instance = Place.objects.create(**validated_data)
         print(validated_data)
+        #if the request has files attached to it
+        if self.context['request'].FILES:
+            images = self.context['request'].FILES.getlist('images')
+            #iterate over the list of images
+            for i in range(len(images)):
+                image = images[i]
+                name = hashlib.sha224(images[i].__dict__['file'].getvalue()).hexdigest() + ".png"
+                if images[i].__dict__['content_type'] != "image/png":
+                    #convert all incoming images to PNG for consistency/the Image Editor needs all images to be PNGs
+                    buffer = io.BytesIO()
+                    Image.open(images[i]).save(buffer, "PNG")
+                    #generate a unique name for the image
+                    #TODO run check to see if the image had already been uploaded for the user
+                    image = InMemoryUploadedFile(buffer, None, name, 'image/png', buffer.getbuffer().nbytes, None)
+                    #new.__dict__["_name"] = name
+                PlaceImages.objects.create(destination=instance, image=image)
+        return instance
+
+    def update(self, instance, validated_data):
+        #update all the fields of the Destination Model object
+        instance.city = validated_data.get('city', instance.city)
+        instance.country = validated_data.get('country', instance.country)
+        instance.latitude = validated_data.get('latitude', instance.latitude)
+        instance.longitude = validated_data.get('longitude', instance.longitude)
+        instance.save()
+
         # #if the request has files attached to it
-        # if self.context['request'].FILES:
-        #     images = self.context['request'].FILES.getlist('images')
-        #     #iterate over the list of images
-        #     for i in range(len(images)):
-        #         image = images[i]
-        #         name = hashlib.sha224(images[i].__dict__['file'].getvalue()).hexdigest() + ".png"
-        #         if images[i].__dict__['content_type'] != "image/png":
-        #             #convert all incoming images to PNG for consistency/the Image Editor needs all images to be PNGs
-        #             buffer = io.BytesIO()
-        #             Image.open(images[i]).save(buffer, "PNG")
-        #             #generate a unique name for the image
-        #             #TODO run check to see if the image had already been uploaded for the user
-        #             image = InMemoryUploadedFile(buffer, None, name, 'image/png', buffer.getbuffer().nbytes, None)
-        #             #new.__dict__["_name"] = name
-        #         DestinationImages.objects.create(destination=instance, image=image)
-        
+        if self.context['request'].FILES:
+            print(self.context['request'].FILES)
+            # images = self.context['request'].FILES.getlist('images')
+            # #iterate over the list of images
+            # for i in range(len(images)):
+            #     # print(gpsphoto.getGPSData(image[i]))
+            #     #And create a new image object
+            #     PlaceImages.objects.create(destination=instance, image=images[i])
         return instance
 
 

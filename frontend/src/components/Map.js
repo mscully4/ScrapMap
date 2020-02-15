@@ -104,23 +104,39 @@ class Map extends Component {
     };
   }
 
-  render() {
-    let places = this.props.cities ? this.props.cities.map(data => {
-      return (<Marker
+  createMarkers = (granularity) => {
+    if (granularity && this.props.cities) {
+      return this.props.cities.map(data => 
+        <Marker
+          key={data.pk}
+          lat={data.latitude}
+          lng={data.longitude}
+          data={data}
+          changeHoverIndex={this.props.changeHoverIndexCity}
+          hoverIndex={this.props.hoverIndexCity}
+          markerClick={this.props.markerClick}
+          zoom={this.props.zoom}
+          granularity={this.props.granularity}
+      />
+      )
+    } else if (!granularity && this.props.places) {
+      return this.props.places.map(data => 
+        <Marker
         key={data.pk}
         lat={data.latitude}
         lng={data.longitude}
         data={data}
-        changeHoverIndex={this.props.changeHoverIndex}
-        hoverIndex={this.props.hoverIndex}
-        // toggleImageViewerOpen={this.props.toggleImageViewerOpen}
-        //setCurrImg={this.props.setCurrImg}
+        changeHoverIndex={this.props.changeHoverIndexPlace}
+        hoverIndex={this.props.hoverIndexPlace}
         markerClick={this.props.markerClick}
         zoom={this.props.zoom}
-        setMarkerRefs={this.props.setMarkerRefs}
-      />)
-    }) : null;
-      
+        granularity={this.props.granularity}
+        />
+      )  
+    }
+  }
+
+  render() {
     return (
       <div style={styles.map}>
         <GoogleMapReact
@@ -139,12 +155,11 @@ class Map extends Component {
           yesIWantToUseGoogleMapApiInternals
           //onGoogleApiLoaded={({ map, maps }) => this.handleApiLoaded(map, maps)}
         >
-          {places}
+          { this.createMarkers(this.props.granularity) }
         </GoogleMapReact>
       </div>
     )
   }
-}
-)
+})
 
 export default Map;

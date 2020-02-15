@@ -184,6 +184,22 @@ class PlaceView(APIView):
         logger.error("Cannot Create Destination: %s" % serializer.errors)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+    
+    def put(self, request, pk, format=None):
+        #the files will be handled by the serializer
+        logger.info("There are files: {}".format(bool(request.FILES)))
+        instance = Place.objects.get(pk=pk)
+        # only allow the update to take place if the user owns the data
+        if request.user.id == instance.user_id:
+            serializer = PlaceSerializer(instance, data=request.data, context={'request': request})
+            if serializer.is_valid():
+                serializer.save()
+                return Response(serializer.data)
+            else:
+                logger.info(serializer.errors)
+                return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        return Response({'error': 'You are not authorized to edit that information'}, status=status.HTTP_403_FORBIDDEN)
+
 class PlaceImagesView(APIView):
     parser_class = (FileUploadParser,)
 

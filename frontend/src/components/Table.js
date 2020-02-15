@@ -97,13 +97,13 @@ class VirtualTable extends Component {
     //console.log(this.props.hoverIndex, index)
     const classes = this.props.classes;
     return clsx({[classes.tableRow]: index !== -1}, 
-      {[classes.tableRowHover]: index === this.props.hoverIndex}, 
+      {[classes.tableRowHover]: index === this.props.hoverIndexCity}, 
       {[classes.white]: index % 2 === 0}, 
       {[classes.gray]: index % 2 === 1},
     )
   }
 
-  cellRenderer = (cellData) => {
+  cellRendererCity = (cellData) => {
     const classes = this.props.classes;
     // console.log(cellData.rowData.city)
     //TODO Find a better way to pick an image, maybe based on size
@@ -155,17 +155,118 @@ class VirtualTable extends Component {
             d={photoGallery1}
             fill="#737373"
             //value={"KILL"}
-             />
-          </svg> 
+            />
+        </svg> 
       </div>
     )
   }
 
+  cellRenderer = (cellData) => {
+    const classes = this.props.classes;
+    const granularity = this.props.granularity
+    // console.log(cellData.rowData.city)
+    //TODO Find a better way to pick an image, maybe based on size
+    return (
+      <div className={granularity ? clsx(classes.cell) : null}>
+        {granularity ? <span className={clsx(`flag-icon flag-icon-` + cellData.rowData.countryCode, classes.cellFlag)}></span> : null}
+        {this.props.granularity ? <span>{cellData.rowData.city}, {cellData.rowData.country}</span> : <span>{cellData.rowData.name}</span>}
+        {granularity && cellData.rowData.images.length ? <img className={clsx(classes.cellImage)} src={this.props.backendURL + cellData.rowData.images[0].src}></img> : null}
+        
+        { this.props.context === "Owner" ? 
+          <OptionsDropdown 
+          toggleEditForm={this.props.toggleEditForm} 
+          cellData={cellData} 
+          handleDeleteCity={this.props.handleDeleteCity}
+          /> : null 
+        }
+
+        { this.props.context === "Owner" ?
+          <svg
+          className={clsx(this.props.classes.addSVG)}
+          viewBox="0 0 1024 1024"
+          version="1.1"
+          xmlns="http://www.w3.org/2000/svg"
+          onClick={() => this.props.toggleUploader(cellData.cellData.pk)}
+          value={"KILL"}
+          >
+            <path
+            d={Add1}
+            fill="#737373"
+            value={"KILL"}
+            />
+            <path
+            d={Add2}
+            fill="#737373"
+            value={"KILL"}
+            />
+          </svg> : null
+        }
+
+        <svg
+          className={clsx(this.props.classes.photoGallerySVG)}
+          viewBox="0 0 512 512"
+          version="1.1"
+          xmlns="http://www.w3.org/2000/svg"
+          onClick={this.props.toggleGallery}
+          //value={"KILL"}
+          >
+            <path
+            d={photoGallery1}
+            fill="#737373"
+            //value={"KILL"}
+            />
+        </svg> 
+      </div>
+    )
+  }
+
+
+  // renderCityTable = () => {
+  //   const WIDTH = window.innerWidth * .3;
+  //   //TODO Make this the height of the main component not the whole page
+  //   const HEIGHT = window.innerHeight;
+  //   const list = this.props.cities;
+  //   const HEADER_HEIGHT = 40;
+  //   return (
+  //     <Table
+  //       autoHeight
+  //       scrollTop={this.state.scrollTop}
+  //       width={WIDTH * .97}
+  //       height={HEIGHT}
+  //       headerHeight={HEADER_HEIGHT}
+  //       rowHeight={HEIGHT / 5}
+  //       rowCount={list.length}
+  //       rowGetter={({index}) => list[index]}
+  //       rowClassName={this.getRowClassName}
+  //       onRowMouseOver={(obj) => {
+  //         this.props.changeHoverIndexCity(obj.rowData.index);
+  //         this.props.changeMapCenter(obj.rowData);
+  //       }}
+  //       onRowMouseOut={(obj) => this.props.changeHoverIndexCity(null)}
+  //       onRowClick={this.props.tableRowClick}
+  //       >
+  //         <Column 
+  //         label="Destination" 
+  //         dataKey="destination" 
+  //         width={WIDTH - 5} 
+  //         cellRenderer={this.cellRenderer}
+  //         cellDataGetter={({dataKey, rowData}) => rowData}
+  //         //style={styles.tableRow}
+  //         />
+  //     </Table>
+  //   )
+  // }
+
   render = () => {
+    // console.log(this.props)
     const WIDTH = window.innerWidth * .3;
     //TODO Make this the height of the main component not the whole page
     const HEIGHT = window.innerHeight;
-    const list = this.props.cities;
+    //TODO add some sort of ready variable to prevent rendering too early
+    const cities = this.props.cities;
+    const places = this.props.places
+    const list = this.props.granularity ? cities : places;
+    places.filter((val) => {console.log(val, this.props.selectedCity.pk); return true})
     const HEADER_HEIGHT = 40;
 
     return (
@@ -197,7 +298,7 @@ class VirtualTable extends Component {
             dataKey="destination" 
             width={WIDTH - 5} 
             cellRenderer={this.cellRenderer}
-            cellDataGetter={({dataKey, rowData}) => {return rowData}}
+            cellDataGetter={({dataKey, rowData}) => rowData}
             //style={styles.tableRow}
             />
           </Table>

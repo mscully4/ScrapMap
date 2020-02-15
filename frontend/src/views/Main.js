@@ -50,12 +50,15 @@ class Owner extends React.Component {
     console.log(this.props.loggedInCities)
     this.state = {
       //General
+      ready: false,
       selectedCity: null,
-      hoverIndex: null,
+      hoverIndexCity: null,
+      hoverIndexPlace: null,
       closestCity: null,
       //View Info
       viewUser: this.props.viewUser,
       viewCities: Boolean(this.props.viewUser) === false || this.props.loggedInUser === this.props.viewUser ? this.props.loggedInCities : [],
+      viewPlaces: Boolean(this.props.viewUser) === false || this.props.loggedInUser === this.props.viewUser ? this.props.loggedInPlaces : [],
       //Map
       //TODO change these to be the location of the first city in the saved data
       granularity: 0,
@@ -90,18 +93,26 @@ class Owner extends React.Component {
     console.log("Owner")
     if (Boolean(this.props.viewUser) === true && this.props.loggedInUser !== this.props.viewUser) {
       getUser(localStorage.getItem("token"), this.props.viewUser).then(data => {
+        let places = [], index = 0
+        for (var i=0; i<data.destinations.length; ++i) {
+          for (var z=0; z<data.destinations[i].places.length; ++z) {
+            var place = data.destinations[i].places[z];
+            places.push({...place, index})
+            ++index
+          }
+        }
         this.setState({
-          viewCities: data.destinations.map((el, i) => {
-            el.index=i;
-            return el;
-          })
-        }, () => console.log(this.state))
+          viewCities: data.destinations.map((el, i) => { return {...el, index: i}}),
+          viewPlaces: places,
+          ready: true,
+
+        })
+      })
+    } else {
+      this.setState({
+        ready: true,
       })
     }
-    // console.log(this.props)
-    // getUser(localStorage.getItem("token"), this.props.).then(obj => {
-    //   console.log(obj)
-    // })
   }
 
   //General Functions
@@ -111,21 +122,17 @@ class Owner extends React.Component {
     })
   }
 
-  changeHoverIndex = (index) => {
+  changeHoverIndexCity = (index) => {
     this.setState({
-      hoverIndex: index,
+      hoverIndexCity: index,
     })
+  }
 
-    //console.log(index, this.props.cities[index])
-
-    // if (index !== null) {
-    //   this.setState({
-    //     mapCenter: {
-    //       lat: this.props.cities[index].latitude,
-    //       lng: this.props.cities[index].longitude
-    //     }
-    //   })
-    // }
+  changeHoverIndexPlace = (index) => {
+    console.log(index)
+    this.setState({
+      hoverIndexPlace: index
+    })
   }
 
   //Map Functions
@@ -284,142 +291,156 @@ class Owner extends React.Component {
   }
 
   render() {
-    return (
-      <React.Fragment>
-        <Navigation 
-          loggedIn={this.props.loggedIn} 
-          username={this.props.loggedInUser} 
-          handleLogout={this.props.handleLogout} 
-          toggleLogin={this.props.toggleLogin}
-          toggleSignUp={this.props.toggleSignUp}
-          handleLogin={this.props.handleLogin}
-          handleSignup={this.props.handleSignup}
-        />
-        
-        { this.props.user === this.props.username ?
-        <svg
-          className={clsx(this.props.classes.addSVG)}
-          viewBox="0 0 1024 1024"
-          version="1.1"
-          xmlns="http://www.w3.org/2000/svg"
-          onClick={() => { 
-            if (this.state.granularity === 1) this.toggleAddCityForm();
-            else this.toggleAddPlaceForm();
-          }}
-        >
-          <path
-            d={Add1}
-            fill="#737373"
+    if (this.state.ready) {
+      return (
+        <React.Fragment>
+          <Navigation 
+            loggedIn={this.props.loggedIn} 
+            username={this.props.loggedInUser} 
+            handleLogout={this.props.handleLogout} 
+            toggleLogin={this.props.toggleLogin}
+            toggleSignUp={this.props.toggleSignUp}
+            handleLogin={this.props.handleLogin}
+            handleSignup={this.props.handleSignup}
           />
-          <path
-            d={Add2}
-            fill="#737373"
-          />
-        </svg> : null }
-
-        <p>Granularity: {this.state.granularity} Zoom: {this.state.mapZoom} Selected City: {this.state.selectedCity ? this.state.selectedCity.city : ""}</p>
-
-
-        <div className={clsx(this.props.classes.main)}>
-          <Map 
-          center={this.state.mapCenter} 
-          zoom={this.state.mapZoom}
-          cities={ this.state.viewCities }
-          //handleEditCity={this.props.handleEditCity}
-          //handleDeleteCity={this.props.handleDeleteCity}
-          //backendURL={this.props.backendURL}
-          hoverIndex={this.state.hoverIndex}
-          changeHoverIndex={this.changeHoverIndex}
-          //setCurrImg={this.setCurrImg}
-          //toggleImageViewerOpen={this.toggleImageViewerOpen}
-          getClosestCity={this.getClosestCity}
-          markerClick={this.markerClick}
-          changeGranularity={this.changeGranularity}
-          />
-
-          <Table 
-          context={this.props.viewUser === this.props.loggedInUser ? "Owner" : "Viewer"}
-          cities={this.state.viewCities}
-          backendURL={this.props.backendURL}
-          hoverIndex={this.state.hoverIndex}
-          changeHoverIndex={this.changeHoverIndex}
-          changeMapCenter={this.changeMapCenter}
-          tableRowClick={this.tableRowClick}
-          toggleEditForm={this.toggleEditForm}
-          handleDeleteCity={this.props.handleDeleteCity}
-          toggleUploader={this.toggleUploader}
-          toggleGallery={this.toggleGallery}
-          />
-
-          <Modal isOpen={this.state.galleryOpen} toggle={this.toggleGallery} size={"xl"}>
-            <Gallery 
-            photos={this.state.selectedCity ? this.prepareImageURLS(this.state.selectedCity) : null} 
-            onClick={this.galleryOnClick}
+          
+          { this.props.user === this.props.username ?
+          <svg
+            className={clsx(this.props.classes.addSVG)}
+            viewBox="0 0 1024 1024"
+            version="1.1"
+            xmlns="http://www.w3.org/2000/svg"
+            onClick={() => { 
+              if (this.state.granularity === 1) this.toggleAddCityForm();
+              else this.toggleAddPlaceForm();
+            }}
+          >
+            <path
+              d={Add1}
+              fill="#737373"
             />
-          </Modal>
+            <path
+              d={Add2}
+              fill="#737373"
+            />
+          </svg> : null }
 
-          <ImageViewer 
-          context={"Owner"}
-          backendURL={this.props.backendURL}
-          isOpen={this.state.imageViewerOpen} 
-          toggleViewer={this.toggleViewer}
-          views={this.state.viewCities.length ? this.state.viewCities[0].images : [{src: ""}]}
-          currentIndex={ this.state.currImg }
-          //changeCurrImg={ this.changeCurrImg }
-          //setCurrImg={ this.setCurrImg }
-          //backdropClosable={true}
-          handleImageOverwrite={this.props.handleImageOverwrite}
-          toggleEditor={this.toggleEditor}
-          showLoader={this.showLoader}
-          />
+          <p>Granularity: {this.state.granularity} Zoom: {this.state.mapZoom} Selected City: {this.state.selectedCity ? this.state.selectedCity.city : ""}</p>
 
-          { this.state.editorOpen & this.props.username === this.props.user ?
-          <ImgEditor 
-          isOpen={this.state.editorOpen}
-          toggleEditor={this.toggleEditor}
-          //TODO implement default props here/use the load from url in the image editor
-          image={this.state.selectedCity ? this.state.selectedCity.images[this.state.currImg] : null}
-          backendURL={this.props.backendURL}
-          handleImageOverwrite={this.props.handleImageOverwrite}
-          /> : null}
 
-          { this.state.editFormOpen  & this.props.username === this.props.user ? 
-          <EditCity
-          isOpen={this.state.editFormOpen}
-          toggle={this.toggleEditForm}
-          handleEditCity={this.props.handleEditCity}
-          data={this.state.selectedCity}
-          /> : null }
+          <div className={clsx(this.props.classes.main)}>
+            <Map 
+            center={this.state.mapCenter} 
+            zoom={this.state.mapZoom}
+            cities={this.state.viewCities}
+            places={this.state.viewPlaces}
+            //handleEditCity={this.props.handleEditCity}
+            //handleDeleteCity={this.props.handleDeleteCity}
+            //backendURL={this.props.backendURL}
+            hoverIndexCity={this.state.hoverIndexCity}
+            changeHoverIndexCity={this.changeHoverIndexCity}
+            hoverIndexPlace={this.state.hoverIndexPlace}
+            changeHoverIndexPlace={this.changeHoverIndexPlace}
 
-          { this.state.addCityFormOpen && this.state.granularity === 1 && this.props.username === this.props.user ?  
-          <AddCity
-          isOpen={this.state.addCityFormOpen}
-          toggle={this.toggleAddCityForm}
-          handleAddCity={this.props.handleAddCity}
-          /> : null }
+            //setCurrImg={this.setCurrImg}
+            //toggleImageViewerOpen={this.toggleImageViewerOpen}
+            getClosestCity={this.getClosestCity}
+            markerClick={this.markerClick}
+            granularity={this.state.granularity}
+            changeGranularity={this.changeGranularity}
+            />
 
-          { this.state.addPlaceFormOpen && this.state.granularity === 0 && this.props.username === this.props.user ? 
-          <AddPlace
-          isOpen={this.state.addPlaceFormOpen}
-          toggle={this.toggleAddPlaceForm}
-          handleAddPlace={this.props.handleAddPlace}
-          mapCenter={this.state.mapCenter}
-          cities={this.state.viewCities}
-          default={this.state.closestCity}
-          /> : null
-          }
+            <Table 
+            context={this.props.viewUser === this.props.loggedInUser ? "Owner" : "Viewer"}
+            cities={this.state.viewCities}
+            places={this.state.viewPlaces}
+            backendURL={this.props.backendURL}
+            hoverIndexCity={this.state.hoverIndexCity}
+            // changeHoverIndexCity={this.changeHoverIndexCity}
+            hoverIndexPlace={this.state.hoverIndexPlace}
+            changeHoverIndex={this.state.granularity ? this.changeHoverIndexCity : this.changeHoverIndexPlace}
+            changeMapCenter={this.changeMapCenter}
+            tableRowClick={this.tableRowClick}
+            toggleEditForm={this.toggleEditForm}
+            handleDeleteCity={this.props.handleDeleteCity}
+            toggleUploader={this.toggleUploader}
+            toggleGallery={this.toggleGallery}
+            granularity={this.state.granularity}
+            selectedCity={this.state.selectedCity}
+            />
 
-          { this.state.uploaderOpen && this.props.username === this.props.user ?
-          <ImageUploader 
-          handleImageSubmit={this.handleImageSubmit}
-          toggle={this.toggleUploader}
-          />
-          : null
-          }
+            <Modal isOpen={this.state.galleryOpen} toggle={this.toggleGallery} size={"xl"}>
+              <Gallery 
+              photos={this.state.selectedCity ? this.prepareImageURLS(this.state.selectedCity) : null} 
+              onClick={this.galleryOnClick}
+              />
+            </Modal>
 
-        </div>
-      </React.Fragment>
-    ) 
+            <ImageViewer 
+            context={"Owner"}
+            backendURL={this.props.backendURL}
+            isOpen={this.state.imageViewerOpen} 
+            toggleViewer={this.toggleViewer}
+            views={this.state.viewCities.length ? this.state.viewCities[0].images : [{src: ""}]}
+            currentIndex={ this.state.currImg }
+            //changeCurrImg={ this.changeCurrImg }
+            //setCurrImg={ this.setCurrImg }
+            //backdropClosable={true}
+            handleImageOverwrite={this.props.handleImageOverwrite}
+            toggleEditor={this.toggleEditor}
+            showLoader={this.showLoader}
+            />
+
+            { this.state.editorOpen & this.props.username === this.props.user ?
+            <ImgEditor 
+            isOpen={this.state.editorOpen}
+            toggleEditor={this.toggleEditor}
+            //TODO implement default props here/use the load from url in the image editor
+            image={this.state.selectedCity ? this.state.selectedCity.images[this.state.currImg] : null}
+            backendURL={this.props.backendURL}
+            handleImageOverwrite={this.props.handleImageOverwrite}
+            /> : null}
+
+            { this.state.editFormOpen  & this.props.username === this.props.user ? 
+            <EditCity
+            isOpen={this.state.editFormOpen}
+            toggle={this.toggleEditForm}
+            handleEditCity={this.props.handleEditCity}
+            data={this.state.selectedCity}
+            /> : null }
+
+            { this.state.addCityFormOpen && this.state.granularity === 1 && this.props.username === this.props.user ?  
+            <AddCity
+            isOpen={this.state.addCityFormOpen}
+            toggle={this.toggleAddCityForm}
+            handleAddCity={this.props.handleAddCity}
+            /> : null }
+
+            { this.state.addPlaceFormOpen && this.state.granularity === 0 && this.props.username === this.props.user ? 
+            <AddPlace
+            isOpen={this.state.addPlaceFormOpen}
+            toggle={this.toggleAddPlaceForm}
+            handleAddPlace={this.props.handleAddPlace}
+            mapCenter={this.state.mapCenter}
+            cities={this.state.viewCities}
+            default={this.state.closestCity}
+            /> : null
+            }
+
+            { this.state.uploaderOpen && this.props.username === this.props.user ?
+            <ImageUploader 
+            handleImageSubmit={this.handleImageSubmit}
+            toggle={this.toggleUploader}
+            />
+            : null
+            }
+
+          </div>
+        </React.Fragment>
+      ) 
+    } else {
+      return <div></div>
+    }
   }
 }
 
