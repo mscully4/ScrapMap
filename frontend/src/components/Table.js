@@ -96,70 +96,71 @@ class VirtualTable extends Component {
   getRowClassName = ({index}) => {
     //console.log(this.props.hoverIndex, index)
     const classes = this.props.classes;
+    const hoverIndex = this.props.granularity ? this.props.hoverIndexCity : this.props.hoverIndex
     return clsx({[classes.tableRow]: index !== -1}, 
-      {[classes.tableRowHover]: index === this.props.hoverIndexCity}, 
+      {[classes.tableRowHover]: index === this.props.hoverIndex}, 
       {[classes.white]: index % 2 === 0}, 
       {[classes.gray]: index % 2 === 1},
     )
   }
 
-  cellRendererCity = (cellData) => {
-    const classes = this.props.classes;
-    // console.log(cellData.rowData.city)
-    //TODO Find a better way to pick an image, maybe based on size
-    return (
-      <div className={clsx(classes.cell)}>
-        <span className={clsx(`flag-icon flag-icon-` + cellData.rowData.countryCode, classes.cellFlag)}></span>
-        <span>{cellData.rowData.city}, {cellData.rowData.country}</span>
-        {cellData.rowData.images.length ? <img className={clsx(classes.cellImage)} src={this.props.backendURL + cellData.rowData.images[0].src}></img> : null}
+  // cellRendererCity = (cellData) => {
+  //   const classes = this.props.classes;
+  //   // console.log(cellData.rowData.city)
+  //   //TODO Find a better way to pick an image, maybe based on size
+  //   return (
+  //     <div className={clsx(classes.cell)}>
+  //       <span className={clsx(`flag-icon flag-icon-` + cellData.rowData.countryCode, classes.cellFlag)}></span>
+  //       <span>{cellData.rowData.city}, {cellData.rowData.country}</span>
+  //       {cellData.rowData.images.length ? <img className={clsx(classes.cellImage)} src={this.props.backendURL + cellData.rowData.images[0].src}></img> : null}
         
-        { this.props.context === "Owner" ? 
-          <OptionsDropdown 
-          toggleEditForm={this.props.toggleEditForm} 
-          cellData={cellData} 
-          handleDeleteCity={this.props.handleDeleteCity}
-          /> : null 
-        }
+  //       { this.props.context === "Owner" ? 
+  //         <OptionsDropdown 
+  //         toggleEditForm={this.props.toggleEditForm} 
+  //         cellData={cellData} 
+  //         handleDeleteCity={this.props.handleDeleteCity}
+  //         /> : null 
+  //       }
 
-        { this.props.context === "Owner" ?
-          <svg
-          className={clsx(this.props.classes.addSVG)}
-          viewBox="0 0 1024 1024"
-          version="1.1"
-          xmlns="http://www.w3.org/2000/svg"
-          onClick={() => this.props.toggleUploader(cellData.cellData.pk)}
-          value={"KILL"}
-          >
-            <path
-            d={Add1}
-            fill="#737373"
-            value={"KILL"}
-            />
-            <path
-            d={Add2}
-            fill="#737373"
-            value={"KILL"}
-            />
-          </svg> : null
-        }
+  //       { this.props.context === "Owner" ?
+  //         <svg
+  //         className={clsx(this.props.classes.addSVG)}
+  //         viewBox="0 0 1024 1024"
+  //         version="1.1"
+  //         xmlns="http://www.w3.org/2000/svg"
+  //         onClick={() => this.props.toggleUploader(cellData.cellData.pk)}
+  //         value={"KILL"}
+  //         >
+  //           <path
+  //           d={Add1}
+  //           fill="#737373"
+  //           value={"KILL"}
+  //           />
+  //           <path
+  //           d={Add2}
+  //           fill="#737373"
+  //           value={"KILL"}
+  //           />
+  //         </svg> : null
+  //       }
 
-        <svg
-          className={clsx(this.props.classes.photoGallerySVG)}
-          viewBox="0 0 512 512"
-          version="1.1"
-          xmlns="http://www.w3.org/2000/svg"
-          onClick={this.props.toggleGallery}
-          //value={"KILL"}
-          >
-            <path
-            d={photoGallery1}
-            fill="#737373"
-            //value={"KILL"}
-            />
-        </svg> 
-      </div>
-    )
-  }
+  //       <svg
+  //         className={clsx(this.props.classes.photoGallerySVG)}
+  //         viewBox="0 0 512 512"
+  //         version="1.1"
+  //         xmlns="http://www.w3.org/2000/svg"
+  //         onClick={this.props.toggleGallery}
+  //         //value={"KILL"}
+  //         >
+  //           <path
+  //           d={photoGallery1}
+  //           fill="#737373"
+  //           //value={"KILL"}
+  //           />
+  //       </svg> 
+  //     </div>
+  //   )
+  // }
 
   cellRenderer = (cellData) => {
     const classes = this.props.classes;
@@ -169,7 +170,12 @@ class VirtualTable extends Component {
     return (
       <div className={granularity ? clsx(classes.cell) : null}>
         {granularity ? <span className={clsx(`flag-icon flag-icon-` + cellData.rowData.countryCode, classes.cellFlag)}></span> : null}
-        {this.props.granularity ? <span>{cellData.rowData.city}, {cellData.rowData.country}</span> : <span>{cellData.rowData.name}</span>}
+
+        {this.props.granularity ? 
+          <span>{cellData.rowData.city}, {cellData.rowData.country}</span> : 
+          <span>{cellData.rowData.name}</span>
+        }
+
         {granularity && cellData.rowData.images.length ? <img className={clsx(classes.cellImage)} src={this.props.backendURL + cellData.rowData.images[0].src}></img> : null}
         
         { this.props.context === "Owner" ? 
@@ -264,9 +270,13 @@ class VirtualTable extends Component {
     const HEIGHT = window.innerHeight;
     //TODO add some sort of ready variable to prevent rendering too early
     const cities = this.props.cities;
-    const places = this.props.places
+    let places = this.props.places
+    if (this.props.selectedCity) {
+      places = places.filter((val) => val.destination === this.props.selectedCity.pk ? true : false)
+    }
+
     const list = this.props.granularity ? cities : places;
-    places.filter((val) => {console.log(val, this.props.selectedCity.pk); return true})
+
     const HEADER_HEIGHT = 40;
 
     return (

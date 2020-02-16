@@ -82,6 +82,10 @@ class App extends Component {
     window.addEventListener('resize', this.updateWindowDimensions);
     if (this.state.loggedIn) {
       this.handleLoadSession()
+    } else {
+      this.setState({
+        ready: true
+      })
     }
   }
 
@@ -159,9 +163,9 @@ class App extends Component {
       postNewCity(localStorage.getItem('token'), data)
       .then(res => {
         if (res) {
-          res.index=this.state.cities.length;
+          res.index=this.state.loggedInCities.length;
           this.setState({
-            cities: this.state.cities.concat([res])
+            loggedInCities: this.state.loggedInCities.concat([res])
           })
         }
       })
@@ -219,9 +223,9 @@ class App extends Component {
     .then(json => {
       this.setState({
         //why is this json.destinations?
-        cities: json.destinations.map((el, i) => {
+        loggedInCities: json.destinations.map((el, i) => {
           el.index = i;
-          return el;
+          return el
         }),
       })
     })
@@ -319,6 +323,7 @@ class App extends Component {
   // }
 
   render = () => {
+    console.log(this.state.ready)
     //this.updateWindowDimensions();
     if (this.state.ready) {
       return (

@@ -129,7 +129,6 @@ class Owner extends React.Component {
   }
 
   changeHoverIndexPlace = (index) => {
-    console.log(index)
     this.setState({
       hoverIndexPlace: index
     })
@@ -198,7 +197,7 @@ class Owner extends React.Component {
     //TODO change this to using state logic
     this.setState({
       //galleryOpen: obj.event.target.getAttribute("value") !== "KILL",
-      mapZoom:12,
+      mapZoom: obj.event.target.getAttribute("value") !== "KILL" ? 12 : this.state.mapZoom,
       //images: images,
       selectedCity: obj.rowData,
     })
@@ -304,7 +303,7 @@ class Owner extends React.Component {
             handleSignup={this.props.handleSignup}
           />
           
-          { this.props.user === this.props.username ?
+          { this.props.user === this.props.username && this.props.user !== null && this.props.username !== null ?
           <svg
             className={clsx(this.props.classes.addSVG)}
             viewBox="0 0 1024 1024"
@@ -355,7 +354,7 @@ class Owner extends React.Component {
             cities={this.state.viewCities}
             places={this.state.viewPlaces}
             backendURL={this.props.backendURL}
-            hoverIndexCity={this.state.hoverIndexCity}
+            hoverIndex={this.state.granularity ? this.state.hoverIndexCity : this.state.hoverIndexPlace}
             // changeHoverIndexCity={this.changeHoverIndexCity}
             hoverIndexPlace={this.state.hoverIndexPlace}
             changeHoverIndex={this.state.granularity ? this.changeHoverIndexCity : this.changeHoverIndexPlace}

@@ -27,6 +27,11 @@ class DestinationImages(models.Model):
 class Place(models.Model):
     destination = models.ForeignKey(Destination, on_delete=models.CASCADE)
     name = models.CharField(max_length=240)
+    number = models.CharField(max_length=40)
+    street = models.CharField(max_length=80)
+    city = models.CharField(max_length=60)
+    state = models.CharField(max_length=15, null=True, blank=True)
+    country = models.CharField(max_length=50)
     # address = models.CharField(max_length=240)
     # city = models.CharField(max_length=120)
     # country = models.CharField(max_length=120)

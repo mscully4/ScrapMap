@@ -62,25 +62,24 @@ class DestinationListView(APIView):
     '''
     Access destination data and create new destination entries
     '''
-    permission_classes = (permissions.IsAuthenticated,)
+    permission_classes = (permissions.AllowAny,)
     #permission_classes = (permissions.IsAuthenticatedOrReadOnly,)
 
     def get(self, request, username=None, format=None):
         #logger.info(request.user)
-        print(username)
         data = DestinationListSerializer(Destination.objects.filter(user=User.objects.get(username=username).pk if username != None else request.user), many=True)
         return Response({"destinations" : data.data})
     
     #this has to be here because there is no pk in the url path
-    #update: I think this can be deleted
-    def post(self, request, format=None):
-        serializer = DestinationListSerializer(data=request.data, context={'request': request})
-        print(request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        logger.error("Cannot Create Destination: %s" % serializer.errors)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    # #update: I think this can be deleted
+    # def post(self, request, format=None):
+    #     serializer = DestinationListSerializer(data=request.data, context={'request': request})
+    #     print(request.data)
+    #     if serializer.is_valid():
+    #         serializer.save()
+    #         return Response(serializer.data, status=status.HTTP_201_CREATED)
+    #     logger.error("Cannot Create Destination: %s" % serializer.errors)
+    #     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 #this is for individual destinations, for retreiving the data/editing or deleting existing ones
 class DestinationView(APIView):
@@ -125,7 +124,6 @@ class DestinationView(APIView):
 
     def post(self, request, format=None):
         serializer = DestinationListSerializer(data=request.data, context={'request': request})
-        print(request.data)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
@@ -138,11 +136,6 @@ class DestinationImagesView(APIView):
     parser_class = (FileUploadParser,)
 
     def get(self, request, pk, image):
-        # boof = DestinationImages.objects.filter(image=image)
-        # logger.info(boof)
-        # serializer = DestinationImagesSerializer(boof)
-        # if not serializer.is_valid():
-        #     logger.info(serializer.errors)
         data = DestinationImagesSerializer(DestinationImages.objects.get(image=image, destination=pk))
         return Response(data.data)
 
