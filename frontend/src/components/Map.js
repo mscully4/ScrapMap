@@ -47,12 +47,6 @@ class Map extends Component {
   }
 
   componentDidMount = () => {
-    // fetch(`https://maps.googleapis.com/maps/api/place/textsearch/json?query=Katz&types=tourist_attraction|point_of_interest&key=${this.state.apiKey}`, {
-    //   method: 'GET',
-    //   headers: {
-    //     'Content-Type': 'application/json'
-    //   }
-    // }).then(res => console.log(res.json()))
 
   }
 
@@ -74,7 +68,17 @@ class Map extends Component {
     // if (this.props.cities.length !== 0) {
     //   console.log(getDistanceBetweenTwoPoints(center.lat, center.lng, this.props.cities[0].latitude, this.props.cities[0].longitude));
     // }
-    this.props.changeGranularity(zoom)
+    if (this.props.center.lat.toFixed(1) !== center.lat.toFixed(1) 
+      || this.props.center.lng.toFixed(1) !== center.lng.toFixed(1) 
+      || this.props.zoom !== zoom) {
+      this.props.changeMapConfig(center, zoom)
+        
+    }
+
+    console.log(this.props.center.lat.toFixed(1), center.lat.toFixed(1), this.props.center.lng.toFixed(1), center.lng.toFixed(1), this.props.zoom, zoom)
+    // console.log(this.props.center)
+    // this.props.changeMapConfig(center, zoom)
+    // }
     this.props.onCenterChange(center)
     this.props.onZoomChange(zoom)
     this.props.getClosestCity(center.lat, center.lng)
@@ -108,15 +112,15 @@ class Map extends Component {
     if (granularity && this.props.cities) {
       return this.props.cities.map(data => 
         <Marker
-          key={data.pk}
-          lat={data.latitude}
-          lng={data.longitude}
-          data={data}
-          changeHoverIndex={this.props.changeHoverIndexCity}
-          hoverIndex={this.props.hoverIndexCity}
-          markerClick={this.props.markerClick}
-          zoom={this.props.zoom}
-          granularity={this.props.granularity}
+        key={data.pk}
+        lat={data.latitude}
+        lng={data.longitude}
+        data={data}
+        changeHoverIndex={this.props.changeHoverIndexCity}
+        hoverIndex={this.props.hoverIndexCity}
+        markerClick={this.props.markerClick}
+        zoom={this.props.zoom}
+        granularity={this.props.granularity}
       />
       )
     } else if (!granularity && this.props.places) {
@@ -144,6 +148,11 @@ class Map extends Component {
           center={this.props.center}
           zoom={this.props.zoom}
           //hoverDistance={K_SIZE / 2}
+          // zoom={4}
+          // center={{
+          //   lat: 33.7490, 
+          //   lng: -84.3880
+          // }}
           onChange={this._onChange}
           onChildClick={this._onChildClick}
           onChildMouseEnter={this._onChildMouseEnter}

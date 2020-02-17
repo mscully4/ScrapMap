@@ -11,5 +11,5 @@ export const getDistanceBetweenTwoPoints = function(lat1, long1, lat2, long2) {
   var a = Math.sin(dLat / 2) * Math.sin(dLat / 2) + Math.cos(rad(lat1)) * Math.cos(rad(lat2)) * Math.sin(dLong / 2) * Math.sin(dLong / 2);
   var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
   var d = R * c;
-  return d * 0.000621371; // returns the distance in meter
+  return d * 0.000621371; // convert from meters to miles
 };

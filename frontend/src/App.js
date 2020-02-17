@@ -8,8 +8,7 @@ import {
   Link
 } from "react-router-dom";
 
-import Owner from './views/Main';
-import Viewer from './views/Viewer';
+import Main from './views/Main';
 import Home from './views/Home'
 
 import {fetchCurrentUser, fetchToken, putNewUser, postNewCity, putEditCity, deleteCity, getUser, postNewPlace, putEditPlace } from "./utils/fetchUtils" 
@@ -58,6 +57,7 @@ const config = {
 
 class App extends Component {
   constructor(props) {
+    console.log("CHORK")
     super(props);
     
     let token = localStorage.getItem("token");
@@ -75,6 +75,13 @@ class App extends Component {
       height: window.innerHeight * .8,
       ready: false,
 
+      //These need to be here because a new instance of Main is created every time, so the values held in state are lost
+      granularity: 0,
+      mapZoom: 4,
+      mapCenter: {
+        lat: 33.7490, 
+        lng: -84.3880
+      },
     }
   }
 
@@ -133,7 +140,7 @@ class App extends Component {
         this.setState({
           loggedIn: true,
           loggedInUser: json.user.username,
-          cities: json.destinations.map((el, i) => {
+          loggedInCities: json.destinations.map((el, i) => {
             el.index = i;
             return el;
           }),
@@ -173,11 +180,12 @@ class App extends Component {
   }
 
   handleAddPlace = (e, data) => {
+    e.preventDefault()
     const payload = 
       {
         destination: data.closestCity.pk,
         name: data.name,
-        houseNumber: data.houseNumber,
+        number: data.number,
         street: data.street,
         neighborhood: data.neighborhood,
         city: data.closestCity.city,
@@ -186,11 +194,12 @@ class App extends Component {
         latitude: data.latitude,
         longitude: data.longitude
       }
-    e.preventDefault()
     if (this.state.loggedIn) {
       postNewPlace(localStorage.getItem('token'), payload)
       .then(res => {
-        console.log(res)
+        this.setState({
+          loggedInPlaces: this.state.loggedInPlaces.concat([res])
+        })
       })
     }
   }
@@ -201,7 +210,7 @@ class App extends Component {
     .then(json => {
       console.log(json, this.state.loggedInCities)
       this.setState({
-        cities: this.state.cities.map(el => el.pk === json.pk ? json : el)
+        loggedInCities: this.state.loggedInCities.map(el => el.pk === json.pk ? json : el)
       })
     })
   }
@@ -238,7 +247,7 @@ class App extends Component {
       loggedInUser: null,
       showModalLogin: false,
       modalSignUp: false,
-      cities: null,
+      loggedInCities: null,
     })
   };
 
@@ -264,6 +273,32 @@ class App extends Component {
     // })
   }
 
+  // changeGranularity = (zoom) => {
+  //   this.setState({
+  //     granularity: zoom > 11 ? 0 : 1,
+  //     mapZoom: zoom,
+  //   })
+  // }
+
+  changeMapConfig = (center, zoom) => {
+    // this.setState({
+    //   mapCenter: {
+    //     lat: center.latitude,
+    //     lng: center.longitude
+    //   },
+    //   granularity: zoom > 11 ? 0 : 1,
+    //   mapZoom: zoom,
+    // })
+    this.setState({
+      mapCenter: {
+        lat: center.lat,
+        lng: center.lng
+      },
+      granularity: zoom > 11 ? 0 : 1,
+      mapZoom: zoom,
+    })
+  }
+
   renderHome = () => {
     return (
       <Home
@@ -280,7 +315,7 @@ class App extends Component {
 
   renderMain = (user) => {
     return (
-      <Owner
+      <Main
       //Navigation Props
       loggedIn={this.state.loggedIn} 
       loggedInUser={this.state.loggedInUser} 
@@ -300,6 +335,12 @@ class App extends Component {
       handleDeleteCity={this.handleDeleteCity}
       handleImageOverwrite={this.handleImageOverwrite}
       backendURL={BACKEND_URL}
+      //Storage for Main
+      mapZoom={this.state.mapZoom}
+      mapCenter={this.state.mapCenter}
+      changeMapConfig={this.changeMapConfig}
+      granularity={this.state.granularity}
+
       />)
   }
 

@@ -42,7 +42,6 @@ export default class OptionsDropdown extends React.Component {
             viewBox="0 180 512 150"
             style={theme.svg}
             value="KILL"
-            onClick={() => {}}
             >
               <path d={ellipsis} value="KILL"/>
             </svg>

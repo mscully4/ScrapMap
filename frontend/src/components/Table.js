@@ -25,11 +25,11 @@ const styles = theme => ({
       backgroundColor: "#BBBBBB",
     }
   },
-  white: {
+  gray: {
     backgroundColor: "#f3f3f3"
   },
-  gray: {
-    backgroundColor: "#ffffff"
+  white: {
+    backgroundColor: "#f9f9f9"
   },
   tableRowHover: {
     backgroundColor: "#BBBBBB",
@@ -289,7 +289,7 @@ class VirtualTable extends Component {
           <Table
           autoHeight
           scrollTop={this.state.scrollTop}
-          width={WIDTH * .97}
+          width={WIDTH}
           height={HEIGHT}
           headerHeight={HEADER_HEIGHT}
           rowHeight={HEIGHT / 5}
@@ -306,7 +306,7 @@ class VirtualTable extends Component {
             <Column 
             label="Destination" 
             dataKey="destination" 
-            width={WIDTH - 5} 
+            width={WIDTH}
             cellRenderer={this.cellRenderer}
             cellDataGetter={({dataKey, rowData}) => rowData}
             //style={styles.tableRow}

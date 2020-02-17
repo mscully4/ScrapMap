@@ -73,7 +73,6 @@ class AutoComplete extends React.Component {
 
   loadPlaceSuggestions = (input) => {
     const parameters = `input=${input}&location=${this.props.location.lat},${this.props.location.lng}&radius=${this.props.location.radius}&key=${this.state.apiKey}`
-    console.log(parameters)
     return fetch(placeURL + parameters, {
       method: "GET",
       headers: {
@@ -84,7 +83,6 @@ class AutoComplete extends React.Component {
 
   loadCitySuggestions = (input) => {
     const parameters = `input=${input}&key=${this.state.apiKey}`
-    console.log(parameters)
     return fetch(cityURL + parameters, {
       method: "GET",
       headers: {
@@ -105,13 +103,13 @@ class AutoComplete extends React.Component {
     const country = selection.terms.length > 4 && selection.terms[4].value === "USA" ? selection.terms[4].value : selection.terms[3].value
     geocodeByPlaceId(place_id).then(data => {
       console.log(data)
-      const houseNumber = data[0].address_components[0].long_name
+      const number = data[0].address_components[0].long_name
       const street = data[0].address_components[1].long_name
       const neighborhood = data[0].address_components[2].long_name
       const latitude = parseFloat(data[0].geometry.location.lat().toFixed(4));
       const longitude = parseFloat(data[0].geometry.location.lng().toFixed(4));
       // console.log(name, street, city, state, country, street_number, street2, neighborhood, latitude, longitude)
-      this.props.selectAutoSuggestPlace({name, street, city, state, country, houseNumber, neighborhood, latitude, longitude})
+      this.props.selectAutoSuggestPlace({name, street, city, state, country, number, neighborhood, latitude, longitude})
     })
   }
 

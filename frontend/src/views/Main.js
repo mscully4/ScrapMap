@@ -40,14 +40,14 @@ const styles = theme => ({
   },
 })
 
-class Owner extends React.Component {
+class Main extends React.Component {
   static defaultProps = {
     cities: [],
   }
 
   constructor(props) {
     super(props)
-    console.log(this.props.loggedInCities)
+    console.log("BOOF")
     this.state = {
       //General
       ready: false,
@@ -55,18 +55,13 @@ class Owner extends React.Component {
       hoverIndexCity: null,
       hoverIndexPlace: null,
       closestCity: null,
+      closestCityDistance: null,
       //View Info
       viewUser: this.props.viewUser,
       viewCities: Boolean(this.props.viewUser) === false || this.props.loggedInUser === this.props.viewUser ? this.props.loggedInCities : [],
       viewPlaces: Boolean(this.props.viewUser) === false || this.props.loggedInUser === this.props.viewUser ? this.props.loggedInPlaces : [],
       //Map
       //TODO change these to be the location of the first city in the saved data
-      granularity: 0,
-      mapCenter: {
-        lat: 33.7490, 
-        lng: -84.3880
-      },
-      mapZoom: 4,
       //Gallery
       galleryOpen: false,
       //ImageViewer
@@ -90,9 +85,11 @@ class Owner extends React.Component {
   }
 
   componentDidMount = () => {
-    console.log("Owner")
+    //If there is a user selected in the url and if that user is not the user currently logged in
     if (Boolean(this.props.viewUser) === true && this.props.loggedInUser !== this.props.viewUser) {
+      //load user info
       getUser(localStorage.getItem("token"), this.props.viewUser).then(data => {
+        //get places from cities
         let places = [], index = 0
         for (var i=0; i<data.destinations.length; ++i) {
           for (var z=0; z<data.destinations[i].places.length; ++z) {
@@ -101,6 +98,7 @@ class Owner extends React.Component {
             ++index
           }
         }
+        //update state with the data, and allow rendering of child components
         this.setState({
           viewCities: data.destinations.map((el, i) => { return {...el, index: i}}),
           viewPlaces: places,
@@ -108,7 +106,9 @@ class Owner extends React.Component {
 
         })
       })
-    } else {
+    }
+    //If no data needs to be loaded, allow rendering on children immediately 
+    else {
       this.setState({
         ready: true,
       })
@@ -134,23 +134,6 @@ class Owner extends React.Component {
     })
   }
 
-  //Map Functions
-  changeGranularity = (zoom) => {
-    this.setState({
-      granularity: zoom > 11 ? 0 : 1,
-      mapZoom: zoom,
-    })
-  }
-
-  changeMapCenter = (obj) => {
-    this.setState({
-      mapCenter: {
-        lat: obj.latitude,
-        lng: obj.longitude
-      }
-    })
-  }
-
   getClosestCity = (centerLat, centerLong) => {
     var lowest = 99999999, lowestIndex = null, distance
 
@@ -164,9 +147,27 @@ class Owner extends React.Component {
     })
 
     this.setState({
-      closestCity: lowestIndex
+      closestCity: {...this.state.viewCities[lowestIndex], distanceFromMapCenter: lowest}
     })
   }
+
+  //Map Functions
+  // changeGranularity = (zoom) => {
+  //   console.log(zoom)
+  //   this.setState({
+  //     granularity: zoom > 11 ? 0 : 1,
+  //     mapZoom: zoom,
+  //   })
+  // }
+
+  // changeMapCenter = (obj) => {
+  //   this.setState({
+  //     mapCenter: {
+  //       lat: obj.latitude,
+  //       lng: obj.longitude
+  //     }
+  //   })
+  // }
 
   //Gallery Functions
   toggleGallery = (value) => {
@@ -194,23 +195,21 @@ class Owner extends React.Component {
 
   //Table Functions
   tableRowClick = (obj, e) => {
-    //TODO change this to using state logic
+    this.props.changeMapConfig(this.props.mapCenter, obj.event.target.getAttribute("value") !== "KILL" ? 12 : this.props.mapZoom)
     this.setState({
-      //galleryOpen: obj.event.target.getAttribute("value") !== "KILL",
-      mapZoom: obj.event.target.getAttribute("value") !== "KILL" ? 12 : this.state.mapZoom,
-      //images: images,
       selectedCity: obj.rowData,
     })
   }
 
+  //TODO on city marker click zoom into city, on place marker click show gallery
   markerClick = (obj) => {
+    this.props.changeMapConfig(this.props.mapCenter, 12)
     this.setState({
       selectedCity: obj,
-      galleryOpen: true
     })
   }
 
-  //Viewer Functions
+  //Image Viewer Functions
   toggleViewer = (value) => {
     const boolean = typeof(value)  === 'boolean' ? value : !this.state.editorOpen;
     this.setState({
@@ -220,7 +219,7 @@ class Owner extends React.Component {
 
   //Uploader Functions
   toggleUploader = (pk) => {
-    //If the uploader is already open, close it if the same city was clicked else change the PK to the new city if a new city was clicked
+    //If the uploader is already open, close it if the same city was clicked.  If a new city is clicked, change the PK to the new city
     //ELSEIf the uploader was closed, open it with the pk selected
     const uploaderOpen = this.state.uploaderOpen;
     this.setState({
@@ -235,8 +234,6 @@ class Owner extends React.Component {
       ...data, 
       ...this.state.selectedCity
     }
-    console.log(formData, data)
-    
     this.props.handleEditCity(e, formData)
   }
 
@@ -246,17 +243,14 @@ class Owner extends React.Component {
     })
   }
 
+
+  //Image Editor Functions
   toggleEditor = (value) => {
     const boolean = typeof(value)  === 'boolean' ? value : !this.state.editorOpen;
     //console.log(value)
     this.setState({
       editorOpen: boolean
     })
-  }
-
-  //Map Functions
-  setMapCenter = ( obj ) => {
-    this.setState({mapCenter: obj})
   }
 
   //Loader Functions
@@ -268,11 +262,8 @@ class Owner extends React.Component {
 
   toggleEditForm = (value) => {
     value = typeof(value) === 'boolean' ? value : !this.state.editFormOpen;
-    //if the editor is about to open, hide the hover box
-    //this.props.changeHoverIndex(null)
     this.setState(prevState => ({
       editFormOpen: value,
-      //hover: false,
     }));
   }
 
@@ -324,29 +315,30 @@ class Owner extends React.Component {
             />
           </svg> : null }
 
-          <p>Granularity: {this.state.granularity} Zoom: {this.state.mapZoom} Selected City: {this.state.selectedCity ? this.state.selectedCity.city : ""}</p>
+          <p>
+          Granularity: {this.state.granularity} 
+          Zoom: {this.props.mapZoom} 
+          Selected City: {this.state.selectedCity ? this.state.selectedCity.city : ""}
+          Closest City: {this.state.closestCity ? `${this.state.closestCity.city} ${this.state.closestCity.distanceFromMapCenter}` : ""}
+          </p>
 
 
           <div className={clsx(this.props.classes.main)}>
             <Map 
-            center={this.state.mapCenter} 
-            zoom={this.state.mapZoom}
+            center={this.props.mapCenter} 
+            zoom={this.props.mapZoom}
             cities={this.state.viewCities}
             places={this.state.viewPlaces}
-            //handleEditCity={this.props.handleEditCity}
-            //handleDeleteCity={this.props.handleDeleteCity}
-            //backendURL={this.props.backendURL}
+            //These can be condensed into one each
             hoverIndexCity={this.state.hoverIndexCity}
             changeHoverIndexCity={this.changeHoverIndexCity}
             hoverIndexPlace={this.state.hoverIndexPlace}
             changeHoverIndexPlace={this.changeHoverIndexPlace}
-
-            //setCurrImg={this.setCurrImg}
-            //toggleImageViewerOpen={this.toggleImageViewerOpen}
             getClosestCity={this.getClosestCity}
+            //Need two marker click functions, one for place and one for city
             markerClick={this.markerClick}
             granularity={this.state.granularity}
-            changeGranularity={this.changeGranularity}
+            changeMapConfig={this.props.changeMapConfig}
             />
 
             <Table 
@@ -356,9 +348,8 @@ class Owner extends React.Component {
             backendURL={this.props.backendURL}
             hoverIndex={this.state.granularity ? this.state.hoverIndexCity : this.state.hoverIndexPlace}
             // changeHoverIndexCity={this.changeHoverIndexCity}
-            hoverIndexPlace={this.state.hoverIndexPlace}
             changeHoverIndex={this.state.granularity ? this.changeHoverIndexCity : this.changeHoverIndexPlace}
-            changeMapCenter={this.changeMapCenter}
+            changeMapConfig={this.props.changeMapConfig}
             tableRowClick={this.tableRowClick}
             toggleEditForm={this.toggleEditForm}
             handleDeleteCity={this.props.handleDeleteCity}
@@ -366,6 +357,7 @@ class Owner extends React.Component {
             toggleGallery={this.toggleGallery}
             granularity={this.state.granularity}
             selectedCity={this.state.selectedCity}
+            closestCity={this.state.closestCity}
             />
 
             <Modal isOpen={this.state.galleryOpen} toggle={this.toggleGallery} size={"xl"}>
@@ -403,7 +395,7 @@ class Owner extends React.Component {
             { this.state.editFormOpen  & this.props.username === this.props.user ? 
             <EditCity
             isOpen={this.state.editFormOpen}
-            toggle={this.toggleEditForm}
+            Ownertoggle={this.toggleEditForm}
             handleEditCity={this.props.handleEditCity}
             data={this.state.selectedCity}
             /> : null }
@@ -420,7 +412,7 @@ class Owner extends React.Component {
             isOpen={this.state.addPlaceFormOpen}
             toggle={this.toggleAddPlaceForm}
             handleAddPlace={this.props.handleAddPlace}
-            mapCenter={this.state.mapCenter}
+            mapCenter={this.props.mapCenter}
             cities={this.state.viewCities}
             default={this.state.closestCity}
             /> : null
@@ -443,4 +435,4 @@ class Owner extends React.Component {
   }
 }
 
-export default withStyles(styles)(Owner);
+export default withStyles(styles)(Main);

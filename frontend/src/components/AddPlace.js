@@ -39,13 +39,14 @@ const styles = {
 class AddPlace extends React.Component {
   constructor(props) {
       super(props);
+      console.log(props)
       this.state = {
-        closestCity: this.props.cities[this.props.default],
+        closestCity: this.props.default,
 
         modalAdd: false,
         
         name: "",
-        houseNumber: "",
+        number: "",
         street: "",
         neighborhood: "",
         city: "",
@@ -110,13 +111,13 @@ class AddPlace extends React.Component {
   selectAutoSuggest = (obj) => {
     this.setState({
       ...obj
-    })
+    }, () => console.log(this.state))
   }
 
   clear = () => {
     this.setState({
       name: "",
-      houseNumber: "",
+      number: "",
       street: "",
       neighborhood: "",
       city: "",
@@ -147,7 +148,6 @@ class AddPlace extends React.Component {
         latitude: obj.latitude,
         longitude: obj.longitude,
       }})
-      console.log(options[this.props.default])
     return (
       <React.Fragment>
         <Modal isOpen={this.props.isOpen} toggle={this.props.toggle}>
@@ -157,7 +157,7 @@ class AddPlace extends React.Component {
                 <Select
                 className="basic-single"
                 classNamePrefix="select"
-                defaultValue={options[this.props.default]}
+                defaultValue={options[this.props.default.index]}
                 // isDisabled={isDisabled}
                 // isLoading={isLoading}
                 // isClearable={isClearable}
@@ -183,9 +183,9 @@ class AddPlace extends React.Component {
                 <br />
                 <Input
                    type="text"
-                   name="house number"
-                   placeholder="House Number"
-                   value={this.state.houseNumber}
+                   name="number"
+                   placeholder="Number"
+                   value={this.state.number}
                    onChange={this.handleChange}
                    // disabled={this.state.disabled}
                    // autoComplete={"new-password"}

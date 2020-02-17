@@ -78,6 +78,7 @@ export function postNewCity(token, data) {
 }
 
 export function postNewPlace(token, data) {
+  console.log(data)
   return fetch(baseURL + "core/place/", {
     method: "POST",
     headers: {
