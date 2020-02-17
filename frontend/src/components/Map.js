@@ -65,20 +65,7 @@ class Map extends Component {
   _onChange = ({center, zoom}) => {
     //console.log(Math.random(), center)
     //TODO change marker size based on zoom
-    // if (this.props.cities.length !== 0) {
-    //   console.log(getDistanceBetweenTwoPoints(center.lat, center.lng, this.props.cities[0].latitude, this.props.cities[0].longitude));
-    // }
-    if (this.props.center.lat.toFixed(1) !== center.lat.toFixed(1) 
-      || this.props.center.lng.toFixed(1) !== center.lng.toFixed(1) 
-      || this.props.zoom !== zoom) {
-      this.props.changeMapConfig(center, zoom)
-        
-    }
-
-    console.log(this.props.center.lat.toFixed(1), center.lat.toFixed(1), this.props.center.lng.toFixed(1), center.lng.toFixed(1), this.props.zoom, zoom)
-    // console.log(this.props.center)
-    // this.props.changeMapConfig(center, zoom)
-    // }
+    this.props.changeGranularity(zoom)
     this.props.onCenterChange(center)
     this.props.onZoomChange(zoom)
     this.props.getClosestCity(center.lat, center.lng)

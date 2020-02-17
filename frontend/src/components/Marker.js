@@ -86,6 +86,7 @@ const styles = theme => ({
     fontSize: 13,
     whiteSpace: "nowrap",
     visibility: "hidden",
+    zIndex: 99999,
     "&:after": {
       position: "absolute",
       content: '""',

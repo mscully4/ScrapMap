@@ -76,12 +76,7 @@ class App extends Component {
       ready: false,
 
       //These need to be here because a new instance of Main is created every time, so the values held in state are lost
-      granularity: 0,
-      mapZoom: 4,
-      mapCenter: {
-        lat: 33.7490, 
-        lng: -84.3880
-      },
+      
     }
   }
 
@@ -164,82 +159,6 @@ class App extends Component {
     })  
   };
 
-  handleAddCity = (e, data) => {
-    e.preventDefault();
-    if (this.state.loggedIn) {
-      postNewCity(localStorage.getItem('token'), data)
-      .then(res => {
-        if (res) {
-          res.index=this.state.loggedInCities.length;
-          this.setState({
-            loggedInCities: this.state.loggedInCities.concat([res])
-          })
-        }
-      })
-    }
-  }
-
-  handleAddPlace = (e, data) => {
-    e.preventDefault()
-    const payload = 
-      {
-        destination: data.closestCity.pk,
-        name: data.name,
-        number: data.number,
-        street: data.street,
-        neighborhood: data.neighborhood,
-        city: data.closestCity.city,
-        state: data.state,
-        country: data.country,
-        latitude: data.latitude,
-        longitude: data.longitude
-      }
-    if (this.state.loggedIn) {
-      postNewPlace(localStorage.getItem('token'), payload)
-      .then(res => {
-        this.setState({
-          loggedInPlaces: this.state.loggedInPlaces.concat([res])
-        })
-      })
-    }
-  }
-
-  handleEditCity = (e, data) => {
-    e.preventDefault();
-    putEditCity(localStorage.getItem('token'), data)
-    .then(json => {
-      console.log(json, this.state.loggedInCities)
-      this.setState({
-        loggedInCities: this.state.loggedInCities.map(el => el.pk === json.pk ? json : el)
-      })
-    })
-  }
-
-  handleEditPlace = (e, data) => {
-    e.preventDefault();
-    putEditPlace(localStorage.getItem('token'), data)
-    .then(json => {
-      console.log(json)
-      // this.setState({
-      //   cities: this.state.cities.map(el => el.pk === json.pk ? json : el)
-      // })
-    })
-  }
-
-  handleDeleteCity = (e, data) => {
-    e.preventDefault();
-    deleteCity(localStorage.getItem('token'), data)
-    .then(json => {
-      this.setState({
-        //why is this json.destinations?
-        loggedInCities: json.destinations.map((el, i) => {
-          el.index = i;
-          return el
-        }),
-      })
-    })
-  }
-
   handleLogout = () => {
     localStorage.removeItem("token");
     this.setState({
@@ -280,24 +199,6 @@ class App extends Component {
   //   })
   // }
 
-  changeMapConfig = (center, zoom) => {
-    // this.setState({
-    //   mapCenter: {
-    //     lat: center.latitude,
-    //     lng: center.longitude
-    //   },
-    //   granularity: zoom > 11 ? 0 : 1,
-    //   mapZoom: zoom,
-    // })
-    this.setState({
-      mapCenter: {
-        lat: center.lat,
-        lng: center.lng
-      },
-      granularity: zoom > 11 ? 0 : 1,
-      mapZoom: zoom,
-    })
-  }
 
   renderHome = () => {
     return (
@@ -335,12 +236,6 @@ class App extends Component {
       handleDeleteCity={this.handleDeleteCity}
       handleImageOverwrite={this.handleImageOverwrite}
       backendURL={BACKEND_URL}
-      //Storage for Main
-      mapZoom={this.state.mapZoom}
-      mapCenter={this.state.mapCenter}
-      changeMapConfig={this.changeMapConfig}
-      granularity={this.state.granularity}
-
       />)
   }
 

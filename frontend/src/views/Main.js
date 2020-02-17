@@ -17,7 +17,8 @@ import ImageUploader from '../components/ImageUploader.js';
 
 import { Add1, Add2 } from '../utils/SVGs';
 import { getDistanceBetweenTwoPoints } from '../utils/Formulas.js';
-import { getUser } from '../utils/fetchUtils.js';
+import {fetchCurrentUser, fetchToken, putNewUser, postNewCity, putEditCity, deleteCity, getUser, postNewPlace, putEditPlace } from "../utils/fetchUtils" 
+
 
 
 
@@ -62,6 +63,12 @@ class Main extends React.Component {
       viewPlaces: Boolean(this.props.viewUser) === false || this.props.loggedInUser === this.props.viewUser ? this.props.loggedInPlaces : [],
       //Map
       //TODO change these to be the location of the first city in the saved data
+      granularity: 0,
+      mapZoom: 4,
+      mapCenter: {
+        lat: 33.7490, 
+        lng: -84.3880
+      },
       //Gallery
       galleryOpen: false,
       //ImageViewer
@@ -115,6 +122,78 @@ class Main extends React.Component {
     }
   }
 
+  //Handlers
+  handleAddCity = (e, data) => {
+    e.preventDefault();
+    if (this.props.loggedIn) {
+      postNewCity(localStorage.getItem('token'), data)
+      .then(res => {
+        if (res) {
+          // res.index=this.state.viewCities.length;
+          this.setState({
+            viewCities: this.state.viewCities.concat([{...res, index: this.state.viewCities.length}])
+          })
+        }
+      })
+    }
+  }
+
+  handleAddPlace = (e, data) => {
+    e.preventDefault()
+    const payload = 
+      {
+        destination: data.closestCity.pk,
+        name: data.name,
+        number: data.number,
+        street: data.street,
+        neighborhood: data.neighborhood,
+        city: data.closestCity.city,
+        state: data.state,
+        country: data.country,
+        latitude: data.latitude,
+        longitude: data.longitude
+      }
+    if (this.props.loggedIn) {
+      postNewPlace(localStorage.getItem('token'), payload)
+      .then(res => {
+        this.setState({
+          viewPlaces: this.state.viewPlaces.concat([{...res, index: this.state.viewPlaces.length}])
+        })
+      })
+    }
+  }
+
+  handleEditCity = (e, data) => {
+    e.preventDefault();
+    putEditCity(localStorage.getItem('token'), data)
+    .then(json => {
+      this.setState({
+        viewCities: this.state.viewCities.map(el => el.pk === json.pk ? json : el)
+      })
+    })
+  }
+
+  handleEditPlace = (e, data) => {
+    e.preventDefault();
+    putEditPlace(localStorage.getItem('token'), data)
+    .then(json => {
+      console.log(json)
+      this.setState({
+        viewPlaces: this.state.cities.map(el => el.pk === json.pk ? json : el)
+      })
+    })
+  }
+
+  handleDeleteCity = (e, data) => {
+    e.preventDefault();
+    deleteCity(localStorage.getItem('token'), data)
+    .then(json => {
+      this.setState({
+        viewCities: json.destinations.map((el, i) => {return {...el, index: i}})
+      })
+    })
+  }
+
   //General Functions
   setSelectedCity = (obj) => {
     this.setState({
@@ -152,22 +231,21 @@ class Main extends React.Component {
   }
 
   //Map Functions
-  // changeGranularity = (zoom) => {
-  //   console.log(zoom)
-  //   this.setState({
-  //     granularity: zoom > 11 ? 0 : 1,
-  //     mapZoom: zoom,
-  //   })
-  // }
+  changeGranularity = (zoom) => {
+    this.setState({
+      granularity: zoom > 11 ? 0 : 1,
+      mapZoom: zoom,
+    })
+  }
 
-  // changeMapCenter = (obj) => {
-  //   this.setState({
-  //     mapCenter: {
-  //       lat: obj.latitude,
-  //       lng: obj.longitude
-  //     }
-  //   })
-  // }
+  changeMapCenter = (obj) => {
+    this.setState({
+      mapCenter: {
+        lat: obj.latitude,
+        lng: obj.longitude
+      }
+    })
+  }
 
   //Gallery Functions
   toggleGallery = (value) => {
@@ -195,17 +273,21 @@ class Main extends React.Component {
 
   //Table Functions
   tableRowClick = (obj, e) => {
-    this.props.changeMapConfig(this.props.mapCenter, obj.event.target.getAttribute("value") !== "KILL" ? 12 : this.props.mapZoom)
-    this.setState({
-      selectedCity: obj.rowData,
-    })
+    console.log(obj.event.target.getAttribute("value"))
+
+    if (obj.event.target.getAttribute("value") !== "KILL" && this.state.granularity === 1) {
+      this.setState({
+        selectedCity: obj.rowData,
+        mapZoom: 12,
+      })
+    } 
   }
 
   //TODO on city marker click zoom into city, on place marker click show gallery
   markerClick = (obj) => {
-    this.props.changeMapConfig(this.props.mapCenter, 12)
     this.setState({
       selectedCity: obj,
+      mapzoom: 12,
     })
   }
 
@@ -234,7 +316,7 @@ class Main extends React.Component {
       ...data, 
       ...this.state.selectedCity
     }
-    this.props.handleEditCity(e, formData)
+    this.handleEditCity(e, formData)
   }
 
   setCurrImg = (index) => {
@@ -325,8 +407,8 @@ class Main extends React.Component {
 
           <div className={clsx(this.props.classes.main)}>
             <Map 
-            center={this.props.mapCenter} 
-            zoom={this.props.mapZoom}
+            center={this.state.mapCenter} 
+            zoom={this.state.mapZoom}
             cities={this.state.viewCities}
             places={this.state.viewPlaces}
             //These can be condensed into one each
@@ -338,7 +420,8 @@ class Main extends React.Component {
             //Need two marker click functions, one for place and one for city
             markerClick={this.markerClick}
             granularity={this.state.granularity}
-            changeMapConfig={this.props.changeMapConfig}
+            changeMapCenter={this.changeMapCenter}
+            changeGranularity={this.changeGranularity}
             />
 
             <Table 
@@ -349,7 +432,6 @@ class Main extends React.Component {
             hoverIndex={this.state.granularity ? this.state.hoverIndexCity : this.state.hoverIndexPlace}
             // changeHoverIndexCity={this.changeHoverIndexCity}
             changeHoverIndex={this.state.granularity ? this.changeHoverIndexCity : this.changeHoverIndexPlace}
-            changeMapConfig={this.props.changeMapConfig}
             tableRowClick={this.tableRowClick}
             toggleEditForm={this.toggleEditForm}
             handleDeleteCity={this.props.handleDeleteCity}
@@ -358,6 +440,7 @@ class Main extends React.Component {
             granularity={this.state.granularity}
             selectedCity={this.state.selectedCity}
             closestCity={this.state.closestCity}
+            changeMapCenter={this.changeMapCenter}
             />
 
             <Modal isOpen={this.state.galleryOpen} toggle={this.toggleGallery} size={"xl"}>
@@ -395,8 +478,8 @@ class Main extends React.Component {
             { this.state.editFormOpen  & this.props.username === this.props.user ? 
             <EditCity
             isOpen={this.state.editFormOpen}
-            Ownertoggle={this.toggleEditForm}
-            handleEditCity={this.props.handleEditCity}
+            toggle={this.toggleEditForm}
+            handleEditCity={this.handleEditCity}
             data={this.state.selectedCity}
             /> : null }
 
@@ -404,14 +487,14 @@ class Main extends React.Component {
             <AddCity
             isOpen={this.state.addCityFormOpen}
             toggle={this.toggleAddCityForm}
-            handleAddCity={this.props.handleAddCity}
+            handleAddCity={this.handleAddCity}
             /> : null }
 
             { this.state.addPlaceFormOpen && this.state.granularity === 0 && this.props.username === this.props.user ? 
             <AddPlace
             isOpen={this.state.addPlaceFormOpen}
             toggle={this.toggleAddPlaceForm}
-            handleAddPlace={this.props.handleAddPlace}
+            handleAddPlace={this.handleAddPlace}
             mapCenter={this.props.mapCenter}
             cities={this.state.viewCities}
             default={this.state.closestCity}
