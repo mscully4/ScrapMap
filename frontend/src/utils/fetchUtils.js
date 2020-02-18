@@ -53,7 +53,6 @@ export function putNewUser(data) {
 
 //Owner Functions
 export function postNewCity(token, data) {
-  console.log(data)
   const form = new FormData();
   //form.append("pk", data.pk);
   form.append('city', data.city);
@@ -142,6 +141,17 @@ export function deleteCity(token, data) {
     headers: {
       Authorization: `JWT ${token}`,
       //"Content-Type": "application/json",
+    }
+  })
+  .then(response => response.ok ? response.json() : null)
+}
+
+export function deletePlace(token, data) {
+  return fetch(baseURL + "core/place/" + data.pk + "/", {
+    method: "DELETE",
+    headers: {
+      Authorization: `JWT ${token}`,
+      "Content-Type": "application/json",
     }
   })
   .then(response => response.ok ? response.json() : null)

@@ -60,7 +60,7 @@ class CreateUser(APIView):
 #this returns the list of all destinations for a specified user and allows users to create new locations
 class DestinationListView(APIView):
     '''
-    Access destination data and create new destination entries
+    Access a list of all destinations
     '''
     permission_classes = (permissions.AllowAny,)
     #permission_classes = (permissions.IsAuthenticatedOrReadOnly,)
@@ -118,7 +118,7 @@ class DestinationView(APIView):
 
     def delete(self, request, pk, format=None):
         Destination.objects.get(pk=pk).delete()
-        #rturn an updated list of cities to user
+        #rturn an updated listdestination data and create new destination entries of cities to user
         data = DestinationListSerializer(Destination.objects.filter(user=request.user), many=True)
         return Response({"destinations" : data.data})
 
@@ -192,6 +192,12 @@ class PlaceView(APIView):
                 logger.info(serializer.errors)
                 return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         return Response({'error': 'You are not authorized to edit that information'}, status=status.HTTP_403_FORBIDDEN)
+
+    def delete(self, request, pk, format=None):
+        Place.objects.get(pk=pk).delete()
+        #Since places are derived from destinations, provide an updated list of destinations
+        data = DestinationListSerializer(Destination.objects.filter(user=request.user), many=True)
+        return Response({"destinations" : data.data})
 
 class PlaceImagesView(APIView):
     parser_class = (FileUploadParser,)

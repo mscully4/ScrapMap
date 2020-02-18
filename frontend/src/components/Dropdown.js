@@ -48,7 +48,7 @@ export default class OptionsDropdown extends React.Component {
           </DropdownToggle>
           <DropdownMenu style={theme.dropdownMenu} value="KILL">
             <DropdownItem value="KILL" onClick={() => this.props.toggleEditForm(true)}>Edit</DropdownItem>
-            <DropdownItem value="KILL" onClick={(e) => this.props.handleDeleteCity(e, this.props.cellData.cellData)}>Delete</DropdownItem>
+            <DropdownItem value="KILL" onClick={(e) => this.props.handleDelete(e, this.props.cellData.cellData)}>Delete</DropdownItem>
           </DropdownMenu>
         </Dropdown> 
     )

@@ -113,7 +113,8 @@ class AddCity extends React.Component {
 
     render() {     
       //console.log(this.state) 
-      console.log(this.allFieldsValid())
+      //TODO implemenet form validation
+      // console.log(this.allFieldsValid())
       return (
         <React.Fragment>
           <Modal isOpen={this.props.isOpen} toggle={this.props.toggle}>

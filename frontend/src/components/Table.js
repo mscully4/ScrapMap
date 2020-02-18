@@ -182,7 +182,7 @@ class VirtualTable extends Component {
           <OptionsDropdown 
           toggleEditForm={this.props.toggleEditForm} 
           cellData={cellData} 
-          handleDeleteCity={this.props.handleDeleteCity}
+          handleDelete={this.props.granularity ? this.props.handleDeleteCity : this.props.handleDeletePlace}
           /> : null 
         }
 

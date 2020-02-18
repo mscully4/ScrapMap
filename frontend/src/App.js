@@ -199,6 +199,17 @@ class App extends Component {
   //   })
   // }
 
+  compilePlaces = (destinations) => {
+    let places = [], index = 0
+    for (var i=0; i<destinations.length; ++i) {
+      for (var z=0; z<destinations[i].places.length; ++z) {
+        var place = destinations[i].places[z];
+        places.push({...place, index})
+        ++index
+      }
+    }
+    return places
+  }
 
   renderHome = () => {
     return (
@@ -215,8 +226,12 @@ class App extends Component {
   }
 
   renderMain = (user) => {
+    console.log(user)
+    const context = user === undefined || user === this.state.loggedInUser ? "Owner" : "Viewer";
     return (
       <Main
+      context={context}
+      compilePlaces={this.compilePlaces}
       //Navigation Props
       loggedIn={this.state.loggedIn} 
       loggedInUser={this.state.loggedInUser} 

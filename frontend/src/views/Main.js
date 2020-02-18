@@ -17,7 +17,7 @@ import ImageUploader from '../components/ImageUploader.js';
 
 import { Add1, Add2 } from '../utils/SVGs';
 import { getDistanceBetweenTwoPoints } from '../utils/Formulas.js';
-import {fetchCurrentUser, fetchToken, putNewUser, postNewCity, putEditCity, deleteCity, getUser, postNewPlace, putEditPlace } from "../utils/fetchUtils" 
+import {fetchCurrentUser, fetchToken, putNewUser, postNewCity, putEditCity, deleteCity, deletePlace, getUser, postNewPlace, putEditPlace } from "../utils/fetchUtils" 
 
 
 
@@ -48,11 +48,11 @@ class Main extends React.Component {
 
   constructor(props) {
     super(props)
-    console.log("BOOF")
     this.state = {
       //General
       ready: false,
       selectedCity: null,
+      selectedPlace: null,
       hoverIndexCity: null,
       hoverIndexPlace: null,
       closestCity: null,
@@ -108,7 +108,7 @@ class Main extends React.Component {
         //update state with the data, and allow rendering of child components
         this.setState({
           viewCities: data.destinations.map((el, i) => { return {...el, index: i}}),
-          viewPlaces: places,
+          viewPlaces: this.props.compilePlaces(data.destinations),
           ready: true,
 
         })
@@ -129,7 +129,6 @@ class Main extends React.Component {
       postNewCity(localStorage.getItem('token'), data)
       .then(res => {
         if (res) {
-          // res.index=this.state.viewCities.length;
           this.setState({
             viewCities: this.state.viewCities.concat([{...res, index: this.state.viewCities.length}])
           })
@@ -156,8 +155,10 @@ class Main extends React.Component {
     if (this.props.loggedIn) {
       postNewPlace(localStorage.getItem('token'), payload)
       .then(res => {
+        const place = {...res, index: this.state.viewPlaces.length};
         this.setState({
-          viewPlaces: this.state.viewPlaces.concat([{...res, index: this.state.viewPlaces.length}])
+          viewPlaces: this.state.viewPlaces.concat([{...res, index: this.state.viewPlaces.length}]),
+          viewCities: this.state.viewCities.map(obj => obj.pk === res.destination ? {...obj, places: obj.places.concat([res]) } : obj)
         })
       })
     }
@@ -168,7 +169,8 @@ class Main extends React.Component {
     putEditCity(localStorage.getItem('token'), data)
     .then(json => {
       this.setState({
-        viewCities: this.state.viewCities.map(el => el.pk === json.pk ? json : el)
+        viewCities: this.state.viewCities.map(el => el.pk === json.pk ? json : el),
+        viewPlaces: this.props.compilePlaces(json.destinations)
       })
     })
   }
@@ -179,7 +181,8 @@ class Main extends React.Component {
     .then(json => {
       console.log(json)
       this.setState({
-        viewPlaces: this.state.cities.map(el => el.pk === json.pk ? json : el)
+        viewCities: json.destinations.map((el, i) => {return {...el, index: i}}),
+        viewPlaces: this.props.compilePlaces(json.destinations)
       })
     })
   }
@@ -189,7 +192,20 @@ class Main extends React.Component {
     deleteCity(localStorage.getItem('token'), data)
     .then(json => {
       this.setState({
-        viewCities: json.destinations.map((el, i) => {return {...el, index: i}})
+        viewCities: json.destinations.map((el, i) => {return {...el, index: i}}),
+        viewPlaces: this.props.compilePlaces(json.destinations)
+      })
+    })
+  }
+
+  handleDeletePlace = (e, data) => {
+    e.preventDefault();
+    deletePlace(localStorage.getItem('token'), data)
+    .then(json => {
+      console.log(this.props.compilePlaces(json.destinations))
+      this.setState({
+        viewCities: json.destinations.map((el, i) => {return {...el, index: i}}),
+        viewPlaces: this.props.compilePlaces(json.destinations)
       })
     })
   }
@@ -280,7 +296,12 @@ class Main extends React.Component {
         selectedCity: obj.rowData,
         mapZoom: 12,
       })
-    } 
+    } else if (obj.event.target.getAttribute("value") !== "KILL" && this.state.granularity === 0) {
+      this.setState({
+        selectedPlace: obj.rowData,
+        galleryOpen: true,
+      })
+    }
   }
 
   //TODO on city marker click zoom into city, on place marker click show gallery
@@ -425,7 +446,7 @@ class Main extends React.Component {
             />
 
             <Table 
-            context={this.props.viewUser === this.props.loggedInUser ? "Owner" : "Viewer"}
+            context={this.props.context}
             cities={this.state.viewCities}
             places={this.state.viewPlaces}
             backendURL={this.props.backendURL}
@@ -434,7 +455,8 @@ class Main extends React.Component {
             changeHoverIndex={this.state.granularity ? this.changeHoverIndexCity : this.changeHoverIndexPlace}
             tableRowClick={this.tableRowClick}
             toggleEditForm={this.toggleEditForm}
-            handleDeleteCity={this.props.handleDeleteCity}
+            handleDeleteCity={this.handleDeleteCity}
+            handleDeletePlace={this.handleDeletePlace}
             toggleUploader={this.toggleUploader}
             toggleGallery={this.toggleGallery}
             granularity={this.state.granularity}
@@ -445,7 +467,10 @@ class Main extends React.Component {
 
             <Modal isOpen={this.state.galleryOpen} toggle={this.toggleGallery} size={"xl"}>
               <Gallery 
-              photos={this.state.selectedCity ? this.prepareImageURLS(this.state.selectedCity) : null} 
+              photos={this.state.granularity === 1 && this.state.selectedCity ? 
+                this.prepareImageURLS(this.state.selectedCity) : this.state.selectedPlace ?
+                this.prepareImageURLS(this.state.selectedPlace) : []
+              } 
               onClick={this.galleryOnClick}
               />
             </Modal>
