@@ -122,6 +122,12 @@ class DestinationSerializer(serializers.ModelSerializer):
         model = Destination
         fields = ('pk', "city", "country", "countryCode", "latitude", "longitude", "user", "images", "places")
 
+     #called when a new city is created
+    def create(self, validated_data):
+        validated_data['user'] = self.context['request'].user
+        return Destination.objects.create(**validated_data)
+
+
     def update(self, instance, validated_data):
         #update all the fields of the Destination Model object
         instance.city = validated_data.get('city', instance.city)
@@ -143,7 +149,7 @@ class DestinationSerializer(serializers.ModelSerializer):
 class PlaceSerializer(serializers.ModelSerializer):
     images = serializers.SerializerMethodField()
     def get_images(self, obj):
-        print(obj)
+        #print(obj)
         images = [{'src': obj.image.url, 'width': obj.image.width, 'height': obj.image.height, 'name': obj.name, 'name': obj.image.__str__() } for obj in PlaceImages.objects.filter(place=obj.pk)]
         return images
 
@@ -155,7 +161,7 @@ class PlaceSerializer(serializers.ModelSerializer):
         '''
         The creation of a new place
         '''
-        #validated_data['user'] = self.context['request'].user
+        validated_data['user'] = self.context['request'].user
         instance = Place.objects.create(**validated_data)
         print(validated_data)
         #if the request has files attached to it
@@ -178,6 +184,9 @@ class PlaceSerializer(serializers.ModelSerializer):
 
     def update(self, instance, validated_data):
         #update all the fields of the Destination Model object
+        instance.name = validated_data.get('name', instance.name)
+        instance.number = validated_data.get('number', instance.number)
+        instance.street = validated_data.get('street', instance.street)
         instance.city = validated_data.get('city', instance.city)
         instance.country = validated_data.get('country', instance.country)
         instance.latitude = validated_data.get('latitude', instance.latitude)

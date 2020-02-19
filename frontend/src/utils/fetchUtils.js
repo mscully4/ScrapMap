@@ -115,11 +115,15 @@ export function putEditCity(token, data) {
 export function putEditPlace(token, data) {
   console.log(data)
   const form = new FormData();
-  form.append("pk", data.pk);
-  form.append('destination', data.city);
-  form.append('name', data.country);
-  form.append('latitude', data.countryCode)
-  form.append('longitude', data.latitude);
+  form.append('destination', data.destination);
+  form.append("name", data.name);
+  form.append('number', data.number);
+  form.append('street', data.street);
+  form.append('city', data.city);
+  form.append('state', data.state);
+  form.append('country', data.state);
+  form.append('latitude', data.latitude)
+  form.append('longitude', data.longitude);
   // for (var i=0; i<data.pictures.length; i++) {
   //   form.append('images', data.pictures[i]);
   // }

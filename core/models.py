@@ -25,6 +25,7 @@ class DestinationImages(models.Model):
         return self.image.name
 
 class Place(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
     destination = models.ForeignKey(Destination, on_delete=models.CASCADE)
     name = models.CharField(max_length=240)
     number = models.CharField(max_length=40)

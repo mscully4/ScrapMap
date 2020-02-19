@@ -38,7 +38,7 @@ class CurrentUser(APIView):
         #combine the user data with the destinations data
         data = {
             "user": UserSerializerLogin(request.user).data,
-            "destinations": DestinationListSerializer(Destination.objects.filter(user=request.user), many=True).data,
+            "destinations": DestinationSerializer(Destination.objects.filter(user=request.user), many=True).data,
         }
         return Response(data)
 
@@ -67,7 +67,7 @@ class DestinationListView(APIView):
 
     def get(self, request, username=None, format=None):
         #logger.info(request.user)
-        data = DestinationListSerializer(Destination.objects.filter(user=User.objects.get(username=username).pk if username != None else request.user), many=True)
+        data = DestinationSerializer(Destination.objects.filter(user=User.objects.get(username=username).pk if username != None else request.user), many=True)
         return Response({"destinations" : data.data})
     
     #this has to be here because there is no pk in the url path
@@ -119,11 +119,10 @@ class DestinationView(APIView):
     def delete(self, request, pk, format=None):
         Destination.objects.get(pk=pk).delete()
         #rturn an updated listdestination data and create new destination entries of cities to user
-        data = DestinationListSerializer(Destination.objects.filter(user=request.user), many=True)
-        return Response({"destinations" : data.data})
+        return Response(DestinationSerializer(Destination.objects.filter(user=request.user), many=True).data)
 
     def post(self, request, format=None):
-        serializer = DestinationListSerializer(data=request.data, context={'request': request})
+        serializer = DestinationSerializer(data=request.data, context={'request': request})
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
@@ -187,7 +186,7 @@ class PlaceView(APIView):
             serializer = PlaceSerializer(instance, data=request.data, context={'request': request})
             if serializer.is_valid():
                 serializer.save()
-                return Response(serializer.data)
+                return Response(DestinationSerializer(Destination.objects.filter(user=request.user), many=True).data)
             else:
                 logger.info(serializer.errors)
                 return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
@@ -196,8 +195,7 @@ class PlaceView(APIView):
     def delete(self, request, pk, format=None):
         Place.objects.get(pk=pk).delete()
         #Since places are derived from destinations, provide an updated list of destinations
-        data = DestinationListSerializer(Destination.objects.filter(user=request.user), many=True)
-        return Response({"destinations" : data.data})
+        return Response(DestinationSerializer(Destination.objects.filter(user=request.user), many=True).data)
 
 class PlaceImagesView(APIView):
     parser_class = (FileUploadParser,)

@@ -10,6 +10,7 @@ import Table from '../components/Table'
 import ImageViewer from '../components/ImageViewer';
 import { ImgEditor} from '../components/ImageEditor';
 import EditCity from '../components/EditCity.js';
+import EditPlace from '../components/EditPlace.js';
 import AddCity from '../components/AddCity.js';
 import AddPlace from '../components/AddPlace.js';
 
@@ -82,11 +83,11 @@ class Main extends React.Component {
       //Editor
       editorOpen: false,
       showLoader: false,
-      //EditForm
-      editFormOpen: false,
-      //addCityForm
+      //Edit Forms
+      editCityFormOpen: false,
+      editPlaceFormOpen: false,
+      //Add Forms
       addCityFormOpen: false,
-      //addPlaceForm
       addPlaceFormOpen: false
     }
   }
@@ -165,12 +166,13 @@ class Main extends React.Component {
   }
 
   handleEditCity = (e, data) => {
+    console.log(data)
     e.preventDefault();
     putEditCity(localStorage.getItem('token'), data)
     .then(json => {
       this.setState({
         viewCities: this.state.viewCities.map(el => el.pk === json.pk ? json : el),
-        viewPlaces: this.props.compilePlaces(json.destinations)
+        viewPlaces: this.props.compilePlaces(json)
       })
     })
   }
@@ -181,8 +183,8 @@ class Main extends React.Component {
     .then(json => {
       console.log(json)
       this.setState({
-        viewCities: json.destinations.map((el, i) => {return {...el, index: i}}),
-        viewPlaces: this.props.compilePlaces(json.destinations)
+        viewCities: json.map((el, i) => {return {...el, index: i}}),
+        viewPlaces: this.props.compilePlaces(json)
       })
     })
   }
@@ -191,9 +193,10 @@ class Main extends React.Component {
     e.preventDefault();
     deleteCity(localStorage.getItem('token'), data)
     .then(json => {
+      console.log(json)
       this.setState({
-        viewCities: json.destinations.map((el, i) => {return {...el, index: i}}),
-        viewPlaces: this.props.compilePlaces(json.destinations)
+        viewCities: json.map((el, i) => {return {...el, index: i}}),
+        viewPlaces: this.props.compilePlaces(json)
       })
     })
   }
@@ -202,10 +205,10 @@ class Main extends React.Component {
     e.preventDefault();
     deletePlace(localStorage.getItem('token'), data)
     .then(json => {
-      console.log(this.props.compilePlaces(json.destinations))
+      console.log(json)
       this.setState({
-        viewCities: json.destinations.map((el, i) => {return {...el, index: i}}),
-        viewPlaces: this.props.compilePlaces(json.destinations)
+        viewCities: json.map((el, i) => {return {...el, index: i}}),
+        viewPlaces: this.props.compilePlaces(json)
       })
     })
   }
@@ -291,16 +294,16 @@ class Main extends React.Component {
   tableRowClick = (obj, e) => {
     console.log(obj.event.target.getAttribute("value"))
 
-    if (obj.event.target.getAttribute("value") !== "KILL" && this.state.granularity === 1) {
+    if (this.state.granularity === 1) {
       this.setState({
         selectedCity: obj.rowData,
-        mapZoom: 12,
+        mapZoom: obj.event.target.getAttribute("value") !== "KILL" ? 12 : this.state.mapZoom,
       })
-    } else if (obj.event.target.getAttribute("value") !== "KILL" && this.state.granularity === 0) {
+    } else if (this.state.granularity === 0) {
       this.setState({
         selectedPlace: obj.rowData,
-        galleryOpen: true,
-      })
+        galleryOpen: obj.event.target.getAttribute("value") !== "KILL" ? true : false,
+      }, () => console.log(this.state.selectedPlace))
     }
   }
 
@@ -363,11 +366,19 @@ class Main extends React.Component {
     })
   }
 
-  toggleEditForm = (value) => {
-    value = typeof(value) === 'boolean' ? value : !this.state.editFormOpen;
-    this.setState(prevState => ({
-      editFormOpen: value,
-    }));
+  //Edit Functions
+  toggleEditCityForm = (value) => {
+    value = typeof(value) === 'boolean' ? value : !this.state.editCityFormOpen;
+    this.setState({
+      editCityFormOpen: value,
+    });
+  }
+
+  toggleEditPlaceForm = (value) => {
+    value = typeof(value) === 'boolean' ? value : !this.state.editPlaceFormOpen;
+    this.setState({
+      editPlaceFormOpen: value
+    })
   }
 
   //Add Functions
@@ -454,7 +465,7 @@ class Main extends React.Component {
             // changeHoverIndexCity={this.changeHoverIndexCity}
             changeHoverIndex={this.state.granularity ? this.changeHoverIndexCity : this.changeHoverIndexPlace}
             tableRowClick={this.tableRowClick}
-            toggleEditForm={this.toggleEditForm}
+            toggleEditForm={this.state.granularity ? this.toggleEditCityForm : this.toggleEditPlaceForm }
             handleDeleteCity={this.handleDeleteCity}
             handleDeletePlace={this.handleDeletePlace}
             toggleUploader={this.toggleUploader}
@@ -500,12 +511,20 @@ class Main extends React.Component {
             handleImageOverwrite={this.props.handleImageOverwrite}
             /> : null}
 
-            { this.state.editFormOpen  & this.props.username === this.props.user ? 
+            { this.state.editCityFormOpen  & this.props.username === this.props.user ? 
             <EditCity
-            isOpen={this.state.editFormOpen}
-            toggle={this.toggleEditForm}
+            isOpen={this.state.editCityFormOpen}
+            toggle={this.toggleEditCityForm}
             handleEditCity={this.handleEditCity}
             data={this.state.selectedCity}
+            /> : null }
+
+            { this.state.editPlaceFormOpen & this.props.username === this.props.user ?
+            <EditPlace
+            isOpen={this.state.editPlaceFormOpen}
+            toggle={this.toggleEditPlaceForm}
+            handleEditPlace={this.handleEditPlace}
+            data={this.state.selectedPlace}
             /> : null }
 
             { this.state.addCityFormOpen && this.state.granularity === 1 && this.props.username === this.props.user ?  

@@ -226,7 +226,6 @@ class App extends Component {
   }
 
   renderMain = (user) => {
-    console.log(user)
     const context = user === undefined || user === this.state.loggedInUser ? "Owner" : "Viewer";
     return (
       <Main
@@ -274,7 +273,6 @@ class App extends Component {
   // }
 
   render = () => {
-    console.log(this.state.ready)
     //this.updateWindowDimensions();
     if (this.state.ready) {
       return (
