@@ -115,6 +115,7 @@ export function putEditCity(token, data) {
 export function putEditPlace(token, data) {
   console.log(data)
   const form = new FormData();
+  form.append('pk', data.pk)
   form.append('destination', data.destination);
   form.append("name", data.name);
   form.append('number', data.number);
@@ -124,9 +125,9 @@ export function putEditPlace(token, data) {
   form.append('country', data.state);
   form.append('latitude', data.latitude)
   form.append('longitude', data.longitude);
-  // for (var i=0; i<data.pictures.length; i++) {
-  //   form.append('images', data.pictures[i]);
-  // }
+  for (var i=0; i<data.pictures.length; i++) {
+    form.append('images', data.pictures[i]);
+  }
 
   return fetch(baseURL + "core/place/" + data.pk + "/", {
     method: "PUT",

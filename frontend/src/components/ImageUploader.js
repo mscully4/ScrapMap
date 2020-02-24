@@ -129,7 +129,7 @@ class ImageUploader extends React.Component {
           buttonText='Choose images'
           onChange={this.onChange}
           imgExtension={['.jpg', '.gif', '.png', '.jpeg']}
-          maxFileSize={5242880}
+          maxFileSize={5242880 * 2}
           withPreview={false}
           label={
             <div className={this.props.classes.labelDiv}>

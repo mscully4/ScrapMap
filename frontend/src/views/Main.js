@@ -97,21 +97,11 @@ class Main extends React.Component {
     if (Boolean(this.props.viewUser) === true && this.props.loggedInUser !== this.props.viewUser) {
       //load user info
       getUser(localStorage.getItem("token"), this.props.viewUser).then(data => {
-        //get places from cities
-        let places = [], index = 0
-        for (var i=0; i<data.destinations.length; ++i) {
-          for (var z=0; z<data.destinations[i].places.length; ++z) {
-            var place = data.destinations[i].places[z];
-            places.push({...place, index})
-            ++index
-          }
-        }
         //update state with the data, and allow rendering of child components
         this.setState({
-          viewCities: data.destinations.map((el, i) => { return {...el, index: i}}),
-          viewPlaces: this.props.compilePlaces(data.destinations),
+          viewCities: data.map((el, i) => { return {...el, index: i}}),
+          viewPlaces: this.props.compilePlaces(data),
           ready: true,
-
         })
       })
     }
@@ -129,9 +119,12 @@ class Main extends React.Component {
     if (this.props.loggedIn) {
       postNewCity(localStorage.getItem('token'), data)
       .then(res => {
+        console.log(res)
         if (res) {
           this.setState({
-            viewCities: this.state.viewCities.concat([{...res, index: this.state.viewCities.length}])
+            viewCities: this.state.viewCities.concat([{...res, index: this.state.viewCities.length}]),
+            mapZoom: 4,
+            mapCenter: { lat: res.latitude, lng: res.longitude}
           })
         }
       })
@@ -266,7 +259,32 @@ class Main extends React.Component {
     })
   }
 
-  //Gallery Functions
+  //TODO on city marker click zoom into city, on place marker click show gallery
+  onMarkerClick = (obj) => {
+    if (this.state.granularity === 1) {
+      this.setState({
+        selectedCity: obj,
+        mapZoom: 12,
+      })
+    } else {
+
+    }
+  }
+    // if (this.state.granularity === 1) {
+    //   this.setState({
+    //     // selectedCity: obj.rowData,
+    //     // mapZoom: obj.event.target.getAttribute("value") !== "KILL" ? 12 : this.state.mapZoom,
+    //     // granularity: 1,
+    //     // hoverIndexCity: null
+    //   }, () => console.log(this.state.mapZoom))
+    // } else if (this.state.granularity === 0) {
+    //   this.setState({
+    //     // selectedPlace: obj.rowData,
+    //     // galleryOpen: obj.event.target.getAttribute("value") !== "KILL" ? true : false,
+    //   })
+    // }
+
+  //Gallery FuHoverIndexnctions
   toggleGallery = (value) => {
     const boolean = typeof(value) === 'boolean' ? value : !this.state.galleryOpen;
     this.setState({
@@ -292,27 +310,20 @@ class Main extends React.Component {
 
   //Table Functions
   tableRowClick = (obj, e) => {
-    console.log(obj.event.target.getAttribute("value"))
 
     if (this.state.granularity === 1) {
       this.setState({
         selectedCity: obj.rowData,
         mapZoom: obj.event.target.getAttribute("value") !== "KILL" ? 12 : this.state.mapZoom,
-      })
+        granularity: 1,
+        hoverIndexCity: null
+      }, () => console.log(this.state.mapZoom))
     } else if (this.state.granularity === 0) {
       this.setState({
         selectedPlace: obj.rowData,
         galleryOpen: obj.event.target.getAttribute("value") !== "KILL" ? true : false,
-      }, () => console.log(this.state.selectedPlace))
+      })
     }
-  }
-
-  //TODO on city marker click zoom into city, on place marker click show gallery
-  markerClick = (obj) => {
-    this.setState({
-      selectedCity: obj,
-      mapzoom: 12,
-    })
   }
 
   //Image Viewer Functions
@@ -338,9 +349,9 @@ class Main extends React.Component {
   handleImageSubmit= (e, data) => {
     const formData = {
       ...data, 
-      ...this.state.selectedCity
+      ...this.state.selectedPlace
     }
-    this.handleEditCity(e, formData)
+    this.handleEditPlace(e, formData)
   }
 
   setCurrImg = (index) => {
@@ -430,10 +441,7 @@ class Main extends React.Component {
           </svg> : null }
 
           <p>
-          Granularity: {this.state.granularity} 
-          Zoom: {this.props.mapZoom} 
-          Selected City: {this.state.selectedCity ? this.state.selectedCity.city : ""}
-          Closest City: {this.state.closestCity ? `${this.state.closestCity.city} ${this.state.closestCity.distanceFromMapCenter}` : ""}
+          Granularity: {this.state.granularity} Zoom: {this.state.mapZoom} Selected City: {this.state.selectedCity ? this.state.selectedCity.city : ""} Closest City: {this.state.closestCity ? `${this.state.closestCity.city} ${this.state.closestCity.distanceFromMapCenter}` : ""}
           </p>
 
 
@@ -450,7 +458,7 @@ class Main extends React.Component {
             changeHoverIndexPlace={this.changeHoverIndexPlace}
             getClosestCity={this.getClosestCity}
             //Need two marker click functions, one for place and one for city
-            markerClick={this.markerClick}
+            markerClick={this.onMarkerClick}
             granularity={this.state.granularity}
             changeMapCenter={this.changeMapCenter}
             changeGranularity={this.changeGranularity}
