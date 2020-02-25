@@ -102,7 +102,20 @@ class AutoComplete extends React.Component {
     const state = selection.terms.length  > 4 && selection.terms[4].value === "USA" ? selection.terms[3].value : null
     const country = selection.terms.length > 4 && selection.terms[4].value === "USA" ? selection.terms[4].value : selection.terms[3].value
     geocodeByPlaceId(place_id).then(data => {
-      console.log(data)
+      var street_number, street_, county_, city_, state_, zip_, sublocality_, country_;
+      data[0].address_components.forEach(element => {
+        console.log(element)
+        if (element.types.includes("street_number")) street_number = element.long_name;
+        else if (element.types.includes("route")) street_ = element.long_name;
+        else if (element.types.includes("sublocality")) sublocality_ = element.long_name;
+        else if (element.types.includes("locality")) city_ = element.long_name;
+        else if (element.types.includes( "administrative_area_level_1")) county_ = element.long_name;
+        else if (element.types.includes( "administrative_area_level_2")) state_ = element.long_name
+        else if (element.types.includes("country")) country_ = element.long_name;
+        else if (element.types.includes("postal_code")) zip_ = element.long_name;
+      }); 
+      //TODO need to make the appropriate data model changes and then swap these out
+      console.log(street_number, street_, county_, city_, state_, zip_, sublocality_, country_)
       const number = data[0].address_components[0].long_name
       const street = data[0].address_components[1].long_name
       const neighborhood = data[0].address_components[2].long_name

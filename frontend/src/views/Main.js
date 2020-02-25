@@ -72,6 +72,7 @@ class Main extends React.Component {
       },
       //Gallery
       galleryOpen: false,
+      preparedImages: [],
       //ImageViewer
       imageViewerOpen: false,
       currImg: null,
@@ -284,30 +285,6 @@ class Main extends React.Component {
     //   })
     // }
 
-  //Gallery FuHoverIndexnctions
-  toggleGallery = (value) => {
-    const boolean = typeof(value) === 'boolean' ? value : !this.state.galleryOpen;
-    this.setState({
-      galleryOpen: boolean
-    })
-  }
-
-  galleryOnClick = (event, obj) => {
-    this.toggleGallery(false)
-    this.setCurrImg(obj.photo.i)
-    this.toggleViewer(true)
-  }
-
-  prepareImageURLS = (data) => {
-    return data.images.map((obj, i) => {
-      return {
-        i: i,
-        src: this.props.backendURL + obj.src, 
-        width: obj.width, 
-        height: obj.height}
-      })
-  }
-
   //Table Functions
   tableRowClick = (obj, e) => {
 
@@ -321,10 +298,40 @@ class Main extends React.Component {
     } else if (this.state.granularity === 0) {
       this.setState({
         selectedPlace: obj.rowData,
+        preparedImages: this.prepareImageURLs(obj.rowData),
         galleryOpen: obj.event.target.getAttribute("value") !== "KILL" ? true : false,
       })
     }
   }
+
+
+  //Gallery Functions
+  toggleGallery = (value) => {
+    const boolean = typeof(value) === 'boolean' ? value : !this.state.galleryOpen;
+    this.setState({
+      galleryOpen: boolean
+    })
+  }
+
+  galleryOnClick = (event, obj) => {
+    this.toggleGallery(false)
+    console.log(obj)
+    this.setCurrImg(obj.photo.i)
+    this.toggleViewer(true)
+  }
+
+  prepareImageURLs = (data) => {
+    return data.images.map((obj, i) => {
+      return {
+        i: i,
+        src: this.props.backendURL + obj.src, 
+        width: obj.width, 
+        height: obj.height,
+        caption: "",
+      }
+    })
+  }
+
 
   //Image Viewer Functions
   toggleViewer = (value) => {
@@ -486,27 +493,23 @@ class Main extends React.Component {
 
             <Modal isOpen={this.state.galleryOpen} toggle={this.toggleGallery} size={"xl"}>
               <Gallery 
-              photos={this.state.granularity === 1 && this.state.selectedCity ? 
-                this.prepareImageURLS(this.state.selectedCity) : this.state.selectedPlace ?
-                this.prepareImageURLS(this.state.selectedPlace) : []
-              } 
+              // photos={this.state.granularity === 1 && this.state.selectedCity ? 
+              //   this.prepareImageURLs(this.state.selectedCity) : this.state.selectedPlace ?
+              //   this.prepareImageURLs(this.state.selectedPlace) : []
+              // } 
+              photos={this.state.preparedImages}
               onClick={this.galleryOnClick}
               />
             </Modal>
 
             <ImageViewer 
             context={"Owner"}
-            backendURL={this.props.backendURL}
             isOpen={this.state.imageViewerOpen} 
             toggleViewer={this.toggleViewer}
-            views={this.state.viewCities.length ? this.state.viewCities[0].images : [{src: ""}]}
+            views={this.state.preparedImages}
             currentIndex={ this.state.currImg }
-            //changeCurrImg={ this.changeCurrImg }
-            //setCurrImg={ this.setCurrImg }
-            //backdropClosable={true}
             handleImageOverwrite={this.props.handleImageOverwrite}
             toggleEditor={this.toggleEditor}
-            showLoader={this.showLoader}
             />
 
             { this.state.editorOpen & this.props.username === this.props.user ?

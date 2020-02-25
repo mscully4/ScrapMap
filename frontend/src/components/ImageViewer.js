@@ -53,143 +53,77 @@ export default class ImageViewer extends Component {
     super(props);
     this.state = {
       isOpen: false,
-      imgs: this.props.views.map((obj, i) => {
-        return {
-          src: "http://localhost:8000" + obj.src, 
-          //num: i,
-          //caption: "Have you boofed yet?",
-        }
-      }),
-      editorIsOpen: false,
     } 
   }
 
 
-    onClose = (e) => {
-      this.props.setImageViewerOpen(false);
+  onClose = (e) => {
+    this.props.setImageViewerOpen(false);
+  }
+
+  gotoNext = (e) => {
+    if (this.props.currImg === (this.state.imgs.length - 1)) return;
+      
+    this.props.setCurrImg(this.props.currImg + 1);
+      
+    if (e) {
+      e.preventDefault()
     }
+  }
 
-    gotoNext = (e) => {
-      if (this.props.currImg === (this.state.imgs.length - 1)) return;
-        
-      this.props.setCurrImg(this.props.currImg + 1);
-        
-      if (e) {
-        e.preventDefault()
-        e.stopPropagation()
-      }
+  gotoPrev = (e) => {
+    if (this.props.currImg === 0) return;
+      
+    this.props.setCurrImg(this.props.currImg - 1);
+
+    if (e) {
+      e.preventDefault()
     }
+  }
 
-    gotoPrev = (e) => {
-      if (this.props.currImg === 0) return;
-        
-      this.props.setCurrImg(this.props.currImg - 1);
-
-      if (e) {
-        e.preventDefault()
-        e.stopPropagation()
-      }
-    }
-
-    // toggleEditor = () => {
-    //   const editorWillBeOpen = !this.state.editorIsOpen;
-    //   this.setState({
-    //     editorIsOpen: editorWillBeOpen,
-    //   })
-    //   this.props.setImageViewerOpen(!editorWillBeOpen)
-    // }
-
-    // handleImageModification = (e, i, mods) => {
-    //   console.log(i)
-    //   let imgs = [...this.state.imgs];
-    //   imgs[i] = {
-    //     ...this.state.imgs[i],
-    //     modifications: {
-    //       ...this.state.imgs[i].modifications,
-    //       [mods.type]: (this.state.imgs[i].modifications[mods.type] ? this.state.imgs[i].modifications[mods.type] : 0) + mods.value
-    //     }
-    //   }
-    //   this.setState({
-    //     imgs: imgs
-    //   }, () => console.log(this.state.imgs))
-    // }
-    CustomHeader = ({ innerProps, isModal }) => {
-      return (
-      <div style={theme.headerDiv}>
-        { isModal ?  
-        <span>
-          <button role="button" value="boof" style={theme.closeButton} onClick={() => this.props.toggleViewer(false)}>
-            <svg
-            version="1.1"
-            xmlns="http://www.w3.org/2000/svg"
-            role="presentation"
-            viewBox="0 0 24 24"
-            style={theme.closeSVG}
-            >
-              <path d={closePath} />
-            </svg>
-          </button> 
-          { this.props.context === "Owner" ?
-          <button role="button" style={theme.closeButton} onClick={() => {this.props.toggleViewer(false); this.props.toggleEditor(true)}}>
-            <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="7.11111in" height="7.11111in"
-            viewBox="0 0 640 640"
-            style={theme.closeSVG}>
-              <path d={editorPath} />
-            </svg>
-          </button> : null }
-        </span>: null}
-      </div>
-      )
-    }
+  CustomHeader = ({ innerProps, isModal }) => {
+    return (
+    <div style={theme.headerDiv}>
+      { isModal ?  
+      <span>
+        <button role="button" value="boof" style={theme.closeButton} onClick={() => this.props.toggleViewer(false)}>
+          <svg
+          version="1.1"
+          xmlns="http://www.w3.org/2000/svg"
+          role="presentation"
+          viewBox="0 0 24 24"
+          style={theme.closeSVG}
+          >
+            <path d={closePath} />
+          </svg>
+        </button> 
+        { this.props.context === "Owner" ?
+        <button role="button" style={theme.closeButton} onClick={() => {this.props.toggleViewer(false); this.props.toggleEditor(true)}}>
+          <svg
+          xmlns="http://www.w3.org/2000/svg"
+          // width="7.11111in" height="7.11111in"
+          viewBox="0 0 640 640"
+          style={theme.closeSVG}>
+            <path d={editorPath} />
+          </svg>
+        </button> : null }
+      </span>: null}
+    </div>
+    )
+  }
 
 
-    render() {
-      const views = this.props.views.map((obj) => {
-        return {src: this.props.backendURL + obj.src}
-      })
-      return (
-        <ModalGateway>
-          { this.props.isOpen ? 
-          <Modal onClose={() => this.props.toggleViewer(false)}>
-            {views.length ? <Carousel views={views} currentIndex={this.props.currentIndex} components={{ Header: this.CustomHeader }}/>: <div></div>}
-          </Modal>
-          : null }
-        </ModalGateway>
-        )
-          {/* <ImgsViewer 
-            imgs={this.state.imgs}
-            isOpen={ this.props.isOpen }
-            currImg={ this.props.currImg }
-            onClickPrev={this.gotoPrev}
-            onClickNext={this.gotoNext}
-            onClose={this.onClose}
-            closeBtnTitle={"Close"}
-            leftArrowTitle={"Previous"}
-            rightArrowTitle={"Next"}
-            onClickImg={this.gotoNext}
-            backdropCloseable={true}
-            showThumbnails={true}
-            onClickThumbnail={(i) => { this.props.setCurrImg(i) }}
-            customControls={[<FontAwesomeIcon icon={"edit"} style={{
-              color: 'white', 
-              width: '7.5%', 
-              height: '100%', 
-              left: 0}}<div {...innerProps}>
-        // your component internals
-      </div> 
-              value={"BOOF"} onClick={() => this.toggleEditor()}/>]}
-          />
-          <Modal isOpen={this.state.editorIsOpen} toggle={this.toggleEditor} size={"xl"}>
-            <ImgEditor 
-            img={this.state.imgs[this.props.currImg]}
-            handleImageOverwrite={this.props.handleImageOverwrite}
-            setImageViewerOpen={this.props.setImageViewerOpen}
-            setImageEditorOpen={(isOpen) => {this.setState({editorIsOpen: isOpen})}}
-            />
-          </Modal> */}
-    }
+  render() {
+    return (
+      <ModalGateway>
+        { this.props.isOpen ?
+        <Modal isOpen={false} onClose={() => this.props.toggleViewer(false)}>
+          <Carousel views={this.props.views} currentIndex={this.props.currentIndex} components={{ Header: this.CustomHeader }}/>
+        </Modal>
+        : null }
+      </ModalGateway>
+    )
+  }
 }
 
 const closePath = "M18.984 6.422l-5.578 5.578 5.578 5.578-1.406 1.406-5.578-5.578-5.578 5.578-1.406-1.406 5.578-5.578-5.578-5.578 1.406-1.406 5.578 5.578 5.578-5.578z"
