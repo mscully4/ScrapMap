@@ -226,6 +226,8 @@ class App extends Component {
   }
 
   renderMain = (user) => {
+    console.log(this.state.loggedInCities)
+    //TODO validate this is the right logic
     const context = user === undefined || user === this.state.loggedInUser ? "Owner" : "Viewer";
     return (
       <Main

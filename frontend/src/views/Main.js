@@ -63,12 +63,12 @@ class Main extends React.Component {
       viewCities: Boolean(this.props.viewUser) === false || this.props.loggedInUser === this.props.viewUser ? this.props.loggedInCities : [],
       viewPlaces: Boolean(this.props.viewUser) === false || this.props.loggedInUser === this.props.viewUser ? this.props.loggedInPlaces : [],
       //Map
-      //TODO change these to be the location of the first city in the saved data
+      //TODO handle the possibility of no cities
       granularity: 0,
       mapZoom: 4,
       mapCenter: {
-        lat: 33.7490, 
-        lng: -84.3880
+        lat: this.props.loggedInCities[0].latitude, 
+        lng: this.props.loggedInCities[0].longitude
       },
       //Gallery
       galleryOpen: false,
@@ -76,6 +76,7 @@ class Main extends React.Component {
       //ImageViewer
       imageViewerOpen: false,
       currImg: null,
+      getCurrImg: null,
       //ImageUploader
       uploaderOpen: false,
       uploaderPK: null,
@@ -99,6 +100,9 @@ class Main extends React.Component {
       //load user info
       getUser(localStorage.getItem("token"), this.props.viewUser).then(data => {
         //update state with the data, and allow rendering of child components
+        console.log({latitude: data[0].latitude, longitude: data[0].longitude})
+        this.changeMapCenter(data.length > 0 ? {latitude: data[0].latitude, longitude: data[0].longitude} : this.state.mapCenter)
+        console.log(this.state)
         this.setState({
           viewCities: data.map((el, i) => { return {...el, index: i}}),
           viewPlaces: this.props.compilePlaces(data),
@@ -262,13 +266,19 @@ class Main extends React.Component {
 
   //TODO on city marker click zoom into city, on place marker click show gallery
   onMarkerClick = (obj) => {
+    console.log(obj)
     if (this.state.granularity === 1) {
+      this.changeMapCenter(obj)
       this.setState({
         selectedCity: obj,
         mapZoom: 12,
       })
-    } else {
-
+    } else if (this.state.granularity === 0) {
+      this.setState({
+        selectedPlace: obj,
+        preparedImages: this.prepareImageURLs(obj.images),
+        galleryOpen: true,
+      })
     }
   }
     // if (this.state.granularity === 1) {
@@ -294,14 +304,28 @@ class Main extends React.Component {
         mapZoom: obj.event.target.getAttribute("value") !== "KILL" ? 12 : this.state.mapZoom,
         granularity: 1,
         hoverIndexCity: null
-      }, () => console.log(this.state.mapZoom))
+      })
     } else if (this.state.granularity === 0) {
       this.setState({
         selectedPlace: obj.rowData,
-        preparedImages: this.prepareImageURLs(obj.rowData),
+        preparedImages: this.prepareImageURLs(obj.rowData.images),
         galleryOpen: obj.event.target.getAttribute("value") !== "KILL" ? true : false,
       })
     }
+  }
+
+  cityGallery = (obj) => {
+    const images = []
+    obj.places.forEach((place) => {
+      place.images.forEach((image) => {
+        images.push(image)
+      })
+    })
+    this.setState({
+      preparedImages: this.prepareImageURLs(images),
+      galleryOpen: true
+    })
+    // this.toggleGallery(true)
   }
 
 
@@ -315,13 +339,12 @@ class Main extends React.Component {
 
   galleryOnClick = (event, obj) => {
     this.toggleGallery(false)
-    console.log(obj)
     this.setCurrImg(obj.photo.i)
     this.toggleViewer(true)
   }
 
   prepareImageURLs = (data) => {
-    return data.images.map((obj, i) => {
+    return data.map((obj, i) => {
       return {
         i: i,
         src: this.props.backendURL + obj.src, 
@@ -332,13 +355,23 @@ class Main extends React.Component {
     })
   }
 
-
   //Image Viewer Functions
   toggleViewer = (value) => {
     const boolean = typeof(value)  === 'boolean' ? value : !this.state.editorOpen;
     this.setState({
-      imageViewerOpen: boolean
+      imageViewerOpen: boolean,
+      galleryOpen: boolean ? false : true,
     })
+  }
+
+  setCurrImg = (index) => {
+    this.setState({
+      currImg: index
+    })
+  }
+
+  getCurrentIndex = (func) => {
+    this.getCurrImg = func
   }
 
   //Uploader Functions
@@ -359,12 +392,6 @@ class Main extends React.Component {
       ...this.state.selectedPlace
     }
     this.handleEditPlace(e, formData)
-  }
-
-  setCurrImg = (index) => {
-    this.setState({
-      currImg: index,
-    })
   }
 
 
@@ -489,6 +516,7 @@ class Main extends React.Component {
             selectedCity={this.state.selectedCity}
             closestCity={this.state.closestCity}
             changeMapCenter={this.changeMapCenter}
+            onCityGalleryClick={this.cityGallery}
             />
 
             <Modal isOpen={this.state.galleryOpen} toggle={this.toggleGallery} size={"xl"}>
@@ -503,16 +531,20 @@ class Main extends React.Component {
             </Modal>
 
             <ImageViewer 
-            context={"Owner"}
+            context={this.props.context}
             isOpen={this.state.imageViewerOpen} 
             toggleViewer={this.toggleViewer}
             views={this.state.preparedImages}
             currentIndex={ this.state.currImg }
+            getCurrentIndex={this.getCurrentIndex}
             handleImageOverwrite={this.props.handleImageOverwrite}
             toggleEditor={this.toggleEditor}
+            editorOpen={this.state.editorOpen}
+            toggleEditor={this.toggleEditor}
+
             />
 
-            { this.state.editorOpen & this.props.username === this.props.user ?
+            {/* { this.state.editorOpen & this.props.username === this.props.user ?
             <ImgEditor 
             isOpen={this.state.editorOpen}
             toggleEditor={this.toggleEditor}
@@ -520,7 +552,7 @@ class Main extends React.Component {
             image={this.state.selectedCity ? this.state.selectedCity.images[this.state.currImg] : null}
             backendURL={this.props.backendURL}
             handleImageOverwrite={this.props.handleImageOverwrite}
-            /> : null}
+            /> : null} */}
 
             { this.state.editCityFormOpen  & this.props.username === this.props.user ? 
             <EditCity

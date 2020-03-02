@@ -14,20 +14,6 @@ import {
 import Autocomplete from './Autocomplete';
 import Select from 'react-select';
 
-export const colourOptions = [
-  { value: 'ocean', label: 'Ocean', color: '#00B8D9', isFixed: true },
-  { value: 'blue', label: 'Blue', color: '#0052CC', isDisabled: true },
-  { value: 'purple', label: 'Purple', color: '#5243AA' },
-  { value: 'red', label: 'Red', color: '#FF5630', isFixed: true },
-  { value: 'orange', label: 'Orange', color: '#FF8B00' },
-  { value: 'yellow', label: 'Yellow', color: '#FFC400' },
-  { value: 'green', label: 'Green', color: '#36B37E' },
-  { value: 'forest', label: 'Forest', color: '#00875A' },
-  { value: 'slate', label: 'Slate', color: '#253858' },
-  { value: 'silver', label: 'Silver', color: '#666666' },
-];
-
-
 const styles = {
   addIcon: {
     height: 40,
@@ -35,6 +21,8 @@ const styles = {
     cursor: 'pointer',
   }
 }
+
+const AUTOCOMPLETE_RADIUS = 50000
 
 class AddPlace extends React.Component {
   constructor(props) {
@@ -163,7 +151,6 @@ class AddPlace extends React.Component {
                 // isClearable={isClearable}
                 // isRtl={isRtl}
                 // isSearchable={isSearchable}
-                name="color"
                 options={options}
                 onChange={this.dropdownSelect}
                 />
@@ -174,7 +161,7 @@ class AddPlace extends React.Component {
                   value={this.state.place}
                   selectAutoSuggestCity={this.selectAutoSuggest}
                   context={"Place"}
-                  location={{lat: this.state.closestCity.latitude, lng: this.state.closestCity.longitude, radius: 50000}}
+                  location={{lat: this.state.closestCity.latitude, lng: this.state.closestCity.longitude, radius: AUTOCOMPLETE_RADIUS}}
                   value={this.state.name}
                   handleAutoCompleteChange={this.handleAutoCompleteChange}
                   selectAutoSuggestPlace={this.selectAutoSuggest}

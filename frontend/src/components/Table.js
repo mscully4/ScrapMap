@@ -186,7 +186,7 @@ class VirtualTable extends Component {
           /> : null 
         }
 
-        { this.props.context === "Owner" ?
+        { this.props.context === "Owner" && this.props.granularity === 0 ?
           <svg
           className={clsx(this.props.classes.addSVG)}
           viewBox="0 0 1024 1024"
@@ -208,63 +208,28 @@ class VirtualTable extends Component {
           </svg> : null
         }
 
-        <svg
+        { this.props.granularity === 1 ?
+          <svg
           className={clsx(this.props.classes.photoGallerySVG)}
           viewBox="0 0 512 512"
           version="1.1"
           xmlns="http://www.w3.org/2000/svg"
-          onClick={this.props.toggleGallery}
-          //value={"KILL"}
+          onClick={(e) => this.props.onCityGalleryClick(cellData.cellData, e)}
+          value={"KILL"}
           >
             <path
             d={photoGallery1}
             fill="#737373"
-            //value={"KILL"}
+            value={"KILL"}
             />
-        </svg> 
+          </svg> 
+          : null
+        }
       </div>
     )
   }
 
-
-  // renderCityTable = () => {
-  //   const WIDTH = window.innerWidth * .3;
-  //   //TODO Make this the height of the main component not the whole page
-  //   const HEIGHT = window.innerHeight;
-  //   const list = this.props.cities;
-  //   const HEADER_HEIGHT = 40;
-  //   return (
-  //     <Table
-  //       autoHeight
-  //       scrollTop={this.state.scrollTop}
-  //       width={WIDTH * .97}
-  //       height={HEIGHT}
-  //       headerHeight={HEADER_HEIGHT}
-  //       rowHeight={HEIGHT / 5}
-  //       rowCount={list.length}
-  //       rowGetter={({index}) => list[index]}
-  //       rowClassName={this.getRowClassName}
-  //       onRowMouseOver={(obj) => {
-  //         this.props.changeHoverIndexCity(obj.rowData.index);
-  //         this.props.changeMapCenter(obj.rowData);
-  //       }}
-  //       onRowMouseOut={(obj) => this.props.changeHoverIndexCity(null)}
-  //       onRowClick={this.props.tableRowClick}
-  //       >
-  //         <Column 
-  //         label="Destination" 
-  //         dataKey="destination" 
-  //         width={WIDTH - 5} 
-  //         cellRenderer={this.cellRenderer}
-  //         cellDataGetter={({dataKey, rowData}) => rowData}
-  //         //style={styles.tableRow}
-  //         />
-  //     </Table>
-  //   )
-  // }
-
   render = () => {
-    // console.log(this.props)
     const WIDTH = window.innerWidth * .3;
     //TODO Make this the height of the main component not the whole page
     const HEIGHT = window.innerHeight;
@@ -318,11 +283,6 @@ class VirtualTable extends Component {
     )
   }
 } 
-
-// const ellipsis = "M328 256c0 39.8-32.2 72-72 72s-72-32.2-72-72 32.2-72 72-72 72 32.2 72 72zm104-72c-39.8 0-72 32.2-72 72s32.2 72 72 72 72-32.2 72-72-32.2-72-72-72zm-352 0c-39.8 0-72 32.2-72 72s32.2 72 72 72 72-32.2 72-72-32.2-72-72-72z"
-
-// const Add1 ="M512 16C240 16 16 240 16 512s224 496 496 496 496-224 496-496S784 16 512 16z m0 960C256 976 48 768 48 512S256 48 512 48 976 256 976 512 768 976 512 976z"
-// const Add2 ="M736 480h-192V288c0-19.2-12.8-32-32-32s-32 12.8-32 32v192H288c-19.2 0-32 12.8-32 32s12.8 32 32 32h192v192c0 19.2 12.8 32 32 32s32-12.8 32-32v-192h192c19.2 0 32-12.8 32-32s-12.8-32-32-32z"
 
 export default withStyles(styles)(VirtualTable);
  

@@ -85,7 +85,7 @@ const styles = theme => ({
     opacity: .9,
     fontSize: 13,
     whiteSpace: "nowrap",
-    visibility: "hidden",
+   visibility: "hidden",
     zIndex: 99999,
     "&:after": {
       position: "absolute",
@@ -94,6 +94,7 @@ const styles = theme => ({
       height: 0,
 
       borderTopColor: "#fff",
+
       borderTopStyle: "Solid",
       borderTopWidth: "6px",
 
@@ -183,6 +184,7 @@ class Marker extends Component {
 
   render() {
     const scale = ((this.props.zoom - 4) / 10);
+
     return (
     
       <div 
@@ -192,7 +194,7 @@ class Marker extends Component {
       onClick={() => this.props.markerClick(this.props.data)}
       style={{
         top: -HEIGHT - (HEIGHT * scale),
-        left: (-WIDTH/2) - ((HEIGHT * scale)/2)
+        left: (-WIDTH/2) - ((WIDTH * scale)/2)
       }}
       >
         <svg
@@ -214,7 +216,7 @@ class Marker extends Component {
         </svg>
 
         <div 
-        style={{ left: (-this.state.tooltipWidth / 2) + 10, top: (-this.state.tooltipHeight / 2) - 35 }} 
+        style={{ left: (-this.state.tooltipWidth / 2) + 10 + (scale * 10), top: (-this.state.tooltipHeight / 2) - 35 - (scale * 5)}} 
         ref={this.ref} 
         className={clsx(this.props.classes.Tooltip, {[this.props.classes.TooltipShow]: this.props.hoverIndex === this.props.data.index} )}
         >

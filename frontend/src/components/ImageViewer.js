@@ -1,12 +1,10 @@
 import React, { Component } from 'react';
-import Carousel, { Modal, ModalGateway } from 'react-images';
+import Carousel, { Modal, ModalGateway, NavigationPrev} from 'react-images';
+import { ImgEditor} from '../components/ImageEditor';
+
 //import ImgsViewer from './react-images-viewer/ImgsViewer'
 //import { Modal } from 'reactstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-
-
-import { ImgEditor} from './ImageEditor';
-
 
 const theme = {
   headerDiv: {
@@ -53,38 +51,33 @@ export default class ImageViewer extends Component {
     super(props);
     this.state = {
       isOpen: false,
+      currentIndex: 0
     } 
   }
 
+  componentDidMount = () => {
+    this.props.getCurrentIndex(this.getCurrentIndex)
+  }
 
   onClose = (e) => {
     this.props.setImageViewerOpen(false);
   }
 
-  gotoNext = (e) => {
-    if (this.props.currImg === (this.state.imgs.length - 1)) return;
-      
-    this.props.setCurrImg(this.props.currImg + 1);
-      
-    if (e) {
-      e.preventDefault()
-    }
+  getCurrentIndex = () => {
+    return this.state.currentIndex
   }
 
-  gotoPrev = (e) => {
-    if (this.props.currImg === 0) return;
-      
-    this.props.setCurrImg(this.props.currImg - 1);
-
-    if (e) {
-      e.preventDefault()
+  CustomHeader = (props) => {
+    console.log(this.state.currentIndex)
+    if (this.state.currentIndex != props.currentIndex) {
+      this.setState({
+        currentIndex: props.currentIndex
+      })
     }
-  }
 
-  CustomHeader = ({ innerProps, isModal }) => {
     return (
     <div style={theme.headerDiv}>
-      { isModal ?  
+      { props.isModal ?  
       <span>
         <button role="button" value="boof" style={theme.closeButton} onClick={() => this.props.toggleViewer(false)}>
           <svg
@@ -97,7 +90,7 @@ export default class ImageViewer extends Component {
             <path d={closePath} />
           </svg>
         </button> 
-        { this.props.context === "Owner" ?
+        {/* { this.props.context === "Owner" ?
         <button role="button" style={theme.closeButton} onClick={() => {this.props.toggleViewer(false); this.props.toggleEditor(true)}}>
           <svg
           xmlns="http://www.w3.org/2000/svg"
@@ -106,14 +99,40 @@ export default class ImageViewer extends Component {
           style={theme.closeSVG}>
             <path d={editorPath} />
           </svg>
-        </button> : null }
+        </button> : null } */}
       </span>: null}
     </div>
     )
   }
 
+  // customNavigationPrev = props => {
+  //   // console.log(props)
+  //   return (
+  //   <svg
+  //   role="presentation"
+  //   className="CHORK"
+  //   viewBox="0 0 24 24"
+  //   style={{
+  //     // display: 'inline-block',
+  //     position: 'absolute',
+  //     height: 50,
+  //     width: 50,
+  //     marginTop: -25,
+  //     cursor: 'pointer',
+  //     fill: 'red',
+  //     stroke: 'red',
+  //     strokeWidth: 1,
+  //     top: '50%',
+  //   }}
+  //   {...props.innerProps}
+  //   >
+  //     <path d="M15.422 16.078l-1.406 1.406-6-6 6-6 1.406 1.406-4.594 4.594z" />
+  //   </svg>
+  //   )
+  // }
 
   render() {
+    // console.log(this.props.currentIndex)
     return (
       <ModalGateway>
         { this.props.isOpen ?
@@ -121,6 +140,18 @@ export default class ImageViewer extends Component {
           <Carousel views={this.props.views} currentIndex={this.props.currentIndex} components={{ Header: this.CustomHeader }}/>
         </Modal>
         : null }
+        
+        
+        {/* { this.props.editorOpen ?
+          <ImgEditor 
+          isOpen={this.props.editorOpen}
+          toggleEditor={this.props.toggleEditor}
+          //TODO implement default props here/use the load from url in the image editor
+          image={this.props.views[this.state.currentIndex]}
+          backendURL={this.props.backendURL}
+          handleImageOverwrite={this.props.handleImageOverwrite}
+          /> : null} */}
+        
       </ModalGateway>
     )
   }

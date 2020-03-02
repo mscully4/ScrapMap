@@ -68,6 +68,7 @@ export class ImgEditor extends React.Component {
   }
 
   render = () => {
+    console.log(this.props)
     return (
     // if (this.state.showLoader) {
     //   return (
@@ -88,7 +89,7 @@ export class ImgEditor extends React.Component {
           ref={(input) => {this.imageEditor = input}}
           includeUI={{
             loadImage: {
-              path: this.props.image ? this.props.backendURL + this.props.image.src : null,
+              path: this.props.image.src,
               name: 'SampleImage'
             },
             theme: myTheme,
@@ -97,7 +98,7 @@ export class ImgEditor extends React.Component {
             //initMenu: 'crop',
             uiSize: {
               width: '100%',
-              height: '700px'
+              height: '850px'
             },
             menuBarPosition: 'bottom'
           }}

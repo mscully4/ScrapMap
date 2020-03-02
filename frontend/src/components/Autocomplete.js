@@ -95,17 +95,18 @@ class AutoComplete extends React.Component {
   onSelectPlace = (obj, selection) => {
     console.log(selection)
     const place_id = selection.place_id
-
     const name = selection.terms[0].value
     //const street = selection.terms[1].value
-    const city = selection.terms[2].value
-    const state = selection.terms.length  > 4 && selection.terms[4].value === "USA" ? selection.terms[3].value : null
-    const country = selection.terms.length > 4 && selection.terms[4].value === "USA" ? selection.terms[4].value : selection.terms[3].value
+    // const city = selection.terms[2].value
+    // const state = selection.terms.length  > 4 && selection.terms[4].value === "USA" ? selection.terms[3].value : null
+    // const country = selection.terms.length > 4 && selection.terms[4].value === "USA" ? selection.terms[4].value : selection.terms[3].value
     geocodeByPlaceId(place_id).then(data => {
-      var street_number, street_, county_, city_, state_, zip_, sublocality_, country_;
+      var establishment, street_number, street_, county_, city_, state_, zip_, sublocality_, country_;
+      console.log(data)
       data[0].address_components.forEach(element => {
-        console.log(element)
-        if (element.types.includes("street_number")) street_number = element.long_name;
+        // console.log(element)
+        if (element.types.includes('establishment')) establishment = element.long_name;
+        else if (element.types.includes("street_number")) street_number = element.long_name;
         else if (element.types.includes("route")) street_ = element.long_name;
         else if (element.types.includes("sublocality")) sublocality_ = element.long_name;
         else if (element.types.includes("locality")) city_ = element.long_name;
@@ -115,14 +116,16 @@ class AutoComplete extends React.Component {
         else if (element.types.includes("postal_code")) zip_ = element.long_name;
       }); 
       //TODO need to make the appropriate data model changes and then swap these out
-      console.log(street_number, street_, county_, city_, state_, zip_, sublocality_, country_)
+      console.log(name, establishment, street_number, street_, county_, city_, state_, zip_, sublocality_, country_)
       const number = data[0].address_components[0].long_name
       const street = data[0].address_components[1].long_name
       const neighborhood = data[0].address_components[2].long_name
       const latitude = parseFloat(data[0].geometry.location.lat().toFixed(4));
       const longitude = parseFloat(data[0].geometry.location.lng().toFixed(4));
+      const placeId = data[0].placeId
+      const types = data[0].types
       // console.log(name, street, city, state, country, street_number, street2, neighborhood, latitude, longitude)
-      this.props.selectAutoSuggestPlace({name, street, city, state, country, number, neighborhood, latitude, longitude})
+      this.props.selectAutoSuggestPlace({name, street, city_, state_, country_, number, neighborhood, latitude, longitude})
     })
   }
 
