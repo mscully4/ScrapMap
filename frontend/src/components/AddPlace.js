@@ -27,22 +27,25 @@ const AUTOCOMPLETE_RADIUS = 50000
 class AddPlace extends React.Component {
   constructor(props) {
       super(props);
-      console.log(props)
       this.state = {
         closestCity: this.props.default,
 
         modalAdd: false,
         
         name: "",
-        number: "",
-        street: "",
-        neighborhood: "",
+        address: "",
         city: "",
+        county: null,
         state: null,
         country: "", 
-
+        zip: "",
         latitude: null, 
         longitude: null,
+        types: null,
+        placeId: "",
+        
+        pictureNames: [],
+        pictures: [],
 
         pictures: [],
         pictureNames: [],
@@ -52,7 +55,8 @@ class AddPlace extends React.Component {
   dropdownSelect = obj => {
     this.setState({
       closestCity: obj
-    }, () => console.log(this.state.closestCity))
+    })
+    this.clear()
   }
 
   handleChange = e => {
@@ -99,21 +103,22 @@ class AddPlace extends React.Component {
   selectAutoSuggest = (obj) => {
     this.setState({
       ...obj
-    }, () => console.log(this.state))
+    })
   }
 
   clear = () => {
     this.setState({
       name: "",
-      number: "",
-      street: "",
-      neighborhood: "",
+      address: "",
       city: "",
-      state: null,
+      county: null,
+      state: "",
       country: "", 
-
-      latitude: null, 
-      longitude: null,
+      zip: "",
+      latitude: "", 
+      longitude: "",
+      types: null,
+      placeId: "",
       
       pictureNames: [],
       pictures: [],
@@ -169,63 +174,83 @@ class AddPlace extends React.Component {
                 />
                 <br />
                 <Input
-                   type="text"
-                   name="number"
-                   placeholder="Number"
-                   value={this.state.number}
-                   onChange={this.handleChange}
-                   // disabled={this.state.disabled}
-                   // autoComplete={"new-password"}
+                  type="text"
+                  name="address"
+                  placeholder="Number"
+                  value={this.state.address}
+                  onChange={this.handleChange}
+                  // disabled={this.state.disabled}
+                  // autoComplete={"new-password"}
                  />
                 <br />
                 <Input 
-                   type="text"
-                   name="street"
-                   placeholder="Street"
-                   value={this.state.street}
-                   onChange={this.handleChange}
-                   //disabled={this.state.disabled}
-                   //autoComplete={"new-password"}
+                  type="text"
+                  name="city"
+                  placeholder="City"
+                  value={this.state.city}
+                  onChange={this.handleChange}
+                  //disabled={this.state.disabled}
+                  //autoComplete={"new-password"}
+                 />
+                {/* <br />
+                <Input 
+                  type="text"
+                  name="county"
+                  placeholder="County"
+                  value={this.state.county}
+                  onChange={this.handleChange}
+                  //disabled={this.state.disabled}
+                  //autoComplete={"new-password"}
+                 /> */}
+                <br />
+                <Input 
+                  type="text"
+                  name="state"
+                  placeholder="State"
+                  value={this.state.state}
+                  onChange={this.handleChange}
+                  //disabled={this.state.disabled}
+                  //autoComplete={"new-password"}
+                 />
+                <br />
+                <Input 
+                  type="text"
+                  name="country"
+                  placeholder="Country"
+                  value={this.state.country}
+                  onChange={this.handleChange}
+                  //disabled={this.state.disabled}
+                  //autoComplete={"new-password"}
+                 />
+                <br />
+                <Input 
+                  type="text"
+                  name="zip"
+                  placeholder="Zip Code"
+                  value={this.state.zip}
+                  onChange={this.handleChange}
+                  //disabled={this.state.disabled}
+                  //autoComplete={"new-password"}
+                 />
+                <br />
+                <Input 
+                  type="text"
+                  name="latitude"
+                  placeholder="Latitude"
+                  value={this.state.latitude}
+                  onChange={this.handleChange}
+                  //disabled={this.state.disabled}
+                  //autoComplete={"new-password"}
                  />
                  <br />
                 <Input 
-                   type="text"
-                   name="city"
-                   placeholder="City"
-                   value={this.state.city}
-                   onChange={this.handleChange}
-                   //disabled={this.state.disabled}
-                   //autoComplete={"new-password"}
-                 />
-                 <br />
-                <Input 
-                   type="text"
-                   name="state"
-                   placeholder="State"
-                   value={this.state.state}
-                   onChange={this.handleChange}
-                   //disabled={this.state.disabled}
-                   //autoComplete={"new-password"}
-                 />
-                 <br />
-                <Input 
-                   type="text"
-                   name="latitude"
-                   placeholder="Latitude"
-                   value={this.state.latitude}
-                   onChange={this.handleChange}
-                   //disabled={this.state.disabled}
-                   //autoComplete={"new-password"}
-                 />
-                 <br />
-                <Input 
-                   type="text"
-                   name="longitude"
-                   placeholder="Longitude"
-                   value={this.state.longitude}
-                   onChange={this.handleChange}
-                   //disabled={this.state.disabled}
-                   //autoComplete={"new-password"}
+                  type="text"
+                  name="longitude"
+                  placeholder="Longitude"
+                  value={this.state.longitude}
+                  onChange={this.handleChange}
+                  //disabled={this.state.disabled}
+                  //autoComplete={"new-password"}
                  />
               </Form>
             </ModalBody>

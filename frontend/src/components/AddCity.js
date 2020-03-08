@@ -140,7 +140,7 @@ class AddCity extends React.Component {
                     disabled={this.state.disabled}
                     autoComplete={"new-password"}
                   />
-                  <br />
+                  {/* <br />
                   <Input
                     type="text"
                     name="countryCode"
@@ -149,7 +149,7 @@ class AddCity extends React.Component {
                     onChange={this.handleChange}
                     disabled={this.state.disabled}
                     autoComplete={"new-password"}
-                  />
+                  /> */}
                   <br />
                   <Input 
                     type="text"

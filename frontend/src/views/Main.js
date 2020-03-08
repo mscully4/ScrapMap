@@ -20,8 +20,7 @@ import { Add1, Add2 } from '../utils/SVGs';
 import { getDistanceBetweenTwoPoints } from '../utils/Formulas.js';
 import {fetchCurrentUser, fetchToken, putNewUser, postNewCity, putEditCity, deleteCity, deletePlace, getUser, postNewPlace, putEditPlace } from "../utils/fetchUtils" 
 
-
-
+const DEFAULT_CENTER = {lat: 33.7490, lng: -84.3880}
 
 const styles = theme => ({
   main: {
@@ -56,20 +55,19 @@ class Main extends React.Component {
       selectedPlace: null,
       hoverIndexCity: null,
       hoverIndexPlace: null,
-      closestCity: null,
-      closestCityDistance: null,
       //View Info
       viewUser: this.props.viewUser,
       viewCities: Boolean(this.props.viewUser) === false || this.props.loggedInUser === this.props.viewUser ? this.props.loggedInCities : [],
       viewPlaces: Boolean(this.props.viewUser) === false || this.props.loggedInUser === this.props.viewUser ? this.props.loggedInPlaces : [],
       //Map
       //TODO handle the possibility of no cities
-      granularity: 0,
+      granularity: 1,
       mapZoom: 4,
       mapCenter: {
-        lat: this.props.loggedInCities[0].latitude, 
-        lng: this.props.loggedInCities[0].longitude
+        lat: this.props.loggedInCities.length > 0 ? this.props.loggedInCities[0].latitude : DEFAULT_CENTER.lat, 
+        lng: this.props.loggedInCities.length > 0 ? this.props.loggedInCities[0].longitude : DEFAULT_CENTER.lng,
       },
+      closestCity: null,
       //Gallery
       galleryOpen: false,
       preparedImages: [],
@@ -99,13 +97,13 @@ class Main extends React.Component {
     if (Boolean(this.props.viewUser) === true && this.props.loggedInUser !== this.props.viewUser) {
       //load user info
       getUser(localStorage.getItem("token"), this.props.viewUser).then(data => {
-        //update state with the data, and allow rendering of child components
-        console.log({latitude: data[0].latitude, longitude: data[0].longitude})
-        this.changeMapCenter(data.length > 0 ? {latitude: data[0].latitude, longitude: data[0].longitude} : this.state.mapCenter)
-        console.log(this.state)
+        //update state with the data, and allow rendering of child components, change map center to first city
+        this.changeMapCenter(data.length > 0 ? {latitude: data[0].latitude, longitude: data[0].longitude} : DEFAULT_CENTER)
+        const cities = data.map((el, i) => { return {...el, index: i}})
         this.setState({
-          viewCities: data.map((el, i) => { return {...el, index: i}}),
+          viewCities: cities,
           viewPlaces: this.props.compilePlaces(data),
+          closestCity: this.getClosestCity(cities, this.state.mapCenter.lat, this.state.mapCenter.lng),
           ready: true,
         })
       })
@@ -113,7 +111,7 @@ class Main extends React.Component {
     //If no data needs to be loaded, allow rendering on children immediately 
     else {
       this.setState({
-        ready: true,
+        closestCity: this.getClosestCity(this.state.viewCities, this.state.mapCenter.lat, this.state.mapCenter.lng)
       })
     }
   }
@@ -154,7 +152,7 @@ class Main extends React.Component {
     if (this.props.loggedIn) {
       postNewPlace(localStorage.getItem('token'), payload)
       .then(res => {
-        const place = {...res, index: this.state.viewPlaces.length};
+        // const place = {...res, index: this.state.viewPlaces.length};
         this.setState({
           viewPlaces: this.state.viewPlaces.concat([{...res, index: this.state.viewPlaces.length}]),
           viewCities: this.state.viewCities.map(obj => obj.pk === res.destination ? {...obj, places: obj.places.concat([res]) } : obj)
@@ -230,11 +228,12 @@ class Main extends React.Component {
     })
   }
 
-  getClosestCity = (centerLat, centerLong) => {
+  getClosestCity = (cities, centerLat, centerLong) => {
     var lowest = 99999999, lowestIndex = null, distance
+    console.log(cities, centerLat, centerLong)
 
-    if (this.state.viewCities.length > 0)
-    this.state.viewCities.forEach((obj, i) => {
+    if (cities.length > 0)
+    cities.forEach((obj, i) => {
       distance = getDistanceBetweenTwoPoints(centerLat, centerLong, obj.latitude, obj.longitude);
       if (distance < lowest) {
         lowest = distance;
@@ -242,9 +241,8 @@ class Main extends React.Component {
       }
     })
 
-    this.setState({
-      closestCity: {...this.state.viewCities[lowestIndex], distanceFromMapCenter: lowest}
-    })
+
+    return {...cities[lowestIndex], distanceFromMapCenter: lowest}
   }
 
   //Map Functions
@@ -266,7 +264,6 @@ class Main extends React.Component {
 
   //TODO on city marker click zoom into city, on place marker click show gallery
   onMarkerClick = (obj) => {
-    console.log(obj)
     if (this.state.granularity === 1) {
       this.changeMapCenter(obj)
       this.setState({
@@ -299,6 +296,7 @@ class Main extends React.Component {
   tableRowClick = (obj, e) => {
 
     if (this.state.granularity === 1) {
+      // this.changeMapCenter(obj.rowData)
       this.setState({
         selectedCity: obj.rowData,
         mapZoom: obj.event.target.getAttribute("value") !== "KILL" ? 12 : this.state.mapZoom,
@@ -440,6 +438,7 @@ class Main extends React.Component {
   }
 
   render() {
+    console.log(this.state.ready, this.state.closestCity)
     if (this.state.ready) {
       return (
         <React.Fragment>
@@ -485,13 +484,13 @@ class Main extends React.Component {
             zoom={this.state.mapZoom}
             cities={this.state.viewCities}
             places={this.state.viewPlaces}
-            //These can be condensed into one each
+            //TODO These can be condensed into one each
             hoverIndexCity={this.state.hoverIndexCity}
             changeHoverIndexCity={this.changeHoverIndexCity}
             hoverIndexPlace={this.state.hoverIndexPlace}
             changeHoverIndexPlace={this.changeHoverIndexPlace}
             getClosestCity={this.getClosestCity}
-            //Need two marker click functions, one for place and one for city
+            //TODO Need two marker click functions, one for place and one for city
             markerClick={this.onMarkerClick}
             granularity={this.state.granularity}
             changeMapCenter={this.changeMapCenter}

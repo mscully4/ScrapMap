@@ -65,8 +65,7 @@ const styles = theme => ({
     height: 25,
     width: 30,
     top: 10,
-    right: 10
-
+    right: 10,
   }
 })
 
@@ -165,7 +164,13 @@ class VirtualTable extends Component {
   cellRenderer = (cellData) => {
     const classes = this.props.classes;
     const granularity = this.props.granularity
-    // console.log(cellData.rowData.city)
+
+    var greyOutGalleryIcon = true;
+    if (this.props.granularity == 1) {
+      cellData.rowData.places.forEach(element => {
+        if (element.images.length > 0) greyOutGalleryIcon = false
+      });
+    }
     //TODO Find a better way to pick an image, maybe based on size
     return (
       <div className={granularity ? clsx(classes.cell) : null}>
@@ -208,18 +213,18 @@ class VirtualTable extends Component {
           </svg> : null
         }
 
-        { this.props.granularity === 1 ?
+        { this.props.granularity == 1 ?
           <svg
           className={clsx(this.props.classes.photoGallerySVG)}
           viewBox="0 0 512 512"
           version="1.1"
           xmlns="http://www.w3.org/2000/svg"
-          onClick={(e) => this.props.onCityGalleryClick(cellData.cellData, e)}
+          onClick={(e) => { if (!greyOutGalleryIcon) this.props.onCityGalleryClick(cellData.cellData, e)}}
           value={"KILL"}
           >
             <path
             d={photoGallery1}
-            fill="#737373"
+            fill={greyOutGalleryIcon ? "#bbb" : "#222"}
             value={"KILL"}
             />
           </svg> 
@@ -233,16 +238,16 @@ class VirtualTable extends Component {
     const WIDTH = window.innerWidth * .3;
     //TODO Make this the height of the main component not the whole page
     const HEIGHT = window.innerHeight;
-    //TODO add some sort of ready variable to prevent rendering too early
-    const cities = this.props.cities;
+    // console.log(this.props.closestCity)
     let places = this.props.places
     if (this.props.selectedCity) {
       places = places.filter((val) => val.destination === this.props.selectedCity.pk ? true : false)
     }
 
-    const list = this.props.granularity ? cities : places;
+    const list = this.props.granularity ? this.props.cities : places;
 
     const HEADER_HEIGHT = 40;
+    // console.log(this.props.closestCity, this.props.closestCityDistance)
 
     return (
       <div>
@@ -265,8 +270,12 @@ class VirtualTable extends Component {
             this.props.changeHoverIndex(obj.rowData.index);
             this.props.changeMapCenter(obj.rowData);
           }}
-          onRowMouseOut={(obj) => this.props.changeHoverIndex(null)}
-          onRowClick={this.props.tableRowClick}
+          onRowMouseOut={() => this.props.changeHoverIndex(null)}
+          onRowClick={(obj, e) => {
+            this.props.tableRowClick(obj, e)
+            this.props.changeMapCenter(obj.rowData);
+
+          }}
           >
             <Column 
             label="Destination" 

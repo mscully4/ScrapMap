@@ -93,79 +93,56 @@ class AutoComplete extends React.Component {
 
 
   onSelectPlace = (obj, selection) => {
-    console.log(selection)
     const place_id = selection.place_id
     const name = selection.terms[0].value
-    //const street = selection.terms[1].value
-    // const city = selection.terms[2].value
-    // const state = selection.terms.length  > 4 && selection.terms[4].value === "USA" ? selection.terms[3].value : null
-    // const country = selection.terms.length > 4 && selection.terms[4].value === "USA" ? selection.terms[4].value : selection.terms[3].value
     geocodeByPlaceId(place_id).then(data => {
-      var establishment, street_number, street_, county_, city_, state_, zip_, sublocality_, country_;
-      console.log(data)
+      var street_number, street, county, city, state, zip, sublocality, country, address;
       data[0].address_components.forEach(element => {
-        // console.log(element)
-        if (element.types.includes('establishment')) establishment = element.long_name;
-        else if (element.types.includes("street_number")) street_number = element.long_name;
-        else if (element.types.includes("route")) street_ = element.long_name;
-        else if (element.types.includes("sublocality")) sublocality_ = element.long_name;
-        else if (element.types.includes("locality")) city_ = element.long_name;
-        else if (element.types.includes( "administrative_area_level_1")) county_ = element.long_name;
-        else if (element.types.includes( "administrative_area_level_2")) state_ = element.long_name
-        else if (element.types.includes("country")) country_ = element.long_name;
-        else if (element.types.includes("postal_code")) zip_ = element.long_name;
+        if (element.types.includes("street_number")) street_number = element.long_name;
+        else if (element.types.includes("route")) street = element.long_name;
+        else if (element.types.includes("sublocality")) county = element.long_name;
+        else if (element.types.includes("locality")) city = element.long_name;
+        else if (element.types.includes( "administrative_area_level_1")) state = element.long_name;
+        else if (element.types.includes( "administrative_area_level_2")) county = element.long_name
+        else if (element.types.includes("country")) country = element.long_name;
+        else if (element.types.includes("postal_code")) zip = element.long_name;
       }); 
       //TODO need to make the appropriate data model changes and then swap these out
-      console.log(name, establishment, street_number, street_, county_, city_, state_, zip_, sublocality_, country_)
-      const number = data[0].address_components[0].long_name
-      const street = data[0].address_components[1].long_name
-      const neighborhood = data[0].address_components[2].long_name
       const latitude = parseFloat(data[0].geometry.location.lat().toFixed(4));
       const longitude = parseFloat(data[0].geometry.location.lng().toFixed(4));
       const placeId = data[0].placeId
-      const types = data[0].types
-      // console.log(name, street, city, state, country, street_number, street2, neighborhood, latitude, longitude)
-      this.props.selectAutoSuggestPlace({name, street, city_, state_, country_, number, neighborhood, latitude, longitude})
+      const types = data[0].types.join(",")
+      console.log(types)
+      address = street_number + " " + street
+      console.log(street_number, street)
+      this.props.selectAutoSuggestPlace({name, address, city, state, country, county, zip, types, placeId, latitude, longitude})
     })
   }
 
   render = () => {
-    const options = [
-      { value: 'ocean', label: 'Ocean', color: '#00B8D9', isFixed: true },
-      { value: 'blue', label: 'Blue', color: '#0052CC', isDisabled: true },
-      { value: 'purple', label: 'Purple', color: '#5243AA' },
-      { value: 'red', label: 'Red', color: '#FF5630', isFixed: true },
-      { value: 'orange', label: 'Orange', color: '#FF8B00' },
-    ];
     return (
-      <div>
-            <ReactAutocomplete
-          // items={[
-          //   { label: 'foo' },
-          //   { label: 'bar' },
-          //   { label: 'baz' },
-          // ]}
-          items={this.state.suggestions}
-          //shouldItemRender={(item, value) => item.label.toLowerCase().indexOf(value.toLowerCase()) > -1}
-          getItemValue={item => item.description}
-          renderItem={(item, highlighted) =>
-            <div
-              key={item.id}
-              style={{ backgroundColor: highlighted ? '#eee' : 'transparent'}}
-            >
-              {item.description}
-            </div>
-          }
-          name={"value"}
-          value={this.props.value}
-          onChange={this.handleChange}
-          onSelect={(value, obj) => this.props.context === "City" ? this.onSelectCity(value, obj) : this.onSelectPlace(value, obj)}
-          renderInput={(props) => {
-            const {ref, ...rest} = props;
-            return <Input {...rest} innerRef={ref}/>
-          }}
-        />
-      </div>
+      <ReactAutocomplete
+      items={this.state.suggestions}
+      //shouldItemRender={(item, value) => item.label.toLowerCase().indexOf(value.toLowerCase()) > -1}
+      getItemValue={item => item.description}
+      renderItem={(item, highlighted) =>
+        <div
+        key={item.id}
+        style={{ backgroundColor: highlighted ? '#eee' : 'transparent'}}
+        >
+          {item.description}
+        </div>
+      }
+      name={"value"}
+      value={this.props.value}
+      onChange={this.handleChange}
+      onSelect={(value, obj) => this.props.context === "City" ? this.onSelectCity(value, obj) : this.onSelectPlace(value, obj)}
+      renderInput={(props) => {
+        const {ref, ...rest} = props;
+        return <Input {...rest} innerRef={ref} placeholder={"Name"}/>
+      }}
+      wrapperProps={{style: {width: '100%'}}}
+      />
     )}
   }
   
