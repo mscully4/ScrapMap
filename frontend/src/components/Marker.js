@@ -172,6 +172,7 @@ class Marker extends Component {
     this.setState({
       hover: true,
     })
+    console.log("BOOF")
     this.props.changeHoverIndex(this.props.data.index)
   }
 

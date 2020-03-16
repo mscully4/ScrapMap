@@ -56,9 +56,10 @@ const styles = theme => ({
   addSVG: {
     position: 'absolute',
     top: 10,
-    right: 50,
+    right: 10,
     height: 25,
-    width: 25
+    width: 25,
+    stroke: "#000000"
   },
   photoGallerySVG: {
     position: 'absolute',
@@ -95,7 +96,6 @@ class VirtualTable extends Component {
   getRowClassName = ({index}) => {
     //console.log(this.props.hoverIndex, index)
     const classes = this.props.classes;
-    const hoverIndex = this.props.granularity ? this.props.hoverIndexCity : this.props.hoverIndex
     return clsx({[classes.tableRow]: index !== -1}, 
       {[classes.tableRowHover]: index === this.props.hoverIndex}, 
       {[classes.white]: index % 2 === 0}, 
@@ -202,12 +202,10 @@ class VirtualTable extends Component {
           >
             <path
             d={Add1}
-            fill="#737373"
             value={"KILL"}
             />
             <path
             d={Add2}
-            fill="#737373"
             value={"KILL"}
             />
           </svg> : null
@@ -239,15 +237,9 @@ class VirtualTable extends Component {
     //TODO Make this the height of the main component not the whole page
     const HEIGHT = window.innerHeight;
     // console.log(this.props.closestCity)
-    let places = this.props.places
-    if (this.props.selectedCity) {
-      places = places.filter((val) => val.destination === this.props.selectedCity.pk ? true : false)
-    }
-
-    const list = this.props.granularity ? this.props.cities : places;
+    const list = this.props.granularity ? this.props.cities : this.props.closestCity.distanceFromMapCenter <= 20 ? this.props.places.filter((val) => val.destination === this.props.selectedCity.pk ? true : false) : [];
 
     const HEADER_HEIGHT = 40;
-    // console.log(this.props.closestCity, this.props.closestCityDistance)
 
     return (
       <div>

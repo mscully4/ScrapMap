@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useCallback} from 'react';
 import ReactDOM from 'react-dom';
 import PropTypes from 'prop-types';
 import {
@@ -13,6 +13,7 @@ import {
 } from 'reactstrap';
 import Autocomplete from './Autocomplete';
 import Select from 'react-select';
+import MyDropzone from './Dropzone';
 
 const styles = {
   addIcon: {
@@ -22,7 +23,7 @@ const styles = {
   }
 }
 
-const AUTOCOMPLETE_RADIUS = 50000
+const AUTOCOMPLETE_RADIUS = 500000
 
 class AddPlace extends React.Component {
   constructor(props) {
@@ -252,6 +253,8 @@ class AddPlace extends React.Component {
                   //disabled={this.state.disabled}
                   //autoComplete={"new-password"}
                  />
+                 <br />
+                 <MyDropzone />
               </Form>
             </ModalBody>
           <ModalFooter>

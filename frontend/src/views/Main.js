@@ -98,20 +98,23 @@ class Main extends React.Component {
       //load user info
       getUser(localStorage.getItem("token"), this.props.viewUser).then(data => {
         //update state with the data, and allow rendering of child components, change map center to first city
-        this.changeMapCenter(data.length > 0 ? {latitude: data[0].latitude, longitude: data[0].longitude} : DEFAULT_CENTER)
+        const mapCenter = data.length > 0 ? {latitude: data[0].latitude, longitude: data[0].longitude} : DEFAULT_CENTER;
         const cities = data.map((el, i) => { return {...el, index: i}})
+        this.changeMapCenter(mapCenter)
         this.setState({
           viewCities: cities,
           viewPlaces: this.props.compilePlaces(data),
-          closestCity: this.getClosestCity(cities, this.state.mapCenter.lat, this.state.mapCenter.lng),
+          closestCity: this.getClosestCity(cities, mapCenter.lat, mapCenter.lng),
           ready: true,
         })
       })
     }
     //If no data needs to be loaded, allow rendering on children immediately 
     else {
+      console.log(this.state.viewPlaces)
       this.setState({
-        closestCity: this.getClosestCity(this.state.viewCities, this.state.mapCenter.lat, this.state.mapCenter.lng)
+        closestCity: this.getClosestCity(this.state.viewCities, this.state.mapCenter.lat, this.state.mapCenter.lng),
+        ready: true
       })
     }
   }
@@ -136,18 +139,20 @@ class Main extends React.Component {
 
   handleAddPlace = (e, data) => {
     e.preventDefault()
+    console.log(data)
     const payload = 
       {
         destination: data.closestCity.pk,
         name: data.name,
-        number: data.number,
-        street: data.street,
-        neighborhood: data.neighborhood,
+        address: data.address,
         city: data.closestCity.city,
+        county: data.county,
         state: data.state,
         country: data.country,
         latitude: data.latitude,
-        longitude: data.longitude
+        longitude: data.longitude,
+        types: data.types,
+        placeId: data.placeId
       }
     if (this.props.loggedIn) {
       postNewPlace(localStorage.getItem('token'), payload)
@@ -230,7 +235,6 @@ class Main extends React.Component {
 
   getClosestCity = (cities, centerLat, centerLong) => {
     var lowest = 99999999, lowestIndex = null, distance
-    console.log(cities, centerLat, centerLong)
 
     if (cities.length > 0)
     cities.forEach((obj, i) => {
@@ -241,8 +245,13 @@ class Main extends React.Component {
       }
     })
 
-
     return {...cities[lowestIndex], distanceFromMapCenter: lowest}
+  }
+
+  setClosestCity = (city) => {
+    this.setState({
+      closestCity: city
+    })
   }
 
   //Map Functions
@@ -438,7 +447,6 @@ class Main extends React.Component {
   }
 
   render() {
-    console.log(this.state.ready, this.state.closestCity)
     if (this.state.ready) {
       return (
         <React.Fragment>
@@ -490,6 +498,7 @@ class Main extends React.Component {
             hoverIndexPlace={this.state.hoverIndexPlace}
             changeHoverIndexPlace={this.changeHoverIndexPlace}
             getClosestCity={this.getClosestCity}
+            setClosestCity={this.setClosestCity}
             //TODO Need two marker click functions, one for place and one for city
             markerClick={this.onMarkerClick}
             granularity={this.state.granularity}
@@ -510,7 +519,6 @@ class Main extends React.Component {
             handleDeleteCity={this.handleDeleteCity}
             handleDeletePlace={this.handleDeletePlace}
             toggleUploader={this.toggleUploader}
-            toggleGallery={this.toggleGallery}
             granularity={this.state.granularity}
             selectedCity={this.state.selectedCity}
             closestCity={this.state.closestCity}
@@ -520,17 +528,13 @@ class Main extends React.Component {
 
             <Modal isOpen={this.state.galleryOpen} toggle={this.toggleGallery} size={"xl"}>
               <Gallery 
-              // photos={this.state.granularity === 1 && this.state.selectedCity ? 
-              //   this.prepareImageURLs(this.state.selectedCity) : this.state.selectedPlace ?
-              //   this.prepareImageURLs(this.state.selectedPlace) : []
-              // } 
               photos={this.state.preparedImages}
               onClick={this.galleryOnClick}
               />
             </Modal>
 
             <ImageViewer 
-            context={this.props.context}
+            // context={this.props.context}
             isOpen={this.state.imageViewerOpen} 
             toggleViewer={this.toggleViewer}
             views={this.state.preparedImages}

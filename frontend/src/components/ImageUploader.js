@@ -4,24 +4,28 @@ import clsx from 'clsx';
 import { withStyles } from '@material-ui/styles'
 import { Button } from 'reactstrap'
 import { closePath } from '../utils/SVGs'
+import MyDropzone from './Dropzone';
+
 
 const styles = theme => ({
   imageUploaderPopUp: {
     position: 'fixed',
-    bottom: 0,
-    right: 0,
+    bottom: 25,
+    right: 25,
     height: 500,
     width: 500,
     backgroundColor: '#fff',
     display: 'grid',
     gridTemplateColumns: '1fr',
-    gridTemplateRows: '1fr 5fr'
+    gridTemplateRows: '50px auto',
+    boxShadow: "0 10px 10px 5px #777",
+    border: "2px solid #777"
     // display: 'grid',
     // gridTemplateRows: '1fr 1fr 1fr',
     // gridTemplateColumns: '1fr',
   },
   imageUploaderHeader: {
-    backgroundColor: '#262626'
+    backgroundColor: '#262626',
   },
   imageUploaderHeaderClose: {
     height: '100%',
@@ -58,7 +62,7 @@ const styles = theme => ({
     }
   },
   button: {
-    height: '40%',
+    height: '60%',
     width: '80%',
     margin: 'auto',
   },
@@ -100,6 +104,10 @@ class ImageUploader extends React.Component {
     })
   }
 
+  onDrop = (obj) => {
+    console.log(obj)
+  }
+
   onCloseClick = (e) => {
     this.props.toggle(null)
   }
@@ -123,7 +131,7 @@ class ImageUploader extends React.Component {
             </svg>
         </div>
         <div className={clsx(classes.imageUploaderDiv)}>
-          <ReactImageUploader
+          {/* <ReactImageUploader
           className={clsx(classes.imageUploader)}
           withIcon={true}
           buttonText='Choose images'
@@ -140,7 +148,8 @@ class ImageUploader extends React.Component {
             </div>
           }
           fileTypeError={"Unsupported File Type"}
-          />
+          /> */}
+          <MyDropzone onDrop={this.onDrop}/>
           <Button className={classes.button} onClick={(e) => this.props.handleImageSubmit(e, this.state)}>Submit</Button>
         </div>
       

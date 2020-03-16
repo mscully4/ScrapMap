@@ -41,9 +41,8 @@ class Map extends Component {
 
     this.state = {
       apiKey: "AIzaSyBpXqyXMWAbXFs6XCxkMUFX09ZuHzjpKHU",
-      center: {lat: 33.50944048976028, lng: -66.89530611907757},
       zoom: 4,
-      map: null
+      center: null,
     }
 
     this.mapRef = React.createRef();
@@ -75,7 +74,7 @@ class Map extends Component {
     // this.props.onCenterChange(center)
     // this.props.onZoomChange(zoom)
     this.props.changeMapCenter({latitude: center.lat, longitude: center.lng}  )
-    this.props.getClosestCity(this.props.cities, center.lat, center.lng)
+    this.props.setClosestCity(this.props.getClosestCity(this.props.cities, center.lat, center.lng))
   }
 
   // handleApiLoaded(map, maps) {
@@ -105,48 +104,35 @@ class Map extends Component {
   }
 
   createMarkers = (granularity) => {
-    // if (granularity && this.props.cities) {
-    //   return this.props.cities.map(data => 
-    //     <Marker
-    //     key={data.pk}
-    //     lat={data.latitude}
-    //     lng={data.longitude}
-    //     data={data}
-    //     changeHoverIndex={this.props.changeHoverIndexCity}
-    //     hoverIndex={this.props.hoverIndexCity}
-    //     markerClick={this.props.markerClick}
-    //     zoom={this.props.zoom}
-    //     granularity={this.props.granularity}
-    //   />
-    //   )
-    // } else if (!granularity && this.props.places) {
-    //   return this.props.places.map(data => 
-    //     <Marker
-    //     key={data.pk}
-    //     lat={data.latitude}
-    //     lng={data.longitude}
-    //     data={data}
-    //     changeHoverIndex={this.props.changeHoverIndexPlace}
-    //     hoverIndex={this.props.hoverIndexPlace}
-    //     markerClick={this.props.markerClick}
-    //     zoom={this.props.zoom}
-    //     granularity={this.props.granularity}
-    //     />
-    //   )  
-    // }
-    return this.props.cities.map(data =>
-      <Marker
-      key={data.pk}
-      lat={data.latitude}
-      lng={data.longitude}
-      data={data}
-      changeHoverIndex={this.props.changeHoverIndexCity}
-      hoverIndex={granularity ? this.props.hoverIndexCity : this.props.hoverIndexPlace }
-      markerClick={this.props.markerClick}
-      zoom={this.props.zoom}
-      granularity={this.props.granularity}
+    if (granularity && this.props.cities) {
+      return this.props.cities.map(data => 
+        <Marker
+        key={data.pk}
+        lat={data.latitude}
+        lng={data.longitude}
+        data={data}
+        changeHoverIndex={this.props.changeHoverIndexCity}
+        hoverIndex={this.props.hoverIndexCity}
+        markerClick={this.props.markerClick}
+        zoom={this.props.zoom}
+        granularity={this.props.granularity}
       />
-    )
+      )
+    } else if (!granularity && this.props.places) {
+      return this.props.places.map(data => 
+        <Marker
+        key={data.pk}
+        lat={data.latitude}
+        lng={data.longitude}
+        data={data}
+        changeHoverIndex={this.props.changeHoverIndexPlace}
+        hoverIndex={this.props.hoverIndexPlace}
+        markerClick={this.props.markerClick}
+        zoom={this.props.zoom}
+        granularity={this.props.granularity}
+        />
+      )  
+    }
   }
 
   render() {

@@ -20,10 +20,7 @@ class EditCity extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      //place: {city: "", country: "", countryCode: "", latitude: null, longitude: null, index: null, urls: []},
       ...this.props.data,
-      pictures: [],
-      pictureNames: [],
       disabled: false,  //TODO figure out a way to keep this true until a key is entered in city, maybe use an event listener
     };
   }
@@ -38,25 +35,25 @@ class EditCity extends React.Component {
     });
   };
 
-  handleImageChange = (files, URLs) => {
-    let pictures = this.state.pictures;
-    let pictureNames = this.state.pictureNames
-    for (let i=0; i<files.length; ++i) {
-      console.log(files[i])
-      if (!pictureNames.includes(files[i].name)) {
-        pictures.push(files[i])
-        pictureNames.push(files[i].name)
-      }
-    }
+  // handleImageChange = (files, URLs) => {
+  //   let pictures = this.state.pictures;
+  //   let pictureNames = this.state.pictureNames
+  //   for (let i=0; i<files.length; ++i) {
+  //     console.log(files[i])
+  //     if (!pictureNames.includes(files[i].name)) {
+  //       pictures.push(files[i])
+  //       pictureNames.push(files[i].name)
+  //     }
+  //   }
 
-    this.setState({
-      data: {
-        ...this.state.data,
-        pictures: pictures
-      },
-      pictureNames: pictureNames,
-    })
-  }
+  //   this.setState({
+  //     data: {
+  //       ...this.state.data,
+  //       pictures: pictures
+  //     },
+  //     pictureNames: pictureNames,
+  //   })
+  // }
 
     clear = () => {
       this.setState({
@@ -64,9 +61,6 @@ class EditCity extends React.Component {
         country: "",
         latitude: null,
         longitude: null,
-        pictureNames: [],
-        pictures: [],
-        hover: false,
       })
     }
 
@@ -77,12 +71,12 @@ class EditCity extends React.Component {
 
     hasBeenChanged = () => {
       console.log(this.state, this.props)
-      return (this.state.country !== this.props.data.country ||
+      return (
+        this.state.country !== this.props.data.country ||
         this.state.city !== this.props.data.city ||
         this.state.latitude !== this.props.data.latitude ||
         this.state.longitude !== this.props.data.longitude ||
         this.state.pictures.length > 0
-        
         )
     }
 

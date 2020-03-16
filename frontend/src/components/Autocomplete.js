@@ -7,7 +7,9 @@ import { Dropdown, DropdownItem, DropdownMenu, DropdownToggle, Input} from 'reac
 import ReactAutocomplete from 'react-autocomplete';
 
 
-const placeURL= "https://maps.googleapis.com/maps/api/place/autocomplete/json?types=establishment&strictbounds&"
+// const placeURL= "https://maps.googleapis.com/maps/api/place/autocomplete/json?types=establishment&strictbounds&"
+const placeURL= "https://maps.googleapis.com/maps/api/place/autocomplete/json?strictbounds&"
+
 const cityURL = "https://maps.googleapis.com/maps/api/place/autocomplete/json?types=(cities)&"
 //input=Amoeba&location=37.76999,-122.44696&radius=500&strictbounds&key=YOUR_API_KEY
 
@@ -40,7 +42,13 @@ class AutoComplete extends React.Component {
     switch(this.props.context) {
       case "Place":
         this.props.handleAutoCompleteChange(value)
-        this.loadPlaceSuggestions(value).then(json => this.setState({ suggestions: json.predictions }))
+        this.loadPlaceSuggestions(value).then(json => {
+          //TODO this might require some tweeaking
+          var predictions = json.predictions.filter((pred) => pred.types.includes("establishment") ? true : false);
+          this.setState({ 
+            suggestions: predictions 
+          })
+        })
         break;
       case "City":
         this.props.handleAutoCompleteChangeCity(value)
@@ -73,6 +81,7 @@ class AutoComplete extends React.Component {
 
   loadPlaceSuggestions = (input) => {
     const parameters = `input=${input}&location=${this.props.location.lat},${this.props.location.lng}&radius=${this.props.location.radius}&key=${this.state.apiKey}`
+    console.log(placeURL + parameters)
     return fetch(placeURL + parameters, {
       method: "GET",
       headers: {
@@ -110,11 +119,10 @@ class AutoComplete extends React.Component {
       //TODO need to make the appropriate data model changes and then swap these out
       const latitude = parseFloat(data[0].geometry.location.lat().toFixed(4));
       const longitude = parseFloat(data[0].geometry.location.lng().toFixed(4));
-      const placeId = data[0].placeId
+      const placeId = data[0].place_id
       const types = data[0].types.join(",")
-      console.log(types)
+      console.log(data[0])
       address = street_number + " " + street
-      console.log(street_number, street)
       this.props.selectAutoSuggestPlace({name, address, city, state, country, county, zip, types, placeId, latitude, longitude})
     })
   }

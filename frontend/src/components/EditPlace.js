@@ -74,16 +74,27 @@ class EditPlace extends React.Component {
       this.props.toggle();
     }
 
-    // hasBeenChanged = () => {
-    //   console.log(this.state, this.props)
-    //   return (this.state.country !== this.props.data.country ||
-    //     this.state.city !== this.props.data.city ||
-    //     this.state.latitude !== this.props.data.latitude ||
-    //     this.state.longitude !== this.props.data.longitude ||
-    //     this.state.pictures.length > 0
+    hasBeenChanged = () => {
+      console.log(this.state, this.props)
+      return (this.state.country !== this.props.data.country ||
+        this.state.city !== this.props.data.city ||
+        this.state.latitude !== this.props.data.latitude ||
+        this.state.longitude !== this.props.data.longitude
+
+        // this.state.destination
+        // this.state.name,
+        // this.state.address,
+        // this.state.city,
+        // this.state.county,
+        // this.state.state,
+        // this.state.country,
+        // this.state.latitude,
+        // this.state.longitude,
+        // this.state.types,
+        // this.state.placeId
         
-    //     )
-    // }
+        )
+    }
 
     render() {
       const buttonDisabled = false //!this.hasBeenChanged(); 
@@ -104,22 +115,12 @@ class EditPlace extends React.Component {
               <br/>
               <Input
               type="text"
-              name="number"
+              name="address"
               placeholder="Number"
-              value={this.state.number}
+              value={this.state.address}
               onChange={this.handleChange}
               // disabled={this.state.disabled}
               // autoComplete={"new-password"}
-              />
-              <br />
-              <Input 
-              type="text"
-              name="street"
-              placeholder="Street"
-              value={this.state.street}
-              onChange={this.handleChange}
-              //disabled={this.state.disabled}
-              //autoComplete={"new-password"}
               />
               <br />
               <Input 
@@ -137,6 +138,26 @@ class EditPlace extends React.Component {
               name="state"
               placeholder="State"
               value={this.state.state}
+              onChange={this.handleChange}
+              //disabled={this.state.disabled}
+              //autoComplete={"new-password"}
+              />
+              <br />
+              <Input 
+              type="text"
+              name="country"
+              placeholder="Country"
+              value={this.state.country}
+              onChange={this.handleChange}
+              //disabled={this.state.disabled}
+              //autoComplete={"new-password"}
+              />
+              <br />
+              <Input 
+              type="text"
+              name="zip"
+              placeholder="Zip Code"
+              value={this.state.zip}
               onChange={this.handleChange}
               //disabled={this.state.disabled}
               //autoComplete={"new-password"}
