@@ -5,9 +5,13 @@ import { withStyles} from '@material-ui/styles';
 import { Scrollbars } from 'react-custom-scrollbars';
 import 'react-virtualized/styles.css'; // only needs to be imported once
 import "flag-icon-css/css/flag-icon.min.css";
+import { getDistanceBetweenTwoPoints } from '../utils/Formulas.js';
 
 import { Add1, Add2, photoGallery1} from "../utils/SVGs"
 import OptionsDropdown from './Dropdown';
+
+const DISTANCE_FROM_CITY = 30
+const DISTANCE_FROM_PLACE = 20
 
 const styles = theme => ({
   scrollBar: {
@@ -232,12 +236,28 @@ class VirtualTable extends Component {
     )
   }
 
+  getPlaces = () => {
+    // var places = [];
+    // if (this.props.closestCity.distanceFromMapCenter <= 20) {
+    //   places = this.props.places.filter((val) => val.destination === this.props.selectedCity.pk)
+    // } else {
+    //   places = this.props.places.filter((obj) => {
+    //     return getDistanceBetweenTwoPoints(this.props.mapCenter.lat, this.props.mapCenter.lng, obj.latitude, obj.longitude) < 30
+    //   })
+    // }
+    return this.props.places.filter((el) => this.props.closestCity.distanceFromMapCenter <= DISTANCE_FROM_CITY ? 
+      el.destination === this.props.selectedCity.pk : 
+      getDistanceBetweenTwoPoints(this.props.mapCenter.lat, this.props.mapCenter.lng, el.latitude, el.longitude) < DISTANCE_FROM_PLACE
+    )
+  }
+
   render = () => {
     const WIDTH = window.innerWidth * .3;
     //TODO Make this the height of the main component not the whole page
     const HEIGHT = window.innerHeight;
     // console.log(this.props.closestCity)
-    const list = this.props.granularity ? this.props.cities : this.props.closestCity.distanceFromMapCenter <= 20 ? this.props.places.filter((val) => val.destination === this.props.selectedCity.pk ? true : false) : [];
+    const list = this.props.granularity ? this.props.cities : this.getPlaces();
+    //this.props.closestCity.distanceFromMapCenter <= 20 ? this.props.places.filter((val) => val.destination === this.props.selectedCity.pk ? true : false) : [];
 
     const HEADER_HEIGHT = 40;
 

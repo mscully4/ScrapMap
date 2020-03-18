@@ -522,6 +522,7 @@ class Main extends React.Component {
             granularity={this.state.granularity}
             selectedCity={this.state.selectedCity}
             closestCity={this.state.closestCity}
+            mapCenter={this.state.mapCenter}
             changeMapCenter={this.changeMapCenter}
             onCityGalleryClick={this.cityGallery}
             />

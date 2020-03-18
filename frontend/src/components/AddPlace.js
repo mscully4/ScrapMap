@@ -177,7 +177,7 @@ class AddPlace extends React.Component {
                 <Input
                   type="text"
                   name="address"
-                  placeholder="Number"
+                  placeholder="address"
                   value={this.state.address}
                   onChange={this.handleChange}
                   // disabled={this.state.disabled}
