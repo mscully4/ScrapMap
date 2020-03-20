@@ -9,7 +9,8 @@ import {
 } from "react-router-dom";
 
 import Main from './views/Main';
-import Home from './views/Home'
+import Home from './views/Home';
+import Test from './views/Test';
 
 import {fetchCurrentUser, fetchToken, putNewUser, postNewCity, putEditCity, deleteCity, getUser, postNewPlace, putEditPlace } from "./utils/fetchUtils" 
 
@@ -81,6 +82,7 @@ class App extends Component {
   }
 
   componentDidMount() {
+    console.log(13)
     window.addEventListener('resize', this.updateWindowDimensions);
     if (this.state.loggedIn) {
       this.handleLoadSession()
@@ -225,11 +227,13 @@ class App extends Component {
     )
   }
 
-  renderMain = (user) => {
+  renderMain = (props) => {
     //TODO validate this is the right logic
+    const user = props.match.params.username;
     const context = user === undefined || user === this.state.loggedInUser ? "Owner" : "Viewer";
     return (
       <Main
+      {...props}
       context={context}
       compilePlaces={this.compilePlaces}
       //Navigation Props
@@ -281,7 +285,8 @@ class App extends Component {
           {/* <h1 style={styles.quote}>"To Travel is to BOOF"</h1> */}
           <Router>
             <Switch>
-              <Route path="/:username" component={(obj) => this.renderMain(obj.match.params.username)}></Route>
+              <Route path="/:username" render={(props) => this.renderMain(props)}></Route>
+              {/* <Route path="/test" render={(props) => <Test {...props}/>}></Route> */}
               <Route path="/" component={() => this.state.loggedIn ? this.renderMain() : this.renderHome()}></Route>
             </Switch>
           </Router>  

@@ -58,13 +58,11 @@ class AutoComplete extends React.Component {
   };
 
   onSelectCity = (obj, selection) => {
-    console.log(selection, obj)
     const city = selection.terms[0].value
     const country = selection.terms[selection.terms.length - 1].value;
     geocodeByPlaceId(selection.place_id).then((data) => {
       let state, latitude, longitude, countryCode;
       let address;
-      console.log(data[0])
       for (var i=0; i<data[0].address_components.length; ++i) {
         address = data[0].address_components[i];
 
@@ -73,7 +71,6 @@ class AutoComplete extends React.Component {
         longitude = parseFloat(data[0].geometry.location.lng().toFixed(4));
         countryCode = address.types && address.types.includes('country') ? address.short_name.toLowerCase() : countryCode
       }
-      console.log({city, country, latitude, longitude, countryCode, state})
       this.props.selectAutoSuggestCity({city, country, latitude, longitude, countryCode, state})
 
     })
@@ -81,7 +78,6 @@ class AutoComplete extends React.Component {
 
   loadPlaceSuggestions = (input) => {
     const parameters = `input=${input}&location=${this.props.location.lat},${this.props.location.lng}&radius=${this.props.location.radius}&key=${this.state.apiKey}`
-    console.log(placeURL + parameters)
     return fetch(placeURL + parameters, {
       method: "GET",
       headers: {
@@ -102,10 +98,12 @@ class AutoComplete extends React.Component {
 
 
   onSelectPlace = (obj, selection) => {
+    console.log(selection)
     const place_id = selection.place_id
     const name = selection.terms[0].value
     geocodeByPlaceId(place_id).then(data => {
-      var street_number = "", street = "", county = "", city = "", state = "", zip = "", country = "", address = "";
+      console.log(data)
+      var street_number = "", street = "", county = "", city = "", state = "", zip = "", country = "", address = "", countryCode = "";
       data[0].address_components.forEach(element => {
         if (element.types.includes("street_number")) street_number = element.long_name;
         else if (element.types.includes("route")) street = element.long_name;
@@ -113,7 +111,10 @@ class AutoComplete extends React.Component {
         else if (element.types.includes("locality")) city = element.long_name;
         else if (element.types.includes( "administrative_area_level_1")) state = element.long_name;
         else if (element.types.includes( "administrative_area_level_2")) county = element.long_name
-        else if (element.types.includes("country")) country = element.long_name;
+        else if (element.types.includes("country")) { 
+          country = element.long_name; 
+          countryCode = element.short_name === "US" ? "US" : element.short_name;
+        }
         else if (element.types.includes("postal_code")) zip = element.long_name;
       }); 
       //TODO need to make the appropriate data model changes and then swap these out
@@ -121,9 +122,8 @@ class AutoComplete extends React.Component {
       const longitude = parseFloat(data[0].geometry.location.lng().toFixed(4));
       const placeId = data[0].place_id
       const types = data[0].types.join(",")
-      console.log(data[0])
       address = street_number + " " + street
-      this.props.selectAutoSuggestPlace({name, address, city, state, country, county, zip, types, placeId, latitude, longitude})
+      this.props.selectAutoSuggestPlace({name, address, city, state, country, countryCode, county, zip, types, placeId, latitude, longitude})
     })
   }
 

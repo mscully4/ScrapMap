@@ -157,6 +157,7 @@ class Main extends React.Component {
     if (this.props.loggedIn) {
       postNewPlace(localStorage.getItem('token'), payload)
       .then(res => {
+        console.log(res)
         // const place = {...res, index: this.state.viewPlaces.length};
         this.setState({
           viewPlaces: this.state.viewPlaces.concat([{...res, index: this.state.viewPlaces.length}]),
@@ -547,16 +548,6 @@ class Main extends React.Component {
             toggleEditor={this.toggleEditor}
 
             />
-
-            {/* { this.state.editorOpen & this.props.username === this.props.user ?
-            <ImgEditor 
-            isOpen={this.state.editorOpen}
-            toggleEditor={this.toggleEditor}
-            //TODO implement default props here/use the load from url in the image editor
-            image={this.state.selectedCity ? this.state.selectedCity.images[this.state.currImg] : null}
-            backendURL={this.props.backendURL}
-            handleImageOverwrite={this.props.handleImageOverwrite}
-            /> : null} */}
 
             { this.state.editCityFormOpen  & this.props.username === this.props.user ? 
             <EditCity

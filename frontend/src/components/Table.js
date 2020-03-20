@@ -7,11 +7,17 @@ import 'react-virtualized/styles.css'; // only needs to be imported once
 import "flag-icon-css/css/flag-icon.min.css";
 import { getDistanceBetweenTwoPoints } from '../utils/Formulas.js';
 
-import { Add1, Add2, photoGallery1} from "../utils/SVGs"
+import { Add1, Add2, photoGallery1, mountain, touristAttraction, food, bar, Svg} from "../utils/SVGs"
 import OptionsDropdown from './Dropdown';
 
 const DISTANCE_FROM_CITY = 30
 const DISTANCE_FROM_PLACE = 20
+
+const icons = {
+  food: food,
+  tourist_attraction: touristAttraction,
+  natural_feature: mountain
+}
 
 const styles = theme => ({
   scrollBar: {
@@ -30,10 +36,12 @@ const styles = theme => ({
     }
   },
   gray: {
-    backgroundColor: "#f3f3f3"
+    backgroundColor: "#f0f0f0"
   },
   white: {
-    backgroundColor: "#f9f9f9"
+    // backgroundColor: "#f9f9f9"
+    backgroundColor: "#ddd"
+
   },
   tableRowHover: {
     backgroundColor: "#BBBBBB",
@@ -44,13 +52,17 @@ const styles = theme => ({
     gridTemplateColumns: "1fr 1fr 1fr",
     alignItems: 'center'
   },
+  cellPlace : {
+    gridTemplateColumns: "1fr 1fr 1fr"
+  },
   cellFlag: {
     width: 40,
     height: 40,
     margin: 'auto'
   },
   cellText: {
-
+    textAlign: 'center',
+    paddingLeft: "25%"
   },
   cellImage: {
     width: 100,
@@ -71,6 +83,12 @@ const styles = theme => ({
     width: 30,
     top: 10,
     right: 10,
+  },
+  typeSVG: {
+    position: 'absolute',
+    height: '50%',
+    left: 10,
+    top: '25%'
   }
 })
 
@@ -165,6 +183,106 @@ class VirtualTable extends Component {
   //   )
   // }
 
+  generateSVG = (types) => {
+    var icon;
+    if (types.includes("tourist_attraction")) {
+      icon = touristAttraction;
+    } else if (types.includes("natural_feature")) {
+      icon = mountain;
+    } else if (types.includes("bar")) {
+      icon = bar;
+    } else if (types.includes("food") || types.includes("restaurant")) {
+      icon = food;
+    }
+
+
+    var paths = icon.path.map(el => <path d={el}/>)
+    return (
+      <Svg className={clsx(this.props.classes.typeSVG)} viewbox={icon.viewBox}>
+        {paths}
+      </Svg>
+    )
+  }
+
+  cellRendererPlace = (cellData) => {
+    const classes = this.props.classes;
+    const countryCode = cellData.rowData.countryCode;
+    console.log(countryCode)
+    return (
+      <div>
+
+        <p
+        className={clsx(classes.cellText)}
+        >
+          {cellData.rowData.name} <br/>
+          {cellData.rowData.address}
+        </p>
+
+        {/* {cellData.rowData.types.includes("natural_feature") ?
+          <svg
+          className={clsx(classes.typeSVG)}
+          viewBox={mountain.viewBox}
+          version="1.1"
+          xmlns="http://www.w3.org/2000/svg"
+          value={"KILL"}
+          >
+            <path
+            d={mountain.path}
+            value={"KILL"}
+            />
+          </svg> 
+          : null
+        } */}
+
+        {
+          this.generateSVG(cellData.rowData.types)
+        }
+
+        {/* { countryCode ? 
+        <span 
+        className={clsx(`flag-icon flag-icon-` + countryCode.toLowerCase())}
+        style={{
+          height: '20%',
+          width: '20%',
+          top: '40%',
+          position: 'absolute',
+          right: 10
+        }}
+        >
+        </span> : null } */}
+
+
+        { this.props.context === "Owner" ? 
+          <OptionsDropdown 
+          toggleEditForm={this.props.toggleEditForm} 
+          cellData={cellData} 
+          handleDelete={this.props.handleDeletePlace}
+          /> : null 
+        }
+
+        { this.props.context === "Owner" && this.props.granularity === 0 ?
+          <svg
+          className={clsx(classes.addSVG)}
+          viewBox="0 0 1024 1024"
+          version="1.1"
+          xmlns="http://www.w3.org/2000/svg"
+          onClick={() => this.props.toggleUploader(cellData.cellData.pk)}
+          value={"KILL"}
+          >
+            <path
+            d={Add1}
+            value={"KILL"}
+            />
+            <path
+            d={Add2}
+            value={"KILL"}
+            />
+          </svg> : null
+        }
+      </div>
+    )
+  }
+
   cellRenderer = (cellData) => {
     const classes = this.props.classes;
     const granularity = this.props.granularity
@@ -175,18 +293,33 @@ class VirtualTable extends Component {
         if (element.images.length > 0) greyOutGalleryIcon = false
       });
     }
-    //TODO Find a better way to pick an image, maybe based on size
     return (
       <div className={granularity ? clsx(classes.cell) : null}>
         {granularity ? <span className={clsx(`flag-icon flag-icon-` + cellData.rowData.countryCode, classes.cellFlag)}></span> : null}
 
         {this.props.granularity ? 
           <span>{cellData.rowData.city}, {cellData.rowData.country}</span> : 
-          <span>{cellData.rowData.name}</span>
+          <span>{cellData.rowData.name} {cellData.rowData.address} {cellData.rowData.types}</span>
         }
 
         {granularity && cellData.rowData.images.length ? <img className={clsx(classes.cellImage)} src={this.props.backendURL + cellData.rowData.images[0].src}></img> : null}
         
+        {this.props.granularity === 0 && cellData.rowData.types.includes("natural_feature") ?
+          <svg
+          // className={clsx(this.props.classes.addSVG)}
+          viewBox={mountain.viewBox}
+          version="1.1"
+          xmlns="http://www.w3.org/2000/svg"
+          value={"KILL"}
+          >
+            <path
+            d={mountain.path}
+            value={"KILL"}
+            />
+          </svg> 
+          : null
+        }
+
         { this.props.context === "Owner" ? 
           <OptionsDropdown 
           toggleEditForm={this.props.toggleEditForm} 
@@ -293,7 +426,7 @@ class VirtualTable extends Component {
             label="Destination" 
             dataKey="destination" 
             width={WIDTH}
-            cellRenderer={this.cellRenderer}
+            cellRenderer={this.props.granularity ? this.cellRenderer : this.cellRendererPlace}
             cellDataGetter={({dataKey, rowData}) => rowData}
             //style={styles.tableRow}
             />

@@ -33,6 +33,7 @@ class Place(models.Model):
     county = models.CharField(max_length=100, null=True, blank=True)
     state = models.CharField(max_length=15, null=True, blank=True)
     country = models.CharField(max_length=50)
+    countryCode = models.CharField(max_length=2, null=True, blank=True)
     latitude = models.FloatField(default=0)
     longitude = models.FloatField(default=0)
     placeId = models.CharField(max_length=150)
