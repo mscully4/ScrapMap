@@ -5,6 +5,9 @@ import { withStyles } from '@material-ui/styles'
 import { Button } from 'reactstrap'
 import { closePath } from '../utils/SVGs'
 import MyDropzone from './Dropzone';
+import RingLoader from "react-spinners/RingLoader";
+import AutoComplete from './Autocomplete';
+
 
 
 const styles = theme => ({
@@ -14,63 +17,46 @@ const styles = theme => ({
     right: 25,
     height: 500,
     width: 500,
-    backgroundColor: '#fff',
-    display: 'grid',
-    gridTemplateColumns: '1fr',
-    gridTemplateRows: '50px auto',
+    backgroundColor: '#1a1a1a',
     boxShadow: "0 10px 10px 5px #777",
     border: "2px solid #777"
-    // display: 'grid',
-    // gridTemplateRows: '1fr 1fr 1fr',
-    // gridTemplateColumns: '1fr',
   },
   imageUploaderHeader: {
-    backgroundColor: '#262626',
+    backgroundColor: '#232323',
+    height: 50,
   },
   imageUploaderHeaderClose: {
-    height: '100%',
     width: 25,
-    fill: '#ffffff',
+    fill: '#d4dada',
     margin: 'auto',
     cursor: 'pointer',
-    marginRight: 10,
-    float: "right"
+    right: 10,
+    position: "absolute",
+    top: 12.5
   },
-  imageUploaderDiv: {
-    display: 'grid',
-    gridTemplateRows: '4fr 1fr',
-    gridTemplateColumns: '1fr',
-    height: '100%'
+  imageUploaderTitle: {
+    color: "#0095d2",
+    textAlign: 'left',
+    top: "40%",
+    lineHeight: '50px',
+    marginLeft: "10px"
   },
-  imageUploader: {
-    height: '100%',
-    width: '100%',
-    border: "solid 1px black",
-
-    "& .fileContainer": {
-      boxShadow: "none",
-    },
-    "&& img": {
-      width: "150px !important",
-      height: "150px !important"
-    },
-    "&& p": {
-      fontSize: '18px'
-    },
-    "&& button": {
-      fontSize: 20
-    }
+  imagesSelected: {
+    textAlign: "center",
+    marginTop: 15
   },
   button: {
-    height: '60%',
     width: '80%',
     margin: 'auto',
+    position: 'absolute',
+    bottom: '5%',
+    left: '10%',
+    backgroundColor: "#0095d2"
   },
-
-  labelDiv: {
-    textAlign:'center'
-  },
-  label: {
+  dropzone: {
+    top: '20%',
+    height: "300px",
+    marginTop: "25px !important"
   },
 })
 
@@ -87,25 +73,12 @@ class ImageUploader extends React.Component {
        pictureNames: [],
       };
   }
-  
-  onChange = (files, URLs) => {
-    let pictures = this.state.pictures;
-    let pictureNames = this.state.pictureNames
-    for (let i=0; i<files.length; ++i) {
-      //TODO find a way to prevent duplicates from being added
-      if (!pictureNames.includes(files[i].name)) {
-         pictures.push(files[i])
-         pictureNames.push(files[i].name)
-      }
-    }
-    this.setState({
-      pictures: pictures,
-      pictureNames: pictureNames
-    })
-  }
 
   onDrop = (obj) => {
-    console.log(obj)
+    this.setState({
+      pictureNames: this.state.pictureNames.concat([obj.name]),
+      pictures: this.state.pictures.concat([obj])
+    })
   }
 
   onCloseClick = (e) => {
@@ -117,7 +90,7 @@ class ImageUploader extends React.Component {
     return (
       <div className={clsx(this.props.classes.imageUploaderPopUp)}>
         <div className={clsx(this.props.classes.imageUploaderHeader)}>
-          <span>Image Uploader</span>
+          <p className={clsx(this.props.classes.imageUploaderTitle)}>Image Uploader</p>
           <svg
             version="1.1"
             xmlns="http://www.w3.org/2000/svg"
@@ -130,28 +103,26 @@ class ImageUploader extends React.Component {
               <path d={closePath} />
             </svg>
         </div>
-        <div className={clsx(classes.imageUploaderDiv)}>
-          {/* <ReactImageUploader
-          className={clsx(classes.imageUploader)}
-          withIcon={true}
-          buttonText='Choose images'
-          onChange={this.onChange}
-          imgExtension={['.jpg', '.gif', '.png', '.jpeg']}
-          maxFileSize={5242880 * 2}
-          withPreview={false}
-          label={
-            <div className={this.props.classes.labelDiv}>
-              <span>Upload Your Images!</span><br />
-              <span>Max File Size 5MB</span><br />
-              <span>Supported Extensions: JPG, PNG, JPEG, GIF</span><br />
-              { this.state.pictures.length ? <span>{this.state.pictures.length}</span> : null}
-            </div>
-          }
-          fileTypeError={"Unsupported File Type"}
-          /> */}
-          <MyDropzone onDrop={this.onDrop}/>
-          <Button className={classes.button} onClick={(e) => this.props.handleImageSubmit(e, this.state)}>Submit</Button>
-        </div>
+        { this.props.handleEditPlaceRequestPending ?
+          <RingLoader
+            size={100}
+            color={"#123abc"}
+            loading={true}
+            css={"margin: auto;"}
+          /> :
+          <div className={clsx(classes.imageUploaderDiv)}>
+            <MyDropzone onDrop={this.onDrop} className={clsx(classes.dropzone)}/>
+            <p className={clsx(classes.imagesSelected)}>{`Images Selected: ${this.state.pictures.length}`}</p>
+            <Button color={"#0095d2"} className={classes.button} disabled={this.state.pictures.length === 0} onClick={
+              (e) => {
+                this.props.handleImageSubmit(e, this.state)
+                this.props.toggle(null)
+              }}
+            >
+              Submit
+          </Button>
+          </div>
+        }
       
       </div>
       

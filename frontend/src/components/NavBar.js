@@ -27,10 +27,14 @@ import SignUpForm from './SignUpForm';
 // ))
 
 const classes = {
+  navbar: {
+    backgroundColor: "#232323",
+    color: "#d4dada"
+  },
   title: {
     fontFamily: "Kaushan Script",
     fontSize: 28,
-    color: "#429bf5",
+    color: "#0095d2",
   },
   username: {
     fontFamily: "Kaushan Script",
@@ -120,7 +124,7 @@ class Navigation extends React.Component {
         </Nav>
     }
     return (
-      <Navbar color="light" light expand="md">
+      <Navbar style={classes.navbar} expand="md">
         <NavbarBrand style={classes.title} className={classes.title} href="/">ScrapMap</NavbarBrand>
         <NavbarToggler />
         {form}

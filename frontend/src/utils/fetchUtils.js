@@ -117,14 +117,16 @@ export function putEditPlace(token, data) {
   const form = new FormData();
   form.append('pk', data.pk)
   form.append('destination', data.destination);
-  form.append("name", data.name);
-  form.append('number', data.number);
+  form.append('name', data.name)
+  form.append("address", data.address);
   form.append('street', data.street);
   form.append('city', data.city);
   form.append('state', data.state);
   form.append('country', data.state);
   form.append('latitude', data.latitude)
   form.append('longitude', data.longitude);
+  form.append('types', data.types)
+  form.append('placeId', data.placeId)
   for (var i=0; i<data.pictures.length; i++) {
     form.append('images', data.pictures[i]);
   }

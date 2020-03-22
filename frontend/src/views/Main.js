@@ -1,14 +1,14 @@
 import React from 'react';
 import Gallery from "react-photo-gallery";
 import { Modal } from 'reactstrap';
-import { withStyles} from '@material-ui/styles';
+import { withStyles } from '@material-ui/styles';
 import clsx from 'clsx'
 
 import Navigation from '../components/NavBar'
 import Map from '../components/Map';
 import Table from '../components/Table'
 import ImageViewer from '../components/ImageViewer';
-import { ImgEditor} from '../components/ImageEditor';
+import { ImgEditor } from '../components/ImageEditor';
 import EditCity from '../components/EditCity.js';
 import EditPlace from '../components/EditPlace.js';
 import AddCity from '../components/AddCity.js';
@@ -18,18 +18,23 @@ import ImageUploader from '../components/ImageUploader.js';
 
 import { Add1, Add2 } from '../utils/SVGs';
 import { getDistanceBetweenTwoPoints } from '../utils/Formulas.js';
-import {fetchCurrentUser, fetchToken, putNewUser, postNewCity, putEditCity, deleteCity, deletePlace, getUser, postNewPlace, putEditPlace } from "../utils/fetchUtils" 
+import { fetchCurrentUser, fetchToken, putNewUser, postNewCity, putEditCity, deleteCity, deletePlace, getUser, postNewPlace, putEditPlace } from "../utils/fetchUtils"
 
-const DEFAULT_CENTER = {lat: 33.7490, lng: -84.3880}
+const DEFAULT_CENTER = { lat: 33.7490, lng: -84.3880 }
 
 const styles = theme => ({
+  page: {
+    backgroundColor: "#1a1a1a",
+    color: "#d4dada"
+  },
   main: {
     display: "grid",
     gridTemplateRows: "1fr",
     gridTemplateColumns: "2fr 1fr",
     width: '90%',
     margin: 'auto',
-    border: "solid 1px red"
+    // border: "solid 1px red",
+    paddingBottom: "200px"
   },
   modalContent: {
     border: 'none',
@@ -64,7 +69,7 @@ class Main extends React.Component {
       granularity: 1,
       mapZoom: 4,
       mapCenter: {
-        lat: this.props.loggedInCities.length > 0 ? this.props.loggedInCities[0].latitude : DEFAULT_CENTER.lat, 
+        lat: this.props.loggedInCities.length > 0 ? this.props.loggedInCities[0].latitude : DEFAULT_CENTER.lat,
         lng: this.props.loggedInCities.length > 0 ? this.props.loggedInCities[0].longitude : DEFAULT_CENTER.lng,
       },
       closestCity: null,
@@ -78,7 +83,7 @@ class Main extends React.Component {
       //ImageUploader
       uploaderOpen: false,
       uploaderPK: null,
-      images : [],
+      images: [],
       imageNames: [],
       //Editor
       editorOpen: false,
@@ -98,8 +103,8 @@ class Main extends React.Component {
       //load user info
       getUser(localStorage.getItem("token"), this.props.viewUser).then(data => {
         //update state with the data, and allow rendering of child components, change map center to first city
-        const mapCenter = data.length > 0 ? {latitude: data[0].latitude, longitude: data[0].longitude} : DEFAULT_CENTER;
-        const cities = data.map((el, i) => { return {...el, index: i}})
+        const mapCenter = data.length > 0 ? { latitude: data[0].latitude, longitude: data[0].longitude } : DEFAULT_CENTER;
+        const cities = data.map((el, i) => { return { ...el, index: i } })
         this.changeMapCenter(mapCenter)
         this.setState({
           viewCities: cities,
@@ -124,46 +129,46 @@ class Main extends React.Component {
     e.preventDefault();
     if (this.props.loggedIn) {
       postNewCity(localStorage.getItem('token'), data)
-      .then(res => {
-        console.log(res)
-        if (res) {
-          this.setState({
-            viewCities: this.state.viewCities.concat([{...res, index: this.state.viewCities.length}]),
-            mapZoom: 4,
-            mapCenter: { lat: res.latitude, lng: res.longitude}
-          })
-        }
-      })
+        .then(res => {
+          console.log(res)
+          if (res) {
+            this.setState({
+              viewCities: this.state.viewCities.concat([{ ...res, index: this.state.viewCities.length }]),
+              mapZoom: 4,
+              mapCenter: { lat: res.latitude, lng: res.longitude }
+            })
+          }
+        })
     }
   }
 
   handleAddPlace = (e, data) => {
     e.preventDefault()
     console.log(data)
-    const payload = 
-      {
-        destination: data.closestCity.pk,
-        name: data.name,
-        address: data.address,
-        city: data.closestCity.city,
-        county: data.county,
-        state: data.state,
-        country: data.country,
-        latitude: data.latitude,
-        longitude: data.longitude,
-        types: data.types,
-        placeId: data.placeId
-      }
+    const payload =
+    {
+      destination: data.closestCity.pk,
+      name: data.name,
+      address: data.address,
+      city: data.closestCity.city,
+      county: data.county,
+      state: data.state,
+      country: data.country,
+      latitude: data.latitude,
+      longitude: data.longitude,
+      types: data.types,
+      placeId: data.placeId
+    }
     if (this.props.loggedIn) {
       postNewPlace(localStorage.getItem('token'), payload)
-      .then(res => {
-        console.log(res)
-        // const place = {...res, index: this.state.viewPlaces.length};
-        this.setState({
-          viewPlaces: this.state.viewPlaces.concat([{...res, index: this.state.viewPlaces.length}]),
-          viewCities: this.state.viewCities.map(obj => obj.pk === res.destination ? {...obj, places: obj.places.concat([res]) } : obj)
+        .then(res => {
+          console.log(res)
+          // const place = {...res, index: this.state.viewPlaces.length};
+          this.setState({
+            viewPlaces: this.state.viewPlaces.concat([{ ...res, index: this.state.viewPlaces.length }]),
+            viewCities: this.state.viewCities.map(obj => obj.pk === res.destination ? { ...obj, places: obj.places.concat([res]) } : obj)
+          })
         })
-      })
     }
   }
 
@@ -171,22 +176,26 @@ class Main extends React.Component {
     console.log(data)
     e.preventDefault();
     putEditCity(localStorage.getItem('token'), data)
-    .then(json => {
-      this.setState({
-        viewCities: this.state.viewCities.map(el => el.pk === json.pk ? json : el),
-        viewPlaces: this.props.compilePlaces(json)
+      .then(json => {
+        this.setState({
+          viewCities: this.state.viewCities.map(el => el.pk === json.pk ? json : el),
+          viewPlaces: this.props.compilePlaces(json)
+        })
       })
-    })
   }
 
   handleEditPlace = (e, data) => {
     e.preventDefault();
-    putEditPlace(localStorage.getItem('token'), data)
-    .then(json => {
-      console.log(json)
-      this.setState({
-        viewCities: json.map((el, i) => {return {...el, index: i}}),
-        viewPlaces: this.props.compilePlaces(json)
+    this.setState({
+      handleEditPlaceRequestPending: true
+    }, () => {
+      putEditPlace(localStorage.getItem('token'), data)
+      .then(json => {
+        this.setState({
+          viewCities: json.map((el, i) => { return { ...el, index: i } }),
+          viewPlaces: this.props.compilePlaces(json),
+          handleEditPlaceRequestPending: false
+        })
       })
     })
   }
@@ -194,25 +203,25 @@ class Main extends React.Component {
   handleDeleteCity = (e, data) => {
     e.preventDefault();
     deleteCity(localStorage.getItem('token'), data)
-    .then(json => {
-      console.log(json)
-      this.setState({
-        viewCities: json.map((el, i) => {return {...el, index: i}}),
-        viewPlaces: this.props.compilePlaces(json)
+      .then(json => {
+        console.log(json)
+        this.setState({
+          viewCities: json.map((el, i) => { return { ...el, index: i } }),
+          viewPlaces: this.props.compilePlaces(json)
+        })
       })
-    })
   }
 
   handleDeletePlace = (e, data) => {
     e.preventDefault();
     deletePlace(localStorage.getItem('token'), data)
-    .then(json => {
-      console.log(json)
-      this.setState({
-        viewCities: json.map((el, i) => {return {...el, index: i}}),
-        viewPlaces: this.props.compilePlaces(json)
+      .then(json => {
+        console.log(json)
+        this.setState({
+          viewCities: json.map((el, i) => { return { ...el, index: i } }),
+          viewPlaces: this.props.compilePlaces(json)
+        })
       })
-    })
   }
 
   //General Functions
@@ -238,15 +247,15 @@ class Main extends React.Component {
     var lowest = 99999999, lowestIndex = null, distance
 
     if (cities.length > 0)
-    cities.forEach((obj, i) => {
-      distance = getDistanceBetweenTwoPoints(centerLat, centerLong, obj.latitude, obj.longitude);
-      if (distance < lowest) {
-        lowest = distance;
-        lowestIndex = i
-      }
-    })
+      cities.forEach((obj, i) => {
+        distance = getDistanceBetweenTwoPoints(centerLat, centerLong, obj.latitude, obj.longitude);
+        if (distance < lowest) {
+          lowest = distance;
+          lowestIndex = i
+        }
+      })
 
-    return {...cities[lowestIndex], distanceFromMapCenter: lowest}
+    return { ...cities[lowestIndex], distanceFromMapCenter: lowest }
   }
 
   setClosestCity = (city) => {
@@ -288,19 +297,19 @@ class Main extends React.Component {
       })
     }
   }
-    // if (this.state.granularity === 1) {
-    //   this.setState({
-    //     // selectedCity: obj.rowData,
-    //     // mapZoom: obj.event.target.getAttribute("value") !== "KILL" ? 12 : this.state.mapZoom,
-    //     // granularity: 1,
-    //     // hoverIndexCity: null
-    //   }, () => console.log(this.state.mapZoom))
-    // } else if (this.state.granularity === 0) {
-    //   this.setState({
-    //     // selectedPlace: obj.rowData,
-    //     // galleryOpen: obj.event.target.getAttribute("value") !== "KILL" ? true : false,
-    //   })
-    // }
+  // if (this.state.granularity === 1) {
+  //   this.setState({
+  //     // selectedCity: obj.rowData,
+  //     // mapZoom: obj.event.target.getAttribute("value") !== "KILL" ? 12 : this.state.mapZoom,
+  //     // granularity: 1,
+  //     // hoverIndexCity: null
+  //   }, () => console.log(this.state.mapZoom))
+  // } else if (this.state.granularity === 0) {
+  //   this.setState({
+  //     // selectedPlace: obj.rowData,
+  //     // galleryOpen: obj.event.target.getAttribute("value") !== "KILL" ? true : false,
+  //   })
+  // }
 
   //Table Functions
   tableRowClick = (obj, e) => {
@@ -339,7 +348,7 @@ class Main extends React.Component {
 
   //Gallery Functions
   toggleGallery = (value) => {
-    const boolean = typeof(value) === 'boolean' ? value : !this.state.galleryOpen;
+    const boolean = typeof (value) === 'boolean' ? value : !this.state.galleryOpen;
     this.setState({
       galleryOpen: boolean
     })
@@ -355,8 +364,8 @@ class Main extends React.Component {
     return data.map((obj, i) => {
       return {
         i: i,
-        src: this.props.backendURL + obj.src, 
-        width: obj.width, 
+        src: this.props.backendURL + obj.src,
+        width: obj.width,
         height: obj.height,
         caption: "",
       }
@@ -365,7 +374,7 @@ class Main extends React.Component {
 
   //Image Viewer Functions
   toggleViewer = (value) => {
-    const boolean = typeof(value)  === 'boolean' ? value : !this.state.editorOpen;
+    const boolean = typeof (value) === 'boolean' ? value : !this.state.editorOpen;
     this.setState({
       imageViewerOpen: boolean,
       galleryOpen: boolean ? false : true,
@@ -394,18 +403,19 @@ class Main extends React.Component {
   }
 
 
-  handleImageSubmit= (e, data) => {
+  handleImageSubmit = (e, data) => {
     const formData = {
-      ...data, 
+      ...data,
       ...this.state.selectedPlace
     }
+    console.log(formData)
     this.handleEditPlace(e, formData)
   }
 
 
   //Image Editor Functions
   toggleEditor = (value) => {
-    const boolean = typeof(value)  === 'boolean' ? value : !this.state.editorOpen;
+    const boolean = typeof (value) === 'boolean' ? value : !this.state.editorOpen;
     //console.log(value)
     this.setState({
       editorOpen: boolean
@@ -421,14 +431,14 @@ class Main extends React.Component {
 
   //Edit Functions
   toggleEditCityForm = (value) => {
-    value = typeof(value) === 'boolean' ? value : !this.state.editCityFormOpen;
+    value = typeof (value) === 'boolean' ? value : !this.state.editCityFormOpen;
     this.setState({
       editCityFormOpen: value,
     });
   }
 
   toggleEditPlaceForm = (value) => {
-    value = typeof(value) === 'boolean' ? value : !this.state.editPlaceFormOpen;
+    value = typeof (value) === 'boolean' ? value : !this.state.editPlaceFormOpen;
     this.setState({
       editPlaceFormOpen: value
     })
@@ -451,149 +461,153 @@ class Main extends React.Component {
     if (this.state.ready) {
       return (
         <React.Fragment>
-          <Navigation 
-            loggedIn={this.props.loggedIn} 
-            username={this.props.loggedInUser} 
-            handleLogout={this.props.handleLogout} 
+          <Navigation
+            loggedIn={this.props.loggedIn}
+            username={this.props.loggedInUser}
+            handleLogout={this.props.handleLogout}
             toggleLogin={this.props.toggleLogin}
             toggleSignUp={this.props.toggleSignUp}
             handleLogin={this.props.handleLogin}
             handleSignup={this.props.handleSignup}
           />
-          
-          { this.props.user === this.props.username && this.props.user !== null && this.props.username !== null ?
-          <svg
-            className={clsx(this.props.classes.addSVG)}
-            viewBox="0 0 1024 1024"
-            version="1.1"
-            xmlns="http://www.w3.org/2000/svg"
-            onClick={() => { 
-              if (this.state.granularity === 1) this.toggleAddCityForm();
-              else this.toggleAddPlaceForm();
-            }}
+          <div
+            className={clsx(this.props.classes.page)}
           >
-            <path
-              d={Add1}
-              fill="#737373"
-            />
-            <path
-              d={Add2}
-              fill="#737373"
-            />
-          </svg> : null }
+            {this.props.user === this.props.username && this.props.user !== null && this.props.username !== null ?
+              <svg
+                className={clsx(this.props.classes.addSVG)}
+                viewBox="0 0 1024 1024"
+                version="1.1"
+                xmlns="http://www.w3.org/2000/svg"
+                onClick={() => {
+                  if (this.state.granularity === 1) this.toggleAddCityForm();
+                  else this.toggleAddPlaceForm();
+                }}
+              >
+                <path
+                  d={Add1}
+                  fill="#737373"
+                />
+                <path
+                  d={Add2}
+                  fill="#737373"
+                />
+              </svg> : null}
 
-          <p>
-          Granularity: {this.state.granularity} Zoom: {this.state.mapZoom} Selected City: {this.state.selectedCity ? this.state.selectedCity.city : ""} Closest City: {this.state.closestCity ? `${this.state.closestCity.city} ${this.state.closestCity.distanceFromMapCenter}` : ""}
-          </p>
+            <p>
+              Granularity: {this.state.granularity} Zoom: {this.state.mapZoom} Selected City: {this.state.selectedCity ? this.state.selectedCity.city : ""} Closest City: {this.state.closestCity ? `${this.state.closestCity.city} ${this.state.closestCity.distanceFromMapCenter}` : ""}
+            </p>
 
+            <div className={clsx(this.props.classes.main)}>
+              <Map
+                center={this.state.mapCenter}
+                zoom={this.state.mapZoom}
+                cities={this.state.viewCities}
+                places={this.state.viewPlaces}
+                //TODO These can be condensed into one each
+                hoverIndexCity={this.state.hoverIndexCity}
+                changeHoverIndexCity={this.changeHoverIndexCity}
+                hoverIndexPlace={this.state.hoverIndexPlace}
+                changeHoverIndexPlace={this.changeHoverIndexPlace}
+                getClosestCity={this.getClosestCity}
+                setClosestCity={this.setClosestCity}
+                //TODO Need two marker click functions, one for place and one for city
+                markerClick={this.onMarkerClick}
+                granularity={this.state.granularity}
+                changeMapCenter={this.changeMapCenter}
+                changeGranularity={this.changeGranularity}
+              />
 
-          <div className={clsx(this.props.classes.main)}>
-            <Map 
-            center={this.state.mapCenter} 
-            zoom={this.state.mapZoom}
-            cities={this.state.viewCities}
-            places={this.state.viewPlaces}
-            //TODO These can be condensed into one each
-            hoverIndexCity={this.state.hoverIndexCity}
-            changeHoverIndexCity={this.changeHoverIndexCity}
-            hoverIndexPlace={this.state.hoverIndexPlace}
-            changeHoverIndexPlace={this.changeHoverIndexPlace}
-            getClosestCity={this.getClosestCity}
-            setClosestCity={this.setClosestCity}
-            //TODO Need two marker click functions, one for place and one for city
-            markerClick={this.onMarkerClick}
-            granularity={this.state.granularity}
-            changeMapCenter={this.changeMapCenter}
-            changeGranularity={this.changeGranularity}
-            />
+              <Table
+                context={this.props.context}
+                cities={this.state.viewCities}
+                places={this.state.viewPlaces}
+                backendURL={this.props.backendURL}
+                hoverIndex={this.state.granularity ? this.state.hoverIndexCity : this.state.hoverIndexPlace}
+                // changeHoverIndexCity={this.changeHoverIndexCity}
+                changeHoverIndex={this.state.granularity ? this.changeHoverIndexCity : this.changeHoverIndexPlace}
+                tableRowClick={this.tableRowClick}
+                toggleEditForm={this.state.granularity ? this.toggleEditCityForm : this.toggleEditPlaceForm}
+                handleDeleteCity={this.handleDeleteCity}
+                handleDeletePlace={this.handleDeletePlace}
+                toggleUploader={this.toggleUploader}
+                granularity={this.state.granularity}
+                selectedCity={this.state.selectedCity}
+                closestCity={this.state.closestCity}
+                mapCenter={this.state.mapCenter}
+                changeMapCenter={this.changeMapCenter}
+                onCityGalleryClick={this.cityGallery}
+              />
 
-            <Table 
-            context={this.props.context}
-            cities={this.state.viewCities}
-            places={this.state.viewPlaces}
-            backendURL={this.props.backendURL}
-            hoverIndex={this.state.granularity ? this.state.hoverIndexCity : this.state.hoverIndexPlace}
-            // changeHoverIndexCity={this.changeHoverIndexCity}
-            changeHoverIndex={this.state.granularity ? this.changeHoverIndexCity : this.changeHoverIndexPlace}
-            tableRowClick={this.tableRowClick}
-            toggleEditForm={this.state.granularity ? this.toggleEditCityForm : this.toggleEditPlaceForm }
-            handleDeleteCity={this.handleDeleteCity}
-            handleDeletePlace={this.handleDeletePlace}
-            toggleUploader={this.toggleUploader}
-            granularity={this.state.granularity}
-            selectedCity={this.state.selectedCity}
-            closestCity={this.state.closestCity}
-            mapCenter={this.state.mapCenter}
-            changeMapCenter={this.changeMapCenter}
-            onCityGalleryClick={this.cityGallery}
-            />
+            </div>
 
             <Modal isOpen={this.state.galleryOpen} toggle={this.toggleGallery} size={"xl"}>
-              <Gallery 
-              photos={this.state.preparedImages}
-              onClick={this.galleryOnClick}
+              <Gallery
+                photos={this.state.preparedImages}
+                onClick={this.galleryOnClick}
               />
             </Modal>
 
-            <ImageViewer 
-            // context={this.props.context}
-            isOpen={this.state.imageViewerOpen} 
-            toggleViewer={this.toggleViewer}
-            views={this.state.preparedImages}
-            currentIndex={ this.state.currImg }
-            getCurrentIndex={this.getCurrentIndex}
-            handleImageOverwrite={this.props.handleImageOverwrite}
-            toggleEditor={this.toggleEditor}
-            editorOpen={this.state.editorOpen}
-            toggleEditor={this.toggleEditor}
+            <ImageViewer
+              // context={this.props.context}
+              isOpen={this.state.imageViewerOpen}
+              toggleViewer={this.toggleViewer}
+              views={this.state.preparedImages}
+              currentIndex={this.state.currImg}
+              getCurrentIndex={this.getCurrentIndex}
+              handleImageOverwrite={this.props.handleImageOverwrite}
+              toggleEditor={this.toggleEditor}
+              editorOpen={this.state.editorOpen}
+              toggleEditor={this.toggleEditor}
 
             />
 
-            { this.state.editCityFormOpen  & this.props.username === this.props.user ? 
-            <EditCity
-            isOpen={this.state.editCityFormOpen}
-            toggle={this.toggleEditCityForm}
-            handleEditCity={this.handleEditCity}
-            data={this.state.selectedCity}
-            /> : null }
+            {this.state.editCityFormOpen & this.props.username === this.props.user ?
+              <EditCity
+                isOpen={this.state.editCityFormOpen}
+                toggle={this.toggleEditCityForm}
+                handleEditCity={this.handleEditCity}
+                data={this.state.selectedCity}
+              /> : null}
 
-            { this.state.editPlaceFormOpen & this.props.username === this.props.user ?
-            <EditPlace
-            isOpen={this.state.editPlaceFormOpen}
-            toggle={this.toggleEditPlaceForm}
-            handleEditPlace={this.handleEditPlace}
-            data={this.state.selectedPlace}
-            /> : null }
+            {this.state.editPlaceFormOpen & this.props.username === this.props.user ?
+              <EditPlace
+                isOpen={this.state.editPlaceFormOpen}
+                toggle={this.toggleEditPlaceForm}
+                handleEditPlace={this.handleEditPlace}
+                data={this.state.selectedPlace}
+              /> : null}
 
-            { this.state.addCityFormOpen && this.state.granularity === 1 && this.props.username === this.props.user ?  
-            <AddCity
-            isOpen={this.state.addCityFormOpen}
-            toggle={this.toggleAddCityForm}
-            handleAddCity={this.handleAddCity}
-            /> : null }
+            {this.state.addCityFormOpen && this.state.granularity === 1 && this.props.username === this.props.user ?
+              <AddCity
+                isOpen={this.state.addCityFormOpen}
+                toggle={this.toggleAddCityForm}
+                handleAddCity={this.handleAddCity}
+              /> : null}
 
-            { this.state.addPlaceFormOpen && this.state.granularity === 0 && this.props.username === this.props.user ? 
-            <AddPlace
-            isOpen={this.state.addPlaceFormOpen}
-            toggle={this.toggleAddPlaceForm}
-            handleAddPlace={this.handleAddPlace}
-            mapCenter={this.props.mapCenter}
-            cities={this.state.viewCities}
-            default={this.state.closestCity}
-            /> : null
+            {this.state.addPlaceFormOpen && this.state.granularity === 0 && this.props.username === this.props.user ?
+              <AddPlace
+                isOpen={this.state.addPlaceFormOpen}
+                toggle={this.toggleAddPlaceForm}
+                handleAddPlace={this.handleAddPlace}
+                mapCenter={this.props.mapCenter}
+                cities={this.state.viewCities}
+                default={this.state.closestCity}
+              /> : null
             }
 
-            { this.state.uploaderOpen && this.props.username === this.props.user ?
-            <ImageUploader 
-            handleImageSubmit={this.handleImageSubmit}
-            toggle={this.toggleUploader}
-            />
-            : null
+            {this.state.uploaderOpen && this.props.username === this.props.user ?
+              <ImageUploader
+                handleImageSubmit={this.handleImageSubmit}
+                toggle={this.toggleUploader}
+                handleEditPlaceRequestPending={this.state.handleEditPlaceRequestPending}
+              />
+              : null
             }
 
           </div>
         </React.Fragment>
-      ) 
+      )
     } else {
       return <div></div>
     }

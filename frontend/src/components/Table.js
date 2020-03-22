@@ -6,9 +6,13 @@ import { Scrollbars } from 'react-custom-scrollbars';
 import 'react-virtualized/styles.css'; // only needs to be imported once
 import "flag-icon-css/css/flag-icon.min.css";
 import { getDistanceBetweenTwoPoints } from '../utils/Formulas.js';
+import ReactCountryFlag from "react-country-flag"
 
-import { Add1, Add2, photoGallery1, mountain, touristAttraction, food, bar, Svg} from "../utils/SVGs"
+
+import { Add1, Add2, photoGallery1, mountain, touristAttraction, food, bar, park, establishment, Svg} from "../utils/SVGs"
 import OptionsDropdown from './Dropdown';
+
+//TODO look into sizing/width for the table
 
 const DISTANCE_FROM_CITY = 30
 const DISTANCE_FROM_PLACE = 20
@@ -20,6 +24,11 @@ const icons = {
 }
 
 const styles = theme => ({
+  container: {
+    backgroundColor: "#222",
+    color: "#d4dada"
+    // color: "#000"
+  },
   scrollBar: {
     width: "100%",
     height: "100%",
@@ -32,19 +41,19 @@ const styles = theme => ({
       outline: "none"
     },
     '&:hover': {
-      backgroundColor: "#BBBBBB",
+      // backgroundColor: "#d4dada",
     }
   },
-  gray: {
-    backgroundColor: "#f0f0f0"
+  row_a: {
+    backgroundColor: "#292929"
+
   },
-  white: {
-    // backgroundColor: "#f9f9f9"
-    backgroundColor: "#ddd"
+  row_b: {
+    backgroundColor: "#2e2e2e"
 
   },
   tableRowHover: {
-    backgroundColor: "#BBBBBB",
+    backgroundColor: "#0095d2",
   },
   cell: {
     display: "grid",
@@ -56,13 +65,16 @@ const styles = theme => ({
     gridTemplateColumns: "1fr 1fr 1fr"
   },
   cellFlag: {
-    width: 40,
-    height: 40,
-    margin: 'auto'
+    position: "absolute",
+    height: '30%',
+    left: '10%',
+    top: '35%',
+    width: 'auto'
   },
   cellText: {
     textAlign: 'center',
-    paddingLeft: "25%"
+    paddingLeft: "25%",
+    margin: 'auto'
   },
   cellImage: {
     width: 100,
@@ -75,7 +87,8 @@ const styles = theme => ({
     right: 10,
     height: 25,
     width: 25,
-    stroke: "#000000"
+    stroke: "#d4dada",
+    fill: "#d4dada"
   },
   photoGallerySVG: {
     position: 'absolute',
@@ -88,7 +101,9 @@ const styles = theme => ({
     position: 'absolute',
     height: '50%',
     left: 10,
-    top: '25%'
+    top: '25%',
+    // stroke: "#d4dada",
+    fill: "#d4dada"
   }
 })
 
@@ -98,7 +113,8 @@ class VirtualTable extends Component {
     this.state ={
       scrollTop: 0,
       images: [],
-      dropdownOpen: false
+      dropdownOpen: false,
+      ready: true,
     }
   }
 
@@ -120,68 +136,10 @@ class VirtualTable extends Component {
     const classes = this.props.classes;
     return clsx({[classes.tableRow]: index !== -1}, 
       {[classes.tableRowHover]: index === this.props.hoverIndex}, 
-      {[classes.white]: index % 2 === 0}, 
-      {[classes.gray]: index % 2 === 1},
+      {[classes.row_b]: index % 2 === 0}, 
+      {[classes.row_a]: index % 2 === 1},
     )
   }
-
-  // cellRendererCity = (cellData) => {
-  //   const classes = this.props.classes;
-  //   // console.log(cellData.rowData.city)
-  //   //TODO Find a better way to pick an image, maybe based on size
-  //   return (
-  //     <div className={clsx(classes.cell)}>
-  //       <span className={clsx(`flag-icon flag-icon-` + cellData.rowData.countryCode, classes.cellFlag)}></span>
-  //       <span>{cellData.rowData.city}, {cellData.rowData.country}</span>
-  //       {cellData.rowData.images.length ? <img className={clsx(classes.cellImage)} src={this.props.backendURL + cellData.rowData.images[0].src}></img> : null}
-        
-  //       { this.props.context === "Owner" ? 
-  //         <OptionsDropdown 
-  //         toggleEditForm={this.props.toggleEditForm} 
-  //         cellData={cellData} 
-  //         handleDeleteCity={this.props.handleDeleteCity}
-  //         /> : null 
-  //       }
-
-  //       { this.props.context === "Owner" ?
-  //         <svg
-  //         className={clsx(this.props.classes.addSVG)}
-  //         viewBox="0 0 1024 1024"
-  //         version="1.1"
-  //         xmlns="http://www.w3.org/2000/svg"
-  //         onClick={() => this.props.toggleUploader(cellData.cellData.pk)}
-  //         value={"KILL"}
-  //         >
-  //           <path
-  //           d={Add1}
-  //           fill="#737373"
-  //           value={"KILL"}
-  //           />
-  //           <path
-  //           d={Add2}
-  //           fill="#737373"
-  //           value={"KILL"}
-  //           />
-  //         </svg> : null
-  //       }
-
-  //       <svg
-  //         className={clsx(this.props.classes.photoGallerySVG)}
-  //         viewBox="0 0 512 512"
-  //         version="1.1"
-  //         xmlns="http://www.w3.org/2000/svg"
-  //         onClick={this.props.toggleGallery}
-  //         //value={"KILL"}
-  //         >
-  //           <path
-  //           d={photoGallery1}
-  //           fill="#737373"
-  //           //value={"KILL"}
-  //           />
-  //       </svg> 
-  //     </div>
-  //   )
-  // }
 
   generateSVG = (types) => {
     var icon;
@@ -193,21 +151,23 @@ class VirtualTable extends Component {
       icon = bar;
     } else if (types.includes("food") || types.includes("restaurant")) {
       icon = food;
+    } else if (types.includes("park")) {
+      icon = park;
+    } else {
+      icon = establishment
     }
 
-
-    var paths = icon.path.map(el => <path d={el}/>)
-    return (
-      <Svg className={clsx(this.props.classes.typeSVG)} viewbox={icon.viewBox}>
-        {paths}
-      </Svg>
-    )
+      var paths = icon.path.map(el => <path d={el}/>)
+      return (
+        <Svg className={clsx(this.props.classes.typeSVG)} viewbox={icon.viewBox}>
+          {paths}
+        </Svg>
+      )
   }
 
   cellRendererPlace = (cellData) => {
     const classes = this.props.classes;
     const countryCode = cellData.rowData.countryCode;
-    console.log(countryCode)
     return (
       <div>
 
@@ -218,38 +178,7 @@ class VirtualTable extends Component {
           {cellData.rowData.address}
         </p>
 
-        {/* {cellData.rowData.types.includes("natural_feature") ?
-          <svg
-          className={clsx(classes.typeSVG)}
-          viewBox={mountain.viewBox}
-          version="1.1"
-          xmlns="http://www.w3.org/2000/svg"
-          value={"KILL"}
-          >
-            <path
-            d={mountain.path}
-            value={"KILL"}
-            />
-          </svg> 
-          : null
-        } */}
-
-        {
-          this.generateSVG(cellData.rowData.types)
-        }
-
-        {/* { countryCode ? 
-        <span 
-        className={clsx(`flag-icon flag-icon-` + countryCode.toLowerCase())}
-        style={{
-          height: '20%',
-          width: '20%',
-          top: '40%',
-          position: 'absolute',
-          right: 10
-        }}
-        >
-        </span> : null } */}
+        { this.generateSVG(cellData.rowData.types) }
 
 
         { this.props.context === "Owner" ? 
@@ -283,7 +212,7 @@ class VirtualTable extends Component {
     )
   }
 
-  cellRenderer = (cellData) => {
+  cellRendererCity = (cellData) => {
     const classes = this.props.classes;
     const granularity = this.props.granularity
 
@@ -294,31 +223,26 @@ class VirtualTable extends Component {
       });
     }
     return (
-      <div className={granularity ? clsx(classes.cell) : null}>
-        {granularity ? <span className={clsx(`flag-icon flag-icon-` + cellData.rowData.countryCode, classes.cellFlag)}></span> : null}
+      <div>
+        <ReactCountryFlag
+        countryCode={cellData.rowData.countryCode}
+        svg
+        style={{
+            position: "absolute",
+            height: '30%',
+            left: '10%',
+            top: '35%',
+            width: 'auto'
+        }}
+        className={clsx(classes.cellFlag)}
+        title={cellData.rowDate}
+        />
 
-        {this.props.granularity ? 
-          <span>{cellData.rowData.city}, {cellData.rowData.country}</span> : 
-          <span>{cellData.rowData.name} {cellData.rowData.address} {cellData.rowData.types}</span>
-        }
+        <p className={clsx(classes.cellText)}>
+          {cellData.rowData.city}, <br />   {cellData.rowData.country}
+        </p>
 
-        {granularity && cellData.rowData.images.length ? <img className={clsx(classes.cellImage)} src={this.props.backendURL + cellData.rowData.images[0].src}></img> : null}
-        
-        {this.props.granularity === 0 && cellData.rowData.types.includes("natural_feature") ?
-          <svg
-          // className={clsx(this.props.classes.addSVG)}
-          viewBox={mountain.viewBox}
-          version="1.1"
-          xmlns="http://www.w3.org/2000/svg"
-          value={"KILL"}
-          >
-            <path
-            d={mountain.path}
-            value={"KILL"}
-            />
-          </svg> 
-          : null
-        }
+        {/* {granularity && cellData.rowData.images.length ? <img className={clsx(classes.cellImage)} src={this.props.backendURL + cellData.rowData.images[0].src}></img> : null} */}
 
         { this.props.context === "Owner" ? 
           <OptionsDropdown 
@@ -384,6 +308,7 @@ class VirtualTable extends Component {
     )
   }
 
+  //TODO implement some sort of throttle to prevent on click map centering from being overwritten by on row mouse over
   render = () => {
     const WIDTH = window.innerWidth * .3;
     //TODO Make this the height of the main component not the whole page
@@ -395,7 +320,7 @@ class VirtualTable extends Component {
     const HEADER_HEIGHT = 40;
 
     return (
-      <div>
+      <div className={this.props.classes.container}>
 
         <Scrollbars
         className={clsx(this.props.classes.scrollBar)}
@@ -417,16 +342,33 @@ class VirtualTable extends Component {
           }}
           onRowMouseOut={() => this.props.changeHoverIndex(null)}
           onRowClick={(obj, e) => {
-            this.props.tableRowClick(obj, e)
-            this.props.changeMapCenter(obj.rowData);
-
+            console.log(obj.event.target.getAttribute("value"))
+            // this.setState({
+              // clickTime: Date.now(),
+            // }, () => {
+              this.props.changeMapCenter(obj.rowData);
+              this.props.tableRowClick(obj, e)
+            // })
           }}
           >
             <Column 
             label="Destination" 
             dataKey="destination" 
             width={WIDTH}
-            cellRenderer={this.props.granularity ? this.cellRenderer : this.cellRendererPlace}
+            headerStyle={{
+              color: "#d4dada"
+            }}
+            headerRenderer={() => {
+              return (
+              <div style={{ 
+                textAlign: "center",
+                color: "#d4dada"
+              }}>
+                { this.props.granularity ? "Destinations" : "Places" }
+              </div>
+              )
+            }}
+            cellRenderer={this.props.granularity ? this.cellRendererCity : this.cellRendererPlace}
             cellDataGetter={({dataKey, rowData}) => rowData}
             //style={styles.tableRow}
             />

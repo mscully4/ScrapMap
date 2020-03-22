@@ -183,12 +183,15 @@ class PlaceSerializer(serializers.ModelSerializer):
     def update(self, instance, validated_data):
         #update all the fields of the Destination Model object
         instance.name = validated_data.get('name', instance.name)
-        instance.number = validated_data.get('number', instance.number)
-        instance.street = validated_data.get('street', instance.street)
+        instance.address = validated_data.get('address', instance.address)
         instance.city = validated_data.get('city', instance.city)
+        instance.county = validated_data.get('county', instance.county)
+        instance.state = validated_data.get('state', instance.state)
+        instance.countryCode = validated_data.get('countryCode', instance.countryCode)
         instance.country = validated_data.get('country', instance.country)
         instance.latitude = validated_data.get('latitude', instance.latitude)
         instance.longitude = validated_data.get('longitude', instance.longitude)
+
         instance.save()
 
         # #if the request has files attached to it

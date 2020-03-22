@@ -9,6 +9,8 @@ const theme = {
   },
   svg: {
     width: 30,
+    fill: "#d4dada"
+    
   },
   dropdownMenu: {
     // left: -120,

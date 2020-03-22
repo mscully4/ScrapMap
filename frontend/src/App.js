@@ -287,10 +287,9 @@ class App extends Component {
             <Switch>
               <Route path="/:username" render={(props) => this.renderMain(props)}></Route>
               {/* <Route path="/test" render={(props) => <Test {...props}/>}></Route> */}
-              <Route path="/" component={() => this.state.loggedIn ? this.renderMain() : this.renderHome()}></Route>
+              <Route path="/" render={(props) => this.state.loggedIn ? this.renderMain(props) : this.renderHome(props)}></Route>
             </Switch>
           </Router>  
-          <div style={styles.space}></div>
         </React.Fragment>
       )
     } else {
