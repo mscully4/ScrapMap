@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     'core',
     'rest_framework',
     'corsheaders',
+    'storages'
 
 ]
 
@@ -165,10 +166,24 @@ USE_TZ = True
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/2.2/howto/static-files/
+USE_S3 = True
 
-STATIC_URL = '/static/'
-STATIC_ROOT = 'http://storage.googleapis.com/scrapmap-static/static/'
-
-MEDIA_URL = '/media/'
-MEDIA_ROOT = os.getcwd() + "/ScrapMap/media"
-print(MEDIA_ROOT)
+if USE_S3:
+    # aws settings
+    AWS_ACCESS_KEY_ID = config['AWS'].get('ACCESS_KEY')
+    AWS_SECRET_ACCESS_KEY = config['AWS'].get('SECRET_ACCESS_KEY')
+    AWS_STORAGE_BUCKET_NAME = config['AWS'].get('BUCKET_NAME')
+    AWS_DEFAULT_ACL = None
+    AWS_S3_CUSTOM_DOMAIN = f'{AWS_STORAGE_BUCKET_NAME}.s3.amazonaws.com'
+    AWS_S3_OBJECT_PARAMETERS = {'CacheControl': 'max-age=86400'}
+    # s3 static settings
+    STATIC_LOCATION = 'static'
+    STATIC_URL = f'https://{AWS_S3_CUSTOM_DOMAIN}/{STATIC_LOCATION}/'
+    STATICFILES_STORAGE = 'ScrapMap.storage_backends.StaticStorage'
+    # s3 public media settings
+    PUBLIC_MEDIA_LOCATION = 'media'
+    MEDIA_URL = f'https://{AWS_S3_CUSTOM_DOMAIN}/{PUBLIC_MEDIA_LOCATION}/'
+    DEFAULT_FILE_STORAGE = 'ScrapMap.storage_backends.PrivateMediaStorage'
+else:
+    MEDIA_URL = '/media/'
+    MEDIA_ROOT = os.getcwd() + "/ScrapMap/media"

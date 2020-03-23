@@ -364,7 +364,8 @@ class Main extends React.Component {
     return data.map((obj, i) => {
       return {
         i: i,
-        src: this.props.backendURL + obj.src,
+        // src: this.props.backendURL + obj.src,
+        src: obj.src,
         width: obj.width,
         height: obj.height,
         caption: "",

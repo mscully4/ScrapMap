@@ -40,9 +40,9 @@ const styles = theme => ({
     '&:focus': {
       outline: "none"
     },
-    '&:hover': {
-      // backgroundColor: "#d4dada",
-    }
+    // '&:hover': {
+    //   // backgroundColor: "#d4dada",
+    // }
   },
   row_a: {
     backgroundColor: "#292929"
@@ -96,14 +96,15 @@ const styles = theme => ({
     width: 30,
     top: 10,
     right: 10,
+
   },
   typeSVG: {
     position: 'absolute',
     height: '50%',
     left: 10,
     top: '25%',
-    // stroke: "#d4dada",
-    fill: "#d4dada"
+    stroke: "#d4dada",
+    // fill: "#d4dada"
   }
 })
 
@@ -283,7 +284,7 @@ class VirtualTable extends Component {
           >
             <path
             d={photoGallery1}
-            fill={greyOutGalleryIcon ? "#bbb" : "#222"}
+            fill={greyOutGalleryIcon ? "444" : "#d4dada"}
             value={"KILL"}
             />
           </svg> 

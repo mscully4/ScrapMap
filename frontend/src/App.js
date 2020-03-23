@@ -24,7 +24,7 @@ library.add(faTrash);
 library.add(faSync);
 library.add(faEllipsisH)
 
-const BACKEND_URL = "http://localhost:8000";
+const BACKEND_URL = "http://localhost:8000"; 
 
 const styles = {
   space: {

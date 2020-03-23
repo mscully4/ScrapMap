@@ -80,12 +80,14 @@ const styles = theme => ({
   },
   Tooltip: {
     position: 'absolute',
-    backgroundColor: '#fff',
+    backgroundColor: '#0095d2',
     padding: '12px 21px',
     opacity: .9,
     fontSize: 13,
     whiteSpace: "nowrap",
-   visibility: "hidden",
+    visibility: "hidden",
+    boxShadow: "0 0 10px black",
+    borderRadius: 5,
     zIndex: 99999,
     "&:after": {
       position: "absolute",
@@ -93,7 +95,7 @@ const styles = theme => ({
       width: 0,
       height: 0,
 
-      borderTopColor: "#fff",
+      borderTopColor: "#0095d2",
 
       borderTopStyle: "Solid",
       borderTopWidth: "6px",
