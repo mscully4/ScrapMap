@@ -75,8 +75,7 @@ class EditCity extends React.Component {
         this.state.country !== this.props.data.country ||
         this.state.city !== this.props.data.city ||
         this.state.latitude !== this.props.data.latitude ||
-        this.state.longitude !== this.props.data.longitude ||
-        this.state.pictures.length > 0
+        this.state.longitude !== this.props.data.longitude
         )
     }
 

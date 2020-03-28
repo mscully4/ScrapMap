@@ -9,7 +9,7 @@ import { getDistanceBetweenTwoPoints } from '../utils/Formulas.js';
 import ReactCountryFlag from "react-country-flag"
 
 
-import { Add1, Add2, photoGallery1, mountain, touristAttraction, food, bar, park, establishment, Svg} from "../utils/SVGs"
+import { add, photoGallery1, mountain, touristAttraction, food, bar, park, establishment, Svg} from "../utils/SVGs"
 import OptionsDropdown from './Dropdown';
 
 //TODO look into sizing/width for the table
@@ -32,6 +32,7 @@ const styles = theme => ({
   scrollBar: {
     width: "100%",
     height: "100%",
+    // backgroundColor: "red"
   },
   tableRow: {
     cursor: 'pointer',
@@ -46,6 +47,7 @@ const styles = theme => ({
   },
   row_a: {
     backgroundColor: "#292929"
+              // clickTime: Date.now(),
 
   },
   row_b: {
@@ -191,24 +193,9 @@ class VirtualTable extends Component {
         }
 
         { this.props.context === "Owner" && this.props.granularity === 0 ?
-          <svg
-          className={clsx(classes.addSVG)}
-          viewBox="0 0 1024 1024"
-          version="1.1"
-          xmlns="http://www.w3.org/2000/svg"
-          onClick={() => this.props.toggleUploader(cellData.cellData.pk)}
-          value={"KILL"}
-          >
-            <path
-            d={Add1}
-            value={"KILL"}
-            />
-            <path
-            d={Add2}
-            value={"KILL"}
-            />
-          </svg> : null
-        }
+          <Svg viewBox={add.viewBox} className={clsx(classes.addSVG)} onClick={() => this.props.toggleUploader(cellData.cellData.pk)}>
+            {add.path.map(el => <path d={el} />)}
+          </Svg> : null }
       </div>
     )
   }
@@ -253,7 +240,7 @@ class VirtualTable extends Component {
           /> : null 
         }
 
-        { this.props.context === "Owner" && this.props.granularity === 0 ?
+        {/* { this.props.context === "Owner" && this.props.granularity === 0 ?
           <svg
           className={clsx(this.props.classes.addSVG)}
           viewBox="0 0 1024 1024"
@@ -271,7 +258,7 @@ class VirtualTable extends Component {
             value={"KILL"}
             />
           </svg> : null
-        }
+        } */}
 
         { this.props.granularity == 1 ?
           <svg
@@ -295,19 +282,23 @@ class VirtualTable extends Component {
   }
 
   getPlaces = () => {
-    // var places = [];
-    // if (this.props.closestCity.distanceFromMapCenter <= 20) {
-    //   places = this.props.places.filter((val) => val.destination === this.props.selectedCity.pk)
-    // } else {
-    //   places = this.props.places.filter((obj) => {
-    //     return getDistanceBetweenTwoPoints(this.props.mapCenter.lat, this.props.mapCenter.lng, obj.latitude, obj.longitude) < 30
-    //   })
-    // }
     return this.props.places.filter((el) => this.props.closestCity.distanceFromMapCenter <= DISTANCE_FROM_CITY ? 
       el.destination === this.props.selectedCity.pk : 
       getDistanceBetweenTwoPoints(this.props.mapCenter.lat, this.props.mapCenter.lng, el.latitude, el.longitude) < DISTANCE_FROM_PLACE
     )
   }
+
+  renderThumb({ style, ...props }) {
+    const thumbStyle = {
+      backgroundColor: "#0095d2"
+    };
+    return (
+      <div
+        style={{ ...style, ...thumbStyle }}
+        {...props} />
+    );
+  }
+
 
   //TODO implement some sort of throttle to prevent on click map centering from being overwritten by on row mouse over
   render = () => {
@@ -326,11 +317,14 @@ class VirtualTable extends Component {
         <Scrollbars
         className={clsx(this.props.classes.scrollBar)}
         onScroll={this.handleScroll}
+        // renderThumbHorizontal={this.renderView}
+        renderThumbVertical={obj => this.renderThumb(obj)}
+
         >
           <Table
           autoHeight
           scrollTop={this.state.scrollTop}
-          width={WIDTH}
+          width={WIDTH * .975}
           height={HEIGHT}
           headerHeight={HEADER_HEIGHT}
           rowHeight={HEIGHT / 5}
@@ -343,19 +337,14 @@ class VirtualTable extends Component {
           }}
           onRowMouseOut={() => this.props.changeHoverIndex(null)}
           onRowClick={(obj, e) => {
-            console.log(obj.event.target.getAttribute("value"))
-            // this.setState({
-              // clickTime: Date.now(),
-            // }, () => {
               this.props.changeMapCenter(obj.rowData);
               this.props.tableRowClick(obj, e)
-            // })
           }}
           >
             <Column 
             label="Destination" 
             dataKey="destination" 
-            width={WIDTH}
+            width={WIDTH * .975}
             headerStyle={{
               color: "#d4dada"
             }}

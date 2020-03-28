@@ -82,7 +82,6 @@ class App extends Component {
   }
 
   componentDidMount() {
-    console.log(13)
     window.addEventListener('resize', this.updateWindowDimensions);
     if (this.state.loggedIn) {
       this.handleLoadSession()
@@ -213,7 +212,8 @@ class App extends Component {
     return places
   }
 
-  renderHome = () => {
+  renderHome = (props) => {
+    console.log(props)
     return (
       <Home
       loggedIn={this.state.loggedIn} 
@@ -229,6 +229,7 @@ class App extends Component {
 
   renderMain = (props) => {
     //TODO validate this is the right logic
+    console.log(12)
     const user = props.match.params.username;
     const context = user === undefined || user === this.state.loggedInUser ? "Owner" : "Viewer";
     return (

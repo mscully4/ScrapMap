@@ -8,7 +8,6 @@ import Carousel, { ModalGateway } from 'react-images';
 
 import Map from '../components/Map';
 import Table from '../components/Table'
-import { closePath } from "../utils/SVGs"
 import ImageViewer from '../components/ImageViewer';
 import Navigation from '../components/NavBar'
 import { Add1, Add2 } from '../utils/SVGs';

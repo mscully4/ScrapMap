@@ -16,16 +16,18 @@ import AddPlace from '../components/AddPlace.js';
 
 import ImageUploader from '../components/ImageUploader.js';
 
-import { Add1, Add2 } from '../utils/SVGs';
+import { add, Svg } from '../utils/SVGs';
 import { getDistanceBetweenTwoPoints } from '../utils/Formulas.js';
 import { fetchCurrentUser, fetchToken, putNewUser, postNewCity, putEditCity, deleteCity, deletePlace, getUser, postNewPlace, putEditPlace } from "../utils/fetchUtils"
 
 const DEFAULT_CENTER = { lat: 33.7490, lng: -84.3880 }
+const FONT_GREY = "#d4dada"
+const ICE_BLUE = "#0095d2"
 
 const styles = theme => ({
   page: {
     backgroundColor: "#1a1a1a",
-    color: "#d4dada"
+    color: FONT_GREY
   },
   main: {
     display: "grid",
@@ -38,12 +40,27 @@ const styles = theme => ({
   },
   modalContent: {
     border: 'none',
-    height: '100%'
+    height: '100%',
+    backgroundColor: "transparent"
   },
   addSVG: {
     height: 100,
-    width: 100
+    width: 100,
+    fill: ICE_BLUE,
+    float: 'right',
+    margin: 50,
+    marginRight: 100
   },
+  factDiv: {
+    margin: "0px 100px",
+    padding: "20px 0px",
+    fontSize: 24,
+    color: FONT_GREY
+  },
+  factLine: {
+    textIndent: 20,
+    margin: 0
+  }
 })
 
 class Main extends React.Component {
@@ -190,13 +207,13 @@ class Main extends React.Component {
       handleEditPlaceRequestPending: true
     }, () => {
       putEditPlace(localStorage.getItem('token'), data)
-      .then(json => {
-        this.setState({
-          viewCities: json.map((el, i) => { return { ...el, index: i } }),
-          viewPlaces: this.props.compilePlaces(json),
-          handleEditPlaceRequestPending: false
+        .then(json => {
+          this.setState({
+            viewCities: json.map((el, i) => { return { ...el, index: i } }),
+            viewPlaces: this.props.compilePlaces(json),
+            handleEditPlaceRequestPending: false
+          })
         })
-      })
     })
   }
 
@@ -458,6 +475,26 @@ class Main extends React.Component {
     }))
   }
 
+  calculateFacts = (context) => {
+    if (context == "cities") {
+      const cities = []
+      this.state.viewCities.forEach(obj => {
+        cities.push(obj.city)
+      })
+      return cities.length
+    } else if (context == "countries") {
+      const countries = []
+      this.state.viewCities.forEach(obj => {
+        if (!countries.includes(obj.countryCode.toLowerCase())) {
+          countries.push(obj.countryCode.toLowerCase())
+        }
+      })
+      return countries.length
+    } else if (context == "places") {
+      return this.state.viewPlaces.length
+    }
+  }
+
   render() {
     if (this.state.ready) {
       return (
@@ -475,29 +512,17 @@ class Main extends React.Component {
             className={clsx(this.props.classes.page)}
           >
             {this.props.user === this.props.username && this.props.user !== null && this.props.username !== null ?
-              <svg
-                className={clsx(this.props.classes.addSVG)}
-                viewBox="0 0 1024 1024"
-                version="1.1"
-                xmlns="http://www.w3.org/2000/svg"
-                onClick={() => {
-                  if (this.state.granularity === 1) this.toggleAddCityForm();
-                  else this.toggleAddPlaceForm();
-                }}
-              >
-                <path
-                  d={Add1}
-                  fill="#737373"
-                />
-                <path
-                  d={Add2}
-                  fill="#737373"
-                />
-              </svg> : null}
+              <Svg viewBox={add.viewBox} className={clsx(this.props.classes.addSVG)} onClick={this.state.granularity ? this.toggleAddCityForm : this.toggleAddPlaceForm}>
+                {add.path.map(el => <path d={el} />)}
+              </Svg> : null
+            }
 
-            <p>
-              Granularity: {this.state.granularity} Zoom: {this.state.mapZoom} Selected City: {this.state.selectedCity ? this.state.selectedCity.city : ""} Closest City: {this.state.closestCity ? `${this.state.closestCity.city} ${this.state.closestCity.distanceFromMapCenter}` : ""}
-            </p>
+            <div className={clsx(this.props.classes.factDiv)}>
+              <span>You've Visited: </span><br />
+              <p className={clsx(this.props.classes.factLine)}>{`${this.calculateFacts('countries')} Countries`}</p>  
+              <p className={clsx(this.props.classes.factLine)}>{`${this.calculateFacts("cities")} Cities`}</p>
+              <p className={clsx(this.props.classes.factLine)}>{`${this.calculateFacts("places")} Places`}</p>
+            </div>
 
             <div className={clsx(this.props.classes.main)}>
               <Map
@@ -542,11 +567,36 @@ class Main extends React.Component {
 
             </div>
 
-            <Modal isOpen={this.state.galleryOpen} toggle={this.toggleGallery} size={"xl"}>
-              <Gallery
-                photos={this.state.preparedImages}
-                onClick={this.galleryOnClick}
-              />
+            <Modal
+              isOpen={this.state.galleryOpen}
+              toggle={this.toggleGallery}
+              size={"xl"}
+              style={{ backgroundColor: "transparent" }}
+              contentClassName={clsx(this.props.classes.modalContent)}
+              onClick={() => {
+                if (this.state.preparedImages.length === 0) {
+                  this.toggleGallery(false)
+                }
+              }}
+            >
+              {this.state.preparedImages.length > 0 ?
+                <Gallery
+                  photos={this.state.preparedImages}
+                  onClick={this.galleryOnClick}
+                />
+                :
+                <div
+                  style={{
+                    color: FONT_GREY,
+                    fontSize: "80px",
+                    paddingTop: "20%",
+                    paddingBottom: "25%",
+                    textAlign: "center",
+                    backgroundColor: "rgba(40, 40, 40, .6)",
+                    // backgroundColor: 'rgba(0,149,210, .7)',
+                    marginTop: "5%"
+                  }}
+                >No Images...</div>}
             </Modal>
 
             <ImageViewer
@@ -555,7 +605,7 @@ class Main extends React.Component {
               toggleViewer={this.toggleViewer}
               views={this.state.preparedImages}
               currentIndex={this.state.currImg}
-              getCurrentIndex={this.getCurrentIndex}
+              // getCurrentIndex={this.getCurrentIndex}
               handleImageOverwrite={this.props.handleImageOverwrite}
               toggleEditor={this.toggleEditor}
               editorOpen={this.state.editorOpen}

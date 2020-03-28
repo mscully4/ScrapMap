@@ -3,7 +3,7 @@ import ReactImageUploader from 'react-images-upload';
 import clsx from 'clsx';
 import { withStyles } from '@material-ui/styles'
 import { Button } from 'reactstrap'
-import { closePath } from '../utils/SVGs'
+import { close, Svg } from '../utils/SVGs'
 import MyDropzone from './Dropzone';
 import RingLoader from "react-spinners/RingLoader";
 import AutoComplete from './Autocomplete';
@@ -91,17 +91,9 @@ class ImageUploader extends React.Component {
       <div className={clsx(this.props.classes.imageUploaderPopUp)}>
         <div className={clsx(this.props.classes.imageUploaderHeader)}>
           <p className={clsx(this.props.classes.imageUploaderTitle)}>Image Uploader</p>
-          <svg
-            version="1.1"
-            xmlns="http://www.w3.org/2000/svg"
-            role="presentation"
-            viewBox="0 0 24 24"
-            className={clsx(this.props.classes.imageUploaderHeaderClose)}
-            onClick={this.onCloseClick}
-
-            >
-              <path d={closePath} />
-            </svg>
+          <Svg viewBox={close.viewBox} className={clsx(this.props.classes.imageUploaderHeaderClose)} onClick={this.onCloseClick}>
+            {close.path.map(el => <path d={el}/>)}
+          </Svg>
         </div>
         { this.props.handleEditPlaceRequestPending ?
           <RingLoader

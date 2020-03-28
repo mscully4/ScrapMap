@@ -98,9 +98,6 @@ export function putEditCity(token, data) {
   form.append('countryCode', data.countryCode)
   form.append('latitude', data.latitude);
   form.append('longitude', data.longitude);
-  for (var i=0; i<data.pictures.length; i++) {
-    form.append('images', data.pictures[i]);
-  }
 
   return fetch(baseURL + "core/destination/" + data.pk + "/", {
     method: "PUT",
