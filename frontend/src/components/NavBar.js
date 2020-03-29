@@ -17,16 +17,7 @@ import { withRouter, Link } from 'react-router-dom';
 import LoginForm from './LoginForm';
 import SignUpForm from './SignUpForm';
 
-// const Button__ = withHistory(({ history }) => (
-//   // <button
-//   //   type='button'
-//   //   onClick={() => { history.push('/') }}
-//   // >
-//   //   Click Me!
-//   // </button>
-// ))
-
-const classes = {
+const styles = {
   navbar: {
     backgroundColor: "#232323",
     color: "#d4dada"
@@ -43,7 +34,7 @@ const classes = {
   },
   button: {
     margin: '0 10px',
-    backgroundColor: '#4E6196',  
+    backgroundColor: '#0095d2',  
     width: 100,
     display: 'block',
   },
@@ -51,7 +42,7 @@ const classes = {
     height: 40,
     width: 40,
     cursor: 'pointer',
-  }
+  },
 }
 
 class Navigation extends React.Component {
@@ -85,7 +76,7 @@ class Navigation extends React.Component {
       form = 
         <Nav className="ml-auto" navbar>
           <NavItem>
-            <h3 style={classes.username}> Hello, {this.props.username} </h3>
+            <h3 style={styles.username}> Hello, {this.props.username} </h3>
           </NavItem>
           <NavItem>
             <h3 style={{margin: "0 10px"}} className="nav-divider"> | </h3>
@@ -99,7 +90,7 @@ class Navigation extends React.Component {
       form = 
         <Nav className="ml-auto" navbar>
           <NavItem>
-            <Button className="nav-button" onClick={this.toggleLogin}>Login</Button>
+            <Button className="nav-button" style={styles.button} onClick={this.toggleLogin}>Login</Button>
             <Modal isOpen={this.state.showLoginModal} toggle={this.toggleLogin}>
               <ModalHeader toggle={this.toggleLogin}>Login</ModalHeader>
                 <ModalBody>
@@ -111,7 +102,7 @@ class Navigation extends React.Component {
           </NavItem>
           <br />
           <NavItem>
-            <Button className="nav-button" onClick={this.toggleSignUp}>Sign Up</Button>
+            <Button className="nav-button" style={styles.button} onClick={this.toggleSignUp}>Sign Up</Button>
             <Modal isOpen={this.state.showSignUpModal} toggle={this.toggleSignUp}>
               <ModalHeader toggle={this.toggleSignUp}>Sign Up</ModalHeader>
                 <ModalBody>
@@ -124,8 +115,8 @@ class Navigation extends React.Component {
         </Nav>
     }
     return (
-      <Navbar style={classes.navbar} expand="md">
-        <NavbarBrand style={classes.title} className={classes.title} href="/">ScrapMap</NavbarBrand>
+      <Navbar style={styles.navbar} expand="md">
+        <NavbarBrand style={styles.title} className={styles.title} href="/">ScrapMap</NavbarBrand>
         <NavbarToggler />
         {form}
       </Navbar>

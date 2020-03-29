@@ -150,6 +150,7 @@ class App extends Component {
     e.preventDefault();
     putNewUser(data)
     .then(json => {
+      console.log(json)
       if (json) {
         localStorage.setItem("token", json.token);
         this.setState({

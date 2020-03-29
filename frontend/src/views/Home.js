@@ -1,10 +1,11 @@
 import React from 'react';
+import ReactDOM from 'react-dom';
 import Gallery from "react-photo-gallery";
 import { Modal } from 'reactstrap';
 import clsx from 'clsx'
 import { withStyles} from '@material-ui/styles';
 import Carousel, { ModalGateway } from 'react-images';
-
+import { Button, Form, Input} from 'reactstrap';
 
 import Map from '../components/Map';
 import Table from '../components/Table'
@@ -13,16 +14,9 @@ import Navigation from '../components/NavBar'
 import { Add1, Add2 } from '../utils/SVGs';
 import { getUser } from '../utils/fetchUtils';
 
-
-
 const styles = theme => ({
   main: {
-    display: "grid",
-    gridTemplateRows: "1fr",
-    gridTemplateColumns: "2fr 1fr",
-    width: '90%',
-    margin: 'auto',
-    border: "solid 1px red"
+    backgroundColor: "#1a1a1a"
   },
   modalContent: {
     border: 'none',
@@ -32,277 +26,97 @@ const styles = theme => ({
     height: 100,
     width: 100
   },
+  form: {
+    marginLeft: '10%',
+    marginTop: 50
+  },
+  input: {
+    width: "30%",
+    backgroundColor: "#232323",
+    border: "solid 1px #0095d2",
+    color: "#0095d2",
+  },
+  button: {
+    backgroundColor: "#0095d2",
+    // marginLeft: '5%',
+    marginTop: 20,
+    width: "30%"
+  }
 })
 
-class Viewer extends React.Component {
-  static defaultProps = {
-    cities: [],
-  }
+class Home extends React.Component {
 
   constructor(props) {
     super(props)
     this.state = {
-      //General
-      selectedCity: null,
-      hoverIndex: null,
-      //Map
-      //TODO change these to be the location of the first city in the saved data
-      granularity: 0,
-      mapCenter: {
-        lat: 33.7490, 
-        lng: -84.3880
-      },
-      mapZoom: 4,
-      //Gallery
-      galleryOpen: false,
-      //ImageViewer
-      imageViewerOpen: false,
-      currImg: null,
-      //ImageUploader
-      uploaderOpen: false,
-      uploaderPK: null,
-      images : [],
-      imageNames: [],
-      //Editor
-      editorOpen: false,
-      showLoader: false,
-      //EditForm
-      editFormOpen: false,
-      //addForm
-      addFormOpen: false
+      username: "",
+      password: "",
     }
   }
 
-  componentDidMount = () => {
-  }
+  handleChange = e => {
+    const name = e.target.name;
+    const value = e.target.value;
+    this.setState(prevState => {
+      const newState = { ...prevState };
+      newState[name] = value;
+      return newState;
+    });
+  };
 
-  //General Functions
-  setSelectedCity = (obj) => {
-    this.setState({
-      selectedCity: obj
-    })
-  }
-
-  changeHoverIndex = (index) => {
-    this.setState({
-      hoverIndex: index,
-    })
-
-    //console.log(index, this.props.cities[index])
-
-    // if (index !== null) {
-    //   this.setState({
-    //     mapCenter: {
-    //       lat: this.props.cities[index].latitude,
-    //       lng: this.props.cities[index].longitude
-    //     }
-    //   })
-    // }
-  }
-
-  //Map Functions
-  changeGranularity = (zoom) => {
-    this.setState({
-      granularity: zoom > 11 ? 0 : 1,
-      mapZoom: zoom,
-    })
-  }
-
-  changeMapCenter = (obj) => {
-    this.setState({
-      mapCenter: {
-        lat: obj.latitude,
-        lng: obj.longitude
-      }
-    })
-  }
-
-  //Gallery Functions
-  toggleGallery = (value) => {
-    const boolean = typeof(value) === 'boolean' ? value : !this.state.galleryOpen;
-    this.setState({
-      galleryOpen: boolean
-    })
-  }
-
-  galleryOnClick = (event, obj) => {
-    this.toggleGallery(false)
-    this.setCurrImg(obj.photo.i)
-    this.toggleViewer(true)
-  }
-
-  prepareImageURLS = (data) => {
-    return data.images.map((obj, i) => {
-      return {
-        i: i,
-        src: this.props.backendURL + obj.src, 
-        width: obj.width, 
-        height: obj.height}
-      })
-  }
-
-  //Table Functions
-
-  tableRowClick = (obj, e) => {
-    //TODO change this to using state logic
-    this.setState({
-      galleryOpen: obj.event.target.getAttribute("value") !== "KILL",
-      //images: images,
-      selectedCity: obj.rowData,
-    })
-  }
-
-  markerClick = (obj) => {
-    this.setState({
-      selectedCity: obj,
-      galleryOpen: true
-    })
-  }
-
-  //Viewer Functions
-  toggleViewer = (value) => {
-    const boolean = typeof(value)  === 'boolean' ? value : !this.state.editorOpen;
-    this.setState({
-      imageViewerOpen: boolean
-    })
-  }
-
-  //Uploader Functions
-  toggleUploader = (pk) => {
-    //If the uploader is already open, close it if the same city was clicked else change the PK to the new city if a new city was clicked
-    //ELSEIf the uploader was closed, open it with the pk selected
-    const uploaderOpen = this.state.uploaderOpen;
-    this.setState({
-      uploaderPK: !uploaderOpen ? pk : pk !== this.state.uploaderPK ? pk : null,
-      uploaderOpen: !uploaderOpen ? true : pk !== this.state.uploaderPK && pk !== null ? true : false,
-    })
-  }
-
-
-  handleImageSubmit= (e, data) => {
-    const formData = {
-      ...data, 
-      ...this.state.selectedCity
-    }
-    console.log(formData, data)
-    
-    this.props.handleEditCity(e, formData)
-  }
-
-  setCurrImg = (index) => {
-    this.setState({
-      currImg: index,
-    })
-  }
-
-  toggleEditor = (value) => {
-    const boolean = typeof(value)  === 'boolean' ? value : !this.state.editorOpen;
-    this.setState({
-      editorOpen: boolean
-    })
-  }
-
-  //Map Functions
-  setMapCenter = ( obj ) => {
-    this.setState({mapCenter: obj})
-  }
-
-  //Loader Functions
-  showLoader = (value) => {
-    this.setState({
-      showLoader: value
-    })
-  }
-
-  toggleEditForm = (value) => {
-    value = typeof(value) === 'boolean' ? value : !this.state.editFormOpen;
-    //if the editor is about to open, hide the hover box
-    //this.props.changeHoverIndex(null)
-    this.setState(prevState => ({
-      editFormOpen: value,
-      //hover: false,
-    }));
-  }
-
-  toggleAddForm = () => {
-    console.log(this.state.addFormOpen)
-    this.setState(prevState => ({
-      addFormOpen: !prevState.addFormOpen
-    }));
+  submitForm = () => {
+    ReactDOM.findDOMNode(this.formSignUp).dispatchEvent(new Event("submit"))
   }
 
   render() {
-    //console.log(this.props.u)
+    const classes = this.props.classes
     return (
-      <React.Fragment>
-        <Navigation 
-          loggedIn={this.props.loggedIn} 
-          username={this.props.username} 
-          handleLogout={this.props.handleLogout} 
+      <div style={{ height: window.innerHeight }} className={clsx(classes.main)}>
+        <Navigation
+          loggedIn={this.props.loggedIn}
+          username={this.props.username}
+          handleLogout={this.props.handleLogout}
           toggleLogin={this.props.toggleLogin}
           toggleSignUp={this.props.toggleSignUp}
           handleLogin={this.props.handleLogin}
           handleSignup={this.props.handleSignup}
-          username={this.props.username}
+        />
+        <Form ref={ref => this.formSignUp = ref} className={clsx(classes.form)} onSubmit={(e) => this.props.handleSignup(e, this.state)}>
+          <p 
+          style={{
+            color: "#0095d2",
+            fontSize: 36,
+            marginBottom: 12
+          }}
+          >
+            Sign Up Now!
+          </p>
+          <Input
+            type="text"
+            name="username"
+            placeholder={"Username"}
+            className={clsx(classes.input)}
+            autoComplete={"new-password"}
+            value={this.state.username}
+            onChange={this.handleChange}
           />
-        {/* <p>Granularity: {this.state.granularity}</p>
-
-        <div className={clsx(this.props.classes.main)}>
-          <Map 
-          center={this.state.mapCenter} 
-          zoom={this.state.mapZoom}
-          cities={ this.props.cities }
-          logged_in={ this.props.loggedIn }
-          //handleEditCity={this.props.handleEditCity}
-          //handleDeleteCity={this.props.handleDeleteCity}
-          //backendURL={this.props.backendURL}
-          hoverIndex={this.state.hoverIndex}
-          changeHoverIndex={this.changeHoverIndex}
-          setCurrImg={this.setCurrImg}
-          toggleImageViewerOpen={this.toggleImageViewerOpen}
-          markerClick={this.markerClick}
-          changeGranularity={this.changeGranularity}
+          <br />
+          <Input
+            type="text"
+            name="password"
+            placeholder={"Password"}
+            className={clsx(classes.input)}
+            autoComplete={"new-password"}
+            value={this.state.password}
+            onChange={this.handleChange}
           />
+        <Button className={clsx(classes.button)} onClick={this.submitForm}>Submit</Button>
 
-          <Table 
-          cities={this.props.cities}
-          backendURL={this.props.backendURL}
-          hoverIndex={this.state.hoverIndex}
-          changeHoverIndex={this.changeHoverIndex}
-          changeMapCenter={this.changeMapCenter}
-          tableRowClick={this.tableRowClick}
-          toggleEditForm={this.toggleEditForm}
-          handleDeleteCity={this.props.handleDeleteCity}
-          toggleUploader={this.toggleUploader}
-          />
+        </Form>
 
-          <Modal isOpen={this.state.galleryOpen} toggle={this.toggleGallery} size={"xl"}>
-            <Gallery 
-            photos={this.state.selectedCity ? this.prepareImageURLS(this.state.selectedCity) : null} 
-            onClick={this.galleryOnClick}
-            />
-          </Modal>
-
-
-          <ImageViewer 
-          backendURL={this.props.backendURL}
-          isOpen={this.state.imageViewerOpen} 
-          toggleViewer={this.toggleViewer}
-          views={this.props.cities.length ? this.props.cities[0].images : [{src: ""}]}
-          currentIndex={ this.state.currImg }
-          //changeCurrImg={ this.changeCurrImg }
-          //setCurrImg={ this.setCurrImg }
-          //backdropClosable={true}
-          handleImageOverwrite={this.props.handleImageOverwrite}
-          toggleEditor={this.toggleEditor}
-          showLoader={this.showLoader}
-          />
-
-
-        </div> */}
-      </React.Fragment>
+      </div>
     ) 
   }
 }
 
-export default withStyles(styles)(Viewer);
+export default withStyles(styles)(Home);
