@@ -1,8 +1,30 @@
 from django.db import models
 from django.template.defaultfilters import slugify
 from django.contrib.auth.models import User
+from django_countries.fields import CountryField
+from django.dispatch import receiver
+from django.db.models.signals import post_save
+
 
 # Create your models here.
+class UserProfile(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE)  
+    email = models.CharField(max_length=120)
+    first_name = models.CharField(max_length=60)
+    last_name = models.CharField(max_length=60)
+    city = models.CharField(max_length=120)
+    country = models.CharField(max_length=120)
+    zip_code = models.CharField(max_length=6)
+
+# @receiver(post_save, sender=User)
+# def create_user_profile(sender, instance, created, **kwargs):
+#     if created:
+#         UserInfo.objects.create(user=instance)
+
+# @receiver(post_save, sender=User)
+# def save_user_profile(sender, instance, **kwargs):
+#     instance.userinfo.save()
+
 class Destination(models.Model):
     #this allows one user to be linked to multiple destinations
     user = models.ForeignKey(User, on_delete=models.CASCADE)

@@ -8,7 +8,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView 
 from rest_framework.parsers import FileUploadParser
 
-from .serializers import UserSerializerLogin, UserSerializerSignUp, DestinationSerializer, DestinationImagesSerializer, PlaceSerializer
+from .serializers import UserSerializerLogin, UserSerializerSignUp, UserProfileSerializer, DestinationSerializer, DestinationImagesSerializer, PlaceSerializer
 from .models import Destination, DestinationImages, Place
 from django.core import serializers
 import json
@@ -38,12 +38,43 @@ class CreateUser(APIView):
 
     #POST requests only
     def post(self, request, format=None):
-        serializer = UserSerializerSignUp(data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        logger.error("Cannot Create New User: %s" % serializer.errors)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        valid = 0
+
+        user = {
+            'username': request.data['username'], 
+            'password': request.data['password']
+            }
+        user_serializer = UserSerializerSignUp(data=request.data)
+        if user_serializer.is_valid():
+            user_serializer.save()
+            valid += 1
+        else:
+            logger.error("Cannot Create New User: %s" % user_serializer.errors)
+
+        id_ = user_serializer.data['id']
+        user_info = {
+            'user': id_,
+            'email': request.data.get('email', ""), 
+            'last_name': request.data.get('last_name', ""),
+            'first_name': request.data.get('first_name', ""),
+            'city': request.data.get('city', ""),
+            'country': request.data.get('country', ""),
+            'zip_code': request.data.get('zip_code', "")
+            }
+        user_info_serializer = UserProfileSerializer(data=user_info, context={'request': request})
+        if user_info_serializer.is_valid():
+            user_info_serializer.save()
+            valid += 1
+        else:
+            logger.error("Cannot Create New User Profile: %s" % user_info_serializer.errors)
+
+
+        if valid == 2:
+            data = {**user_serializer.data, **user_info_serializer.data}
+            return Response(data, status=status.HTTP_201_CREATED)
+        else:
+            errors = {**user_serializer.errors, **user_info_serializer.errors}
+            return Response(dict(user_serializer.errors).update(dict(user_info_serializer.errors)), status=status.HTTP_400_BAD_REQUEST)
 
 #this returns the list of all destinations for a specified user and allows users to create new locations
 class DestinationListView(APIView):

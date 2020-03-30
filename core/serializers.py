@@ -7,15 +7,15 @@ from django.core.files.uploadedfile import InMemoryUploadedFile, TemporaryUpload
 
 
 from django.contrib.auth.models import User
-from .models import Destination, DestinationImages, Place, PlaceImages
+from .models import Destination, DestinationImages, Place, PlaceImages, UserProfile
 
 import logging
 logger = logging.getLogger('django')
 
-def pictures_2png(file):
-    buffer = StringIO()
-    Image.open(file).save(buffer, "PNG")
-    return InMemoryUploadedFile(buffer, None, 'test.png', 'image/png', buffer.nbytes, None)
+# def pictures_2png(file):
+#     buffer = StringIO()
+#     Image.open(file).save(buffer, "PNG")
+#     return InMemoryUploadedFile(buffer, None, 'test.png', 'image/png', buffer.nbytes, None)
 
 #Serializer for User log-ins
 class UserSerializerLogin(serializers.ModelSerializer):
@@ -51,55 +51,24 @@ class UserSerializerSignUp(serializers.ModelSerializer):
         
         #save the instance to the DB
         instance.save()
+        print(validated_data)
         return instance
 
     class Meta:
         #Use Django's built in User class
         model = User
         #serialize these fields
-        fields = ('token', 'username', 'password')
+        fields = ('id', 'token', 'username', 'password')
 
-#This is the serializer for new cities entered or when the user has a token stored on the browser
-# class DestinationListSerializer(serializers.ModelSerializer):
-#     images = serializers.SerializerMethodField()
-#     def get_images(self, obj):
-#         images = [{'src': obj.image.url, 'width': obj.image.width, 'height': obj.image.height, 'name': obj.image.__str__()} for obj in DestinationImages.objects.filter(destination=obj.pk)]
-#         return images
-
-#     places = serializers.SerializerMethodField()
-#     def get_places(self, obj):
-#         places = Place.objects.filter(destination=obj.pk)
-#         return [PlaceSerializer(place).data for place in Place.objects.filter(destination=obj.pk)]
-
-#     class Meta:
-#         model = Destination
-#         fields = ('pk', "city", "country", "countryCode", "latitude", "longitude", "images", "places")
-
-#     #called when a new city is created
-#     def create(self, validated_data):
-#         validated_data['user'] = self.context['request'].user
-#         #image_data = self.context.get('view').request.FILES
-#         #logger.info(image_data)
-#         instance = Destination.objects.create(**validated_data)
-#         print(validated_data)
-#         # #if the request has files attached to it
-#         # if self.context['request'].FILES:
-#         #     images = self.context['request'].FILES.getlist('images')
-#         #     #iterate over the list of images
-#         #     for i in range(len(images)):
-#         #         image = images[i]
-#         #         name = hashlib.sha224(images[i].__dict__['file'].getvalue()).hexdigest() + ".png"
-#         #         if images[i].__dict__['content_type'] != "image/png":
-#         #             #convert all incoming images to PNG for consistency/the Image Editor needs all images to be PNGs
-#         #             buffer = io.BytesIO()
-#         #             Image.open(images[i]).save(buffer, "PNG")
-#         #             #generate a unique name for the image
-#         #             #TODO run check to see if the image had already been uploaded for the user
-#         #             image = InMemoryUploadedFile(buffer, None, name, 'image/png', buffer.getbuffer().nbytes, None)
-#         #             #new.__dict__["_name"] = name
-#         #         DestinationImages.objects.create(destination=instance, image=image)
-        
-#         return instance
+class UserProfileSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = UserProfile
+        fields = ('user', 'email', 'first_name', 'last_name', 'city', 'country', 'zip_code')
+    
+    def create(self, validated_data):
+        print(12, validated_data)
+        # validated_data['user'] = User.objects.get(pk=self.context['user_id'])
+        return UserProfile.objects.create(**validated_data)
 
 class DestinationSerializer(serializers.ModelSerializer):
     #retrieve the image urls that correspond to the destination
@@ -194,7 +163,7 @@ class PlaceSerializer(serializers.ModelSerializer):
 
         instance.save()
 
-        # #if the request has files attached to it
+        #if the request has files attached to it
         if self.context['request'].FILES:
             images = self.context['request'].FILES.getlist('images')
             #iterate over the list of images
