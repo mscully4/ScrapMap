@@ -161,6 +161,17 @@ export function deletePlace(token, data) {
   .then(response => response.ok ? response.json() : null)
 }
 
+export function deleteImage(token, data) {
+  return fetch(baseURL + "core/image/" + data.pk + "/", {
+    method: "DELETE",
+    headers: {
+      Authorization: `JWT ${token}`,
+      "Content-Type": "application/json",
+    }
+  })
+  .then(response => response.ok ? response.json() : null)
+}
+
 //User Functions
 //TODO authorization should not be needed to access this
 export function getUser(token, username) {

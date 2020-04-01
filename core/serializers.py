@@ -66,12 +66,11 @@ class UserProfileSerializer(serializers.ModelSerializer):
         fields = ('user', 'email', 'first_name', 'last_name', 'city', 'country', 'zip_code')
     
     def create(self, validated_data):
-        print(12, validated_data)
         # validated_data['user'] = User.objects.get(pk=self.context['user_id'])
         return UserProfile.objects.create(**validated_data)
 
 class DestinationSerializer(serializers.ModelSerializer):
-    #retrieve the image urls that correspond to the destination
+    #I think this is garbage
     images = serializers.SerializerMethodField()
     def get_images(self, obj):
         images = [{'src': obj.image.url, 'width': obj.image.width, 'height': obj.image.height, 'name': obj.name, 'name': obj.image.__str__() } for obj in DestinationImages.objects.filter(destination=obj.pk)]
@@ -116,7 +115,8 @@ class DestinationSerializer(serializers.ModelSerializer):
 class PlaceSerializer(serializers.ModelSerializer):
     images = serializers.SerializerMethodField()
     def get_images(self, obj):
-        images = [{'src': obj.image.url, 'width': obj.image.width, 'height': obj.image.height, 'name': obj.name, 'name': obj.image.__str__() } for obj in PlaceImages.objects.filter(place=obj.pk)]
+        # images = [{'src': obj.image.url, 'width': obj.image.width, 'height': obj.image.height, 'name': obj.name, 'name': obj.image.__str__() } for obj in PlaceImages.objects.filter(place=obj.pk)]
+        images = [{'pk': el.pk, 'src': el.image.url, 'width': el.image.width, 'height': el.image.height, 'name': el.image.__str__() } for el in PlaceImages.objects.filter(place=obj.pk)]
         return images
 
     class Meta:

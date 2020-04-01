@@ -31,7 +31,7 @@ const styles = theme => ({
     marginTop: 50
   },
   input: {
-    width: "30%",
+    width: 350,
     backgroundColor: "#232323",
     border: "solid 1px #0095d2",
     color: "#0095d2",
@@ -40,7 +40,7 @@ const styles = theme => ({
     backgroundColor: "#0095d2",
     // marginLeft: '5%',
     marginTop: 20,
-    width: "30%"
+    width: 350
   }
 })
 
@@ -79,7 +79,7 @@ class Home extends React.Component {
           toggleLogin={this.props.toggleLogin}
           toggleSignUp={this.props.toggleSignUp}
           handleLogin={this.props.handleLogin}
-          handleSignup={this.props.handleSignup}
+          handleSignup={null}
         />
         <Form ref={ref => this.formSignUp = ref} className={clsx(classes.form)} onSubmit={(e) => this.props.handleSignup(e, this.state)}>
           <p 
@@ -87,10 +87,7 @@ class Home extends React.Component {
             color: "#0095d2",
             fontSize: 36,
             marginBottom: 12
-          }}
-          >
-            Sign Up Now!
-          </p>
+          }}>Sign Up Now!</p>
           <Input
             type="text"
             name="username"

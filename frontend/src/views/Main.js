@@ -18,7 +18,7 @@ import ImageUploader from '../components/ImageUploader.js';
 
 import { add, Svg } from '../utils/SVGs';
 import { getDistanceBetweenTwoPoints } from '../utils/Formulas.js';
-import { fetchCurrentUser, fetchToken, putNewUser, postNewCity, putEditCity, deleteCity, deletePlace, getUser, postNewPlace, putEditPlace } from "../utils/fetchUtils"
+import { fetchCurrentUser, fetchToken, putNewUser, postNewCity, putEditCity, deleteCity, deletePlace, deleteImage, getUser, postNewPlace, putEditPlace } from "../utils/fetchUtils"
 
 const DEFAULT_CENTER = { lat: 33.7490, lng: -84.3880 }
 const FONT_GREY = "#d4dada"
@@ -241,6 +241,17 @@ class Main extends React.Component {
       })
   }
 
+  //TODO on deletion of an image, update the image viewer/gallery
+  handleDeleteImage = (e, data) => {
+    e.preventDefault();
+    deleteImage(localStorage.getItem('token'), data).then(json => {
+      this.setState({
+        viewCities: json.map((el, i) => { return { ...el, index: i } }),
+        viewPlaces: this.props.compilePlaces(json)
+      })
+    })
+  }
+
   //General Functions
   setSelectedCity = (obj) => {
     this.setState({
@@ -380,6 +391,7 @@ class Main extends React.Component {
   prepareImageURLs = (data) => {
     return data.map((obj, i) => {
       return {
+        pk: obj.pk,
         i: i,
         // src: this.props.backendURL + obj.src,
         src: obj.src,
@@ -511,6 +523,15 @@ class Main extends React.Component {
           <div
             className={clsx(this.props.classes.page)}
           >
+            <p style={{
+              position: 'absolute',
+              fontSize: 24,
+              right: 220,
+              top: 150
+            }}>
+              {`Add a New ${this.state.granularity ? "City" : "Place"} -->`}
+            </p>
+
             {this.props.user === this.props.username && this.props.user !== null && this.props.username !== null ?
               <Svg viewBox={add.viewBox} className={clsx(this.props.classes.addSVG)} onClick={this.state.granularity ? this.toggleAddCityForm : this.toggleAddPlaceForm}>
                 {add.path.map(el => <path d={el} />)}
@@ -519,7 +540,7 @@ class Main extends React.Component {
 
             <div className={clsx(this.props.classes.factDiv)}>
               <span>You've Visited: </span><br />
-              <p className={clsx(this.props.classes.factLine)}>{`${this.calculateFacts('countries')} Countries`}</p>  
+              <p className={clsx(this.props.classes.factLine)}>{`${this.calculateFacts('countries')} Countries`}</p>
               <p className={clsx(this.props.classes.factLine)}>{`${this.calculateFacts("cities")} Cities`}</p>
               <p className={clsx(this.props.classes.factLine)}>{`${this.calculateFacts("places")} Places`}</p>
             </div>
@@ -606,7 +627,8 @@ class Main extends React.Component {
               views={this.state.preparedImages}
               currentIndex={this.state.currImg}
               // getCurrentIndex={this.getCurrentIndex}
-              handleImageOverwrite={this.props.handleImageOverwrite}
+              // handleImageOverwrite={this.props.handleImageOverwrite}
+              handleDeleteImage={this.handleDeleteImage}
               toggleEditor={this.toggleEditor}
               editorOpen={this.state.editorOpen}
               toggleEditor={this.toggleEditor}

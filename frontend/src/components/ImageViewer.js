@@ -79,7 +79,6 @@ export default class ImageViewer extends Component {
     //     currentIndex: props.currentIndex
     //   })
     // }
-
     return (
     <div style={theme.headerDiv}>
       { props.isModal ?  
@@ -87,7 +86,7 @@ export default class ImageViewer extends Component {
         <Svg style={theme.closeSVG} viewbox={close.viewBox} onClick={() => this.props.toggleViewer(false)}>
           {close.path.map(el => <path d={el}/>)}
         </Svg>
-        <Svg style={theme.trashSVG} viewbox={trash.viewBox}>
+        <Svg style={theme.trashSVG} viewbox={trash.viewBox} onClick={(e) => this.props.handleDeleteImage(e, props.currentView)}>
           {trash.path.map(el => <path d={el}/>)}
         </Svg>
 

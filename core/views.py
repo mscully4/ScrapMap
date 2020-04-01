@@ -9,7 +9,7 @@ from rest_framework.views import APIView
 from rest_framework.parsers import FileUploadParser
 
 from .serializers import UserSerializerLogin, UserSerializerSignUp, UserProfileSerializer, DestinationSerializer, DestinationImagesSerializer, PlaceSerializer
-from .models import Destination, DestinationImages, Place
+from .models import Destination, DestinationImages, Place, PlaceImages
 from django.core import serializers
 import json
 import copy
@@ -38,8 +38,10 @@ class CreateUser(APIView):
 
     #POST requests only
     def post(self, request, format=None):
+        #This has to be broken up into two different serializers unfortunately
         valid = 0
 
+        #first serialize the user name and password for Django's Built in User model
         user = {
             'username': request.data['username'], 
             'password': request.data['password']
@@ -51,7 +53,9 @@ class CreateUser(APIView):
         else:
             logger.error("Cannot Create New User: %s" % user_serializer.errors)
 
+        #Pull the pk of the new user
         id_ = user_serializer.data['id']
+        #Then serialize the user profile data fields for the profile model
         user_info = {
             'user': id_,
             'email': request.data.get('email', ""), 
@@ -74,7 +78,7 @@ class CreateUser(APIView):
             return Response(data, status=status.HTTP_201_CREATED)
         else:
             errors = {**user_serializer.errors, **user_info_serializer.errors}
-            return Response(dict(user_serializer.errors).update(dict(user_info_serializer.errors)), status=status.HTTP_400_BAD_REQUEST)
+            return Response(errors, status=status.HTTP_400_BAD_REQUEST)
 
 #this returns the list of all destinations for a specified user and allows users to create new locations
 class DestinationListView(APIView):
@@ -198,20 +202,19 @@ class PlaceView(APIView):
         #Since places are derived from destinations, provide an updated list of destinations
         return Response(DestinationSerializer(Destination.objects.filter(user=request.user), many=True).data)
 
-# class PlaceImagesView(APIView):
-#     parser_class = (FileUploadParser,)
+class PlaceImagesView(APIView):
 
-#     def get(self, request, pk, image):
-#         # boof = DestinationImages.objects.filter(image=image)
-#         # logger.info(boof)
-#         # serializer = DestinationImagesSerializer(boof)
-#         # if not serializer.is_valid():
-#         #     logger.info(serializer.errors)
-#         serializer = DestinationImagesSerializer(DestinationImages.objects.get(image=image, destination=pk))
-#         return Response(serializer.data)
+    # def get(self, request, pk, image):
+        # boof = DestinationImages.objects.filter(image=image)
+        # logger.info(boof)
+        # serializer = DestinationImagesSerializer(boof)
+        # if not serializer.is_valid():
+        #     logger.info(serializer.errors)
+        # serializer = DestinationImagesSerializer(DestinationImages.objects.get(image=image, destination=pk))
+        # return Response(serializer.data)
 
-#     def delete(self, request, pk, image):
-#         PlaceImages.objects.get(image=image, destination=pk).delete()
-#         serializer = PlaceSerializer(Destination.objects.get(user=pk))
-#         return Response(serializer.data)
+    def delete(self, request, pk):
+        PlaceImages.objects.get(pk=pk).delete()
+        return Response(DestinationSerializer(Destination.objects.filter(user=request.user), many=True).data)
+        
 

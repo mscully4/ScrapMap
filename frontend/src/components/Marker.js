@@ -39,7 +39,7 @@ const styles = theme => ({
     // width: K_SIZE,
     // height: K_SIZE,
     cursor: 'pointer',
-    fill: "red",
+    fill: "#0095d2",
     //backgroundColor: "blue",
   
     // border: '5px solid #f44336',
@@ -213,8 +213,13 @@ class Marker extends Component {
           height: HEIGHT + (HEIGHT * scale),
         }}
         >
+          
+          
           <path
             d={pin}
+          />
+          <path style={{fill: "Black"}}
+          d={'M112 316.94v156.69l22.02 33.02c4.75 7.12 15.22 7.12 19.97 0L176 473.63V316.94c-10.39 1.92-21.06 3.06-32 3.06s-21.61-1.14-32-3.06zM144 0C64.47'}
           />
         </svg>
 

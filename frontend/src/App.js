@@ -126,12 +126,9 @@ class App extends Component {
     // baseURL + token-auth/
   handleLogin = (e, data) => {
     e.preventDefault();
-
     fetchToken(data)
     .then(json => {
-      // console.log(json.token)
       if (json) {
-        console.log(json)
         localStorage.setItem('token', json.token);
         this.setState({
           loggedIn: true,
@@ -140,7 +137,7 @@ class App extends Component {
             el.index = i;
             return el;
           }),
-        }, () => console.log(this.state))
+        })
       }
     }) 
   }

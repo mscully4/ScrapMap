@@ -50,7 +50,7 @@ class Place(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     destination = models.ForeignKey(Destination, on_delete=models.CASCADE)
     name = models.CharField(max_length=240)
-    address = models.CharField(max_length=300)
+    address = models.CharField(max_length=300, blank=True, null=True)
     city = models.CharField(max_length=60)
     county = models.CharField(max_length=100, null=True, blank=True)
     state = models.CharField(max_length=50, null=True, blank=True)
@@ -58,8 +58,8 @@ class Place(models.Model):
     countryCode = models.CharField(max_length=2, null=True, blank=True)
     latitude = models.FloatField(default=0)
     longitude = models.FloatField(default=0)
-    placeId = models.CharField(max_length=150)
-    types = models.CharField(max_length=500)
+    placeId = models.CharField(max_length=150, null=True, blank=True)
+    types = models.CharField(max_length=500, null=True, blank=True)
 
 class PlaceImages(models.Model):
     place = models.ForeignKey(Place, on_delete=models.CASCADE)

@@ -1,8 +1,9 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Button,
+import {
+  Button,
   Navbar,
-  Nav, 
+  Nav,
   NavItem,
   Modal,
   ModalHeader,
@@ -24,17 +25,18 @@ const styles = {
   },
   title: {
     fontFamily: "Kaushan Script",
-    fontSize: 28,
+    fontSize: 36,
     color: "#0095d2",
   },
   username: {
     fontFamily: "Kaushan Script",
     fontSize: 24,
-    margin: "0 10px",
+    margin: "auto",
+    lineHeight: 'inherit'
   },
   button: {
     margin: '0 10px',
-    backgroundColor: '#0095d2',  
+    backgroundColor: '#0095d2',
     width: 100,
     display: 'block',
   },
@@ -42,6 +44,15 @@ const styles = {
     height: 40,
     width: 40,
     cursor: 'pointer',
+  },
+  divider: {
+    fontSize: 24,
+    margin: 'auto 10px',
+    lineHeight: 'inherit'
+  },
+  logout: {
+    color: "#0095d2",
+    fontSize: 24
   },
 }
 
@@ -58,60 +69,58 @@ class Navigation extends React.Component {
 
   toggleLogin = () => {
     this.setState(prevState => ({
-        showLoginModal: !prevState.showLoginModal,
+      showLoginModal: !prevState.showLoginModal,
     }));
-  } 
+  }
 
   toggleSignUp = () => {
     this.setState(prevState => ({
-        showSignUpModal: !prevState.showSignUpModal,
+      showSignUpModal: !prevState.showSignUpModal,
     }));
   }
-  
+
   render() {
     //this.updateWindowDimensions();
     let form, username, submitForm, addCity;
-      // console.log(this.props)
+    // console.log(this.props)
     if (this.props.loggedIn) {
-      form = 
+      form =
         <Nav className="ml-auto" navbar>
           <NavItem>
             <h3 style={styles.username}> Hello, {this.props.username} </h3>
           </NavItem>
           <NavItem>
-            <h3 style={{margin: "0 10px"}} className="nav-divider"> | </h3>
+            <h3 style={styles.divider}> | </h3>
           </NavItem>
           <NavItem>
             {/* <Button className="nav-button" onClick={this.props.handleLogout}>Logout</Button> */}
-            <Link onClick={this.props.handleLogout} to="/">Logout</Link>
+            <Link style={styles.logout} onClick={this.props.handleLogout} to="/">Logout</Link>
           </NavItem>
         </Nav>
-    } else { 
-      form = 
+    } else {
+      form =
         <Nav className="ml-auto" navbar>
           <NavItem>
             <Button className="nav-button" style={styles.button} onClick={this.toggleLogin}>Login</Button>
             <Modal isOpen={this.state.showLoginModal} toggle={this.toggleLogin}>
               <ModalHeader toggle={this.toggleLogin}>Login</ModalHeader>
-                <ModalBody>
-                  <LoginForm handleLogin={this.props.handleLogin}/>
-                </ModalBody>
-              <ModalFooter>
-              </ModalFooter>
+              <ModalBody>
+                <LoginForm handleLogin={this.props.handleLogin} />
+              </ModalBody>
             </Modal>
           </NavItem>
           <br />
-          <NavItem>
-            <Button className="nav-button" style={styles.button} onClick={this.toggleSignUp}>Sign Up</Button>
-            <Modal isOpen={this.state.showSignUpModal} toggle={this.toggleSignUp}>
-              <ModalHeader toggle={this.toggleSignUp}>Sign Up</ModalHeader>
+          {this.props.handleSignup ?
+            <NavItem>
+              <Button className="nav-button" style={styles.button} onClick={this.toggleSignUp}>Sign Up</Button>
+              <Modal isOpen={this.state.showSignUpModal} toggle={this.toggleSignUp}>
+                <ModalHeader toggle={this.toggleSignUp}>Sign Up</ModalHeader>
                 <ModalBody>
-                  <SignUpForm handleSignup={this.props.handleSignup}/>
+                  <SignUpForm handleSignup={this.props.handleSignup} />
                 </ModalBody>
-              <ModalFooter>
-              </ModalFooter>
-            </Modal>
-          </NavItem>
+              </Modal>
+            </NavItem> : null
+          }
         </Nav>
     }
     return (
