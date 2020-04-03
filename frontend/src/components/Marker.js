@@ -15,7 +15,7 @@ import PropTypes from 'prop-types';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { withStyles} from '@material-ui/styles';
 import clsx from 'clsx';
-import { pin } from '../utils/SVGs'
+import { pin, Svg } from '../utils/SVGs'
 
 import ImageViewer from './ImageViewer.js';
 import EditCity from './EditCity.js'
@@ -200,28 +200,25 @@ class Marker extends Component {
         left: (-WIDTH/2) - ((WIDTH * scale)/2)
       }}
       >
-        <svg
-        style={styles.addIcon}
-        viewBox="0 0 288 512"
-        version="1.1"
-        xmlns="http://www.w3.org/2000/svg"
-        className={clsx(this.props.classes.MarkerStyle, {[this.props.classes.MarkerStyleHover]: this.props.hoverIndex === this.props.data.index})}
-        data-tip
-        data-for={this.props.granularity ? this.props.data.city : null}
-        style={{
-          width: WIDTH + (WIDTH * scale),
-          height: HEIGHT + (HEIGHT * scale),
-        }}
+        <Svg
+          style={styles.addIcon}
+          viewBox={pin.viewBox}
+          className={clsx(this.props.classes.MarkerStyle, {[this.props.classes.MarkerStyleHover]: this.props.hoverIndex === this.props.data.index})}
+          data-tip
+          data-for={this.props.granularity ? this.props.data.city : null}
+          style={{
+            width: WIDTH + (WIDTH * scale),
+            height: HEIGHT + (HEIGHT * scale),
+          }}
         >
-          
-          
           <path
-            d={pin}
+            d={pin.path}
           />
-          <path style={{fill: "Black"}}
-          d={'M112 316.94v156.69l22.02 33.02c4.75 7.12 15.22 7.12 19.97 0L176 473.63V316.94c-10.39 1.92-21.06 3.06-32 3.06s-21.61-1.14-32-3.06zM144 0C64.47'}
+          {/* Two have a multi-colored pin, we need to lay one on top of the other */}
+          <path style={{ fill: "Black" }}
+            d={'M112 316.94v156.69l22.02 33.02c4.75 7.12 15.22 7.12 19.97 0L176 473.63V316.94c-10.39 1.92-21.06 3.06-32 3.06s-21.61-1.14-32-3.06zM144 0C64.47'}
           />
-        </svg>
+        </Svg>
 
         <div 
         style={{ left: (-this.state.tooltipWidth / 2) + 10 + (scale * 10), top: (-this.state.tooltipHeight / 2) - 35 - (scale * 5)}} 

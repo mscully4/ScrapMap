@@ -9,7 +9,26 @@ import { getDistanceBetweenTwoPoints } from '../utils/Formulas.js';
 import ReactCountryFlag from "react-country-flag"
 
 
-import { add, photoGallery1, mountain, touristAttraction, food, bar, park, establishment, zoo, university,amusementPark, casino, church, airport, shopping, Svg } from "../utils/SVGs"
+import { 
+  add, 
+  gallery, 
+  museum,
+  mountain, 
+  touristAttraction, 
+  food, 
+  bar, 
+  park, 
+  establishment, 
+  zoo, 
+  university,
+  amusementPark, 
+  casino, 
+  church, 
+  airport, 
+  shopping, 
+  stadium,
+  Svg, 
+  city_hall} from "../utils/SVGs"
 import OptionsDropdown from './Dropdown';
 
 //TODO look into sizing/width for the table
@@ -149,12 +168,16 @@ class VirtualTable extends Component {
     var icon;
     if (types.includes("natural_feature")) {
       icon = mountain;
+    } else if (types.includes('museum') || (types.includes('art_gallery'))) {
+      icon = museum;
     } else if (types.includes("zoo")) {
       icon = zoo;
     } else if (types.includes("church")) {
       icon = church;
     } else if (types.includes("casino")) {
       icon = casino;
+    } else if (types.includes("stadium")) {
+      icon = stadium;
     } else if (types.includes("bar")) {
       icon = bar;
     } else if (types.includes("food") || types.includes("restaurant")) {
@@ -163,8 +186,10 @@ class VirtualTable extends Component {
       icon = amusementPark;
     } else if (types.includes("park")) {
       icon = park;
-    } else if (types.includes("store") || types.includes("shopping_mall")) {
+    } else if (types.includes("store")) {
       icon = shopping;
+    } else if (types.includes("embassy") || types.includes("city_hall")) {
+      icon = city_hall
     } else if (types.includes('airport')) {
       icon = airport;
     } else if (types.includes("university")) {
@@ -208,7 +233,7 @@ class VirtualTable extends Component {
         }
 
         {this.props.context === "Owner" && this.props.granularity === 0 ?
-          <Svg viewBox={add.viewBox} className={clsx(classes.addSVG)} onClick={() => this.props.toggleUploader(cellData.cellData.pk)}>
+          <Svg viewBox={add.viewBox} value={"KILL"} className={clsx(classes.addSVG)} onClick={() => this.props.toggleUploader(cellData.cellData.pk)}>
             {add.path.map(el => <path d={el} />)}
           </Svg> : null}
       </div>
@@ -276,20 +301,28 @@ class VirtualTable extends Component {
         } */}
 
         {this.props.granularity == 1 ?
-          <svg
+          <Svg
             className={clsx(this.props.classes.photoGallerySVG)}
-            viewBox="0 0 512 512"
-            version="1.1"
-            xmlns="http://www.w3.org/2000/svg"
             onClick={(e) => { if (!greyOutGalleryIcon) this.props.onCityGalleryClick(cellData.cellData, e) }}
             value={"KILL"}
+            viewBox={gallery.viewBox}
           >
-            <path
-              d={photoGallery1}
-              fill={greyOutGalleryIcon ? "444" : "#d4dada"}
-              value={"KILL"}
-            />
-          </svg>
+            {gallery.path.map(el => <path d={el} fill={greyOutGalleryIcon ? "444" : "#d4dada"}/>)}
+          </Svg>
+          // <svg
+          //   className={clsx(this.props.classes.photoGallerySVG)}
+          //   viewBox="0 0 512 512"
+          //   version="1.1"
+          //   xmlns="http://www.w3.org/2000/svg"
+          //   onClick={(e) => { if (!greyOutGalleryIcon) this.props.onCityGalleryClick(cellData.cellData, e) }}
+          //   value={"KILL"}
+          // >
+          //   <path
+          //     d={photoGallery1}
+          //     fill={greyOutGalleryIcon ? "444" : "#d4dada"}
+          //     value={"KILL"}
+          //   />
+          // </svg>
           : null
         }
       </div>

@@ -7,15 +7,17 @@ import {
   Route,
   Link
 } from "react-router-dom";
+import RingLoader from "react-spinners/RingLoader";
+
 
 import Main from './views/Main';
 import Home from './views/Home';
 import Test from './views/Test';
 
-import {fetchCurrentUser, fetchToken, putNewUser, postNewCity, putEditCity, deleteCity, getUser, postNewPlace, putEditPlace } from "./utils/fetchUtils" 
+import { fetchCurrentUser, fetchToken, putNewUser } from "./utils/fetchUtils"
 
 import { library } from '@fortawesome/fontawesome-svg-core';
-import { faEdit, faTrash, faSync, fsEllipsisH, faEllipsisH  } from '@fortawesome/free-solid-svg-icons';
+import { faEdit, faTrash, faSync, fsEllipsisH, faEllipsisH } from '@fortawesome/free-solid-svg-icons';
 
 import "./App.css";
 
@@ -24,7 +26,7 @@ library.add(faTrash);
 library.add(faSync);
 library.add(faEllipsisH)
 
-const BACKEND_URL = "http://localhost:8000"; 
+const BACKEND_URL = "http://localhost:8000";
 
 const styles = {
   space: {
@@ -34,8 +36,8 @@ const styles = {
   quote: {
     fontFamily: "Parisienne",
     fontSize: 32,
-    color: '#000',  
-   /* color: #429bf5 !important,*/
+    color: '#000',
+    /* color: #429bf5 !important,*/
     textAlign: 'center',
     margin: '20px 0',
   }
@@ -60,11 +62,11 @@ class App extends Component {
   constructor(props) {
     console.log("CHORK")
     super(props);
-    
+
     let token = localStorage.getItem("token");
 
     this.state = {
-      loggedIn: token && (jwt_decode(token).exp > (Date.now()/1000)) ? true : false,
+      loggedIn: token && (jwt_decode(token).exp > (Date.now() / 1000)) ? true : false,
       loggedInUser: null,
       showLoginModal: false,
       modalSignUp: false,
@@ -77,7 +79,7 @@ class App extends Component {
       ready: false,
 
       //These need to be here because a new instance of Main is created every time, so the values held in state are lost
-      
+
     }
   }
 
@@ -97,24 +99,24 @@ class App extends Component {
   }
 
   updateWindowDimensions = () => {
-      this.setState({ width: window.innerWidth * .8, height: window.innerHeight * .8 });
+    this.setState({ width: window.innerWidth * .8, height: window.innerHeight * .8 });
   }
 
   handleLoadSession = (e) => {
     fetchCurrentUser(localStorage.getItem("token"))
       .then(data => {
         let places = [], index = 0
-        for (var i=0; i<data.destinations.length; ++i) {
-          for (var z=0; z<data.destinations[i].places.length; ++z) {
+        for (var i = 0; i < data.destinations.length; ++i) {
+          for (var z = 0; z < data.destinations[i].places.length; ++z) {
             var place = data.destinations[i].places[z];
-            places.push({...place, index})
+            places.push({ ...place, index })
             ++index
           }
         }
-        this.setState({ 
-          loggedInUser: data.user.username, 
+        this.setState({
+          loggedInUser: data.user.username,
           loggedInCities: data.destinations.map((el, i) => {
-            el.index=i;
+            el.index = i;
             return el;
           }),
           loggedInPlaces: places,
@@ -123,39 +125,39 @@ class App extends Component {
       });
   }
 
-    // baseURL + token-auth/
+  // baseURL + token-auth/
   handleLogin = (e, data) => {
     e.preventDefault();
     fetchToken(data)
-    .then(json => {
-      if (json) {
-        localStorage.setItem('token', json.token);
-        this.setState({
-          loggedIn: true,
-          loggedInUser: json.user.username,
-          loggedInCities: json.destinations.map((el, i) => {
-            el.index = i;
-            return el;
-          }),
-        })
-      }
-    }) 
+      .then(json => {
+        if (json) {
+          localStorage.setItem('token', json.token);
+          this.setState({
+            loggedIn: true,
+            loggedInUser: json.user.username,
+            loggedInCities: json.destinations.map((el, i) => {
+              el.index = i;
+              return el;
+            }),
+          })
+        }
+      })
   }
 
-    //baseURL + core/users/
+  //baseURL + core/users/
   handleSignup = (e, data) => {
     e.preventDefault();
     putNewUser(data)
-    .then(json => {
-      console.log(json)
-      if (json) {
-        localStorage.setItem("token", json.token);
-        this.setState({
-          loggedIn: true,
-          loggedInUser: json.username
-        })
-      }
-    })  
+      .then(json => {
+        console.log(json)
+        if (json) {
+          localStorage.setItem("token", json.token);
+          this.setState({
+            loggedIn: true,
+            loggedInUser: json.username
+          })
+        }
+      })
   };
 
   handleLogout = () => {
@@ -175,7 +177,7 @@ class App extends Component {
     // return new Promise(function(resolve, reject) {
     //   const buf = new Buffer(dataURL.replace(/^data:image\/\w+;base64,/, ""),'base64')
     //   const type = dataURL.split(';')[0].split('/')[1];
-      
+
 
     //   var params = {
     //     Bucket: "scrapmap",
@@ -200,10 +202,10 @@ class App extends Component {
 
   compilePlaces = (destinations) => {
     let places = [], index = 0
-    for (var i=0; i<destinations.length; ++i) {
-      for (var z=0; z<destinations[i].places.length; ++z) {
+    for (var i = 0; i < destinations.length; ++i) {
+      for (var z = 0; z < destinations[i].places.length; ++z) {
         var place = destinations[i].places[z];
-        places.push({...place, index})
+        places.push({ ...place, index })
         ++index
       }
     }
@@ -214,13 +216,13 @@ class App extends Component {
     console.log(props)
     return (
       <Home
-      loggedIn={this.state.loggedIn} 
-      loggedInUser={this.state.loggedInUser} 
-      handleLogout={this.handleLogout} 
-      toggleLogin={this.toggleLogIn}
-      toggleSignUp={this.toggleSignUp}
-      handleLogin={this.handleLogin}
-      handleSignup={this.handleSignup}
+        loggedIn={this.state.loggedIn}
+        loggedInUser={this.state.loggedInUser}
+        handleLogout={this.handleLogout}
+        toggleLogin={this.toggleLogIn}
+        toggleSignUp={this.toggleSignUp}
+        handleLogin={this.handleLogin}
+        handleSignup={this.handleSignup}
       />
     )
   }
@@ -232,28 +234,28 @@ class App extends Component {
     const context = user === undefined || user === this.state.loggedInUser ? "Owner" : "Viewer";
     return (
       <Main
-      {...props}
-      context={context}
-      compilePlaces={this.compilePlaces}
-      //Navigation Props
-      loggedIn={this.state.loggedIn} 
-      loggedInUser={this.state.loggedInUser} 
-      loggedInCities={this.state.loggedInCities}
-      loggedInPlaces={this.state.loggedInPlaces}
-      handleLogout={this.handleLogout} 
-      toggleLogin={this.toggleLogIn}
-      toggleSignUp={this.toggleSignUp}
-      handleLogin={this.handleLogin}
-      handleSignup={this.handleSignup}
-      //view info
-      viewUser={user}
-      //Map Props
-      handleAddCity={this.handleAddCity}
-      handleAddPlace={this.handleAddPlace} 
-      handleEditCity={this.handleEditCity}
-      handleDeleteCity={this.handleDeleteCity}
-      handleImageOverwrite={this.handleImageOverwrite}
-      backendURL={BACKEND_URL}
+        {...props}
+        context={context}
+        compilePlaces={this.compilePlaces}
+        //Navigation Props
+        loggedIn={this.state.loggedIn}
+        loggedInUser={this.state.loggedInUser}
+        loggedInCities={this.state.loggedInCities}
+        loggedInPlaces={this.state.loggedInPlaces}
+        handleLogout={this.handleLogout}
+        toggleLogin={this.toggleLogIn}
+        toggleSignUp={this.toggleSignUp}
+        handleLogin={this.handleLogin}
+        handleSignup={this.handleSignup}
+        //view info
+        viewUser={user}
+        //Map Props
+        handleAddCity={this.handleAddCity}
+        handleAddPlace={this.handleAddPlace}
+        handleEditCity={this.handleEditCity}
+        handleDeleteCity={this.handleDeleteCity}
+        handleImageOverwrite={this.handleImageOverwrite}
+        backendURL={BACKEND_URL}
       />)
   }
 
@@ -288,11 +290,35 @@ class App extends Component {
               {/* <Route path="/test" render={(props) => <Test {...props}/>}></Route> */}
               <Route path="/" render={(props) => this.state.loggedIn ? this.renderMain(props) : this.renderHome(props)}></Route>
             </Switch>
-          </Router>  
+          </Router>
         </React.Fragment>
       )
     } else {
-      return <div></div>
+      return (
+        <div style={{
+          width: window.innerWidth,
+          height: window.innerHeight,
+          backgroundColor: "#000000",
+        }}>
+          <RingLoader
+            color={"#0095d2"}
+            loading={true}
+            css={`margin: auto; background-color: #000000; top: ${(window.innerHeight - 500) / 2.5}px`}
+            // ; height: ${window.innerHeight}px; width: ${window.innerWidth}px`}
+            size={500}
+          />
+          <p style={{ 
+            position: 'absolute',
+            left: 0,
+            right: 0,
+            color: "#0095d2",
+            textAlign: 'center',
+            fontSize: 50,
+            bottom: window.innerHeight *.1,
+            opacity: .7
+          }}>Loading...</p>
+        </div>
+      )
     }
   }
 }

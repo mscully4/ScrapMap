@@ -1,12 +1,10 @@
 import React from 'react';
-import ReactImageUploader from 'react-images-upload';
 import clsx from 'clsx';
 import { withStyles } from '@material-ui/styles'
 import { Button } from 'reactstrap'
 import { close, Svg } from '../utils/SVGs'
 import MyDropzone from './Dropzone';
 import RingLoader from "react-spinners/RingLoader";
-import AutoComplete from './Autocomplete';
 
 
 
@@ -86,6 +84,7 @@ class ImageUploader extends React.Component {
   }
 
   render() {
+    console.log(this.props.submitImageLoading)
     const classes = this.props.classes;
     return (
       <div className={clsx(this.props.classes.imageUploaderPopUp)}>
@@ -95,12 +94,12 @@ class ImageUploader extends React.Component {
             {close.path.map(el => <path d={el}/>)}
           </Svg>
         </div>
-        { this.props.handleEditPlaceRequestPending ?
+        { !this.props.submitImageLoading ?
           <RingLoader
-            size={100}
-            color={"#123abc"}
+            size={200}
+            color={"#0095d2"}
             loading={true}
-            css={"margin: auto;"}
+            css={"margin: auto; top: 100px; "}
           /> :
           <div className={clsx(classes.imageUploaderDiv)}>
             <MyDropzone onDrop={this.onDrop} className={clsx(classes.dropzone)}/>
@@ -108,7 +107,7 @@ class ImageUploader extends React.Component {
             <Button color={"#0095d2"} className={classes.button} disabled={this.state.pictures.length === 0} onClick={
               (e) => {
                 this.props.handleImageSubmit(e, this.state)
-                this.props.toggle(null)
+                // this.props.toggle(null)
               }}
             >
               Submit

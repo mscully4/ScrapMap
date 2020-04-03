@@ -8,7 +8,7 @@ import ReactAutocomplete from 'react-autocomplete';
 
 
 // const placeURL= "https://maps.googleapis.com/maps/api/place/autocomplete/json?types=establishment&strictbounds&"
-const placeURL = "https://maps.googleapis.com/maps/api/place/autocomplete/json?strictbounds&"
+const placeURL = "https://maps.googleapis.com/maps/api/place/autocomplete/json?"
 
 const cityURL = "https://maps.googleapis.com/maps/api/place/autocomplete/json?types=(cities)&"
 //input=Amoeba&location=37.76999,-122.44696&radius=500&strictbounds&key=YOUR_API_KEY
@@ -31,6 +31,16 @@ class AutoComplete extends React.Component {
     };
 
     this.myRef = React.createRef();
+  }
+
+  componentDidMount = () => {
+    this.props.clearSuggestionsHook(this.clearSuggestions)
+  }
+
+  clearSuggestions = () => {
+    this.setState({
+      suggestions: []
+    })
   }
 
   handleChange = e => {
@@ -77,7 +87,9 @@ class AutoComplete extends React.Component {
   }
 
   loadPlaceSuggestions = (input) => {
-    const parameters = `input=${input}&location=${this.props.location.lat},${this.props.location.lng}&radius=${this.props.location.radius}&key=${this.state.apiKey}`
+    console.log(this.props.location)
+    const parameters = `input=${input}&location=${this.props.location.lat},${this.props.location.lng}&radius=${this.props.searchRadius}&key=${this.state.apiKey}${this.props.strictBounds ? "&strictbounds" : ""}`
+    console.log(placeURL + parameters)
     return fetch(placeURL + parameters, {
       method: "GET",
       headers: {

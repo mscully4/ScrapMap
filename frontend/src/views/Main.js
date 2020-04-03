@@ -3,6 +3,8 @@ import Gallery from "react-photo-gallery";
 import { Modal } from 'reactstrap';
 import { withStyles } from '@material-ui/styles';
 import clsx from 'clsx'
+import RingLoader from "react-spinners/RingLoader";
+
 
 import Navigation from '../components/NavBar'
 import Map from '../components/Map';
@@ -102,6 +104,7 @@ class Main extends React.Component {
       uploaderPK: null,
       images: [],
       imageNames: [],
+      submitImageLoading: false,
       //Editor
       editorOpen: false,
       showLoader: false,
@@ -204,15 +207,15 @@ class Main extends React.Component {
   handleEditPlace = (e, data) => {
     e.preventDefault();
     this.setState({
-      handleEditPlaceRequestPending: true
+      submitImageLoading: true
     }, () => {
       putEditPlace(localStorage.getItem('token'), data)
         .then(json => {
           this.setState({
             viewCities: json.map((el, i) => { return { ...el, index: i } }),
             viewPlaces: this.props.compilePlaces(json),
-            handleEditPlaceRequestPending: false
-          })
+            submitImageLoading: false
+          }, () => this.toggleUploader(null))
         })
     })
   }
@@ -438,7 +441,6 @@ class Main extends React.Component {
       ...data,
       ...this.state.selectedPlace
     }
-    console.log(formData)
     this.handleEditPlace(e, formData)
   }
 
@@ -673,7 +675,7 @@ class Main extends React.Component {
               <ImageUploader
                 handleImageSubmit={this.handleImageSubmit}
                 toggle={this.toggleUploader}
-                handleEditPlaceRequestPending={this.state.handleEditPlaceRequestPending}
+                submitImageLoading={this.state.submitImageLoading}
               />
               : null
             }
@@ -682,7 +684,31 @@ class Main extends React.Component {
         </React.Fragment>
       )
     } else {
-      return <div></div>
+      return (
+        <div style={{
+          width: window.innerWidth,
+          height: window.innerHeight,
+          backgroundColor: "#000000",
+        }}>
+          <RingLoader
+            color={"#0095d2"}
+            loading={true}
+            css={`margin: auto; background-color: #000000; top: ${(window.innerHeight - 500) / 2.5}px`}
+            // ; height: ${window.innerHeight}px; width: ${window.innerWidth}px`}
+            size={500}
+          />
+          <p style={{
+            position: 'absolute',
+            left: 0,
+            right: 0,
+            color: "#0095d2",
+            textAlign: 'center',
+            fontSize: 50,
+            bottom: window.innerHeight * .1,
+            opacity: .7
+          }}>Loading...</p>
+        </div>
+      )
     }
   }
 }
