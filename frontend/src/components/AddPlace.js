@@ -45,6 +45,7 @@ class AddPlace extends React.Component {
       zip: "",
       latitude: null,
       longitude: null,
+      main_type: null,
       types: null,
       placeId: "",
 
@@ -149,6 +150,12 @@ class AddPlace extends React.Component {
     this.clearSuggestions = func
   }
 
+  changeMainType = (type) => {
+    this.setState({
+      main_type: type
+    })
+  }
+
   render() {
     const options = this.props.cities.map((obj, i) => {
       return {
@@ -160,7 +167,30 @@ class AddPlace extends React.Component {
         longitude: obj.longitude,
       }
     })
-    console.log(this.clearSuggestions)
+
+    const placeTypes = []
+    var counter = 0
+    this.props.placeTypes.forEach((obj, i) => {
+      if (typeof obj === 'string') {
+        placeTypes.push({
+          index: counter,
+          value: obj,
+          label: obj
+        })
+        counter++;
+      } else if (typeof obj === 'object') {
+        obj.forEach((el, x) => {
+          placeTypes.push({
+            index: counter,
+            value: el,
+            label: el
+          })
+          counter++;
+        })
+      }
+    })
+
+    console.log(placeTypes)
     return (
       <React.Fragment>
         <Modal isOpen={this.props.isOpen} toggle={this.props.toggle}>
@@ -220,6 +250,8 @@ class AddPlace extends React.Component {
                 strictBounds={this.state.strictBounds}
                 searchRadius={this.state.searchRadius * MILES_TO_METERS}
                 clearSuggestionsHook={this.clearSuggestionsHook}
+                changeMainType={this.changeMainType}
+                placeTypes={this.props.placeTypes}
               />
               <br />
               <Input
@@ -300,6 +332,23 @@ class AddPlace extends React.Component {
                 onChange={this.handleChange}
               //disabled={this.state.disabled}
               //autoComplete={"new-password"}
+              />
+              <br />
+              <Select
+                className="basic-single"
+                classNamePrefix="select"
+                // defaultValue={placeTypes[0]}
+                // isDisabled={isDisabled}
+                // isLoading={isLoading}
+                // isClearable={isClearable}
+                // isRtl={isRtl}
+                // isSearchable={isSearchable}
+                options={placeTypes}
+                onChange={option => {
+                  this.setState({
+                  main_type: option.value
+                })}}
+                value={placeTypes.find(el => el.value === this.state.main_type)}
               />
               <br />
               <MyDropzone />

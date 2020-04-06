@@ -22,9 +22,70 @@ import { add, Svg } from '../utils/SVGs';
 import { getDistanceBetweenTwoPoints } from '../utils/Formulas.js';
 import { fetchCurrentUser, fetchToken, putNewUser, postNewCity, putEditCity, deleteCity, deletePlace, deleteImage, getUser, postNewPlace, putEditPlace } from "../utils/fetchUtils"
 
+
+const PLACE_TYPES = [
+  "natural_feature",
+  ['museum', 'art_gallery'],
+  "zoo",
+  "church",
+  "casino",
+  "stadium",
+  "bar",
+  ["food", "restaurant"],
+  "amusement_park",
+  "park",
+  "store",
+  ["embassy","city_hall"],
+  'airport',
+  "university",
+  "tourist_attraction",
+  "establishment"
+]
+
 const DEFAULT_CENTER = { lat: 33.7490, lng: -84.3880 }
 const FONT_GREY = "#d4dada"
 const ICE_BLUE = "#0095d2"
+
+const DOLLAR_BILL = "#006400"
+const CHILI_PEPPER = "#9B1B30"
+const GALAXY_BLUE = "#2A4B7C"
+const BLUESTONE = "#577284"
+const ORANGE_TIGER = "#f96714"
+const EDEN = "#264e36"
+const TURMERIC = "#FE840E"
+const PINK_PEACOCK = "#C62168"
+const ASPEN_GOLD = "#FFD662"
+const TOFFEE = "#755139"
+const SWEET_LILAC = "#E8B5CE"
+const ULTRA_VIOLET = "#6B5B95"
+const TRUE_RED = "#BC243C"
+const BEER = "#f28e1c"
+const NEBULAS_BLUE = "#3F69AA"
+const LIMELIGHT = "#F1EA7F"
+const NOTRE_DAME_GOLD = "##D39F10"
+const MARBLE = "#fffcf0"
+const ARCADIA = "#00A591"
+const ISLAND_PARADISE = "#95DEE3"
+const HAZELNUT = "#CFB095"
+
+const colors = {
+  natural_feature: EDEN,
+  museum: ULTRA_VIOLET,
+  zoo: ORANGE_TIGER,
+  church: TRUE_RED,
+  casino: DOLLAR_BILL,
+  stadium: NEBULAS_BLUE,
+  bar: BEER,
+  food: CHILI_PEPPER,
+  amusement_park: GALAXY_BLUE,
+  park: SWEET_LILAC,
+  store: PINK_PEACOCK,
+  city_hall: MARBLE,
+  airport: BLUESTONE,
+  university: NOTRE_DAME_GOLD,
+  tourist_attraction: LIMELIGHT,
+  establishment: ARCADIA
+}
 
 const styles = theme => ({
   page: {
@@ -165,8 +226,7 @@ class Main extends React.Component {
   handleAddPlace = (e, data) => {
     e.preventDefault()
     console.log(data)
-    const payload =
-    {
+    const payload = {
       destination: data.closestCity.pk,
       name: data.name,
       address: data.address,
@@ -177,7 +237,8 @@ class Main extends React.Component {
       latitude: data.latitude,
       longitude: data.longitude,
       types: data.types,
-      placeId: data.placeId
+      placeId: data.placeId,
+      main_type: data.main_type 
     }
     if (this.props.loggedIn) {
       postNewPlace(localStorage.getItem('token'), payload)
@@ -565,6 +626,7 @@ class Main extends React.Component {
                 granularity={this.state.granularity}
                 changeMapCenter={this.changeMapCenter}
                 changeGranularity={this.changeGranularity}
+                colors={colors}
               />
 
               <Table
@@ -586,6 +648,7 @@ class Main extends React.Component {
                 mapCenter={this.state.mapCenter}
                 changeMapCenter={this.changeMapCenter}
                 onCityGalleryClick={this.cityGallery}
+                colors={colors}
               />
 
             </div>
@@ -668,6 +731,7 @@ class Main extends React.Component {
                 mapCenter={this.props.mapCenter}
                 cities={this.state.viewCities}
                 default={this.state.closestCity}
+                placeTypes={PLACE_TYPES}
               /> : null
             }
 
@@ -676,6 +740,7 @@ class Main extends React.Component {
                 handleImageSubmit={this.handleImageSubmit}
                 toggle={this.toggleUploader}
                 submitImageLoading={this.state.submitImageLoading}
+                loggedIn={this.state.loggedIn}
               />
               : null
             }

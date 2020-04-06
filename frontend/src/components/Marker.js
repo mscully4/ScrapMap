@@ -13,7 +13,7 @@ import PropTypes from 'prop-types';
 // } from 'reactstrap';
 // import { putEditCity } from "../utils/fetchUtils" 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { withStyles} from '@material-ui/styles';
+import { withStyles } from '@material-ui/styles';
 import clsx from 'clsx';
 import { pin, Svg } from '../utils/SVGs'
 
@@ -39,9 +39,9 @@ const styles = theme => ({
     // width: K_SIZE,
     // height: K_SIZE,
     cursor: 'pointer',
-    fill: "#0095d2",
+    // fill: "#0095d2",
     //backgroundColor: "blue",
-  
+
     // border: '5px solid #f44336',
     // borderRadius: K_SIZE,
     // backgroundColor: 'white',
@@ -51,10 +51,10 @@ const styles = theme => ({
     // fontWeight: 'bold',
     // padding: 4,
     // cursor: 'pointer',
-     "&:hover": {
-       fill: "black"
-     }
-  }, 
+    "&:hover": {
+      fill: "black"
+    }
+  },
   MarkerStyleHover: {
     fill: "black"
   },
@@ -117,15 +117,15 @@ const styles = theme => ({
 
 class Marker extends Component {
   static propTypes = {
-      text: PropTypes.string,
-      $hover: PropTypes.bool,
+    text: PropTypes.string,
+    $hover: PropTypes.bool,
   };
 
   static defaultProps = {
     //data: {city: "", country: "", countryCode: "", lat: null, lng: null, index: null, urls: [[]]},
   };
 
-    //shouldComponentUpdate = shouldPureComponentUpdate;
+  //shouldComponentUpdate = shouldPureComponentUpdate;
 
   constructor(props) {
     super(props);
@@ -187,23 +187,24 @@ class Marker extends Component {
 
   render() {
     const scale = ((this.props.zoom - 4) / 10);
-
+    const color = this.props.granularity ? "#0095d2" : this.props.colors[this.props.data.main_type];
+    console.log(color)
     return (
-    
-      <div 
-      onMouseEnter={this.onMouseEnter} 
-      onMouseLeave={this.onMouseLeave} 
-      className={clsx(this.props.classes.MarkerContainer)} 
-      onClick={() => this.props.markerClick(this.props.data)}
-      style={{
-        top: -HEIGHT - (HEIGHT * scale),
-        left: (-WIDTH/2) - ((WIDTH * scale)/2)
-      }}
+
+      <div
+        onMouseEnter={this.onMouseEnter}
+        onMouseLeave={this.onMouseLeave}
+        className={clsx(this.props.classes.MarkerContainer)}
+        onClick={() => this.props.markerClick(this.props.data)}
+        style={{
+          top: -HEIGHT - (HEIGHT * scale),
+          left: (-WIDTH / 2) - ((WIDTH * scale) / 2)
+        }}
       >
         <Svg
           style={styles.addIcon}
           viewBox={pin.viewBox}
-          className={clsx(this.props.classes.MarkerStyle, {[this.props.classes.MarkerStyleHover]: this.props.hoverIndex === this.props.data.index})}
+          className={clsx(this.props.classes.MarkerStyle, { [this.props.classes.MarkerStyleHover]: this.props.hoverIndex === this.props.data.index })}
           data-tip
           data-for={this.props.granularity ? this.props.data.city : null}
           style={{
@@ -212,24 +213,24 @@ class Marker extends Component {
           }}
         >
           <path
-            d={pin.path}
+            d={pin.path} fill={color}
           />
-          {/* Two have a multi-colored pin, we need to lay one on top of the other */}
+          {/* To have a multi-colored pin, we need to lay one on top of the other */}
           <path style={{ fill: "Black" }}
             d={'M112 316.94v156.69l22.02 33.02c4.75 7.12 15.22 7.12 19.97 0L176 473.63V316.94c-10.39 1.92-21.06 3.06-32 3.06s-21.61-1.14-32-3.06zM144 0C64.47'}
           />
         </Svg>
 
-        <div 
-        style={{ left: (-this.state.tooltipWidth / 2) + 10 + (scale * 10), top: (-this.state.tooltipHeight / 2) - 35 - (scale * 5)}} 
-        ref={this.ref} 
-        className={clsx(this.props.classes.Tooltip, {[this.props.classes.TooltipShow]: this.props.hoverIndex === this.props.data.index} )}
+        <div
+          style={{ left: (-this.state.tooltipWidth / 2) + 10 + (scale * 10), top: (-this.state.tooltipHeight / 2) - 35 - (scale * 5) }}
+          ref={this.ref}
+          className={clsx(this.props.classes.Tooltip, { [this.props.classes.TooltipShow]: this.props.hoverIndex === this.props.data.index })}
         >
           {this.props.granularity ? <span>{this.props.data.city}, {this.props.data.country}</span> : <span>{this.props.data.name}</span>}
           <br />
           <span>Click To View Gallery</span>
         </div>
-       
+
       </div>
     );
   }

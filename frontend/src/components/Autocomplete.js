@@ -87,9 +87,7 @@ class AutoComplete extends React.Component {
   }
 
   loadPlaceSuggestions = (input) => {
-    console.log(this.props.location)
     const parameters = `input=${input}&location=${this.props.location.lat},${this.props.location.lng}&radius=${this.props.searchRadius}&key=${this.state.apiKey}${this.props.strictBounds ? "&strictbounds" : ""}`
-    console.log(placeURL + parameters)
     return fetch(placeURL + parameters, {
       method: "GET",
       headers: {
@@ -110,11 +108,9 @@ class AutoComplete extends React.Component {
 
 
   onSelectPlace = (obj, selection) => {
-    console.log(selection)
-    const place_id = selection.place_id
+      const place_id = selection.place_id
     const name = selection.terms[0].value
     geocodeByPlaceId(place_id).then(data => {
-      console.log(data)
       var street_number = "", street = "", county = "", city = "", state = "", zip = "", country = "", address = "", countryCode = "";
       data[0].address_components.forEach(element => {
         if (element.types.includes("street_number")) street_number = element.long_name;
@@ -134,6 +130,15 @@ class AutoComplete extends React.Component {
       const longitude = parseFloat(data[0].geometry.location.lng().toFixed(4));
       const placeId = data[0].place_id
       const types = data[0].types.join(",")
+      //Establishment is the default type for all results
+      var main_type = "estalishment";
+      for (var i=0; i<this.props.placeTypes.length; ++i) {
+        if (data[0].types.includes(this.props.placeTypes[i])) {
+          main_type = this.props.placeTypes[i];
+          break
+        }
+      }
+      this.props.changeMainType(main_type)
       address = street_number + " " + street
       this.props.selectAutoSuggestPlace({ name, address, city, state, country, countryCode, county, zip, types, placeId, latitude, longitude })
     })

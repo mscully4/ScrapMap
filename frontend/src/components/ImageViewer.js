@@ -86,9 +86,10 @@ export default class ImageViewer extends Component {
         <Svg style={theme.closeSVG} viewbox={close.viewBox} onClick={() => this.props.toggleViewer(false)}>
           {close.path.map(el => <path d={el}/>)}
         </Svg>
+        { this.state.loggedIn ? 
         <Svg style={theme.trashSVG} viewbox={trash.viewBox} onClick={(e) => this.props.handleDeleteImage(e, props.currentView)}>
           {trash.path.map(el => <path d={el}/>)}
-        </Svg>
+        </Svg> : null }
 
         {/* { this.props.context === "Owner" ?
         <button role="button" style={theme.closeButton} onClick={() => {this.props.toggleViewer(false); this.props.toggleEditor(true)}}>

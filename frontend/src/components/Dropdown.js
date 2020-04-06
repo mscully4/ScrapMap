@@ -10,7 +10,7 @@ const theme = {
   },
   svg: {
     width: 30,
-    fill: "#d4dada"
+    // fill: "#d4dada"
 
   },
   dropdownMenu: {
@@ -41,6 +41,7 @@ export default class OptionsDropdown extends React.Component {
           <Svg
             viewBox="0 180 512 150"
             style={theme.svg}
+            fill={this.props.color}
             value="KILL"
           >
             {ellipsis.path.map(el => <path d={el} value="KILL" />)}

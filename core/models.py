@@ -60,6 +60,7 @@ class Place(models.Model):
     longitude = models.FloatField(default=0)
     placeId = models.CharField(max_length=150, null=True, blank=True)
     types = models.CharField(max_length=500, null=True, blank=True)
+    main_type = models.CharField(max_length=100, default="establishment")
 
 class PlaceImages(models.Model):
     place = models.ForeignKey(Place, on_delete=models.CASCADE)

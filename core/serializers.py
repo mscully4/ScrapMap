@@ -122,7 +122,7 @@ class PlaceSerializer(serializers.ModelSerializer):
     class Meta:
         model = Place
         fields = ('pk', 'destination', 'name', 'address', 'city', 'county', 'countryCode', 'state', 
-            'country', 'latitude', 'longitude', 'placeId', 'types', 'images')
+            'country', 'latitude', 'longitude', 'placeId', 'types', 'images', 'main_type')
 
     def create(self, validated_data):
         '''

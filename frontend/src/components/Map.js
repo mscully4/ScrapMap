@@ -17,7 +17,7 @@ const styles = {
 
 // const Map = controllable(['center', 'zoom', 'hoverKey', 'clickKey'])(
 class Map extends Component {
-  
+
   // static propTypes = {
   //   center: PropTypes.array,
   //   zoom: PropTypes.number,
@@ -64,7 +64,7 @@ class Map extends Component {
   //   this.props.onHoverKeyChange(null);
   // }
 
-  onChange = ({center, zoom}) => {
+  onChange = ({ center, zoom }) => {
     this.setState({
       center: center,
       zoom: zoom,
@@ -73,7 +73,7 @@ class Map extends Component {
     this.props.changeGranularity(zoom)
     // this.props.onCenterChange(center)
     // this.props.onZoomChange(zoom)
-    this.props.changeMapCenter({latitude: center.lat, longitude: center.lng}  )
+    this.props.changeMapCenter({ latitude: center.lat, longitude: center.lng })
     this.props.setClosestCity(this.props.getClosestCity(this.props.cities, center.lat, center.lng))
   }
 
@@ -83,7 +83,7 @@ class Map extends Component {
   //   });
   // }
 
-  
+
 
   createMapOptions = (maps) => {
     return {
@@ -105,33 +105,35 @@ class Map extends Component {
 
   createMarkers = (granularity) => {
     if (granularity && this.props.cities) {
-      return this.props.cities.map(data => 
+      return this.props.cities.map(data =>
         <Marker
-        key={data.pk}
-        lat={data.latitude}
-        lng={data.longitude}
-        data={data}
-        changeHoverIndex={this.props.changeHoverIndexCity}
-        hoverIndex={this.props.hoverIndexCity}
-        markerClick={this.props.markerClick}
-        zoom={this.props.zoom}
-        granularity={this.props.granularity}
-      />
+          key={data.pk}
+          lat={data.latitude}
+          lng={data.longitude}
+          data={data}
+          changeHoverIndex={this.props.changeHoverIndexCity}
+          hoverIndex={this.props.hoverIndexCity}
+          markerClick={this.props.markerClick}
+          zoom={this.props.zoom}
+          granularity={this.props.granularity}
+          colors={this.props.colors}
+        />
       )
     } else if (!granularity && this.props.places) {
-      return this.props.places.map(data => 
+      return this.props.places.map(data =>
         <Marker
-        key={data.pk}
-        lat={data.latitude}
-        lng={data.longitude}
-        data={data}
-        changeHoverIndex={this.props.changeHoverIndexPlace}
-        hoverIndex={this.props.hoverIndexPlace}
-        markerClick={this.props.markerClick}
-        zoom={this.props.zoom}
-        granularity={this.props.granularity}
+          key={data.pk}
+          lat={data.latitude}
+          lng={data.longitude}
+          data={data}
+          changeHoverIndex={this.props.changeHoverIndexPlace}
+          hoverIndex={this.props.hoverIndexPlace}
+          markerClick={this.props.markerClick}
+          zoom={this.props.zoom}
+          granularity={this.props.granularity}
+          colors={this.props.colors}
         />
-      )  
+      )
     }
   }
 
@@ -154,11 +156,11 @@ class Map extends Component {
           keyboardShortcuts={false}
           options={this.createMapOptions}
           onChange={this.onChange}
-          
-          // yesIWantToUseGoogleMapApiInternals
-          // onGoogleApiLoaded={({ map, maps }) => this.handleApiLoaded(map, maps)}
+
+        // yesIWantToUseGoogleMapApiInternals
+        // onGoogleApiLoaded={({ map, maps }) => this.handleApiLoaded(map, maps)}
         >
-          { this.createMarkers(this.props.granularity) }
+          {this.createMarkers(this.props.granularity)}
         </GoogleMapReact>
       </div>
     )

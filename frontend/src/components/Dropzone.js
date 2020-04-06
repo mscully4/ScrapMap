@@ -14,7 +14,6 @@ function MyDropzone(props) {
     });
   }, [])
   const {getRootProps, getInputProps, isDragActive} = useDropzone({onDrop})
-console.log(props)
   return (
     <div {...getRootProps()} className={props.className} style={{
       width: "80%", 
