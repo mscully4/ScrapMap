@@ -90,11 +90,11 @@ class ImageUploader extends React.Component {
       <div className={clsx(this.props.classes.imageUploaderPopUp)}>
         <div className={clsx(this.props.classes.imageUploaderHeader)}>
           <p className={clsx(this.props.classes.imageUploaderTitle)}>Image Uploader</p>
-          <Svg viewBox={close.viewBox} className={clsx(this.props.classes.imageUploaderHeaderClose)} onClick={this.onCloseClick}>
+          <Svg viewBox={close.viewBox} className={clsx(this.props.classes.imageUploaderHeaderClose)} onClick={this.props.submitImageLoading ? null : this.onCloseClick}>
             {close.path.map(el => <path d={el}/>)}
           </Svg>
         </div>
-        { !this.props.submitImageLoading ?
+        { this.props.submitImageLoading ?
           <RingLoader
             size={200}
             color={"#0095d2"}

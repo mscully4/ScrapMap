@@ -19,9 +19,9 @@ import AddPlace from '../components/AddPlace.js';
 import ImageUploader from '../components/ImageUploader.js';
 
 import { add, Svg } from '../utils/SVGs';
+import { place_colors, city_colors } from '../utils/colors';
 import { getDistanceBetweenTwoPoints } from '../utils/Formulas.js';
 import { fetchCurrentUser, fetchToken, putNewUser, postNewCity, putEditCity, deleteCity, deletePlace, deleteImage, getUser, postNewPlace, putEditPlace } from "../utils/fetchUtils"
-
 
 const PLACE_TYPES = [
   "natural_feature",
@@ -35,7 +35,7 @@ const PLACE_TYPES = [
   "amusement_park",
   "park",
   "store",
-  ["embassy","city_hall"],
+  ["embassy", "city_hall"],
   'airport',
   "university",
   "tourist_attraction",
@@ -43,7 +43,7 @@ const PLACE_TYPES = [
 ]
 
 const DEFAULT_CENTER = { lat: 33.7490, lng: -84.3880 }
-const FONT_GREY = "#d4dada"
+const FONT_GREY = "#f8f8ff"
 const ICE_BLUE = "#0095d2"
 
 const DOLLAR_BILL = "#006400"
@@ -52,7 +52,7 @@ const GALAXY_BLUE = "#2A4B7C"
 const BLUESTONE = "#577284"
 const ORANGE_TIGER = "#f96714"
 const EDEN = "#264e36"
-const TURMERIC = "#FE840E"
+const TUMERIC = "#FE840E"
 const PINK_PEACOCK = "#C62168"
 const ASPEN_GOLD = "#FFD662"
 const TOFFEE = "#755139"
@@ -69,6 +69,8 @@ const ISLAND_PARADISE = "#95DEE3"
 const HAZELNUT = "#CFB095"
 
 const colors = {
+  font_grey: FONT_GREY,
+  ice_blue: ICE_BLUE,
   natural_feature: EDEN,
   museum: ULTRA_VIOLET,
   zoo: ORANGE_TIGER,
@@ -83,14 +85,17 @@ const colors = {
   city_hall: MARBLE,
   airport: BLUESTONE,
   university: NOTRE_DAME_GOLD,
-  tourist_attraction: LIMELIGHT,
+  tourist_attraction: TUMERIC,
   establishment: ARCADIA
 }
+
+
 
 const styles = theme => ({
   page: {
     backgroundColor: "#1a1a1a",
-    color: FONT_GREY
+    color: FONT_GREY,
+    // fontFamily: "serif"
   },
   main: {
     display: "grid",
@@ -111,7 +116,7 @@ const styles = theme => ({
     width: 100,
     fill: ICE_BLUE,
     float: 'right',
-    margin: 50,
+    margin: '50px 0',
     marginRight: 100
   },
   factDiv: {
@@ -122,7 +127,8 @@ const styles = theme => ({
   },
   factLine: {
     textIndent: 20,
-    margin: 0
+    margin: 0,
+    color: FONT_GREY
   }
 })
 
@@ -160,6 +166,7 @@ class Main extends React.Component {
       imageViewerOpen: false,
       currImg: null,
       getCurrImg: null,
+      deleteDisabled: null,
       //ImageUploader
       uploaderOpen: false,
       uploaderPK: null,
@@ -185,7 +192,13 @@ class Main extends React.Component {
       getUser(localStorage.getItem("token"), this.props.viewUser).then(data => {
         //update state with the data, and allow rendering of child components, change map center to first city
         const mapCenter = data.length > 0 ? { latitude: data[0].latitude, longitude: data[0].longitude } : DEFAULT_CENTER;
-        const cities = data.map((el, i) => { return { ...el, index: i } })
+        const cities = data.map((el, i) => {
+          return {
+            ...el, 
+            index: i,
+            color: city_colors[Math.floor(Math.random() * city_colors.length)]
+          }
+        })
         this.changeMapCenter(mapCenter)
         this.setState({
           viewCities: cities,
@@ -211,10 +224,11 @@ class Main extends React.Component {
     if (this.props.loggedIn) {
       postNewCity(localStorage.getItem('token'), data)
         .then(res => {
-          console.log(res)
           if (res) {
             this.setState({
-              viewCities: this.state.viewCities.concat([{ ...res, index: this.state.viewCities.length }]),
+              viewCities: this.state.viewCities.concat([{
+                ...res, index: this.state.viewCities.length, color: city_colors[Math.floor(Math.random() * city_colors.length)]
+              }]),
               mapZoom: 4,
               mapCenter: { lat: res.latitude, lng: res.longitude }
             })
@@ -238,7 +252,7 @@ class Main extends React.Component {
       longitude: data.longitude,
       types: data.types,
       placeId: data.placeId,
-      main_type: data.main_type 
+      main_type: data.main_type
     }
     if (this.props.loggedIn) {
       postNewPlace(localStorage.getItem('token'), payload)
@@ -288,7 +302,7 @@ class Main extends React.Component {
         console.log(json)
         this.setState({
           viewCities: json.map((el, i) => { return { ...el, index: i } }),
-          viewPlaces: this.props.compilePlaces(json)
+          viewPlaces: this.props.compilePlaces(json),
         })
       })
   }
@@ -305,13 +319,26 @@ class Main extends React.Component {
       })
   }
 
-  //TODO on deletion of an image, update the image viewer/gallery
   handleDeleteImage = (e, data) => {
     e.preventDefault();
+    this.setState({
+      deleteDisabled: true,
+    })
+
     deleteImage(localStorage.getItem('token'), data).then(json => {
+      const city = json.find(obj => {
+        return obj.pk === this.state.selectedPlace.destination
+      })
+      const place = city.places.find(obj => {
+        return obj.pk === this.state.selectedPlace.pk
+      })
       this.setState({
         viewCities: json.map((el, i) => { return { ...el, index: i } }),
-        viewPlaces: this.props.compilePlaces(json)
+        viewPlaces: this.props.compilePlaces(json),
+        imageViewerOpen: false,
+        galleryOpen: true,
+        preparedImages: this.prepareImageURLs(place.images),
+        deleteDisabled: false,
       })
     })
   }
@@ -583,23 +610,26 @@ class Main extends React.Component {
             handleLogin={this.props.handleLogin}
             handleSignup={this.props.handleSignup}
           />
-          <div
-            className={clsx(this.props.classes.page)}
-          >
-            <p style={{
-              position: 'absolute',
-              fontSize: 24,
-              right: 220,
-              top: 150
-            }}>
-              {`Add a New ${this.state.granularity ? "City" : "Place"} -->`}
-            </p>
+         
 
             {this.props.user === this.props.username && this.props.user !== null && this.props.username !== null ?
               <Svg viewBox={add.viewBox} className={clsx(this.props.classes.addSVG)} onClick={this.state.granularity ? this.toggleAddCityForm : this.toggleAddPlaceForm}>
                 {add.path.map(el => <path d={el} />)}
               </Svg> : null
             }
+
+          <div
+            className={clsx(this.props.classes.page)}
+          >
+            <p style={{
+              fontSize: 24,
+              marginRight: 20,
+              marginTop: 80,
+              float: "right",
+              color: "#f8f8ff"
+            }}>
+              {`Add a New ${this.state.granularity ? "City" : "Place"} -->`}
+            </p>
 
             <div className={clsx(this.props.classes.factDiv)}>
               <span>You've Visited: </span><br />
@@ -626,7 +656,8 @@ class Main extends React.Component {
                 granularity={this.state.granularity}
                 changeMapCenter={this.changeMapCenter}
                 changeGranularity={this.changeGranularity}
-                colors={colors}
+                place_colors={place_colors}
+                city_colors={city_colors}
               />
 
               <Table
@@ -648,7 +679,8 @@ class Main extends React.Component {
                 mapCenter={this.state.mapCenter}
                 changeMapCenter={this.changeMapCenter}
                 onCityGalleryClick={this.cityGallery}
-                colors={colors}
+                place_colors={place_colors}
+                city_colors={city_colors}
               />
 
             </div>
@@ -694,10 +726,11 @@ class Main extends React.Component {
               // getCurrentIndex={this.getCurrentIndex}
               // handleImageOverwrite={this.props.handleImageOverwrite}
               handleDeleteImage={this.handleDeleteImage}
+              // toggleEditor={this.toggleEditor}
+              // editorOpen={this.state.editorOpen}
               toggleEditor={this.toggleEditor}
-              editorOpen={this.state.editorOpen}
-              toggleEditor={this.toggleEditor}
-
+              loggedIn={this.props.loggedIn}
+              deleteDisabled={this.state.deleteDisabled}
             />
 
             {this.state.editCityFormOpen & this.props.username === this.props.user ?
@@ -740,7 +773,6 @@ class Main extends React.Component {
                 handleImageSubmit={this.handleImageSubmit}
                 toggle={this.toggleUploader}
                 submitImageLoading={this.state.submitImageLoading}
-                loggedIn={this.state.loggedIn}
               />
               : null
             }

@@ -15,16 +15,9 @@ import Home from './views/Home';
 import Test from './views/Test';
 
 import { fetchCurrentUser, fetchToken, putNewUser } from "./utils/fetchUtils"
-
-import { library } from '@fortawesome/fontawesome-svg-core';
-import { faEdit, faTrash, faSync, fsEllipsisH, faEllipsisH } from '@fortawesome/free-solid-svg-icons';
+import { city_colors } from "./utils/colors"
 
 import "./App.css";
-
-library.add(faEdit);
-library.add(faTrash);
-library.add(faSync);
-library.add(faEllipsisH)
 
 const BACKEND_URL = "http://localhost:8000";
 
@@ -103,61 +96,59 @@ class App extends Component {
   }
 
   handleLoadSession = (e) => {
-    fetchCurrentUser(localStorage.getItem("token"))
-      .then(data => {
-        let places = [], index = 0
-        for (var i = 0; i < data.destinations.length; ++i) {
-          for (var z = 0; z < data.destinations[i].places.length; ++z) {
-            var place = data.destinations[i].places[z];
-            places.push({ ...place, index })
-            ++index
-          }
+    fetchCurrentUser(localStorage.getItem("token")).then(data => {
+      let places = [], index = 0
+      for (var i = 0; i < data.destinations.length; ++i) {
+        for (var z = 0; z < data.destinations[i].places.length; ++z) {
+          var place = data.destinations[i].places[z];
+          places.push({ ...place, index })
+          ++index
         }
-        this.setState({
-          loggedInUser: data.user.username,
-          loggedInCities: data.destinations.map((el, i) => {
-            el.index = i;
-            return el;
-          }),
-          loggedInPlaces: places,
-          ready: true,
-        })
-      });
+      }
+      this.setState({
+        loggedInUser: data.user.username,
+        loggedInCities: data.destinations.map((el, i) => {
+          el.index = i;
+          el.color = city_colors[Math.floor(Math.random() * city_colors.length)]
+          return el;
+        }),
+        loggedInPlaces: places,
+        ready: true,
+      })
+    });
   }
 
   // baseURL + token-auth/
   handleLogin = (e, data) => {
     e.preventDefault();
-    fetchToken(data)
-      .then(json => {
-        if (json) {
-          localStorage.setItem('token', json.token);
-          this.setState({
-            loggedIn: true,
-            loggedInUser: json.user.username,
-            loggedInCities: json.destinations.map((el, i) => {
-              el.index = i;
-              return el;
-            }),
-          })
-        }
-      })
+    fetchToken(data).then(json => {
+      if (json) {
+        localStorage.setItem('token', json.token);
+        this.setState({
+          loggedIn: true,
+          loggedInUser: json.user.username,
+          loggedInCities: json.destinations.map((el, i) => {
+            el.index = i;
+            return el;
+          }),
+        })
+      }
+    })
   }
 
   //baseURL + core/users/
   handleSignup = (e, data) => {
     e.preventDefault();
-    putNewUser(data)
-      .then(json => {
-        console.log(json)
-        if (json) {
-          localStorage.setItem("token", json.token);
-          this.setState({
-            loggedIn: true,
-            loggedInUser: json.username
-          })
-        }
-      })
+    putNewUser(data).then(json => {
+      console.log(json)
+      if (json) {
+        localStorage.setItem("token", json.token);
+        this.setState({
+          loggedIn: true,
+          loggedInUser: json.username
+        })
+      }
+    })
   };
 
   handleLogout = () => {
@@ -228,8 +219,6 @@ class App extends Component {
   }
 
   renderMain = (props) => {
-    //TODO validate this is the right logic
-    console.log(12)
     const user = props.match.params.username;
     const context = user === undefined || user === this.state.loggedInUser ? "Owner" : "Viewer";
     return (
@@ -258,25 +247,6 @@ class App extends Component {
         backendURL={BACKEND_URL}
       />)
   }
-
-  // renderViewer = (username) => {
-  //   return (
-  //   <Viewer 
-  //     loggedIn={this.state.loggedIn} 
-  //     username={this.state.username} 
-  //     handleLogout={this.handleLogout} 
-  //     toggleLogin={this.toggleLogIn}
-  //     toggleSignUp={this.toggleSignUp}
-  //     handleLogin={this.handleLogin}
-  //     handleSignup={this.handleSignup}
-  //     username={this.state.username} 
-  //     backendURL={BACKEND_URL}
-  //     //user info
-  //     owner={username}
-  //     cities={this.state.cities}
-  //     />
-  //   )
-  // }
 
   render = () => {
     //this.updateWindowDimensions();
@@ -307,14 +277,14 @@ class App extends Component {
             // ; height: ${window.innerHeight}px; width: ${window.innerWidth}px`}
             size={500}
           />
-          <p style={{ 
+          <p style={{
             position: 'absolute',
             left: 0,
             right: 0,
             color: "#0095d2",
             textAlign: 'center',
             fontSize: 50,
-            bottom: window.innerHeight *.1,
+            bottom: window.innerHeight * .1,
             opacity: .7
           }}>Loading...</p>
         </div>

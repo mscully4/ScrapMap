@@ -29,10 +29,12 @@ const styles = {
     color: "#0095d2",
   },
   username: {
-    fontFamily: "Kaushan Script",
+    // fontFamily: "Kaushan Script",
     fontSize: 24,
     margin: "auto",
-    lineHeight: 'inherit'
+    lineHeight: 'inherit',
+    color: "#f8f8ff",
+    fontWeight: 'unset' 
   },
   button: {
     margin: '0 10px',

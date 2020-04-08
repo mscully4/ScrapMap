@@ -2,7 +2,6 @@ import React, { Component } from 'react';
 import Carousel, { Modal, ModalGateway, NavigationPrev} from 'react-images';
 // import { ImgEditor} from '../components/ImageEditor';
 import {close, editorPath, trash, Svg} from '../utils/SVGs'
-import { ThemeProvider } from '@material-ui/styles';
 
 const theme = {
   headerDiv: {
@@ -49,36 +48,18 @@ const theme = {
 }
 
 export default class ImageViewer extends Component {
-  static defaultProps = {
-    imgs: [],
-  };
-
   constructor(props) {
     super(props);
     this.state = {
-      // currentIndex: 0
-    } 
-  }
 
-  componentDidMount = () => {
-    // this.props.getCurrentIndex(this.getCurrentIndex)
+    } 
   }
 
   onClose = (e) => {
     this.props.setImageViewerOpen(false);
   }
 
-  // getCurrentIndex = () => {
-  //   return this.state.currentIndex
-  // }
-
   CustomHeader = (props) => {
-    // console.log(this.state.currentIndex)
-    // if (this.state.currentIndex != props.currentIndex) {
-    //   this.setState({
-    //     currentIndex: props.currentIndex
-    //   })
-    // }
     return (
     <div style={theme.headerDiv}>
       { props.isModal ?  
@@ -86,8 +67,8 @@ export default class ImageViewer extends Component {
         <Svg style={theme.closeSVG} viewbox={close.viewBox} onClick={() => this.props.toggleViewer(false)}>
           {close.path.map(el => <path d={el}/>)}
         </Svg>
-        { this.state.loggedIn ? 
-        <Svg style={theme.trashSVG} viewbox={trash.viewBox} onClick={(e) => this.props.handleDeleteImage(e, props.currentView)}>
+        { this.props.loggedIn ? 
+        <Svg style={theme.trashSVG} viewbox={trash.viewBox} onClick={(e) => this.props.deleteDisabled ? null : this.props.handleDeleteImage(e, props.currentView)}>
           {trash.path.map(el => <path d={el}/>)}
         </Svg> : null }
 
@@ -105,32 +86,6 @@ export default class ImageViewer extends Component {
     </div>
     )
   }
-
-  // customNavigationPrev = props => {
-  //   // console.log(props)
-  //   return (
-  //   <svg
-  //   role="presentation"
-  //   className="CHORK"
-  //   viewBox="0 0 24 24"
-  //   style={{
-  //     // display: 'inline-block',
-  //     position: 'absolute',
-  //     height: 50,
-  //     width: 50,
-  //     marginTop: -25,
-  //     cursor: 'pointer',
-  //     fill: 'red',
-  //     stroke: 'red',
-  //     strokeWidth: 1,
-  //     top: '50%',
-  //   }}
-  //   {...props.innerProps}
-  //   >
-  //     <path d="M15.422 16.078l-1.406 1.406-6-6 6-6 1.406 1.406-4.594 4.594z" />
-  //   </svg>
-  //   )
-  // }
 
   render() {
     return (

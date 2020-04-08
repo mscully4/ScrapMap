@@ -55,6 +55,8 @@ class AddPlace extends React.Component {
       pictures: [],
       pictureNames: [],
     };
+    this.clearSuggestions = null
+
   }
 
   dropdownSelect = obj => {
@@ -136,8 +138,6 @@ class AddPlace extends React.Component {
       pictureNames: [],
       pictures: [],
     })
-
-    this.clearSuggestions = null
   }
 
   allFieldsValid = () => {

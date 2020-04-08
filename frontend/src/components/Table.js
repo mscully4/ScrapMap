@@ -7,26 +7,27 @@ import 'react-virtualized/styles.css'; // only needs to be imported once
 import "flag-icon-css/css/flag-icon.min.css";
 import { getDistanceBetweenTwoPoints } from '../utils/Formulas.js';
 import ReactCountryFlag from "react-country-flag"
+import { place_colors } from "../utils/colors"
 
-import { 
-  add, 
-  gallery, 
+import {
+  add,
+  gallery,
   museum,
-  mountain, 
-  touristAttraction, 
-  food, 
-  bar, 
-  park, 
-  establishment, 
-  zoo, 
+  mountain,
+  tourist_attraction,
+  food,
+  bar,
+  park,
+  establishment,
+  zoo,
   university,
-  amusementPark, 
-  casino, 
-  church, 
-  airport, 
-  shopping, 
+  amusementPark,
+  casino,
+  church,
+  airport,
+  shopping,
   stadium,
-  Svg, 
+  Svg,
   city_hall
 } from "../utils/SVGs"
 import OptionsDropdown from './Dropdown';
@@ -43,23 +44,26 @@ const types = [
   "amusement_park",
   "park",
   "store",
-  ["embassy","city_hall"],
+  ["embassy", "city_hall"],
   'airport',
   "university",
   "tourist_attraction",
   "establishment"
 ]
 
+function hexToRgb(hex) {
+  var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+  return result ? {
+    r: parseInt(result[1], 16),
+    g: parseInt(result[2], 16),
+    b: parseInt(result[3], 16)
+  } : null;
+}
+
 //TODO look into sizing/width for the table
 
 const DISTANCE_FROM_CITY = 30
 const DISTANCE_FROM_PLACE = 20
-
-const icons = {
-  food: food,
-  tourist_attraction: touristAttraction,
-  natural_feature: mountain
-}
 
 const styles = theme => ({
   container: {
@@ -114,7 +118,8 @@ const styles = theme => ({
   cellText: {
     textAlign: 'center',
     paddingLeft: "25%",
-    margin: 'auto'
+    margin: 'auto',
+    color: "#f8f8ff"
   },
   cellImage: {
     width: 100,
@@ -184,91 +189,23 @@ class VirtualTable extends Component {
   generateSVG = (type) => {
     const icons = {
       museum,
-      mountain, 
-      touristAttraction, 
-      food, 
-      bar, 
-      park, 
-      establishment, 
-      zoo, 
+      mountain,
+      tourist_attraction,
+      food,
+      bar,
+      park,
+      establishment,
+      zoo,
       university,
-      amusementPark, 
-      casino, 
-      church, 
-      airport, 
-      shopping, 
+      amusementPark,
+      casino,
+      church,
+      airport,
+      shopping,
       stadium,
       city_hall
     }
-    //TODO need to order these better
-    // var icon;
-    // const colors = this.props.colors;
-    // if (types.includes("natural_feature")) {
-    //   icon = mountain;
-    //   icon.fill = colors.natural_feature
-    //   icon.stroke = colors.natural_feature;
-    // } else if (types.includes('museum') || (types.includes('art_gallery'))) {
-    //   icon = museum;
-    //   icon.stroke = colors.museum;
-    //   icon.fill = colors.museum;
-    // } else if (types.includes("zoo")) {
-    //   icon = zoo;
-    //   icon.fill = colors.zoo
-    //   icon.stroke = colors.zoo
-    // } else if (types.includes("church")) {
-    //   icon = church;
-    //   icon.fill = colors.church;
-    //   icon.stroke = colors.church
-    // } else if (types.includes("casino")) {
-    //   icon = casino;
-    //   icon.fill = colors.casino;
-    //   icon.stroke = colors.casino;
-    // } else if (types.includes("stadium")) {
-    //   icon = stadium;
-    //   icon.stroke = colors.stadium;
-    //   icon.fill = colors.stadium;
-    // } else if (types.includes("bar")) {
-    //   icon = bar;
-    //   icon.fill = colors.bar;
-    //   icon.stroke = colors.bar;
-    // } else if (types.includes("food") || types.includes("restaurant")) {
-    //   icon = food;
-    //   icon.fill = colors.food;
-    //   icon.stroke = colors.food;
-    // } else if (types.includes("amusement_park")) {
-    //   icon = amusementPark;
-    //   icon.fill = colors.amusement_park;
-    //   icon.stroke = colors.amusement_park;
-    // } else if (types.includes("park")) {
-    //   icon = park;
-    //   icon.fill = colors.park;
-    //   icon.stroke = colors.park;
-    // } else if (types.includes("store")) {
-    //   icon = shopping;
-    //   icon.fill = colors.store
-    //   icon.stroke = colors.store
-    // } else if (types.includes("embassy") || types.includes("city_hall")) {
-    //   icon = city_hall
-    //   icon.stroke = colors.city_hall
-    //   icon.fill = colors.city_hall
-    // } else if (types.includes('airport')) {
-    //   icon = airport;
-    //   icon.fill = colors.airport;
-    //   icon.stroke = colors.airport;
-    // } else if (types.includes("university")) {
-    //   icon = university;
-    //   icon.fill = colors.university
-    //   icon.stroke = colors.university
-    // } else if (types.includes("tourist_attraction")) {
-    //   icon = touristAttraction;
-    //   icon.fill = colors.tourist_attraction
-    //   icon.stroke = colors.tourist_attraction
-    // } else {
-    //   icon = establishment
-    //   icon.fill = colors.establishment
-    //   icon.stroke = colors.establishment
-    // }
-    var paths = icons[type].path.map(el => <path d={el} fill={this.props.colors[type]} stroke={this.props.colors[type]}/>)
+    var paths = icons[type].path.map(el => <path d={el} fill={place_colors[type]} stroke={place_colors[type]} />)
     return (
       <Svg className={clsx(this.props.classes.typeSVG)} viewbox={icons[type].viewBox}>
         {paths}
@@ -278,7 +215,7 @@ class VirtualTable extends Component {
   cellRendererPlace = (cellData) => {
     const classes = this.props.classes;
     const countryCode = cellData.rowData.countryCode;
-    const color = this.props.colors[cellData.rowData.main_type];
+    const color = place_colors[cellData.rowData.main_type];
     return (
       <div>
 
@@ -322,6 +259,9 @@ class VirtualTable extends Component {
         if (element.images.length > 0) greyOutGalleryIcon = false
       });
     }
+
+    const rgb = hexToRgb("#f8f8ff")
+    const fill = `rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, ${greyOutGalleryIcon ? ".2" : "1"})`
     return (
       <div>
         <ReactCountryFlag
@@ -349,7 +289,7 @@ class VirtualTable extends Component {
             toggleEditForm={this.props.toggleEditForm}
             cellData={cellData}
             handleDelete={this.props.granularity ? this.props.handleDeleteCity : this.props.handleDeletePlace}
-            color={"#d4dada"}
+            color={"#f8f8ff"}
           /> : null
         }
 
@@ -380,7 +320,7 @@ class VirtualTable extends Component {
             value={"KILL"}
             viewBox={gallery.viewBox}
           >
-            {gallery.path.map(el => <path d={el} fill={`rgba(212, 218, 218, ${greyOutGalleryIcon ? ".2" : "1"})`}/>)}
+            {gallery.path.map(el => <path d={el} fill={`rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, ${greyOutGalleryIcon ? ".2" : "1"})`} />)}
           </Svg>
           // <svg
           //   className={clsx(this.props.classes.photoGallerySVG)}
@@ -452,7 +392,6 @@ class VirtualTable extends Component {
             rowGetter={({ index }) => list[index]}
             rowClassName={({ index }) => this.getRowClassName(index, list[index])}
             onRowMouseOver={(obj) => {
-              console.log(obj)
               this.props.changeHoverIndex(obj.rowData.index);
               this.props.changeMapCenter(obj.rowData);
             }}

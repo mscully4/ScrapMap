@@ -116,7 +116,6 @@ class Map extends Component {
           markerClick={this.props.markerClick}
           zoom={this.props.zoom}
           granularity={this.props.granularity}
-          colors={this.props.colors}
         />
       )
     } else if (!granularity && this.props.places) {
@@ -131,7 +130,6 @@ class Map extends Component {
           markerClick={this.props.markerClick}
           zoom={this.props.zoom}
           granularity={this.props.granularity}
-          colors={this.props.colors}
         />
       )
     }

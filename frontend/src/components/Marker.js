@@ -15,6 +15,8 @@ import PropTypes from 'prop-types';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { withStyles } from '@material-ui/styles';
 import clsx from 'clsx';
+
+import { place_colors } from "../utils/colors"
 import { pin, Svg } from '../utils/SVGs'
 
 import ImageViewer from './ImageViewer.js';
@@ -186,9 +188,9 @@ class Marker extends Component {
   }
 
   render() {
-    const scale = ((this.props.zoom - 4) / 10);
-    const color = this.props.granularity ? "#0095d2" : this.props.colors[this.props.data.main_type];
-    console.log(color)
+    const {zoom, data} = this.props
+    const scale = ((zoom - 4) / 10);
+    const color = this.props.granularity ? data.color : place_colors[data.main_type];
     return (
 
       <div
