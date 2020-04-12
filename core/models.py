@@ -56,6 +56,7 @@ class Place(models.Model):
     state = models.CharField(max_length=50, null=True, blank=True)
     country = models.CharField(max_length=50)
     countryCode = models.CharField(max_length=2, null=True, blank=True)
+    zip_code = models.CharField(max_length=6, default="000000")
     latitude = models.FloatField(default=0)
     longitude = models.FloatField(default=0)
     placeId = models.CharField(max_length=150, null=True, blank=True)

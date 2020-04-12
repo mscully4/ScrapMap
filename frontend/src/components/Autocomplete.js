@@ -164,7 +164,7 @@ class AutoComplete extends React.Component {
         onSelect={(value, obj) => this.props.context === "City" ? this.onSelectCity(value, obj) : this.onSelectPlace(value, obj)}
         renderInput={(props) => {
           const { ref, ...rest } = props;
-          return <Input {...rest} style={this.props.inputStyle} autocomplete={"new-password"} innerRef={ref} placeholder={"Name"} />
+          return <Input {...rest} style={this.props.inputStyle} autocomplete={"new-password"} innerRef={ref} />
         }}
         wrapperProps={{ style: { width: '100%' } }}
       />

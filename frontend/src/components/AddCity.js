@@ -20,6 +20,12 @@ const styles = {
     height: 40,
     width: 40,
     cursor: 'pointer',
+  },
+  fieldLabel: {
+    color: ICE_BLUE,
+    fontSize: 18,
+    marginBottom: 0,
+    marginTop: 10
   }
 }
 
@@ -118,6 +124,7 @@ class AddCity extends React.Component {
           </ModalHeader>
           <ModalBody style={{ backgroundColor: OFF_BLACK_3 }}>
             <Form ref={ref => this.formAddCity = ref} onSubmit={e => this.props.handleAddCity(e, this.state)} autoComplete={"new-password"}>
+              <p style={styles.fieldLabel}>City:</p>
               <Autocomplete
                 name="city"
                 placeholder="city"
@@ -129,52 +136,49 @@ class AddCity extends React.Component {
                 clearSuggestionsHook={this.clearSuggestionsHook}
                 inputStyle={inputStyle}
               />
-              <br />
+              <p style={styles.fieldLabel}>Country:</p>
               <Input
                 type="text"
                 boof="country"
-                placeholder="Country"
+                // placeholder="Country"
                 value={this.state.country}
                 onChange={this.handleChange}
                 autoComplete={"new-password"}
                 style={inputStyle}
               />
-              <br />
+              <p style={styles.fieldLabel}>Country Code:</p>
               <Input
                 type="text"
                 boof="countryCode"
-                placeholder="Country Code"
+                // placeholder="Country Code"
                 value={this.state.countryCode}
                 onChange={this.handleChange}
                 autoComplete={"new-password"}
                 style={inputStyle}
-
               />
-              <br />
+              <p style={styles.fieldLabel}>Latitude:</p>
               <Input
                 type="text"
                 boof="latitude"
-                placeholder="Latitude"
+                // placeholder="Latitude"
                 value={this.state.latitude}
                 onChange={this.handleChange}
                 style={inputStyle}
-
               />
-              <br />
+              <p style={styles.fieldLabel}>Longitude:</p>
               <Input
                 type="text"
                 boof="longitude"
-                placeholder="Longitude"
+                // placeholder="Longitude"
                 value={this.state.longitude}
                 onChange={this.handleChange}
                 style={inputStyle}
-
               />
               <br />
             </Form>
           </ModalBody>
-          <ModalFooter style={{ backgroundColor: OFF_BLACK_2, border: "none"}}>
-            <Button onClick={this.submitForm} disabled={disableButtom} style={{ backgroundColor: ICE_BLUE}}>Submit</Button>
+          <ModalFooter style={{ backgroundColor: OFF_BLACK_2, border: "none" }}>
+            <Button onClick={this.submitForm} disabled={disableButtom} style={{ backgroundColor: ICE_BLUE, width: '90%', margin: "auto" }}>Submit</Button>
           </ModalFooter>
         </Modal>
       </React.Fragment>

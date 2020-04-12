@@ -12,7 +12,7 @@ import RingLoader from "react-spinners/RingLoader";
 
 import Main from './views/Main';
 import Home from './views/Home';
-import Test from './views/Test';
+// import Test from './views/Test';
 
 import { fetchCurrentUser, fetchToken, putNewUser } from "./utils/fetchUtils"
 import { city_colors } from "./utils/colors"
@@ -95,16 +95,21 @@ class App extends Component {
     this.setState({ width: window.innerWidth * .8, height: window.innerHeight * .8 });
   }
 
+  getPlacesFromCities = (data) => {
+    let places = [], index = 0
+    for (var i = 0; i < data.destinations.length; ++i) {
+      console.log(data.destinations[i].places.length)
+      for (var z = 0; z < data.destinations[i].places.length; ++z) {
+        var place = data.destinations[i].places[z];
+        places.push({ ...place, index })
+        ++index
+      }
+    }
+    return places
+  }
+
   handleLoadSession = (e) => {
     fetchCurrentUser(localStorage.getItem("token")).then(data => {
-      let places = [], index = 0
-      for (var i = 0; i < data.destinations.length; ++i) {
-        for (var z = 0; z < data.destinations[i].places.length; ++z) {
-          var place = data.destinations[i].places[z];
-          places.push({ ...place, index })
-          ++index
-        }
-      }
       this.setState({
         loggedInUser: data.user.username,
         loggedInCities: data.destinations.map((el, i) => {
@@ -112,7 +117,7 @@ class App extends Component {
           el.color = city_colors[Math.floor(Math.random() * city_colors.length)]
           return el;
         }),
-        loggedInPlaces: places,
+        loggedInPlaces: this.getPlacesFromCities(data),
         ready: true,
       })
     });
@@ -129,8 +134,10 @@ class App extends Component {
           loggedInUser: json.user.username,
           loggedInCities: json.destinations.map((el, i) => {
             el.index = i;
+            el.color = city_colors[Math.floor(Math.random() * city_colors.length)]
             return el;
           }),
+          places: this.getPlacesFromCities(json)
         })
       }
     })
@@ -202,6 +209,7 @@ class App extends Component {
     }
     return places
   }
+
 
   renderHome = (props) => {
     console.log(props)

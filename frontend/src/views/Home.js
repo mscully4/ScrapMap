@@ -35,6 +35,10 @@ const styles = theme => ({
     backgroundColor: "#232323",
     border: "solid 1px #0095d2",
     color: "#0095d2",
+    "&:focus": {
+      backgroundColor: "#292929",
+      color: "#0095d2",
+    }
   },
   button: {
     backgroundColor: "#0095d2",
@@ -55,7 +59,7 @@ class Home extends React.Component {
   }
 
   handleChange = e => {
-    const name = e.target.name;
+    const name = e.target.getAttribute("boof");
     const value = e.target.value;
     this.setState(prevState => {
       const newState = { ...prevState };
@@ -90,17 +94,17 @@ class Home extends React.Component {
           }}>Sign Up Now!</p>
           <Input
             type="text"
-            name="username"
+            boof="username"
             placeholder={"Username"}
             className={clsx(classes.input)}
-            autoComplete={"new-password"}
             value={this.state.username}
             onChange={this.handleChange}
+            autoComplete={"new-password"}
           />
           <br />
           <Input
             type="text"
-            name="password"
+            boof="password"
             placeholder={"Password"}
             className={clsx(classes.input)}
             autoComplete={"new-password"}

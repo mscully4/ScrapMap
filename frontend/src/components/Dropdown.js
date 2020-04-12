@@ -1,25 +1,31 @@
 import React from 'react';
 import { Dropdown, DropdownItem, DropdownMenu, DropdownToggle } from 'reactstrap';
 import { ellipsis, Svg } from "../utils/SVGs"
+import clsx from 'clsx'
+import { withStyles } from '@material-ui/styles';
+import { OFF_BLACK_1, OFF_BLACK_2, OFF_BLACK_3, OFF_BLACK_4, ICE_BLUE } from '../utils/colors';
 
-const theme = {
-  dropdown: {
+const styles = theme => ({
+  icon: {
     position: 'absolute',
     left: 10,
     top: 10,
   },
-  svg: {
-    width: 30,
-    // fill: "#d4dada"
-
-  },
   dropdownMenu: {
-    // left: -120,
-    // position: 'absolute'
+    backgroundColor: OFF_BLACK_1,
+    borderColor: ICE_BLUE,
+    border: "solid 1px",
+  },
+  dropdownItem: {
+    color: ICE_BLUE,
+    "&:hover": {
+      backgroundColor: OFF_BLACK_4,
+      color: ICE_BLUE,
+    }
   }
-}
+})
 
-export default class OptionsDropdown extends React.Component {
+class OptionsDropdown extends React.Component {
   constructor(props) {
     super(props)
     this.state = {
@@ -35,23 +41,27 @@ export default class OptionsDropdown extends React.Component {
   }
 
   render() {
+    console.log(this.props)
     return (
-      <Dropdown value="KILL" isOpen={this.state.dropdownOpen} toggle={this.toggleDropdown} style={theme.dropdown}>
+      <Dropdown value="KILL" isOpen={this.state.dropdownOpen} toggle={this.toggleDropdown} className={clsx(this.props.classes.icon)}>
         <DropdownToggle value="KILL" tag="span" data-toggle="dropdown" id="dropdown-custom-components">
           <Svg
             viewBox="0 180 512 150"
-            style={theme.svg}
+            style={{ width: 30 }}
             fill={this.props.color}
             value="KILL"
           >
             {ellipsis.path.map(el => <path d={el} value="KILL" />)}
           </Svg>
         </DropdownToggle>
-        <DropdownMenu style={theme.dropdownMenu} value="KILL">
-          <DropdownItem value="KILL" onClick={() => this.props.toggleEditForm(true)}>Edit</DropdownItem>
-          <DropdownItem value="KILL" onClick={(e) => this.props.handleDelete(e, this.props.cellData.cellData)}>Delete</DropdownItem>
+        <DropdownMenu value="KILL" className={clsx(this.props.classes.dropdownMenu)}>
+          <DropdownItem value="KILL" className={clsx(this.props.classes.dropdownItem)} onClick={() => this.props.toggleEditForm(true)}>Edit</DropdownItem>
+          <DropdownItem value="KILL"className={clsx(this.props.classes.dropdownItem)} onClick={(e) => this.props.handleDelete(e, this.props.cellData.cellData)}>Delete</DropdownItem>
         </DropdownMenu>
       </Dropdown>
     )
   }
 }
+
+
+export default withStyles(styles)(OptionsDropdown);

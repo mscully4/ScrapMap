@@ -164,15 +164,6 @@ class VirtualTable extends Component {
     }
   }
 
-  toggleDropdown = () => {
-    const dropdownOpen = this.state.dropdownOpen;
-    console.log(dropdownOpen)
-    //if (value === undefined) value = this.state.dropdownOpen;
-    this.setState({
-      dropdownOpen: !dropdownOpen
-    })
-  }
-
   handleScroll = ({ target: { scrollTop } }) => {
     this.setState({ scrollTop });
   };
@@ -321,22 +312,7 @@ class VirtualTable extends Component {
             viewBox={gallery.viewBox}
           >
             {gallery.path.map(el => <path d={el} fill={`rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, ${greyOutGalleryIcon ? ".2" : "1"})`} />)}
-          </Svg>
-          // <svg
-          //   className={clsx(this.props.classes.photoGallerySVG)}
-          //   viewBox="0 0 512 512"
-          //   version="1.1"
-          //   xmlns="http://www.w3.org/2000/svg"
-          //   onClick={(e) => { if (!greyOutGalleryIcon) this.props.onCityGalleryClick(cellData.cellData, e) }}
-          //   value={"KILL"}
-          // >
-          //   <path
-          //     d={photoGallery1}
-          //     fill={greyOutGalleryIcon ? "444" : "#d4dada"}
-          //     value={"KILL"}
-          //   />
-          // </svg>
-          : null
+          </Svg> : null
         }
       </div>
     )

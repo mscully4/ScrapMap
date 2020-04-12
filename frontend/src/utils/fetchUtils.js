@@ -120,6 +120,7 @@ export function putEditPlace(token, data) {
   form.append('city', data.city);
   form.append('state', data.state);
   form.append('country', data.state);
+  form.append('zip_code', data.zip_code)
   form.append('latitude', data.latitude)
   form.append('longitude', data.longitude);
   form.append('types', data.types)

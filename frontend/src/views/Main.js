@@ -179,6 +179,8 @@ class Main extends React.Component {
       //Edit Forms
       editCityFormOpen: false,
       editPlaceFormOpen: false,
+      editPlaceRequestPending: false,
+
       //Add Forms
       addCityFormOpen: false,
       addPlaceFormOpen: false
@@ -194,7 +196,7 @@ class Main extends React.Component {
         const mapCenter = data.length > 0 ? { latitude: data[0].latitude, longitude: data[0].longitude } : DEFAULT_CENTER;
         const cities = data.map((el, i) => {
           return {
-            ...el, 
+            ...el,
             index: i,
             color: city_colors[Math.floor(Math.random() * city_colors.length)]
           }
@@ -270,26 +272,36 @@ class Main extends React.Component {
   handleEditCity = (e, data) => {
     console.log(data)
     e.preventDefault();
-    putEditCity(localStorage.getItem('token'), data)
-      .then(json => {
+    this.setState({ 
+      editCityRequestPending: true 
+    }, () =>
+      putEditCity(localStorage.getItem('token'), data).then(json => {
         this.setState({
-          viewCities: this.state.viewCities.map(el => el.pk === json.pk ? json : el),
-          viewPlaces: this.props.compilePlaces(json)
+          viewCities: this.state.viewCities.map(el => {
+            const color = el.color
+            return el.pk === json.pk ? {...json, color} : el
+          }),
+          viewPlaces: this.props.compilePlaces(json),
+          editCityRequestPending: false
         })
       })
+    )
   }
 
   handleEditPlace = (e, data) => {
     e.preventDefault();
     this.setState({
-      submitImageLoading: true
+      submitImageLoading: true,
+      editPlaceRequestPending: true,
     }, () => {
       putEditPlace(localStorage.getItem('token'), data)
         .then(json => {
           this.setState({
             viewCities: json.map((el, i) => { return { ...el, index: i } }),
             viewPlaces: this.props.compilePlaces(json),
-            submitImageLoading: false
+            submitImageLoading: false,
+            editPlaceFormOpen: false,
+            editPlaceRequestPending: false,
           }, () => this.toggleUploader(null))
         })
     })
@@ -610,13 +622,13 @@ class Main extends React.Component {
             handleLogin={this.props.handleLogin}
             handleSignup={this.props.handleSignup}
           />
-         
 
-            {this.props.user === this.props.username && this.props.user !== null && this.props.username !== null ?
-              <Svg viewBox={add.viewBox} className={clsx(this.props.classes.addSVG)} onClick={this.state.granularity ? this.toggleAddCityForm : this.toggleAddPlaceForm}>
-                {add.path.map(el => <path d={el} />)}
-              </Svg> : null
-            }
+
+          {this.props.user === this.props.username && this.props.user !== null && this.props.username !== null ?
+            <Svg viewBox={add.viewBox} className={clsx(this.props.classes.addSVG)} onClick={this.state.granularity ? this.toggleAddCityForm : this.toggleAddPlaceForm}>
+              {add.path.map(el => <path d={el} />)}
+            </Svg> : null
+          }
 
           <div
             className={clsx(this.props.classes.page)}
@@ -739,6 +751,7 @@ class Main extends React.Component {
                 toggle={this.toggleEditCityForm}
                 handleEditCity={this.handleEditCity}
                 data={this.state.selectedCity}
+                editCityRequestPending={this.state.editCityRequestPending}
               /> : null}
 
             {this.state.editPlaceFormOpen & this.props.username === this.props.user ?
@@ -747,6 +760,7 @@ class Main extends React.Component {
                 toggle={this.toggleEditPlaceForm}
                 handleEditPlace={this.handleEditPlace}
                 data={this.state.selectedPlace}
+                editPlaceRequestPending={this.state.editPlaceRequestPending}
               /> : null}
 
             {this.state.addCityFormOpen && this.state.granularity === 1 && this.props.username === this.props.user ?

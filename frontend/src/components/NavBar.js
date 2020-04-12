@@ -12,6 +12,9 @@ import {
   NavbarBrand,
   NavbarToggler
 } from 'reactstrap';
+import clsx from 'clsx'
+
+import { ICE_BLUE, FONT_GREY, OFF_BLACK_1, OFF_BLACK_2, OFF_BLACK_3, OFF_BLACK_4 } from '../utils/colors'
 import { withRouter, Link } from 'react-router-dom';
 
 
@@ -56,6 +59,22 @@ const styles = {
     color: "#0095d2",
     fontSize: 24
   },
+
+  modal: {
+    backgroundColor: "#000"
+  },
+  modalHeader: {
+    backgroundColor: OFF_BLACK_2,
+    color: ICE_BLUE,
+    border: "none"
+  },
+  modalBody: { 
+    backgroundColor: OFF_BLACK_3 
+  },
+  modalFooter: { 
+    backgroundColor: OFF_BLACK_2, 
+    border: "none"
+  }
 }
 
 class Navigation extends React.Component {
@@ -104,9 +123,9 @@ class Navigation extends React.Component {
         <Nav className="ml-auto" navbar>
           <NavItem>
             <Button className="nav-button" style={styles.button} onClick={this.toggleLogin}>Login</Button>
-            <Modal isOpen={this.state.showLoginModal} toggle={this.toggleLogin}>
-              <ModalHeader toggle={this.toggleLogin}>Login</ModalHeader>
-              <ModalBody>
+            <Modal isOpen={this.state.showLoginModal} toggle={this.toggleLogin} style={styles.modal}>
+              <ModalHeader toggle={this.toggleLogin} style={styles.modalHeader}>Login</ModalHeader>
+              <ModalBody style={styles.modalBody}>
                 <LoginForm handleLogin={this.props.handleLogin} />
               </ModalBody>
             </Modal>
