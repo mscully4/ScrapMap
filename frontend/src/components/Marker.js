@@ -114,13 +114,9 @@ const styles = theme => ({
   }
 })
 
-//TODO clean up this mess
-//the props.hover is if a hover event ocurs in the table, the state.hover is if a hover event occcurs on the map
-
 class Marker extends Component {
   static propTypes = {
-    text: PropTypes.string,
-    $hover: PropTypes.bool,
+    // text: PropTypes.string,
   };
 
   static defaultProps = {
@@ -133,16 +129,12 @@ class Marker extends Component {
     super(props);
     this.state = {
       //the data for the destination
-      //place: {city: "", country: "", countryCode: "", lat: null, lng: null, index: null, urls: []},
       ...this.props.data,
-      //whether the marker is hovered over
-      //Whether the editor modal is open
-      editorIsOpen: false,
-      //the image files that will be uploaded to the server
-      files: [],
-      //Image Viewer Vars
-      imageViewerOpen: false,
-      currImg: 0,
+      hover: false,
+
+      // editorIsOpen: false,
+
+      //These will change as the map zoom is changed
       tooltipWidth: null,
       tooltipHeight: null,
     }
@@ -151,32 +143,17 @@ class Marker extends Component {
   }
 
   componentDidMount = () => {
+    //get the original height and width of the tooltip
     this.setState({
       tooltipWidth: this.ref.current.offsetWidth,
       tooltipHeight: this.ref.current.offsetHeight
     })
   }
 
-  shouldComponentUpdate(nextProps, nextState) {
-    return true;
-  }
-
-  //function for handling changes to the text fields in the editor
-  handleChange = e => {
-    const name = e.target.name;
-    const value = e.target.value;
-    this.setState(prevState => {
-      const newState = { ...prevState };
-      newState[name] = value;
-      return newState;
-    });
-  };
-
   onMouseEnter = (e) => {
     this.setState({
       hover: true,
     })
-    console.log("BOOF")
     this.props.changeHoverIndex(this.props.data.index)
   }
 
@@ -188,7 +165,7 @@ class Marker extends Component {
   }
 
   render() {
-    const {zoom, data} = this.props
+    const { zoom, data } = this.props
     const scale = ((zoom - 4) / 10);
     const color = this.props.granularity ? data.color : place_colors[data.main_type];
     return (
@@ -199,6 +176,7 @@ class Marker extends Component {
         className={clsx(this.props.classes.MarkerContainer)}
         onClick={() => this.props.markerClick(this.props.data)}
         style={{
+          //This centers the pin as the zoom level changes
           top: -HEIGHT - (HEIGHT * scale),
           left: (-WIDTH / 2) - ((WIDTH * scale) / 2)
         }}
@@ -210,6 +188,7 @@ class Marker extends Component {
           data-tip
           data-for={this.props.granularity ? this.props.data.city : null}
           style={{
+            //The marker is re-sized as the zoom of the map changes
             width: WIDTH + (WIDTH * scale),
             height: HEIGHT + (HEIGHT * scale),
           }}
@@ -217,13 +196,14 @@ class Marker extends Component {
           <path
             d={pin.path} fill={color}
           />
-          {/* To have a multi-colored pin, we need to lay one on top of the other */}
+          {/* To have a multi-colored pin, we need to two have two pins, one with the color of the base and the other will a custom color */}
           <path style={{ fill: "Black" }}
             d={'M112 316.94v156.69l22.02 33.02c4.75 7.12 15.22 7.12 19.97 0L176 473.63V316.94c-10.39 1.92-21.06 3.06-32 3.06s-21.61-1.14-32-3.06zM144 0C64.47'}
           />
         </Svg>
 
         <div
+          //Adjustments need to be made to the position of the tooltip as the size of the marker changes.  This formula makes sure the tooltip is always centered
           style={{ left: (-this.state.tooltipWidth / 2) + 10 + (scale * 10), top: (-this.state.tooltipHeight / 2) - 35 - (scale * 5) }}
           ref={this.ref}
           className={clsx(this.props.classes.Tooltip, { [this.props.classes.TooltipShow]: this.props.hoverIndex === this.props.data.index })}

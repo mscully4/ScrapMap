@@ -60,15 +60,14 @@ function hexToRgb(hex) {
   } : null;
 }
 
-//TODO look into sizing/width for the table
-
 const DISTANCE_FROM_CITY = 30
 const DISTANCE_FROM_PLACE = 20
 
 const styles = theme => ({
   container: {
     backgroundColor: "#222",
-    color: "#d4dada"
+    color: "#d4dada",
+    width: '101%'
     // color: "#000"
   },
   scrollBar: {
@@ -161,6 +160,7 @@ class VirtualTable extends Component {
       images: [],
       dropdownOpen: false,
       ready: true,
+      allowMouseOver: true,
     }
   }
 
@@ -337,14 +337,10 @@ class VirtualTable extends Component {
   }
 
 
-  //TODO implement some sort of throttle to prevent on click map centering from being overwritten by on row mouse over
   render = () => {
-    const WIDTH = window.innerWidth * .3;
-    //TODO Make this the height of the main component not the whole page
+    const WIDTH = window.innerWidth * .36;
     const HEIGHT = window.innerHeight;
-    // console.log(this.props.closestCity)
     const list = this.props.granularity ? this.props.cities : this.getPlaces();
-    //this.props.closestCity.distanceFromMapCenter <= 20 ? this.props.places.filter((val) => val.destination === this.props.selectedCity.pk ? true : false) : [];
 
     const HEADER_HEIGHT = 40;
 
@@ -368,13 +364,24 @@ class VirtualTable extends Component {
             rowGetter={({ index }) => list[index]}
             rowClassName={({ index }) => this.getRowClassName(index, list[index])}
             onRowMouseOver={(obj) => {
-              this.props.changeHoverIndex(obj.rowData.index);
-              this.props.changeMapCenter(obj.rowData);
+              if (this.state.allowMouseOver) {
+                this.props.changeHoverIndex(obj.rowData.index);
+                this.props.changeMapCenter(obj.rowData);
+              }
             }}
             onRowMouseOut={() => this.props.changeHoverIndex(null)}
             onRowClick={(obj, e) => {
+              //Temporarily disable the mouse over functionality to avoid a mouse over action right after a click event
+              this.setState({
+                allowMouseOver: false,
+              })
               this.props.changeMapCenter(obj.rowData);
               this.props.tableRowClick(obj, e)
+              setTimeout(() => {
+                this.setState({
+                  allowMouseOver: true
+                })
+              }, 250)
             }}
           >
             <Column

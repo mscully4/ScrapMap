@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import CurrentUser, CreateUser, DestinationListView, DestinationView, PlaceView, PlaceImagesView
+from .views import CurrentUser, CreateUser, DestinationListView, DestinationView, PlaceView
 from django.conf.urls.static import static
 
 urlpatterns = [
@@ -14,9 +14,7 @@ urlpatterns = [
     path('place/', PlaceView.as_view()),
     path('place/<int:pk>/', PlaceView.as_view()),
 
-    path('image/<int:pk>/', PlaceImagesView.as_view())
 
- #   path('images/<int:pk>/<str:image>', DestinationImagesView.as_view())
 ]
 
 # if settings.DEBUG:

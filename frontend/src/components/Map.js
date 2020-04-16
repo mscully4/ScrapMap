@@ -10,7 +10,7 @@ import { getDistanceBetweenTwoPoints } from '../utils/Formulas.js';
 const styles = {
   map: {
     width: '100%',
-    height: '100vh',
+    height: '75vh',
     margin: 'auto'
   }
 }
@@ -48,42 +48,17 @@ class Map extends Component {
     this.mapRef = React.createRef();
   }
 
-  // componentDidMount = () => {
-
-  // }
-
-  // _onChildClick = (key, childProps) => {
-  //   this.props.onCenterChange([childProps.lat, childProps.lng]);
-  // }
-
-  // _onChildMouseEnter = (key) => {
-  //   this.props.onHoverKeyChange(key);
-  // }
-
-  // _onChildMouseLeave = () => {
-  //   this.props.onHoverKeyChange(null);
-  // }
-
   onChange = ({ center, zoom }) => {
     this.setState({
       center: center,
       zoom: zoom,
     })
-    //TODO change marker size based on zoom
     this.props.changeGranularity(zoom)
     // this.props.onCenterChange(center)
     // this.props.onZoomChange(zoom)
     this.props.changeMapCenter({ latitude: center.lat, longitude: center.lng })
     this.props.setClosestCity(this.props.getClosestCity(this.props.cities, center.lat, center.lng))
   }
-
-  // handleApiLoaded(map, maps) {
-  //   this.setState({
-  //     map: map
-  //   });
-  // }
-
-
 
   createMapOptions = (maps) => {
     return {
@@ -142,15 +117,6 @@ class Map extends Component {
           bootstrapURLKeys={{ key: this.state.apiKey }}
           center={this.props.center}
           zoom={this.props.zoom}
-          //hoverDistance={K_SIZE / 2}
-          // zoom={4}
-          // center={{
-          //   lat: 33.7490, 
-          //   lng: -84.3880
-          // }}
-          // onChildClick={this._onChildClick}
-          // onChildMouseEnter={this._onChildMouseEnter}
-          // onChildMouseLeave={this._onChildMouseLeave}
           keyboardShortcuts={false}
           options={this.createMapOptions}
           onChange={this.onChange}

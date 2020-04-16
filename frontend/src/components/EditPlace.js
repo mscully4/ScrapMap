@@ -82,15 +82,15 @@ class EditPlace extends React.Component {
       this.state.address !== address ||
       this.state.city !== city ||
       this.state.state !== state ||
-      this.state.country !== country || 
-      this.state.zip_code !== zip_code || 
+      this.state.country !== country ||
+      this.state.zip_code !== zip_code ||
       this.state.latitude !== latitude ||
       this.state.longitude !== longitude
     )
   }
 
   render() {
-    const buttonDisabled = this.props.editPlaceRequestPending || !this.hasBeenChanged(); 
+    const buttonDisabled = this.props.editPlaceRequestPending || !this.hasBeenChanged();
     const form = !this.props.editPlaceRequestPending ? (
       <Form ref={ref => this.formEditPlace = ref} onSubmit={e => this.props.handleEditPlace(e, this.state)} >
         <p style={style.fieldLabel}>Name:</p>
@@ -167,18 +167,101 @@ class EditPlace extends React.Component {
           autoComplete={"new-password"}
           style={style.inputStyle}
         />
-      </Form>) : <RingLoader
-            color={"#0095d2"}
-            loading={true}
-            css ={`margin: auto`}
-            // ; height: ${window.innerHeight}px; width: ${window.innerWidth}px`}
-            size={200}
-          />
+      </Form>) :
+      <RingLoader
+        color={"#0095d2"}
+        loading={true}
+        css={`margin: auto`}
+        // ; height: ${window.innerHeight}px; width: ${window.innerWidth}px`}
+        size={200}
+      />
     return (
       <Modal isOpen={this.props.isOpen} toggle={this.props.toggle}>
         <ModalHeader style={style.modalHeader} toggle={this.props.toggle}>Edit Place</ModalHeader>
         <ModalBody style={style.modalBody}>
-          {form}
+          {!this.props.editPlaceRequestPending ? (
+            <Form ref={ref => this.formEditPlace = ref} onSubmit={e => this.props.handleEditPlace(e, this.state)} >
+              <p style={style.fieldLabel}>Name:</p>
+              <Input
+                type="text"
+                boof="name"
+                value={this.state.name}
+                onChange={this.handleChange}
+                autoComplete={"new-password"}
+                style={style.inputStyle}
+              />
+              <p style={style.fieldLabel}>Address:</p>
+              <Input
+                type="text"
+                boof="address"
+                value={this.state.address}
+                onChange={this.handleChange}
+                autoComplete={"new-password"}
+                style={style.inputStyle}
+              />
+              <p style={style.fieldLabel}>City:</p>
+              <Input
+                type="text"
+                boof="city"
+                value={this.state.city}
+                onChange={this.handleChange}
+                autoComplete={"new-password"}
+                style={style.inputStyle}
+              />
+              <p style={style.fieldLabel}>State:</p>
+              <Input
+                type="text"
+                boof="state"
+                value={this.state.state}
+                onChange={this.handleChange}
+                autoComplete={"new-password"}
+                style={style.inputStyle}
+              />
+              <p style={style.fieldLabel}>Country:</p>
+              <Input
+                type="text"
+                boof="country"
+                value={this.state.country}
+                onChange={this.handleChange}
+                autoComplete={"new-password"}
+                style={style.inputStyle}
+              />
+              <p style={style.fieldLabel}>Zip:</p>
+              <Input
+                type="text"
+                boof="zip_code"
+                value={this.state.zip_code}
+                onChange={this.handleChange}
+                autoComplete={"new-password"}
+                style={style.inputStyle}
+              />
+              <p style={style.fieldLabel}>Latitude:</p>
+              <Input
+                type="text"
+                boof="latitude"
+                placeholder="Latitude"
+                value={this.state.latitude}
+                onChange={this.handleChange}
+                autoComplete={"new-password"}
+                style={style.inputStyle}
+              />
+              <p style={style.fieldLabel}>Longitude:</p>
+              <Input
+                type="text"
+                boof="longitude"
+                placeholder="Longitude"
+                value={this.state.longitude}
+                onChange={this.handleChange}
+                autoComplete={"new-password"}
+                style={style.inputStyle}
+              />
+            </Form>) :
+            <RingLoader
+              color={"#0095d2"}
+              loading={true}
+              css={`margin: auto`}
+              size={200}
+            />}
         </ModalBody>
         <ModalFooter style={style.modalFooter}>
           <Button style={style.button} disabled={buttonDisabled} onClick={this.submitForm}>Submit</Button>

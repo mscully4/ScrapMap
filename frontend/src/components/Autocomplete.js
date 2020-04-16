@@ -53,7 +53,6 @@ class AutoComplete extends React.Component {
       case "Place":
         this.props.handleAutoCompleteChange(value)
         this.loadPlaceSuggestions(value).then(json => {
-          //TODO this might require some tweeaking
           var predictions = json.predictions.filter((pred) => pred.types.includes("establishment") ? true : false);
           this.setState({
             suggestions: predictions
@@ -125,7 +124,6 @@ class AutoComplete extends React.Component {
         }
         else if (element.types.includes("postal_code")) zip = element.long_name;
       });
-      //TODO need to make the appropriate data model changes and then swap these out
       const latitude = parseFloat(data[0].geometry.location.lat().toFixed(4));
       const longitude = parseFloat(data[0].geometry.location.lng().toFixed(4));
       const placeId = data[0].place_id

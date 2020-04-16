@@ -101,15 +101,6 @@ class DestinationView(APIView):
     permission_classes = (permissions.IsAuthenticated,)
     parser_class = (FileUploadParser,)
 
-    #need to save primary key with marker and send it this way when viewing or editing an instance
-#     def get(self, request, pk, format=None):
-#         data = Destination.objects.get(pk=pk)
-#         serializer = DestinationSerializer(data)
-#         if request.user.id == data.user_id:
-# #            logger.info(DestinationImages.objects.filter(destination=data.pk))
-#             return Response(serializer.data)
-#         else:
-#             return Response({'error': 'You are not authorized to view that information'}, status=status.HTTP_403_FORBIDDEN)
 
     def put(self, request, pk, format=None):
         #the files will be handled by the serializer
@@ -127,10 +118,19 @@ class DestinationView(APIView):
         return Response({'error': 'You are not authorized to edit that information'}, status=status.HTTP_403_FORBIDDEN)
 
     def delete(self, request, pk, format=None):
-        Destination.objects.get(pk=pk).delete()
-        #return an updated list of destination data
-        return Response(DestinationSerializer(Destination.objects.filter(user=request.user), many=True).data)
-
+        #Get the instance being deleted
+        instance = Destination.objects.get(pk=pk)
+        #serialize it so the PK will be returned to the React app
+        serializer = DestinationSerializer(instance=instance, data=instance.__dict__, context={'request', request})
+        if serializer.is_valid():
+            resp = Response(serializer.data)
+            #Delete the instance
+            instance.delete()
+            return resp
+        else:
+            logger.info(serializer.errors)
+            return Response(serializer.errors)
+            
     def post(self, request, format=None):
         serializer = DestinationSerializer(data=request.data, context={'request': request})
         if serializer.is_valid():
@@ -139,28 +139,6 @@ class DestinationView(APIView):
         logger.error("Cannot Create Destination: %s" % serializer.errors)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-        
-
-# class DestinationImagesView(APIView):
-#     parser_class = (FileUploadParser,)
-
-#     def get(self, request, pk, image):
-#         data = DestinationImagesSerializer(DestinationImages.objects.get(image=image, destination=pk))
-#         return Response(data.data)
-
-#     def delete(self, request, pk, image):
-#         DestinationImages.objects.get(image=image, destination=pk).delete()
-#         data = DestinationSerializer(Destination.objects.get(user=pk))
-#         return Response(data.data)
-
-    # def post(self, request, *args, **kwargs):
-    #     file_serializer = FileSerializer(data=request.data, context={'request': request})
-
-    #     if file_serializer.is_valid():
-    #         file_serializer.save()
-    #         return Response(file_serializer.data, status=status.HTTP_201_CREATED)
-    #     else:
-    #         return Response(file_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 class PlaceView(APIView):
     '''
@@ -168,10 +146,6 @@ class PlaceView(APIView):
     GET retrieves the information for the specified place
     POST creates a new place
     '''
-    # def get(self, request, pk, format=None):
-    #     data = Place.objects.get(pk=pk)
-    #     serializer = PlaceSerializer(data)
-    #     return Response(serializer.data)
     
     def post(self, request, format=None):
         serializer = PlaceSerializer(data=request.data, context={'request': request})
@@ -198,23 +172,18 @@ class PlaceView(APIView):
         return Response({'error': 'You are not authorized to edit that information'}, status=status.HTTP_403_FORBIDDEN)
 
     def delete(self, request, pk, format=None):
-        Place.objects.get(pk=pk).delete()
-        #Since places are derived from destinations, provide an updated list of destinations
-        return Response(DestinationSerializer(Destination.objects.filter(user=request.user), many=True).data)
+        instance = Place.objects.get(pk=pk)
+        print(instance.destination_id, Destination.objects.get(pk=instance.destination_id))
+        serializer = PlaceSerializer(instance=instance, data={**instance.__dict__, 'destination': instance.destination.id})
+        if serializer.is_valid():
+            print(1)
+            resp = Response(serializer.data)
+            instance.delete()
+            return resp
+        else:
+            print(2)
+            logger.error(serializer.errors)
+            return Response(serializer.errors)
 
-class PlaceImagesView(APIView):
-
-    # def get(self, request, pk, image):
-        # boof = DestinationImages.objects.filter(image=image)
-        # logger.info(boof)
-        # serializer = DestinationImagesSerializer(boof)
-        # if not serializer.is_valid():
-        #     logger.info(serializer.errors)
-        # serializer = DestinationImagesSerializer(DestinationImages.objects.get(image=image, destination=pk))
-        # return Response(serializer.data)
-
-    def delete(self, request, pk):
-        PlaceImages.objects.get(pk=pk).delete()
-        return Response(DestinationSerializer(Destination.objects.filter(user=request.user), many=True).data)
         
 

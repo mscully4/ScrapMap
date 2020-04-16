@@ -41,7 +41,6 @@ class OptionsDropdown extends React.Component {
   }
 
   render() {
-    console.log(this.props)
     return (
       <Dropdown value="KILL" isOpen={this.state.dropdownOpen} toggle={this.toggleDropdown} className={clsx(this.props.classes.icon)}>
         <DropdownToggle value="KILL" tag="span" data-toggle="dropdown" id="dropdown-custom-components">

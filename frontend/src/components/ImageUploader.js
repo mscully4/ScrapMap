@@ -58,10 +58,6 @@ const styles = theme => ({
   },
 })
 
-//TODO this still needs some work, might have to make some changes to the node package
-//Fix error message not disappearing, limit number of preview thumbnails
-//vertically center the component if there are no thumbnails
-
 class ImageUploader extends React.Component {
 
 	constructor(props) {
@@ -106,7 +102,11 @@ class ImageUploader extends React.Component {
             <p className={clsx(classes.imagesSelected)}>{`Images Selected: ${this.state.pictures.length}`}</p>
             <Button color={"#0095d2"} className={classes.button} disabled={this.state.pictures.length === 0} onClick={
               (e) => {
-                this.props.handleImageSubmit(e, this.state)
+                this.props.handleImageSubmit(e, this.state);
+                this.setState({
+                  pictures: [],
+                  pictureNames: []
+                })
                 // this.props.toggle(null)
               }}
             >

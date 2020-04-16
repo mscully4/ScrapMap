@@ -100,7 +100,7 @@ const styles = theme => ({
   main: {
     display: "grid",
     gridTemplateRows: "1fr",
-    gridTemplateColumns: "2fr 1fr",
+    gridTemplateColumns: "3fr 2fr",
     width: '90%',
     margin: 'auto',
     // border: "solid 1px red",
@@ -151,7 +151,6 @@ class Main extends React.Component {
       viewCities: Boolean(this.props.viewUser) === false || this.props.loggedInUser === this.props.viewUser ? this.props.loggedInCities : [],
       viewPlaces: Boolean(this.props.viewUser) === false || this.props.loggedInUser === this.props.viewUser ? this.props.loggedInPlaces : [],
       //Map
-      //TODO handle the possibility of no cities
       granularity: 1,
       mapZoom: 4,
       mapCenter: {
@@ -176,15 +175,21 @@ class Main extends React.Component {
       //Editor
       editorOpen: false,
       showLoader: false,
+
       //Edit Forms
       editCityFormOpen: false,
+      editCityRequestPending: false,
       editPlaceFormOpen: false,
       editPlaceRequestPending: false,
 
       //Add Forms
       addCityFormOpen: false,
-      addPlaceFormOpen: false
+      addPlaceFormOpen: false,
+      addCityRequestPending: false,
+      addPlaceRequestPending: false,
     }
+
+    this.myRef = React.createRef();
   }
 
   componentDidMount = () => {
@@ -224,18 +229,22 @@ class Main extends React.Component {
   handleAddCity = (e, data) => {
     e.preventDefault();
     if (this.props.loggedIn) {
-      postNewCity(localStorage.getItem('token'), data)
-        .then(res => {
+      this.setState({
+        addCityRequestPending: true,
+      }, () => {
+        postNewCity(localStorage.getItem('token'), data).then(res => {
           if (res) {
             this.setState({
               viewCities: this.state.viewCities.concat([{
                 ...res, index: this.state.viewCities.length, color: city_colors[Math.floor(Math.random() * city_colors.length)]
               }]),
               mapZoom: 4,
-              mapCenter: { lat: res.latitude, lng: res.longitude }
+              mapCenter: { lat: res.latitude, lng: res.longitude },
+              addCityRequestPending: false
             })
           }
         })
+      })
     }
   }
 
@@ -250,6 +259,7 @@ class Main extends React.Component {
       county: data.county,
       state: data.state,
       country: data.country,
+      zip_code: data.zip_code,
       latitude: data.latitude,
       longitude: data.longitude,
       types: data.types,
@@ -257,29 +267,31 @@ class Main extends React.Component {
       main_type: data.main_type
     }
     if (this.props.loggedIn) {
-      postNewPlace(localStorage.getItem('token'), payload)
-        .then(res => {
-          console.log(res)
-          // const place = {...res, index: this.state.viewPlaces.length};
+      this.setState({
+        addPlaceRequestPending: true
+      }, () => {
+        postNewPlace(localStorage.getItem('token'), payload).then(res => {
           this.setState({
             viewPlaces: this.state.viewPlaces.concat([{ ...res, index: this.state.viewPlaces.length }]),
-            viewCities: this.state.viewCities.map(obj => obj.pk === res.destination ? { ...obj, places: obj.places.concat([res]) } : obj)
+            viewCities: this.state.viewCities.map(obj => obj.pk === res.destination ? { ...obj, places: obj.places.concat([res]) } : obj),
+            addPlaceRequestPending: false
           })
         })
+      })
     }
   }
 
   handleEditCity = (e, data) => {
     console.log(data)
     e.preventDefault();
-    this.setState({ 
-      editCityRequestPending: true 
+    this.setState({
+      editCityRequestPending: true
     }, () =>
       putEditCity(localStorage.getItem('token'), data).then(json => {
         this.setState({
           viewCities: this.state.viewCities.map(el => {
             const color = el.color
-            return el.pk === json.pk ? {...json, color} : el
+            return el.pk === json.pk ? { ...json, color } : el
           }),
           viewPlaces: this.props.compilePlaces(json),
           editCityRequestPending: false
@@ -294,41 +306,45 @@ class Main extends React.Component {
       submitImageLoading: true,
       editPlaceRequestPending: true,
     }, () => {
-      putEditPlace(localStorage.getItem('token'), data)
-        .then(json => {
-          this.setState({
-            viewCities: json.map((el, i) => { return { ...el, index: i } }),
-            viewPlaces: this.props.compilePlaces(json),
-            submitImageLoading: false,
-            editPlaceFormOpen: false,
-            editPlaceRequestPending: false,
-          }, () => this.toggleUploader(null))
-        })
-    })
-  }
-
-  handleDeleteCity = (e, data) => {
-    e.preventDefault();
-    deleteCity(localStorage.getItem('token'), data)
-      .then(json => {
-        console.log(json)
+      putEditPlace(localStorage.getItem('token'), data).then(json => {
         this.setState({
           viewCities: json.map((el, i) => { return { ...el, index: i } }),
           viewPlaces: this.props.compilePlaces(json),
+          submitImageLoading: false,
+          editPlaceFormOpen: false,
+          editPlaceRequestPending: false,
         })
       })
+    })
+  }
+
+  //TODO look into having the delete request return the pk of the deleted city and then just iterate over viewCities and keep all but that city
+  handleDeleteCity = (e, data) => {
+    e.preventDefault();
+    deleteCity(localStorage.getItem('token'), data).then(json => {
+      const destinations = this.state.viewCities.filter(el => el.pk !== json.pk)
+      console.log(destinations)
+      this.setState({
+        viewCities: destinations,
+        viewPlaces: this.props.compilePlaces(destinations),
+      })
+    })
   }
 
   handleDeletePlace = (e, data) => {
     e.preventDefault();
-    deletePlace(localStorage.getItem('token'), data)
-      .then(json => {
-        console.log(json)
-        this.setState({
-          viewCities: json.map((el, i) => { return { ...el, index: i } }),
-          viewPlaces: this.props.compilePlaces(json)
+    deletePlace(localStorage.getItem('token'), data).then(json => {
+      const destinations = this.state.viewCities.map(el => {
+        el.places = el.places.filter(obj => {
+          return json.pk !== obj.pk
         })
+        return el
       })
+      this.setState({
+        viewCities: destinations,
+        viewPlaces: this.props.compilePlaces(destinations)
+      })
+    })
   }
 
   handleDeleteImage = (e, data) => {
@@ -345,7 +361,7 @@ class Main extends React.Component {
         return obj.pk === this.state.selectedPlace.pk
       })
       this.setState({
-        viewCities: json.map((el, i) => { return { ...el, index: i } }),
+        viewCities: json.map((el, i) => { return { ...el, index: i, color: city_colors[Math.floor(Math.random() * city_colors.length)] } }),
         viewPlaces: this.props.compilePlaces(json),
         imageViewerOpen: false,
         galleryOpen: true,
@@ -610,9 +626,10 @@ class Main extends React.Component {
   }
 
   render() {
+    const isOwner = this.props.viewUser === this.props.loggedInUser || this.props.viewUser === undefined;
     if (this.state.ready) {
       return (
-        <React.Fragment>
+        <div style={{ backgroundColor: "#000" }}>
           <Navigation
             loggedIn={this.props.loggedIn}
             username={this.props.loggedInUser}
@@ -624,7 +641,7 @@ class Main extends React.Component {
           />
 
 
-          {this.props.user === this.props.username && this.props.user !== null && this.props.username !== null ?
+          {isOwner ?
             <Svg viewBox={add.viewBox} className={clsx(this.props.classes.addSVG)} onClick={this.state.granularity ? this.toggleAddCityForm : this.toggleAddPlaceForm}>
               {add.path.map(el => <path d={el} />)}
             </Svg> : null
@@ -633,18 +650,22 @@ class Main extends React.Component {
           <div
             className={clsx(this.props.classes.page)}
           >
-            <p style={{
-              fontSize: 24,
-              marginRight: 20,
-              marginTop: 80,
-              float: "right",
-              color: "#f8f8ff"
-            }}>
-              {`Add a New ${this.state.granularity ? "City" : "Place"} -->`}
-            </p>
+            {isOwner ?
+              <p style={{
+                fontSize: 24,
+                marginRight: 20,
+                marginTop: 80,
+                float: "right",
+                color: "#f8f8ff"
+              }}>
+                {`Add a New ${this.state.granularity ? "City" : "Place"} -->`}
+              </p>
+              :
+              null
+            }
 
             <div className={clsx(this.props.classes.factDiv)}>
-              <span>You've Visited: </span><br />
+              <span>{`${isOwner ? "You've" : this.props.viewUser[0].toUpperCase() + this.props.viewUser.substring(1) + " Has "} Visited: `}</span><br />
               <p className={clsx(this.props.classes.factLine)}>{`${this.calculateFacts('countries')} Countries`}</p>
               <p className={clsx(this.props.classes.factLine)}>{`${this.calculateFacts("cities")} Cities`}</p>
               <p className={clsx(this.props.classes.factLine)}>{`${this.calculateFacts("places")} Places`}</p>
@@ -693,6 +714,7 @@ class Main extends React.Component {
                 onCityGalleryClick={this.cityGallery}
                 place_colors={place_colors}
                 city_colors={city_colors}
+                style={{ backgroundColor: 'red' }}
               />
 
             </div>
@@ -768,6 +790,7 @@ class Main extends React.Component {
                 isOpen={this.state.addCityFormOpen}
                 toggle={this.toggleAddCityForm}
                 handleAddCity={this.handleAddCity}
+                addCityRequestPending={this.state.addCityRequestPending}
               /> : null}
 
             {this.state.addPlaceFormOpen && this.state.granularity === 0 && this.props.username === this.props.user ?
@@ -779,6 +802,7 @@ class Main extends React.Component {
                 cities={this.state.viewCities}
                 default={this.state.closestCity}
                 placeTypes={PLACE_TYPES}
+                addPlaceRequestPending={this.state.addCityRequestPending}
               /> : null
             }
 
@@ -792,7 +816,7 @@ class Main extends React.Component {
             }
 
           </div>
-        </React.Fragment>
+        </div>
       )
     } else {
       return (
