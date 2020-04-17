@@ -112,8 +112,8 @@ class AddPlace extends React.Component {
       name: "",
       address: "",
       city: "",
-      county: null,
-      state: null,
+      county: "",
+      state: "",
       country: "",
       zip: "",
       latitude: null,
@@ -165,7 +165,6 @@ class AddPlace extends React.Component {
     let pictures = this.state.pictures;
     let pictureNames = this.state.pictureNames
     for (let i = 0; i < files.length; ++i) {
-      console.log(files[i])
       if (!pictureNames.includes(files[i].name)) {
         pictures.push(files[i])
         pictureNames.push(files[i].name)
@@ -197,8 +196,8 @@ class AddPlace extends React.Component {
       name: "",
       address: "",
       city: "",
-      county: null,
-      state: null,
+      county: "",
+      state: "",
       country: "",
       zip: "",
       latitude: null,
@@ -261,7 +260,6 @@ class AddPlace extends React.Component {
       }
     })
 
-    // console.log(placeTypes)
     return (
       <React.Fragment>
         <Modal isOpen={this.props.isOpen} toggle={this.props.toggle} style={styles.modal}>

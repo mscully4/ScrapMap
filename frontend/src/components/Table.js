@@ -196,7 +196,7 @@ class VirtualTable extends Component {
       stadium,
       city_hall
     }
-    var paths = icons[type].path.map(el => <path d={el} fill={place_colors[type]} stroke={place_colors[type]} />)
+    var paths = icons[type].path.map((el, i) => <path key={`${i}`} d={el} fill={place_colors[type]} stroke={place_colors[type]} />)
     return (
       <Svg className={clsx(this.props.classes.typeSVG)} viewbox={icons[type].viewBox}>
         {paths}
@@ -234,7 +234,7 @@ class VirtualTable extends Component {
 
         {this.props.context === "Owner" && this.props.granularity === 0 ?
           <Svg viewBox={add.viewBox} value={"KILL"} className={clsx(classes.addSVG)} onClick={() => this.props.toggleUploader(cellData.cellData.pk)}>
-            {add.path.map(el => <path d={el} stroke={color} fill={color} />)}
+            {add.path.map((el, i) => <path key={`${i}`} d={el} stroke={color} fill={color} />)}
           </Svg> : null}
       </div>
     )
@@ -311,7 +311,7 @@ class VirtualTable extends Component {
             value={"KILL"}
             viewBox={gallery.viewBox}
           >
-            {gallery.path.map(el => <path d={el} fill={`rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, ${greyOutGalleryIcon ? ".2" : "1"})`} />)}
+            {gallery.path.map((el, i) => <path key={`${i}`} d={el} fill={`rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, ${greyOutGalleryIcon ? ".2" : "1"})`} />)}
           </Svg> : null
         }
       </div>

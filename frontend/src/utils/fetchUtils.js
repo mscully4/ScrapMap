@@ -174,13 +174,9 @@ export function deleteImage(token, data) {
 }
 
 //User Functions
-//TODO authorization should not be needed to access this
 export function getUser(token, username) {
   return fetch(baseURL + "core/destinations/" + username + "/",{
     method: "GET",
-    // headers: {
-    //   Authorization: `JWT ${token}`,
-    // }
   })
   .then(response => response.ok ? response.json() : null)
 }

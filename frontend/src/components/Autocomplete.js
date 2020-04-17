@@ -5,6 +5,7 @@ import GooglePlacesAutocomplete, { geocodeByPlaceId } from 'react-google-places-
 import 'react-google-places-autocomplete/dist/assets/index.css';
 import { Dropdown, DropdownItem, DropdownMenu, DropdownToggle, Input } from 'reactstrap';
 import ReactAutocomplete from 'react-autocomplete';
+import { ICE_BLUE, OFF_BLACK_4 } from '../utils/colors';
 
 
 // const placeURL= "https://maps.googleapis.com/maps/api/place/autocomplete/json?types=establishment&strictbounds&"
@@ -151,7 +152,12 @@ class AutoComplete extends React.Component {
         renderItem={(item, highlighted) =>
           <div
             key={item.id}
-            style={{ backgroundColor: highlighted ? '#eee' : 'transparent' }}
+            style={{ 
+              backgroundColor: highlighted ? ICE_BLUE : 'transparent', 
+              color: highlighted ? "#000" : ICE_BLUE,
+              padding: "5px 0",
+              paddingLeft: 5,
+            }}
           >
             {item.description}
           </div>
@@ -162,9 +168,14 @@ class AutoComplete extends React.Component {
         onSelect={(value, obj) => this.props.context === "City" ? this.onSelectCity(value, obj) : this.onSelectPlace(value, obj)}
         renderInput={(props) => {
           const { ref, ...rest } = props;
-          return <Input {...rest} style={this.props.inputStyle} autocomplete={"new-password"} innerRef={ref} />
+          return <Input {...rest} style={this.props.inputStyle} autoComplete={"new-password"} innerRef={ref} />
         }}
         wrapperProps={{ style: { width: '100%' } }}
+        menuStyle={{
+          backgroundColor: OFF_BLACK_4,
+          border: `solid 1px ${ICE_BLUE}`,
+          borderRadius: 3
+        }}
       />
     )
   }

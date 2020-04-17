@@ -80,7 +80,6 @@ class ImageUploader extends React.Component {
   }
 
   render() {
-    console.log(this.props.submitImageLoading)
     const classes = this.props.classes;
     return (
       <div className={clsx(this.props.classes.imageUploaderPopUp)}>

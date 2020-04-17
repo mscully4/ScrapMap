@@ -65,11 +65,11 @@ export default class ImageViewer extends Component {
       { props.isModal ?  
       <span>
         <Svg style={theme.closeSVG} viewbox={close.viewBox} onClick={() => this.props.toggleViewer(false)}>
-          {close.path.map(el => <path d={el}/>)}
+          {close.path.map((el, i) => <path key={`${i}`} d={el}/>)}
         </Svg>
         { this.props.loggedIn ? 
         <Svg style={theme.trashSVG} viewbox={trash.viewBox} onClick={(e) => this.props.deleteDisabled ? null : this.props.handleDeleteImage(e, props.currentView)}>
-          {trash.path.map(el => <path d={el}/>)}
+          {trash.path.map((el, i) => <path key={`${i}`} d={el}/>)}
         </Svg> : null }
 
         {/* { this.props.context === "Owner" ?

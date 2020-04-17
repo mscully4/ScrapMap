@@ -50,12 +50,12 @@ class OptionsDropdown extends React.Component {
             fill={this.props.color}
             value="KILL"
           >
-            {ellipsis.path.map(el => <path d={el} value="KILL" />)}
+            {ellipsis.path.map((el, i) => <path key={`${i}`} d={el} value="KILL" />)}
           </Svg>
         </DropdownToggle>
         <DropdownMenu value="KILL" className={clsx(this.props.classes.dropdownMenu)}>
-          <DropdownItem value="KILL" className={clsx(this.props.classes.dropdownItem)} onClick={() => this.props.toggleEditForm(true)}>Edit</DropdownItem>
-          <DropdownItem value="KILL"className={clsx(this.props.classes.dropdownItem)} onClick={(e) => this.props.handleDelete(e, this.props.cellData.cellData)}>Delete</DropdownItem>
+          <DropdownItem key="1" value="KILL" className={clsx(this.props.classes.dropdownItem)} onClick={() => this.props.toggleEditForm(true)}>Edit</DropdownItem>
+          <DropdownItem key="2" value="KILL"className={clsx(this.props.classes.dropdownItem)} onClick={(e) => this.props.handleDelete(e, this.props.cellData.cellData)}>Delete</DropdownItem>
         </DropdownMenu>
       </Dropdown>
     )

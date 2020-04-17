@@ -217,7 +217,6 @@ class Main extends React.Component {
     }
     //If no data needs to be loaded, allow rendering on children immediately 
     else {
-      console.log(this.state.viewPlaces)
       this.setState({
         closestCity: this.getClosestCity(this.state.viewCities, this.state.mapCenter.lat, this.state.mapCenter.lng),
         ready: true
@@ -250,7 +249,6 @@ class Main extends React.Component {
 
   handleAddPlace = (e, data) => {
     e.preventDefault()
-    console.log(data)
     const payload = {
       destination: data.closestCity.pk,
       name: data.name,
@@ -282,7 +280,6 @@ class Main extends React.Component {
   }
 
   handleEditCity = (e, data) => {
-    console.log(data)
     e.preventDefault();
     this.setState({
       editCityRequestPending: true
@@ -318,12 +315,10 @@ class Main extends React.Component {
     })
   }
 
-  //TODO look into having the delete request return the pk of the deleted city and then just iterate over viewCities and keep all but that city
   handleDeleteCity = (e, data) => {
     e.preventDefault();
     deleteCity(localStorage.getItem('token'), data).then(json => {
       const destinations = this.state.viewCities.filter(el => el.pk !== json.pk)
-      console.log(destinations)
       this.setState({
         viewCities: destinations,
         viewPlaces: this.props.compilePlaces(destinations),
@@ -428,7 +423,6 @@ class Main extends React.Component {
     })
   }
 
-  //TODO on city marker click zoom into city, on place marker click show gallery
   onMarkerClick = (obj) => {
     if (this.state.granularity === 1) {
       this.changeMapCenter(obj)
@@ -444,19 +438,6 @@ class Main extends React.Component {
       })
     }
   }
-  // if (this.state.granularity === 1) {
-  //   this.setState({
-  //     // selectedCity: obj.rowData,
-  //     // mapZoom: obj.event.target.getAttribute("value") !== "KILL" ? 12 : this.state.mapZoom,
-  //     // granularity: 1,
-  //     // hoverIndexCity: null
-  //   }, () => console.log(this.state.mapZoom))
-  // } else if (this.state.granularity === 0) {
-  //   this.setState({
-  //     // selectedPlace: obj.rowData,
-  //     // galleryOpen: obj.event.target.getAttribute("value") !== "KILL" ? true : false,
-  //   })
-  // }
 
   //Table Functions
   tableRowClick = (obj, e) => {
@@ -564,7 +545,6 @@ class Main extends React.Component {
   //Image Editor Functions
   toggleEditor = (value) => {
     const boolean = typeof (value) === 'boolean' ? value : !this.state.editorOpen;
-    //console.log(value)
     this.setState({
       editorOpen: boolean
     })
@@ -643,7 +623,7 @@ class Main extends React.Component {
 
           {isOwner ?
             <Svg viewBox={add.viewBox} className={clsx(this.props.classes.addSVG)} onClick={this.state.granularity ? this.toggleAddCityForm : this.toggleAddPlaceForm}>
-              {add.path.map(el => <path d={el} />)}
+              {add.path.map((el, i) => <path key={`${i}`} d={el} />)}
             </Svg> : null
           }
 
@@ -677,14 +657,10 @@ class Main extends React.Component {
                 zoom={this.state.mapZoom}
                 cities={this.state.viewCities}
                 places={this.state.viewPlaces}
-                //TODO These can be condensed into one each
-                hoverIndexCity={this.state.hoverIndexCity}
-                changeHoverIndexCity={this.changeHoverIndexCity}
-                hoverIndexPlace={this.state.hoverIndexPlace}
-                changeHoverIndexPlace={this.changeHoverIndexPlace}
+                hoverIndex={this.state.granularity ? this.state.hoverIndexCity : this.state.hoverIndexPlace}
+                changeHoverIndex={this.state.granularity ? this.changeHoverIndexCity : this.changeHoverIndexPlace}
                 getClosestCity={this.getClosestCity}
                 setClosestCity={this.setClosestCity}
-                //TODO Need two marker click functions, one for place and one for city
                 markerClick={this.onMarkerClick}
                 granularity={this.state.granularity}
                 changeMapCenter={this.changeMapCenter}

@@ -86,8 +86,8 @@ class Map extends Component {
           lat={data.latitude}
           lng={data.longitude}
           data={data}
-          changeHoverIndex={this.props.changeHoverIndexCity}
-          hoverIndex={this.props.hoverIndexCity}
+          changeHoverIndex={this.props.changeHoverIndex}
+          hoverIndex={this.props.hoverIndex}
           markerClick={this.props.markerClick}
           zoom={this.props.zoom}
           granularity={this.props.granularity}
@@ -100,8 +100,8 @@ class Map extends Component {
           lat={data.latitude}
           lng={data.longitude}
           data={data}
-          changeHoverIndex={this.props.changeHoverIndexPlace}
-          hoverIndex={this.props.hoverIndexPlace}
+          changeHoverIndex={this.props.changeHoverIndex}
+          hoverIndex={this.props.hoverIndex}
           markerClick={this.props.markerClick}
           zoom={this.props.zoom}
           granularity={this.props.granularity}

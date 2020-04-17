@@ -89,7 +89,6 @@ class AddCity extends React.Component {
   }
 
   allFieldsValid = () => {
-    console.log(this.state)
     return this.state.city !== "" &&
       this.state.country !== "" &&
       this.state.countryCode !== "" &&

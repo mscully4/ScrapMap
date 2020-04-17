@@ -146,7 +146,7 @@ class Navigation extends React.Component {
     }
     return (
       <Navbar style={styles.navbar} expand="md">
-        <NavbarBrand style={styles.title} className={styles.title} href="/">ScrapMap</NavbarBrand>
+        <NavbarBrand style={styles.title} href="/">ScrapMap</NavbarBrand>
         <NavbarToggler />
         {form}
       </Navbar>

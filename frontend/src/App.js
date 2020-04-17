@@ -53,7 +53,6 @@ const config = {
 
 class App extends Component {
   constructor(props) {
-    console.log("CHORK")
     super(props);
 
     let token = localStorage.getItem("token");
@@ -98,7 +97,6 @@ class App extends Component {
   getPlacesFromCities = (data) => {
     let places = [], index = 0
     for (var i = 0; i < data.destinations.length; ++i) {
-      console.log(data.destinations[i].places.length)
       for (var z = 0; z < data.destinations[i].places.length; ++z) {
         var place = data.destinations[i].places[z];
         places.push({ ...place, index })
@@ -147,7 +145,6 @@ class App extends Component {
   handleSignup = (e, data) => {
     e.preventDefault();
     putNewUser(data).then(json => {
-      console.log(json)
       if (json) {
         localStorage.setItem("token", json.token);
         this.setState({
@@ -169,34 +166,33 @@ class App extends Component {
     })
   };
 
-  handleImageOverwrite = (img, dataURL) => {
-    console.log(img)
-    // const username = this.state.username;
-    // return new Promise(function(resolve, reject) {
-    //   const buf = new Buffer(dataURL.replace(/^data:image\/\w+;base64,/, ""),'base64')
-    //   const type = dataURL.split(';')[0].split('/')[1];
+  // handleImageOverwrite = (img, dataURL) => {
+  //   // const username = this.state.username;
+  //   // return new Promise(function(resolve, reject) {
+  //   //   const buf = new Buffer(dataURL.replace(/^data:image\/\w+;base64,/, ""),'base64')
+  //   //   const type = dataURL.split(';')[0].split('/')[1];
 
 
-    //   var params = {
-    //     Bucket: "scrapmap",
-    //     Key: `${username}/${img.name}`, 
-    //     Body: buf,
-    //     ContentEncoding: 'base64',
-    //     ContentType: `image/${type}`
-    //   };
-    //   s3Bucket.putObject(params, function(err, data){
-    //     if (err) return reject(err)
-    //     else return resolve(params)
-    //   })
-    // })
-  }
-
-  // changeGranularity = (zoom) => {
-  //   this.setState({
-  //     granularity: zoom > 11 ? 0 : 1,
-  //     mapZoom: zoom,
-  //   })
+  //   //   var params = {
+  //   //     Bucket: "scrapmap",
+  //   //     Key: `${username}/${img.name}`, 
+  //   //     Body: buf,
+  //   //     ContentEncoding: 'base64',
+  //   //     ContentType: `image/${type}`
+  //   //   };
+  //   //   s3Bucket.putObject(params, function(err, data){
+  //   //     if (err) return reject(err)
+  //   //     else return resolve(params)
+  //   //   })
+  //   // })
   // }
+
+  // // changeGranularity = (zoom) => {
+  // //   this.setState({
+  // //     granularity: zoom > 11 ? 0 : 1,
+  // //     mapZoom: zoom,
+  // //   })
+  // // }
 
   compilePlaces = (destinations) => {
     let places = [], index = 0
@@ -212,7 +208,6 @@ class App extends Component {
 
 
   renderHome = (props) => {
-    console.log(props)
     return (
       <Home
         loggedIn={this.state.loggedIn}
