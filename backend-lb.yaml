@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: backend-lb
+  labels:
+    app: backend-lb
+spec:
+  type: LoadBalancer
+  ports:
+  - port: 8000
+    targetPort: 8080
+  selector:
+    app: backend-pods

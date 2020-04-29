@@ -39,7 +39,7 @@ class CreateUser(APIView):
     #POST requests only
     def post(self, request, format=None):
         #This has to be broken up into two different serializers unfortunately
-        valid = 0
+        # valid = 0
 
         #first serialize the user name and password for Django's Built in User model
         user = {
@@ -49,36 +49,40 @@ class CreateUser(APIView):
         user_serializer = UserSerializerSignUp(data=request.data)
         if user_serializer.is_valid():
             user_serializer.save()
-            valid += 1
+            # valid += 1
+            return Response(user_serializer.data, status=status.HTTP_201_CREATED)
         else:
             logger.error("Cannot Create New User: %s" % user_serializer.errors)
-
-        #Pull the pk of the new user
-        id_ = user_serializer.data['id']
-        #Then serialize the user profile data fields for the profile model
-        user_info = {
-            'user': id_,
-            'email': request.data.get('email', ""), 
-            'last_name': request.data.get('last_name', ""),
-            'first_name': request.data.get('first_name', ""),
-            'city': request.data.get('city', ""),
-            'country': request.data.get('country', ""),
-            'zip_code': request.data.get('zip_code', "")
-            }
-        user_info_serializer = UserProfileSerializer(data=user_info, context={'request': request})
-        if user_info_serializer.is_valid():
-            user_info_serializer.save()
-            valid += 1
-        else:
-            logger.error("Cannot Create New User Profile: %s" % user_info_serializer.errors)
+            return Response(user_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-        if valid == 2:
-            data = {**user_serializer.data, **user_info_serializer.data}
-            return Response(data, status=status.HTTP_201_CREATED)
-        else:
-            errors = {**user_serializer.errors, **user_info_serializer.errors}
-            return Response(errors, status=status.HTTP_400_BAD_REQUEST)
+
+        # #Pull the pk of the new user
+        # id_ = user_serializer.data['id']
+        # #Then serialize the user profile data fields for the profile model
+        # user_info = {
+        #     'user': id_,
+        #     'email': request.data.get('email', ""), 
+        #     'last_name': request.data.get('last_name', ""),
+        #     'first_name': request.data.get('first_name', ""),
+        #     'city': request.data.get('city', ""),
+        #     'country': request.data.get('country', ""),
+        #     'zip_code': request.data.get('zip_code', "")
+        #     }
+        # user_info_serializer = UserProfileSerializer(data=user_info, context={'request': request})
+        # if user_info_serializer.is_valid():
+        #     user_info_serializer.save()
+        #     valid += 1
+        # else:
+        #     logger.error("Cannot Create New User Profile: %s" % user_info_serializer.errors)
+
+
+        # if valid == 2:
+        #     data = {**user_serializer.data, **user_info_serializer.data}
+        #     return Response(data, status=status.HTTP_201_CREATED)
+        # else:
+        #     errors = {**user_serializer.errors, **user_info_serializer.errors}
+        #     return Response(errors, status=status.HTTP_400_BAD_REQUEST)
 
 #this returns the list of all destinations for a specified user and allows users to create new locations
 class DestinationListView(APIView):
@@ -148,6 +152,7 @@ class PlaceView(APIView):
     '''
     
     def post(self, request, format=None):
+        print(request.data)
         serializer = PlaceSerializer(data=request.data, context={'request': request})
         if serializer.is_valid():
             serializer.save()

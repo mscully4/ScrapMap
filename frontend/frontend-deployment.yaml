@@ -1,0 +1,27 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: frontend-deployment
+  labels:
+    app: frontend-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels: 
+      app: frontend-pods
+  template:
+    metadata:
+      labels:
+        app: frontend-pods
+    spec:
+      containers:
+      - name: frontend-pod
+        image: gcr.io/scrapmap/frontend
+        livenessProbe:
+          httpGet:
+            path: /liveliness
+            port: 80
+          initialDelaySeconds: 20
+          timeoutSeconds: 3
+        imagePullPolicy: Always
+
