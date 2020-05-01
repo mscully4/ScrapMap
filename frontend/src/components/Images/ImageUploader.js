@@ -5,8 +5,9 @@ import { Button } from 'reactstrap'
 import { close, Svg } from '../../utils/SVGs'
 import MyDropzone from './Dropzone';
 import RingLoader from "react-spinners/RingLoader";
-
-
+import axios from 'axios'
+import { Progress } from 'reactstrap'
+import { ICE_BLUE } from '../../utils/colors'
 
 const styles = theme => ({
   imageUploaderPopUp: {
@@ -56,16 +57,66 @@ const styles = theme => ({
     height: "300px",
     marginTop: "25px !important"
   },
+  progressBarContainer: {
+    bottom: '10%',
+    width: '90%',
+    margin: '0 5%',
+    position: 'absolute'
+  },
+  progressBar: {
+    backgroundColor: ICE_BLUE
+  }
 })
+
+const BASE_URL = '127.0.0.1:8000/'
 
 class ImageUploader extends React.Component {
 
-	constructor(props) {
-		super(props);
-		 this.state = { 
-       pictures: [],
-       pictureNames: [],
-      };
+  constructor(props) {
+    super(props);
+    this.state = {
+      pictures: [],
+      pictureNames: [],
+      progress: 0
+    };
+  }
+
+  putEditPlaceAxios = (token, data) => {
+    this.setState({
+      progress: 0
+    })
+
+    const form = new FormData();
+    form.append('pk', data.pk)
+    form.append('destination', data.destination);
+    form.append('name', data.name)
+    form.append("address", data.address);
+    form.append('street', data.street);
+    form.append('city', data.city);
+    form.append('state', data.state);
+    form.append('country', data.state);
+    form.append('zip_code', data.zip_code)
+    form.append('latitude', data.latitude)
+    form.append('longitude', data.longitude);
+    form.append('types', data.types)
+    form.append('placeId', data.placeId)
+    for (var i = 0; i < data.pictures.length; i++) {
+      form.append('images', data.pictures[i]);
+    }
+
+    const config = {
+      onUploadProgress: function (progressEvent) {
+        let percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+        this.setState({
+          progress: percentCompleted
+        })
+      },
+      headers: {
+        'Content-Type': "multipart/form-data",
+        Authorization: `JWT ${token}`,
+      }
+    }
+    return axios.put(BASE_URL + "core/place/" + data.pk + "/", form, config)
   }
 
   onDrop = (obj) => {
@@ -86,18 +137,26 @@ class ImageUploader extends React.Component {
         <div className={clsx(this.props.classes.imageUploaderHeader)}>
           <p className={clsx(this.props.classes.imageUploaderTitle)}>Image Uploader</p>
           <Svg viewBox={close.viewBox} className={clsx(this.props.classes.imageUploaderHeaderClose)} onClick={this.props.submitImageLoading ? null : this.onCloseClick}>
-            {close.path.map(el => <path d={el}/>)}
+            {close.path.map(el => <path d={el} />)}
           </Svg>
         </div>
-        { this.props.submitImageLoading ?
-          <RingLoader
-            size={200}
-            color={"#0095d2"}
-            loading={true}
-            css={"margin: auto; top: 100px; "}
-          /> :
+        {this.props.submitImageLoading ?
+          <div>
+            <RingLoader
+              size={200}
+              color={"#0095d2"}
+              loading={true}
+              css={"margin: auto; top: 100px; "}
+            />
+            <Progress 
+              value={this.state.Progress} 
+              className={clsx(classes.progressBarContainer)} 
+              barClassName={clsx(classes.progressBar)}
+            />
+          </div>
+          :
           <div className={clsx(classes.imageUploaderDiv)}>
-            <MyDropzone onDrop={this.onDrop} className={clsx(classes.dropzone)}/>
+            <MyDropzone onDrop={this.onDrop} className={clsx(classes.dropzone)} />
             <p className={clsx(classes.imagesSelected)}>{`Images Selected: ${this.state.pictures.length}`}</p>
             <Button color={"#0095d2"} className={classes.button} disabled={this.state.pictures.length === 0} onClick={
               (e) => {
@@ -113,9 +172,8 @@ class ImageUploader extends React.Component {
           </Button>
           </div>
         }
-      
       </div>
-      
+
     );
   }
 }

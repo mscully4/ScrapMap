@@ -67,13 +67,15 @@ const styles = theme => ({
   container: {
     backgroundColor: "#222",
     color: "#d4dada",
-    width: '101%'
+    width: '100%'
     // color: "#000"
   },
   scrollBar: {
-    width: "101% !important",
+    width: "100% !important",
     height: "100%",
-    // backgroundColor: "red"
+    "& div": {
+      // marginRight: "-17px !important"
+    }
   },
   tableRow: {
     cursor: 'pointer',
@@ -336,9 +338,16 @@ class VirtualTable extends Component {
     );
   }
 
+  renderView = ({style, ...props }) => {
+    style.marginRight = -16
+    console.log(style)
+    return <div style={style} {...props} />
+  }
+
 
   render = () => {
-    const WIDTH = window.innerWidth * .36;
+    const WIDTH =  window.innerWidth * .36;
+    console.log(WIDTH)
     const HEIGHT = window.innerHeight;
     const list = this.props.granularity ? this.props.cities : this.getPlaces();
 
@@ -351,6 +360,7 @@ class VirtualTable extends Component {
           className={clsx(this.props.classes.scrollBar)}
           onScroll={this.handleScroll}
           renderThumbVertical={obj => this.renderThumb(obj)}
+          renderView={this.renderView}
 
         >
           <Table
@@ -389,7 +399,7 @@ class VirtualTable extends Component {
               dataKey="destination"
               width={WIDTH * 1}
               headerStyle={{
-                color: "#d4dada"
+                color: "#d4dada",
               }}
               headerRenderer={() => {
                 return (

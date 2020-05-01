@@ -1,4 +1,6 @@
 //const baseURL = 'http://35.223.155.224/'
+import axios from 'axios';
+
 const baseURL = 'http://127.0.0.1:8000/'
 
 export function debounce(inner, ms = 0) {
@@ -60,9 +62,9 @@ export function postNewCity(token, data) {
   form.append('latitude', data.latitude);
   form.append('longitude', data.longitude);
   form.append('countryCode', data.countryCode)
-   for (var i=0; i<data.pictures.length; i++) {
-     form.append('images', data.pictures[i]);
-  }
+  //  for (var i=0; i<data.pictures.length; i++) {
+  //    form.append('images', data.pictures[i]);
+  // }
 
 
   return fetch(baseURL + "core/destination/", {
@@ -77,7 +79,6 @@ export function postNewCity(token, data) {
 }
 
 export function postNewPlace(token, data) {
-  console.log(data)
   return fetch(baseURL + "core/place/", {
     method: "POST",
     headers: {
@@ -90,7 +91,6 @@ export function postNewPlace(token, data) {
 }
 
 export function putEditCity(token, data) {
-  console.log(data)
   const form = new FormData();
   form.append("pk", data.pk);
   form.append('city', data.city);
@@ -110,7 +110,6 @@ export function putEditCity(token, data) {
 }
 
 export function putEditPlace(token, data) {
-  console.log(data)
   const form = new FormData();
   form.append('pk', data.pk)
   form.append('destination', data.destination);
@@ -139,13 +138,44 @@ export function putEditPlace(token, data) {
   .then(response => response.ok ? response.json() : null)
 }
 
+export function putEditPlaceAxios(token, data) {
+  const form = new FormData();
+  form.append('pk', data.pk)
+  form.append('destination', data.destination);
+  form.append('name', data.name)
+  form.append("address", data.address);
+  form.append('street', data.street);
+  form.append('city', data.city);
+  form.append('state', data.state);
+  form.append('country', data.state);
+  form.append('zip_code', data.zip_code)
+  form.append('latitude', data.latitude)
+  form.append('longitude', data.longitude);
+  form.append('types', data.types)
+  form.append('placeId', data.placeId)
+  for (var i=0; i<data.pictures.length; i++) {
+    form.append('images', data.pictures[i]);
+  }
+
+  const config = {
+    onUploadProgress: function(progressEvent) {
+      let percentCompleted = Math.round( (progressEvent.loaded * 100) / progressEvent.total );
+      console.log(percentCompleted)
+    },
+    headers: {
+      'Content-Type': "multipart/form-data",
+      Authorization: `JWT ${token}`,
+    }
+  }
+ return axios.put(baseURL + "core/place/" + data.pk + "/", form, config)
+
+}
 
 export function deleteCity(token, data) {
   return fetch(baseURL + "core/destination/" + data.pk + "/", {
     method: "DELETE",
     headers: {
       Authorization: `JWT ${token}`,
-      //"Content-Type": "application/json",
     }
   })
   .then(response => response.ok ? response.json() : null)

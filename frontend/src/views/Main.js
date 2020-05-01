@@ -7,21 +7,30 @@ import RingLoader from "react-spinners/RingLoader";
 
 
 import Navigation from '../components/NavBar'
-import Map from '../components/Map';
-import Table from '../components/Table'
-import ImageViewer from '../components/ImageViewer';
-import { ImgEditor } from '../components/ImageEditor';
-import EditCity from '../components/EditCity.js';
-import EditPlace from '../components/EditPlace.js';
-import AddCity from '../components/AddCity.js';
-import AddPlace from '../components/AddPlace.js';
-
-import ImageUploader from '../components/ImageUploader.js';
+import Map from '../components/Map/Map.js';
+import Table from '../components/Table/Table.js'
+import ImageViewer from '../components/Images/ImageViewer';
+// import { ImgEditor } from '../components/ImageEditor';
+import EditCity from '../components/Forms/EditCity.js';
+import EditPlace from '../components/Forms/EditPlace.js';
+import AddCity from '../components/Forms/AddCity.js';
+import AddPlace from '../components/Forms/AddPlace.js';
+import ImageUploader from '../components/Images/ImageUploader.js';
 
 import { add, Svg } from '../utils/SVGs';
 import { place_colors, city_colors } from '../utils/colors';
 import { getDistanceBetweenTwoPoints } from '../utils/Formulas.js';
-import { fetchCurrentUser, fetchToken, putNewUser, postNewCity, putEditCity, deleteCity, deletePlace, deleteImage, getUser, postNewPlace, putEditPlace } from "../utils/fetchUtils"
+import { 
+  postNewCity, 
+  putEditCity, 
+  putEditPlaceAxios,
+  deleteCity, 
+  deletePlace, 
+  deleteImage, 
+  getUser, 
+  postNewPlace, 
+  putEditPlace 
+} from "../utils/fetchUtils"
 
 const PLACE_TYPES = [
   "natural_feature",
@@ -134,11 +143,13 @@ const styles = theme => ({
 
 class Main extends React.Component {
   static defaultProps = {
-    cities: [],
+    loggedInCities: [],
+
   }
 
   constructor(props) {
     super(props)
+    console.log(this.props)
     this.state = {
       //General
       ready: false,
@@ -303,10 +314,11 @@ class Main extends React.Component {
       submitImageLoading: true,
       editPlaceRequestPending: true,
     }, () => {
-      putEditPlace(localStorage.getItem('token'), data).then(json => {
+      putEditPlaceAxios(localStorage.getItem('token'), data).then(json => {
+        console.log(json)
         this.setState({
-          viewCities: json.map((el, i) => { return { ...el, index: i } }),
-          viewPlaces: this.props.compilePlaces(json),
+          viewCities: json.data.map((el, i) => { return { ...el, index: i } }),
+          viewPlaces: this.props.compilePlaces(json.data),
           submitImageLoading: false,
           editPlaceFormOpen: false,
           editPlaceRequestPending: false,
@@ -586,13 +598,13 @@ class Main extends React.Component {
   }
 
   calculateFacts = (context) => {
-    if (context == "cities") {
+    if (context === "cities") {
       const cities = []
       this.state.viewCities.forEach(obj => {
         cities.push(obj.city)
       })
       return cities.length
-    } else if (context == "countries") {
+    } else if (context === "countries") {
       const countries = []
       this.state.viewCities.forEach(obj => {
         if (!countries.includes(obj.countryCode.toLowerCase())) {
@@ -600,7 +612,7 @@ class Main extends React.Component {
         }
       })
       return countries.length
-    } else if (context == "places") {
+    } else if (context === "places") {
       return this.state.viewPlaces.length
     }
   }
@@ -618,6 +630,7 @@ class Main extends React.Component {
             toggleSignUp={this.props.toggleSignUp}
             handleLogin={this.props.handleLogin}
             handleSignup={this.props.handleSignup}
+            loadingUserData={this.props.loadingUserData}
           />
 
 

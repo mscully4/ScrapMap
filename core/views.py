@@ -94,8 +94,11 @@ class DestinationListView(APIView):
 
     def get(self, request, username=None, format=None):
         #logger.info(request.user)
-        serializer = DestinationSerializer(Destination.objects.filter(user=User.objects.get(username=username).pk if username != None else request.user), many=True)
-        return Response(serializer.data)
+        if User.objects.filter(username=username).exists():
+            serializer = DestinationSerializer(Destination.objects.filter(user=User.objects.get(username=username).pk if username != None else request.user), many=True)
+            return Response(serializer.data)
+        else: 
+            return Response(status=status.HTTP_404_NOT_FOUND)
 
 #this is for individual destinations, for retreiving the data/editing or deleting existing ones
 class DestinationView(APIView):

@@ -58,7 +58,7 @@ class UserSerializerSignUp(serializers.ModelSerializer):
         #Use Django's built in User class
         model = User
         #serialize these fields
-        fields = ('id', 'token', 'username', 'password')
+        fields = ('id', 'token', 'username', 'password', 'first_name', 'last_name', 'email')
 
 class UserProfileSerializer(serializers.ModelSerializer):
     class Meta:

@@ -13,13 +13,14 @@ import {
   NavbarToggler
 } from 'reactstrap';
 import clsx from 'clsx'
+import { Svg, home } from '../utils/SVGs';
 
 import { ICE_BLUE, FONT_GREY, OFF_BLACK_1, OFF_BLACK_2, OFF_BLACK_3, OFF_BLACK_4 } from '../utils/colors'
 import { withRouter, Link } from 'react-router-dom';
 
 
-import LoginForm from './LoginForm';
-import SignUpForm from './SignUpForm';
+import LoginForm from './Forms/LoginForm';
+import SignUpForm from './Forms/SignUpForm';
 
 const styles = {
   navbar: {
@@ -37,7 +38,7 @@ const styles = {
     margin: "auto",
     lineHeight: 'inherit',
     color: "#f8f8ff",
-    fontWeight: 'unset' 
+    fontWeight: 'unset'
   },
   button: {
     margin: '0 10px',
@@ -68,12 +69,18 @@ const styles = {
     color: ICE_BLUE,
     border: "none"
   },
-  modalBody: { 
-    backgroundColor: OFF_BLACK_3 
+  modalBody: {
+    backgroundColor: OFF_BLACK_3
   },
-  modalFooter: { 
-    backgroundColor: OFF_BLACK_2, 
+  modalFooter: {
+    backgroundColor: OFF_BLACK_2,
     border: "none"
+  },
+  home: {
+    width: 32,
+    height: 32,
+    cursor: 'pointer',
+    margin: "0 15"
   }
 }
 
@@ -101,12 +108,17 @@ class Navigation extends React.Component {
   }
 
   render() {
-    //this.updateWindowDimensions();
-    let form, username, submitForm, addCity;
-    // console.log(this.props)
+    let content;
     if (this.props.loggedIn) {
-      form =
+      content =
         <Nav className="ml-auto" navbar>
+          <NavItem>
+            <Link to={`${this.props.username}`}>
+              <Svg viewbox={home.viewBox} style={styles.home}>
+                {home.path.map((el, i) => <path key={`${i}`} d={el} stroke={ICE_BLUE} fill={ICE_BLUE} />)}
+              </Svg>
+            </Link>
+          </NavItem>
           <NavItem>
             <h3 style={styles.username}> Hello, {this.props.username} </h3>
           </NavItem>
@@ -114,21 +126,21 @@ class Navigation extends React.Component {
             <h3 style={styles.divider}> | </h3>
           </NavItem>
           <NavItem>
-            {/* <Button className="nav-button" onClick={this.props.handleLogout}>Logout</Button> */}
             <Link style={styles.logout} onClick={this.props.handleLogout} to="/">Logout</Link>
           </NavItem>
         </Nav>
     } else {
-      form =
+      content =
         <Nav className="ml-auto" navbar>
           <NavItem>
             <Button className="nav-button" style={styles.button} onClick={this.toggleLogin}>Login</Button>
-            <Modal isOpen={this.state.showLoginModal} toggle={this.toggleLogin} style={styles.modal}>
-              <ModalHeader toggle={this.toggleLogin} style={styles.modalHeader}>Login</ModalHeader>
-              <ModalBody style={styles.modalBody}>
-                <LoginForm handleLogin={this.props.handleLogin} />
-              </ModalBody>
-            </Modal>
+            <LoginForm
+              handleLogin={this.props.handleLogin}
+              isOpen={this.state.showLoginModal}
+              toggle={this.toggleLogin}
+              style={styles.modal}
+              loadingUserData={this.props.loadingUserData}
+            />
           </NavItem>
           <br />
           {this.props.handleSignup ?
@@ -144,11 +156,12 @@ class Navigation extends React.Component {
           }
         </Nav>
     }
+
     return (
       <Navbar style={styles.navbar} expand="md">
-        <NavbarBrand style={styles.title} href="/">ScrapMap</NavbarBrand>
+        <NavbarBrand style={styles.title}>ScrapMap</NavbarBrand>
         <NavbarToggler />
-        {form}
+        {content}
       </Navbar>
     )
   }

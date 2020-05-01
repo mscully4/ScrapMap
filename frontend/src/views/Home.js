@@ -3,14 +3,15 @@ import ReactDOM from 'react-dom';
 import Gallery from "react-photo-gallery";
 import { Modal } from 'reactstrap';
 import clsx from 'clsx'
-import { withStyles} from '@material-ui/styles';
+import { withStyles } from '@material-ui/styles';
 import Carousel, { ModalGateway } from 'react-images';
-import { Button, Form, Input} from 'reactstrap';
+import { Button, Form, Input } from 'reactstrap';
 
-import Map from '../components/Map';
-import Table from '../components/Table'
-import ImageViewer from '../components/ImageViewer';
+import ImageViewer from '../components/Images/ImageViewer';
 import Navigation from '../components/NavBar'
+import RingLoader from "react-spinners/RingLoader";
+import { Redirect } from 'react-router-dom'
+
 import { Add1, Add2 } from '../utils/SVGs';
 import { getUser } from '../utils/fetchUtils';
 
@@ -53,8 +54,13 @@ class Home extends React.Component {
   constructor(props) {
     super(props)
     this.state = {
+      first_name: "",
+      last_name: "",
+      email: "",
       username: "",
       password: "",
+
+      redirect: false
     }
   }
 
@@ -72,8 +78,18 @@ class Home extends React.Component {
     ReactDOM.findDOMNode(this.formSignUp).dispatchEvent(new Event("submit"))
   }
 
+  disableButton = () => {
+    const {username, password, first_name, last_name, email} = this.state
+    return !(username !== "" && password !== "" && first_name !== "" && last_name !== "" && email !== "")
+  }
+
   render() {
     const classes = this.props.classes
+    console.log(this.state.redirect, this.props)
+    if (this.state.redirect || this.props.loggedInUser) {
+      return <Redirect to={this.props.loggedInUser} />
+    }
+
     return (
       <div style={{ height: window.innerHeight }} className={clsx(classes.main)}>
         <Navigation
@@ -84,14 +100,55 @@ class Home extends React.Component {
           toggleSignUp={this.props.toggleSignUp}
           handleLogin={this.props.handleLogin}
           handleSignup={null}
+          loadingUserData={this.props.loadingUserData}
         />
-        <Form ref={ref => this.formSignUp = ref} className={clsx(classes.form)} onSubmit={(e) => this.props.handleSignup(e, this.state)}>
-          <p 
-          style={{
-            color: "#0095d2",
-            fontSize: 36,
-            marginBottom: 12
-          }}>Sign Up Now!</p>
+        { !this.props.loadingSignupRequest ? 
+        <Form 
+          ref={ref => this.formSignUp = ref} 
+          className={clsx(classes.form)} 
+          onSubmit={(e) => {
+            this.props.handleSignup(e, this.state)
+            this.setState({
+              redirect: true
+            })
+          }
+          }>
+          <p
+            style={{
+              color: "#0095d2",
+              fontSize: 36,
+              marginBottom: 12
+            }}>Sign Up Now!</p>
+          <Input
+            type="text"
+            boof="first_name"
+            placeholder={"First Name"}
+            className={clsx(classes.input)}
+            value={this.state.first_name}
+            onChange={this.handleChange}
+            autoComplete={"new-password"}
+          />
+          <br />
+          <Input
+            type="text"
+            boof="last_name"
+            placeholder={"Last Name"}
+            className={clsx(classes.input)}
+            autoComplete={"new-password"}
+            value={this.state.last_name}
+            onChange={this.handleChange}
+          />
+          <br />
+          <Input
+            type="text"
+            boof="email"
+            placeholder={"Email"}
+            className={clsx(classes.input)}
+            value={this.state.email}
+            onChange={this.handleChange}
+            autoComplete={"new-password"}
+          />
+          <br />
           <Input
             type="text"
             boof="username"
@@ -103,7 +160,7 @@ class Home extends React.Component {
           />
           <br />
           <Input
-            type="text"
+            type="password"
             boof="password"
             placeholder={"Password"}
             className={clsx(classes.input)}
@@ -111,12 +168,17 @@ class Home extends React.Component {
             value={this.state.password}
             onChange={this.handleChange}
           />
-        <Button className={clsx(classes.button)} onClick={this.submitForm}>Submit</Button>
-
-        </Form>
+          <Button disabled={this.disableButton() || this.props.loadingSignupRequest} className={clsx(classes.button)} onClick={this.submitForm}>Submit</Button>
+        </Form> : 
+         <RingLoader
+         color={"#0095d2"}
+         loading={true}
+         css={`margin: auto; top: ${(window.innerHeight - 500) / 2.5}px`}
+         size={500}
+       />}
 
       </div>
-    ) 
+    )
   }
 }
 

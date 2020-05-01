@@ -58,10 +58,10 @@ class App extends Component {
     let token = localStorage.getItem("token");
 
     this.state = {
+      loadingUserData: false,
       loggedIn: token && (jwt_decode(token).exp > (Date.now() / 1000)) ? true : false,
       loggedInUser: null,
-      showLoginModal: false,
-      modalSignUp: false,
+      // modalSignUp: false,
 
       loggedInCities: [],
       loggedInPlaces: [],
@@ -124,6 +124,10 @@ class App extends Component {
   // baseURL + token-auth/
   handleLogin = (e, data) => {
     e.preventDefault();
+    this.setState({
+      loadingUserData: true
+    })
+
     fetchToken(data).then(json => {
       if (json) {
         localStorage.setItem('token', json.token);
@@ -135,7 +139,12 @@ class App extends Component {
             el.color = city_colors[Math.floor(Math.random() * city_colors.length)]
             return el;
           }),
-          places: this.getPlacesFromCities(json)
+          places: this.getPlacesFromCities(json),
+          loadingUserData: false,
+        })
+      } else {
+        this.setState({
+          loadingUserData: false
         })
       }
     })
@@ -144,14 +153,22 @@ class App extends Component {
   //baseURL + core/users/
   handleSignup = (e, data) => {
     e.preventDefault();
+    this.setState({
+      loadingSignupRequest: true
+    })
     putNewUser(data).then(json => {
       if (json) {
         localStorage.setItem("token", json.token);
         this.setState({
           loggedIn: true,
-          loggedInUser: json.username
+          loggedInUser: json.username,
+          loggedInCities: [],
+          loggedInPlaces: []
         })
       }
+      this.setState({
+        loadingSignupRequest: false
+      })
     })
   };
 
@@ -160,8 +177,8 @@ class App extends Component {
     this.setState({
       loggedIn: false,
       loggedInUser: null,
-      showModalLogin: false,
-      modalSignUp: false,
+      // showModalLogin: false,
+      // modalSignUp: false,
       loggedInCities: null,
     })
   };
@@ -208,6 +225,7 @@ class App extends Component {
 
 
   renderHome = (props) => {
+    console.log(props)
     return (
       <Home
         loggedIn={this.state.loggedIn}
@@ -217,11 +235,15 @@ class App extends Component {
         toggleSignUp={this.toggleSignUp}
         handleLogin={this.handleLogin}
         handleSignup={this.handleSignup}
+        loadingUserData={this.state.loadingUserData}
+        loadingSignupRequest={this.state.loadingSignupRequest}
+
       />
     )
   }
 
   renderMain = (props) => {
+    console.log(props)
     const user = props.match.params.username;
     const context = user === undefined || user === this.state.loggedInUser ? "Owner" : "Viewer";
     return (
@@ -229,25 +251,19 @@ class App extends Component {
         {...props}
         context={context}
         compilePlaces={this.compilePlaces}
+        loadingUserData={this.state.loadingUserData}
+        loadingSignupRequest={this.state.loadingSignupRequest}
         //Navigation Props
         loggedIn={this.state.loggedIn}
         loggedInUser={this.state.loggedInUser}
         loggedInCities={this.state.loggedInCities}
         loggedInPlaces={this.state.loggedInPlaces}
         handleLogout={this.handleLogout}
-        toggleLogin={this.toggleLogIn}
-        toggleSignUp={this.toggleSignUp}
         handleLogin={this.handleLogin}
         handleSignup={this.handleSignup}
         //view info
         viewUser={user}
         //Map Props
-        handleAddCity={this.handleAddCity}
-        handleAddPlace={this.handleAddPlace}
-        handleEditCity={this.handleEditCity}
-        handleDeleteCity={this.handleDeleteCity}
-        handleImageOverwrite={this.handleImageOverwrite}
-        backendURL={BACKEND_URL}
       />)
   }
 
@@ -259,9 +275,10 @@ class App extends Component {
           {/* <h1 style={styles.quote}>"To Travel is to BOOF"</h1> */}
           <Router>
             <Switch>
+              <Route path="/liveliness" render={(props) => <div></div>}></Route>
               <Route path="/:username" render={(props) => this.renderMain(props)}></Route>
               {/* <Route path="/test" render={(props) => <Test {...props}/>}></Route> */}
-              <Route path="/" render={(props) => this.state.loggedIn ? this.renderMain(props) : this.renderHome(props)}></Route>
+              <Route path="/" render={(props) => this.renderHome(props)}></Route>
             </Switch>
           </Router>
         </React.Fragment>
