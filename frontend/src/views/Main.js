@@ -218,9 +218,10 @@ class Main extends React.Component {
           }
         })
         this.changeMapCenter(mapCenter)
+        const places = this.props.compilePlaces(data)
         this.setState({
           viewCities: cities,
-          viewPlaces: this.props.compilePlaces(data),
+          viewPlaces: places,
           closestCity: this.getClosestCity(cities, mapCenter.lat, mapCenter.lng),
           ready: true,
         })
@@ -361,18 +362,28 @@ class Main extends React.Component {
     })
 
     deleteImage(localStorage.getItem('token'), data).then(json => {
-      const city = json.find(obj => {
-        return obj.pk === this.state.selectedPlace.destination
+      //Find the place that houses the image
+      const obj = this.state.viewPlaces.find(obj => {
+        return obj.pk === json.place
       })
-      const place = city.places.find(obj => {
-        return obj.pk === this.state.selectedPlace.pk
+      //Remove the image from the place
+      obj.images = obj.images.filter(el => el.pk !== json.id)
+
+      const destinations = this.state.viewCities.map(city => {
+        //swap out the old place for the new
+        city.places = city.places.map(place => {
+          return place.pk === json.place ? obj : place
+        })
+        return city
       })
+
+      //Update state to reflect the changes
       this.setState({
-        viewCities: json.map((el, i) => { return { ...el, index: i, color: city_colors[Math.floor(Math.random() * city_colors.length)] } }),
-        viewPlaces: this.props.compilePlaces(json),
+        viewCities: destinations,
+        viewPlaces: this.props.compilePlaces(destinations),
         imageViewerOpen: false,
         galleryOpen: true,
-        preparedImages: this.prepareImageURLs(place.images),
+        preparedImages: this.prepareImageURLs(obj.images),
         deleteDisabled: false,
       })
     })
@@ -618,6 +629,8 @@ class Main extends React.Component {
   }
 
   render() {
+    console.log(this.props)
+
     const isOwner = this.props.viewUser === this.props.loggedInUser || this.props.viewUser === undefined;
     if (this.state.ready) {
       return (
@@ -751,7 +764,7 @@ class Main extends React.Component {
               handleDeleteImage={this.handleDeleteImage}
               // toggleEditor={this.toggleEditor}
               // editorOpen={this.state.editorOpen}
-              toggleEditor={this.toggleEditor}
+              // toggleEditor={this.toggleEditor}
               loggedIn={this.props.loggedIn}
               deleteDisabled={this.state.deleteDisabled}
             />

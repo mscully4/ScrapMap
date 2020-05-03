@@ -9,6 +9,8 @@ from django.core.files.uploadedfile import InMemoryUploadedFile, TemporaryUpload
 from django.contrib.auth.models import User
 from .models import Destination, DestinationImages, Place, PlaceImages, UserProfile
 
+from datetime import datetime
+
 import logging
 logger = logging.getLogger('django')
 
@@ -71,10 +73,10 @@ class UserProfileSerializer(serializers.ModelSerializer):
 
 class DestinationSerializer(serializers.ModelSerializer):
     #I think this is garbage
-    images = serializers.SerializerMethodField()
-    def get_images(self, obj):
-        images = [{'src': obj.image.url, 'width': obj.image.width, 'height': obj.image.height, 'name': obj.name, 'name': obj.image.__str__() } for obj in DestinationImages.objects.filter(destination=obj.pk)]
-        return images
+    # images = serializers.SerializerMethodField()
+    # def get_images(self, obj):
+    #     images = [{'src': obj.image.url, 'width': obj.image.width, 'height': obj.image.height, 'name': obj.name, 'name': obj.image.__str__() } for obj in DestinationImages.objects.filter(destination=obj.pk)]
+    #     return images
 
     user = serializers.SerializerMethodField()
     def get_user(self, obj):
@@ -87,7 +89,7 @@ class DestinationSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Destination
-        fields = ('pk', "city", "country", "countryCode", "latitude", "longitude", "user", "images", "places")
+        fields = ('pk', "city", "country", "countryCode", "latitude", "longitude", "user", "places")
 
      #called when a new city is created
     def create(self, validated_data):
@@ -122,7 +124,8 @@ class PlaceSerializer(serializers.ModelSerializer):
             'width': el.image.width, 
             'height': el.image.height, 
             'name': el.image.__str__() } 
-            for el in PlaceImages.objects.filter(place=obj.pk)]
+            for el in PlaceImages.objects.filter(place=obj.pk)
+        ]
         return images
 
     class Meta:
@@ -177,7 +180,7 @@ class PlaceSerializer(serializers.ModelSerializer):
         return instance
 
 
-class DestinationImagesSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = DestinationImages
-        fields=("__all__")
+class PlaceImagesSerializer(serializers.ModelSerializer):
+    class Meta: 
+        model = PlaceImages
+        fields = ("__all__") 

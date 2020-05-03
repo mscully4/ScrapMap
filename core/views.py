@@ -1,18 +1,12 @@
-from django.shortcuts import render
-
-from django.http import HttpResponseRedirect
 from django.contrib.auth.models import User
 from rest_framework import permissions, status
-from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework.views import APIView 
 from rest_framework.parsers import FileUploadParser
 
-from .serializers import UserSerializerLogin, UserSerializerSignUp, UserProfileSerializer, DestinationSerializer, DestinationImagesSerializer, PlaceSerializer
+from .serializers import UserSerializerLogin, UserSerializerSignUp, UserProfileSerializer, DestinationSerializer, PlaceSerializer, PlaceImagesSerializer
 from .models import Destination, DestinationImages, Place, PlaceImages
 from django.core import serializers
-import json
-import copy
 
 import logging
 logger = logging.getLogger('django')
@@ -28,6 +22,7 @@ class CurrentUser(APIView):
             "user": UserSerializerLogin(request.user).data,
             "destinations": DestinationSerializer(Destination.objects.filter(user=request.user), many=True).data,
         }
+
         return Response(data)
 
 class CreateUser(APIView):
@@ -184,14 +179,21 @@ class PlaceView(APIView):
         print(instance.destination_id, Destination.objects.get(pk=instance.destination_id))
         serializer = PlaceSerializer(instance=instance, data={**instance.__dict__, 'destination': instance.destination.id})
         if serializer.is_valid():
-            print(1)
             resp = Response(serializer.data)
             instance.delete()
             return resp
         else:
-            print(2)
             logger.error(serializer.errors)
             return Response(serializer.errors)
+
+class PlaceImagesView(APIView):
+    def delete(self, request, pk):
+        instance = PlaceImages.objects.get(pk=pk)
+        serializer = PlaceImagesSerializer(instance)
+        resp = Response(serializer.data)
+        instance.delete()
+        #return the PK of the image so that it can be deleted from state in the frontend app
+        return resp
 
         
 
