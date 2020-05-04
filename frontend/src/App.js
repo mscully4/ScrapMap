@@ -5,21 +5,34 @@ import {
   BrowserRouter as Router,
   Switch,
   Route,
-  Link
 } from "react-router-dom";
 import RingLoader from "react-spinners/RingLoader";
-
+import {
+  fetchCurrentUser, 
+  fetchToken, 
+  putNewUser,
+  postNewCity,
+  putEditCity,
+  putEditPlaceAxios,
+  deleteCity,
+  deletePlace,
+  deleteImage,
+  getUser,
+  postNewPlace,
+  // putEditPlace 
+} from "./utils/fetchUtils"
 
 import Main from './views/Main';
 import Home from './views/Home';
 // import Test from './views/Test';
 
-import { fetchCurrentUser, fetchToken, putNewUser } from "./utils/fetchUtils"
 import { city_colors } from "./utils/colors"
 
 import "./App.css";
 
 const BACKEND_URL = "http://localhost:8000";
+const DEFAULT_CENTER = { lat: 33.7490, lng: -84.3880 }
+
 
 const styles = {
   space: {
@@ -66,13 +79,26 @@ class App extends Component {
       loggedInCities: [],
       loggedInPlaces: [],
 
+      viewUser: null,
+      viewCities: [],
+      viewPlaces: [],
+
       width: window.innerWidth * .8,
       height: window.innerHeight * .8,
       ready: false,
 
-      //These need to be here because a new instance of Main is created every time, so the values held in state are lost
+      editPlaceRequestPending: false,
+      editCityRequestPending: false,
 
+      addCityRequestPending: false,
+      addPlaceRequestPending: false,
+
+      deleteCityRequestPending: false,
+      deletePlaceRequestPending: false,
+      deleteImageRequestPending: false
     }
+
+    this.setPreparedImages = null
   }
 
   componentDidMount() {
@@ -94,11 +120,11 @@ class App extends Component {
     this.setState({ width: window.innerWidth * .8, height: window.innerHeight * .8 });
   }
 
-  getPlacesFromCities = (data) => {
+  compilePlaces = (destinations) => {
     let places = [], index = 0
-    for (var i = 0; i < data.destinations.length; ++i) {
-      for (var z = 0; z < data.destinations[i].places.length; ++z) {
-        var place = data.destinations[i].places[z];
+    for (var i = 0; i < destinations.length; ++i) {
+      for (var z = 0; z < destinations[i].places.length; ++z) {
+        var place = destinations[i].places[z];
         places.push({ ...place, index })
         ++index
       }
@@ -108,6 +134,7 @@ class App extends Component {
 
   handleLoadSession = (e) => {
     fetchCurrentUser(localStorage.getItem("token")).then(data => {
+      const places = this.compilePlaces(data.destinations)
       this.setState({
         loggedInUser: data.user.username,
         loggedInCities: data.destinations.map((el, i) => {
@@ -115,7 +142,7 @@ class App extends Component {
           el.color = city_colors[Math.floor(Math.random() * city_colors.length)]
           return el;
         }),
-        loggedInPlaces: this.getPlacesFromCities(data),
+        loggedInPlaces: places,
         ready: true,
       })
     });
@@ -131,6 +158,7 @@ class App extends Component {
     fetchToken(data).then(json => {
       if (json) {
         localStorage.setItem('token', json.token);
+        const places = this.compilePlaces(json.destinations)
         this.setState({
           loggedIn: true,
           loggedInUser: json.user.username,
@@ -139,7 +167,7 @@ class App extends Component {
             el.color = city_colors[Math.floor(Math.random() * city_colors.length)]
             return el;
           }),
-          places: this.getPlacesFromCities(json),
+          loggedInPlaces: places,
           loadingUserData: false,
         })
       } else {
@@ -183,6 +211,223 @@ class App extends Component {
     })
   };
 
+  //The intermediary function for adding new cities
+  handleAddCity = (e, data) => {
+    e.preventDefault();
+    //As a precaution, make sure the user is Logged In
+    if (this.state.loggedIn) {
+      //This will prevent users spamming the submit button
+      this.setState({
+        addCityRequestPending: true,
+      }, () => {
+        //Hit the /core/destinations/ endpoint with a post request to add the new city
+        postNewCity(localStorage.getItem('token'), data)
+          .then(res => {
+            //Change state to reflect the changes
+            this.setState({
+              loggedInCities: this.state.loggedInCities.concat([{
+                ...res, index: this.state.loggedInCities.length, color: city_colors[Math.floor(Math.random() * city_colors.length)]
+              }]),
+              mapZoom: 4,
+              mapCenter: { lat: res.latitude, lng: res.longitude },
+              addCityRequestPending: false
+            }, () => console.log(this.state))
+          })
+          .catch(err => { console.log(err) })
+      })
+    }
+  }
+
+  //The intermediary function for adding new places
+  handleAddPlace = (e, data) => {
+    e.preventDefault()
+    //Put all the data in an object
+    const payload = {
+      destination: data.closestCity.pk,
+      name: data.name,
+      address: data.address,
+      city: data.closestCity.city,
+      county: data.county,
+      state: data.state,
+      country: data.country,
+      zip_code: data.zip_code,
+      latitude: data.latitude,
+      longitude: data.longitude,
+      types: data.types,
+      placeId: data.placeId,
+      main_type: data.main_type
+    }
+    //Let the application know there is an outstanding request, this is used to prevent spamming the submit button
+    this.setState({
+      addPlaceRequestPending: true
+    }, () => {
+      //Hit the /core/places/ endpoint with a POST to add a new place
+      postNewPlace(localStorage.getItem('token'), payload)
+        .then(res => {
+          //Update state to reflect changes
+          this.setState({
+            loggedInPlaces: this.state.loggedInPlaces.concat([{ ...res, index: this.state.loggedInPlaces.length }]),
+            loggedInCities: this.state.loggedInCities.map(obj => obj.pk === res.destination ? { ...obj, places: obj.places.concat([res]) } : obj),
+            addPlaceRequestPending: false
+          })
+        })
+        .catch(err => console.log(err))
+    })
+  }
+
+  //The intermediary function for editing cities
+  handleEditCity = (e, data) => {
+    e.preventDefault();
+
+    //Let the application know there is an outstanding request, this is used to prevent spamming the submit button
+    this.setState({
+      editCityRequestPending: true
+    }, () =>
+      //Hit the /core/destination/:pk/ endpoint with a PUT request
+      putEditCity(localStorage.getItem('token'), data)
+        .then(json => {
+          //Update state to reflect changes
+          this.setState({
+            loggedInCities: this.state.loggedInCities.map(el => {
+              const color = el.color
+              return el.pk === json.pk ? { ...json, color } : el
+            }),
+            loggedInPlaces: this.compilePlaces(json),
+            editCityRequestPending: false
+          })
+        })
+        .catch(err => console.log(err))
+    )
+  }
+
+  //The intermediary function for editing cities and uploading images
+  handleEditPlace = (e, data) => {
+    e.preventDefault();
+    //Let the application know there is an outstanding request, this is used to prevent spamming the submit button
+    this.setState({
+      editPlaceRequestPending: true,
+    }, () => {
+      //Hit the /core/place/:pk/ endpoint with a PUT request to edit the place/upload images
+      putEditPlaceAxios(localStorage.getItem('token'), data)
+        //Update state to reflect the changes
+        .then(json => {
+          this.setState({
+            loggedInCities: json.data.map((el, i) => { return { ...el, index: i } }),
+            loggedInPlaces: this.compilePlaces(json.data),
+            editPlaceRequestPending: false,
+          })
+        })
+        .catch(err => console.log(err))
+    })
+  }
+
+  //The intermediary funcction for deleting cities
+  handleDeleteCity = (e, data) => {
+    e.preventDefault();
+
+    this.setState({
+      deleteCityRequestPending: true
+    }, () => {
+      //Hit the /core/destination/:pk/ endpoint with a DELETE request
+      deleteCity(localStorage.getItem('token'), data)
+        .then(json => {
+          //Update state to reflect the changes
+          const destinations = this.state.loggedInCities.filter(el => el.pk !== json.pk)
+          this.setState({
+            loggedInCities: destinations,
+            loggedInPlaces: this.compilePlaces(destinations),
+            deleteCityRequestPending: false
+          }, () => console.log(this.state))
+        })
+        .catch(err => {
+          console.log(err)
+          this.setState({
+            deleteCityRequestPending: false,
+            showError: true
+          })
+        })
+
+    })
+  }
+
+  //The intermdiary function for deleting places
+  handleDeletePlace = (e, data) => {
+    e.preventDefault();
+    this.setState({
+      deletePlaceRequestPending: true
+    }, () => {
+      //hit the /core/place/:pk/ endpoint with a DELETE request
+      deletePlace(localStorage.getItem('token'), data)
+        .then(json => {
+          //remove the deleted place from the list of cities
+          const destinations = this.state.loggedInCities.map(el => {
+            el.places = el.places.filter(obj => json.pk !== obj.pk)
+            return el
+          })
+          this.setState({
+            loggedInCities: destinations,
+            loggedInPlaces: this.compilePlaces(destinations),
+            deletePlaceRequestPending: false
+          })
+        })
+        .catch(err => {
+          console.log(err)
+          this.setState({
+            showError: true,
+            deletePlaceRequestPending: false
+          })
+        })
+    })
+  }
+
+  //The intermediary function for deleting images
+  handleDeleteImage = (e, data) => {
+    e.preventDefault();
+    this.setState({
+      deleteImageRequestPending: true,
+    }, () => {
+
+      deleteImage(localStorage.getItem('token'), data)
+        .then(json => {
+          //Find the place that houses the image
+          const obj = this.state.loggedInPlaces.find(obj => obj.pk === json.place)
+
+          //Remove the image from the place
+          obj.images = obj.images.filter(el => el.pk !== json.id)
+
+          const destinations = this.state.loggedInCities.map(city => {
+            //swap out the old place for the new
+            city.places = city.places.map(place => {
+              return place.pk === json.place ? obj : place
+            })
+            return city
+          })
+
+          this.setPreparedImages(obj.images)
+
+          //Update state to reflect the changes
+          this.setState({
+            viewCities: destinations,
+            viewPlaces: this.compilePlaces(destinations),
+            deleteImageRequestPending: false,
+          })
+        })
+        .catch(err => {
+          console.log(err)
+          this.setState({
+            showError: true,
+            deleteImageRequestPending: false
+          })
+        })
+    })
+  }
+
+  preparedImagesSetter = (func) => {
+    this.setPreparedImages = func
+  }
+
+  
+
   // handleImageOverwrite = (img, dataURL) => {
   //   // const username = this.state.username;
   //   // return new Promise(function(resolve, reject) {
@@ -211,21 +456,7 @@ class App extends Component {
   // //   })
   // // }
 
-  compilePlaces = (destinations) => {
-    let places = [], index = 0
-    for (var i = 0; i < destinations.length; ++i) {
-      for (var z = 0; z < destinations[i].places.length; ++z) {
-        var place = destinations[i].places[z];
-        places.push({ ...place, index })
-        ++index
-      }
-    }
-    return places
-  }
-
-
   renderHome = (props) => {
-    console.log(props)
     return (
       <Home
         loggedIn={this.state.loggedIn}
@@ -243,27 +474,65 @@ class App extends Component {
   }
 
   renderMain = (props) => {
-    console.log(props)
     const user = props.match.params.username;
     const context = user === undefined || user === this.state.loggedInUser ? "Owner" : "Viewer";
+    if (user !== this.state.loggedInUser && user !== this.state.viewUser) {
+      getUser(localStorage.getItem("token"), user)
+        .then(data => {
+          const cities = data.map((el, i) => {
+            return {
+              ...el,
+              index: i,
+              color: city_colors[Math.floor(Math.random() * city_colors.length)]
+            }
+          })
+
+          this.setState({
+            viewUser: user,
+            viewCities: cities,
+            viewPlaces: this.compilePlaces(data)
+          })
+        })
+    }
     return (
       <Main
         {...props}
         context={context}
+        owner={this.state.loggedInUser === user}
         compilePlaces={this.compilePlaces}
         loadingUserData={this.state.loadingUserData}
         loadingSignupRequest={this.state.loadingSignupRequest}
         //Navigation Props
         loggedIn={this.state.loggedIn}
         loggedInUser={this.state.loggedInUser}
-        loggedInCities={this.state.loggedInCities}
-        loggedInPlaces={this.state.loggedInPlaces}
+        // loggedInCities={this.state.loggedInCities}
+        // loggedInPlaces={this.state.loggedInPlaces}
         handleLogout={this.handleLogout}
         handleLogin={this.handleLogin}
         handleSignup={this.handleSignup}
         //view info
         viewUser={user}
-        //Map Props
+        viewPlaces={user === this.state.loggedInUser ? this.state.loggedInPlaces : this.state.viewPlaces}
+        viewCities={user === this.state.loggedInUser ? this.state.loggedInCities : this.state.viewCities}
+        //Handler Functions
+        handleAddCity={this.handleAddCity}
+        handleAddPlace={this.handleAddPlace}
+        handleEditCity={this.handleEditCity}
+        handleEditPlace={this.handleEditPlace}
+        handleDeleteCity={this.handleDeleteCity}
+        handleDeletePlace={this.handleDeletePlace}
+        handleDeleteImage={this.handleDeleteImage}
+        preparedImagesSetter={this.preparedImagesSetter}
+        //Pending Requests
+        pendingRequests={{
+          addPlace: this.state.addPlaceRequestPending,
+          addCity: this.state.addCityRequestPending,
+          editPlace: this.state.editPlaceRequestPending,
+          editCity: this.state.editCityRequestPending,
+          deletePlace: this.state.deletePlaceRequestPending,
+          deleteCity: this.state.deleteCityRequestPending,
+          deleteImage: this.state.deleteImageRequestPending,
+        }}
       />)
   }
 

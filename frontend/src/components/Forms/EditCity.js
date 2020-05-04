@@ -87,7 +87,7 @@ class EditCity extends React.Component {
 
   submitForm = () => {
     ReactDOM.findDOMNode(this.formEditCity).dispatchEvent(new Event("submit"))
-    // this.props.toggle();
+    this.props.toggle();
   }
 
   hasBeenChanged = () => {
@@ -101,18 +101,17 @@ class EditCity extends React.Component {
   }
 
   render() {
-    const buttonDisabled = !this.hasBeenChanged() || this.props.editCityRequestPending;
+    const buttonDisabled = !this.hasBeenChanged() || this.props.requestPending;
     return (
       <Modal isOpen={this.props.isOpen} toggle={this.props.toggle}>
         <ModalHeader style={style.modalHeader} toggle={this.props.toggle}>Edit City</ModalHeader>
         <ModalBody style={style.modalBody}>
-          {!this.props.editCityRequestPending ?
+          {!this.props.requestPending ?
             <Form ref={ref => this.formEditCity = ref} onSubmit={e => this.props.handleEditCity(e, this.state)} >
               <p style={style.fieldLabel}>City:</p>
               <Input
                 type="text"
                 boof="city"
-                placeholder={this.props.data.city}
                 value={this.state.city}
                 onChange={this.handleChange}
                 style={style.inputStyle}
@@ -122,7 +121,6 @@ class EditCity extends React.Component {
               <Input
                 type="text"
                 boof="country"
-                placeholder={this.props.data.country}
                 value={this.state.country}
                 onChange={this.handleChange}
                 style={style.inputStyle}
@@ -132,7 +130,6 @@ class EditCity extends React.Component {
               <Input
                 type="text"
                 boof="countryCode"
-                placeholder={this.props.data.countryCode}
                 value={this.state.countryCode}
                 onChange={this.handleChange}
                 style={style.inputStyle}
@@ -142,7 +139,6 @@ class EditCity extends React.Component {
               <Input
                 type="text"
                 boof="latitude"
-                placeholder={this.props.data.latitude}
                 value={this.state.latitude}
                 onChange={this.handleChange}
                 style={style.inputStyle}
@@ -152,7 +148,6 @@ class EditCity extends React.Component {
               <Input
                 type="text"
                 boof="longitude"
-                placeholder={this.props.data.longitude}
                 value={this.state.longitude}
                 onChange={this.handleChange}
                 style={style.inputStyle}

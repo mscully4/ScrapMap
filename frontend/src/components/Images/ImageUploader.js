@@ -140,7 +140,7 @@ class ImageUploader extends React.Component {
             {close.path.map(el => <path d={el} />)}
           </Svg>
         </div>
-        {this.props.submitImageLoading ?
+        {this.props.requestPending ?
           <div>
             <RingLoader
               size={200}

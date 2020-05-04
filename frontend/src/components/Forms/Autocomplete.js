@@ -108,9 +108,11 @@ class AutoComplete extends React.Component {
 
 
   onSelectPlace = (obj, selection) => {
-      const place_id = selection.place_id
+    console.log(selection)
+    const place_id = selection.place_id
     const name = selection.terms[0].value
     geocodeByPlaceId(place_id).then(data => {
+      console.log(data)
       var street_number = "", street = "", county = "", city = "", state = "", zip = "", country = "", address = "", countryCode = "";
       data[0].address_components.forEach(element => {
         if (element.types.includes("street_number")) street_number = element.long_name;

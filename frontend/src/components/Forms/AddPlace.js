@@ -183,7 +183,8 @@ class AddPlace extends React.Component {
 
   selectAutoSuggest = (obj) => {
     this.setState({
-      ...obj
+      ...obj,
+      city: obj.city ? obj.city : this.props.default.city
     })
   }
 
@@ -206,7 +207,8 @@ class AddPlace extends React.Component {
   }
 
   allFieldsValid = () => {
-    return this.state.name !== "" &&
+    return this.state.city !== "" &&
+      this.state.name !== "" &&
       this.state.main_type !== "" &&
       this.state.latitude !== null &&
       this.state.longitude !== null

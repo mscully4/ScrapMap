@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
-import Carousel, { Modal, ModalGateway, NavigationPrev} from 'react-images';
+import Carousel, { Modal, ModalGateway, NavigationPrev } from 'react-images';
 // import { ImgEditor} from '../components/ImageEditor';
-import {close, editorPath, trash, Svg} from '../../utils/SVGs'
+import { close, editorPath, trash, Svg } from '../../utils/SVGs'
 
 const theme = {
   headerDiv: {
@@ -17,7 +17,7 @@ const theme = {
     paddingBottom: 20,
     linearGgradient: 'rgba(0, 0, 0, 0.33), rgba(0, 0, 0, 0)',
     zIndex: 9999,
- 
+
   },
   closeButton: {
     color: 'rgba(255, 255, 255, 0.75)',
@@ -25,12 +25,12 @@ const theme = {
     padding: 0,
     outline: 0,
     border: 0,
-    background: 0, 
+    background: 0,
     textAlign: 'right'
   },
   closeSVG: {
     cursor: 'pointer',
-    position: 'absolute', 
+    position: 'absolute',
     top: 10,
     right: 10,
     fill: '#d4dada',
@@ -38,7 +38,7 @@ const theme = {
     width: 32,
   },
   trashSVG: {
-    cursor: 'pointer', 
+    cursor: 'pointer',
     position: "absolute",
     right: 50,
     fill: '#d4dada',
@@ -52,49 +52,44 @@ export default class ImageViewer extends Component {
     super(props);
     this.state = {
 
-    } 
+    }
   }
 
   onClose = (e) => {
     this.props.setImageViewerOpen(false);
   }
 
+  trashOnClick = (e, currentView) => {
+    this.props.handleDeleteImage(e, currentView);
+    this.props.toggleViewer(false)
+    this.props.toggleGallery(true)
+  }
+
   CustomHeader = (props) => {
     return (
-    <div style={theme.headerDiv}>
-      { props.isModal ?  
-      <span>
-        <Svg style={theme.closeSVG} viewbox={close.viewBox} onClick={() => this.props.toggleViewer(false)}>
-          {close.path.map((el, i) => <path key={`${i}`} d={el}/>)}
-        </Svg>
-        { this.props.loggedIn ? 
-        <Svg style={theme.trashSVG} viewbox={trash.viewBox} onClick={(e) => this.props.deleteDisabled ? null : this.props.handleDeleteImage(e, props.currentView)}>
-          {trash.path.map((el, i) => <path key={`${i}`} d={el}/>)}
-        </Svg> : null }
-
-        {/* { this.props.context === "Owner" ?
-        <button role="button" style={theme.closeButton} onClick={() => {this.props.toggleViewer(false); this.props.toggleEditor(true)}}>
-          <svg
-          xmlns="http://www.w3.org/2000/svg"
-          // width="7.11111in" height="7.11111in"
-          viewBox="0 0 640 640"
-          style={theme.closeSVG}>
-            <path d={editorPath} />
-          </svg>
-        </button> : null } */}
-      </span>: null}
-    </div>
+      <div style={theme.headerDiv}>
+        {props.isModal ?
+          <span>
+            <Svg style={theme.closeSVG} viewbox={close.viewBox} onClick={() => this.props.toggleViewer(false)}>
+              {close.path.map((el, i) => <path key={`${i}`} d={el} />)}
+            </Svg>
+            {this.props.owner ?
+              <Svg style={theme.trashSVG} viewbox={trash.viewBox} onClick={(e) => this.trashOnClick(e, props.currentView)}>
+                {trash.path.map((el, i) => <path key={`${i}`} d={el} />)}
+              </Svg> : null}
+          </span> : null}
+      </div>
     )
   }
 
   render() {
     return (
       <ModalGateway>
-        { this.props.isOpen ?
-        <Modal isOpen={this.props.isOpen} onClose={() => this.props.toggleViewer(false)}>
-          <Carousel views={this.props.views} currentIndex={this.props.currentIndex} components={{ Header: this.CustomHeader }}/>
-        </Modal>
-        : null }
+        {this.props.isOpen ?
+          <Modal isOpen={this.props.isOpen} onClose={() => this.props.toggleViewer(false)}>
+            <Carousel views={this.props.views} currentIndex={this.props.currentIndex} components={{ Header: this.CustomHeader }} />
+          </Modal>
+          : null}
       </ModalGateway>
     )
   }

@@ -73,7 +73,8 @@ class EditPlace extends React.Component {
   };
 
   submitForm = () => {
-    ReactDOM.findDOMNode(this.formEditPlace).dispatchEvent(new Event("submit"))
+    ReactDOM.findDOMNode(this.formEditPlace).dispatchEvent(new Event("submit"));
+    this.props.toggle()
   }
 
   hasBeenChanged = () => {
@@ -90,6 +91,7 @@ class EditPlace extends React.Component {
   }
 
   render() {
+    console.log(this.props.toggle)
     const buttonDisabled = this.props.editPlaceRequestPending || !this.hasBeenChanged();
     const form = !this.props.editPlaceRequestPending ? (
       <Form ref={ref => this.formEditPlace = ref} onSubmit={e => this.props.handleEditPlace(e, this.state)} >

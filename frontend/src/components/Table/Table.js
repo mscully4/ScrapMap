@@ -219,7 +219,8 @@ class VirtualTable extends Component {
           }}
         >
           {cellData.rowData.name} <br />
-          {cellData.rowData.address}
+          {cellData.rowData.address} <br />
+          {cellData.rowData.city} {cellData.rowData.state ? `, ${cellData.rowData.state}` : ""}
         </p>
 
         {this.generateSVG(cellData.rowData.main_type)}
@@ -340,14 +341,12 @@ class VirtualTable extends Component {
 
   renderView = ({style, ...props }) => {
     style.marginRight = -16
-    console.log(style)
     return <div style={style} {...props} />
   }
 
 
   render = () => {
     const WIDTH =  window.innerWidth * .36;
-    console.log(WIDTH)
     const HEIGHT = window.innerHeight;
     const list = this.props.granularity ? this.props.cities : this.getPlaces();
 

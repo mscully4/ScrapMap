@@ -21,16 +21,8 @@ import { add, Svg } from '../utils/SVGs';
 import { place_colors, city_colors } from '../utils/colors';
 import { getDistanceBetweenTwoPoints } from '../utils/Formulas.js';
 import { 
-  postNewCity, 
-  putEditCity, 
-  putEditPlaceAxios,
-  deleteCity, 
-  deletePlace, 
-  deleteImage, 
-  getUser, 
-  postNewPlace, 
-  putEditPlace 
-} from "../utils/fetchUtils"
+  prepareImageURLs
+} from "../utils/Formulas"
 
 const PLACE_TYPES = [
   "natural_feature",
@@ -157,10 +149,6 @@ class Main extends React.Component {
       selectedPlace: null,
       hoverIndexCity: null,
       hoverIndexPlace: null,
-      //View Info
-      viewUser: this.props.viewUser,
-      viewCities: Boolean(this.props.viewUser) === false || this.props.loggedInUser === this.props.viewUser ? this.props.loggedInCities : [],
-      viewPlaces: Boolean(this.props.viewUser) === false || this.props.loggedInUser === this.props.viewUser ? this.props.loggedInPlaces : [],
       //Map
       granularity: 1,
       mapZoom: 4,
@@ -204,189 +192,7 @@ class Main extends React.Component {
   }
 
   componentDidMount = () => {
-    //If there is a user selected in the url and if that user is not the user currently logged in
-    if (Boolean(this.props.viewUser) === true && this.props.loggedInUser !== this.props.viewUser) {
-      //load user info
-      getUser(localStorage.getItem("token"), this.props.viewUser).then(data => {
-        //update state with the data, and allow rendering of child components, change map center to first city
-        const mapCenter = data.length > 0 ? { latitude: data[0].latitude, longitude: data[0].longitude } : DEFAULT_CENTER;
-        const cities = data.map((el, i) => {
-          return {
-            ...el,
-            index: i,
-            color: city_colors[Math.floor(Math.random() * city_colors.length)]
-          }
-        })
-        this.changeMapCenter(mapCenter)
-        const places = this.props.compilePlaces(data)
-        this.setState({
-          viewCities: cities,
-          viewPlaces: places,
-          closestCity: this.getClosestCity(cities, mapCenter.lat, mapCenter.lng),
-          ready: true,
-        })
-      })
-    }
-    //If no data needs to be loaded, allow rendering on children immediately 
-    else {
-      this.setState({
-        closestCity: this.getClosestCity(this.state.viewCities, this.state.mapCenter.lat, this.state.mapCenter.lng),
-        ready: true
-      })
-    }
-  }
-
-  //Handlers
-  handleAddCity = (e, data) => {
-    e.preventDefault();
-    if (this.props.loggedIn) {
-      this.setState({
-        addCityRequestPending: true,
-      }, () => {
-        postNewCity(localStorage.getItem('token'), data).then(res => {
-          if (res) {
-            this.setState({
-              viewCities: this.state.viewCities.concat([{
-                ...res, index: this.state.viewCities.length, color: city_colors[Math.floor(Math.random() * city_colors.length)]
-              }]),
-              mapZoom: 4,
-              mapCenter: { lat: res.latitude, lng: res.longitude },
-              addCityRequestPending: false
-            })
-          }
-        })
-      })
-    }
-  }
-
-  handleAddPlace = (e, data) => {
-    e.preventDefault()
-    const payload = {
-      destination: data.closestCity.pk,
-      name: data.name,
-      address: data.address,
-      city: data.closestCity.city,
-      county: data.county,
-      state: data.state,
-      country: data.country,
-      zip_code: data.zip_code,
-      latitude: data.latitude,
-      longitude: data.longitude,
-      types: data.types,
-      placeId: data.placeId,
-      main_type: data.main_type
-    }
-    if (this.props.loggedIn) {
-      this.setState({
-        addPlaceRequestPending: true
-      }, () => {
-        postNewPlace(localStorage.getItem('token'), payload).then(res => {
-          this.setState({
-            viewPlaces: this.state.viewPlaces.concat([{ ...res, index: this.state.viewPlaces.length }]),
-            viewCities: this.state.viewCities.map(obj => obj.pk === res.destination ? { ...obj, places: obj.places.concat([res]) } : obj),
-            addPlaceRequestPending: false
-          })
-        })
-      })
-    }
-  }
-
-  handleEditCity = (e, data) => {
-    e.preventDefault();
-    this.setState({
-      editCityRequestPending: true
-    }, () =>
-      putEditCity(localStorage.getItem('token'), data).then(json => {
-        this.setState({
-          viewCities: this.state.viewCities.map(el => {
-            const color = el.color
-            return el.pk === json.pk ? { ...json, color } : el
-          }),
-          viewPlaces: this.props.compilePlaces(json),
-          editCityRequestPending: false
-        })
-      })
-    )
-  }
-
-  handleEditPlace = (e, data) => {
-    e.preventDefault();
-    this.setState({
-      submitImageLoading: true,
-      editPlaceRequestPending: true,
-    }, () => {
-      putEditPlaceAxios(localStorage.getItem('token'), data).then(json => {
-        console.log(json)
-        this.setState({
-          viewCities: json.data.map((el, i) => { return { ...el, index: i } }),
-          viewPlaces: this.props.compilePlaces(json.data),
-          submitImageLoading: false,
-          editPlaceFormOpen: false,
-          editPlaceRequestPending: false,
-        })
-      })
-    })
-  }
-
-  handleDeleteCity = (e, data) => {
-    e.preventDefault();
-    deleteCity(localStorage.getItem('token'), data).then(json => {
-      const destinations = this.state.viewCities.filter(el => el.pk !== json.pk)
-      this.setState({
-        viewCities: destinations,
-        viewPlaces: this.props.compilePlaces(destinations),
-      })
-    })
-  }
-
-  handleDeletePlace = (e, data) => {
-    e.preventDefault();
-    deletePlace(localStorage.getItem('token'), data).then(json => {
-      const destinations = this.state.viewCities.map(el => {
-        el.places = el.places.filter(obj => {
-          return json.pk !== obj.pk
-        })
-        return el
-      })
-      this.setState({
-        viewCities: destinations,
-        viewPlaces: this.props.compilePlaces(destinations)
-      })
-    })
-  }
-
-  handleDeleteImage = (e, data) => {
-    e.preventDefault();
-    this.setState({
-      deleteDisabled: true,
-    })
-
-    deleteImage(localStorage.getItem('token'), data).then(json => {
-      //Find the place that houses the image
-      const obj = this.state.viewPlaces.find(obj => {
-        return obj.pk === json.place
-      })
-      //Remove the image from the place
-      obj.images = obj.images.filter(el => el.pk !== json.id)
-
-      const destinations = this.state.viewCities.map(city => {
-        //swap out the old place for the new
-        city.places = city.places.map(place => {
-          return place.pk === json.place ? obj : place
-        })
-        return city
-      })
-
-      //Update state to reflect the changes
-      this.setState({
-        viewCities: destinations,
-        viewPlaces: this.props.compilePlaces(destinations),
-        imageViewerOpen: false,
-        galleryOpen: true,
-        preparedImages: this.prepareImageURLs(obj.images),
-        deleteDisabled: false,
-      })
-    })
+    this.props.preparedImagesSetter(this.setPreparedImages)
   }
 
   //General Functions
@@ -429,6 +235,12 @@ class Main extends React.Component {
     })
   }
 
+  setPreparedImages = (images) => {
+    this.setState({
+      preparedImages: images
+    })
+  }
+
   //Map Functions
   changeGranularity = (zoom) => {
     this.setState({
@@ -456,7 +268,7 @@ class Main extends React.Component {
     } else if (this.state.granularity === 0) {
       this.setState({
         selectedPlace: obj,
-        preparedImages: this.prepareImageURLs(obj.images),
+        preparedImages: obj.images,
         galleryOpen: true,
       })
     }
@@ -476,7 +288,7 @@ class Main extends React.Component {
     } else if (this.state.granularity === 0) {
       this.setState({
         selectedPlace: obj.rowData,
-        preparedImages: this.prepareImageURLs(obj.rowData.images),
+        preparedImages: obj.rowData.images,
         galleryOpen: obj.event.target.getAttribute("value") !== "KILL" ? true : false,
       })
     }
@@ -490,10 +302,9 @@ class Main extends React.Component {
       })
     })
     this.setState({
-      preparedImages: this.prepareImageURLs(images),
+      preparedImages: images,
       galleryOpen: true
     })
-    // this.toggleGallery(true)
   }
 
 
@@ -509,20 +320,6 @@ class Main extends React.Component {
     this.toggleGallery(false)
     this.setCurrImg(obj.photo.i)
     this.toggleViewer(true)
-  }
-
-  prepareImageURLs = (data) => {
-    return data.map((obj, i) => {
-      return {
-        pk: obj.pk,
-        i: i,
-        // src: this.props.backendURL + obj.src,
-        src: obj.src,
-        width: obj.width,
-        height: obj.height,
-        caption: "",
-      }
-    })
   }
 
   //Image Viewer Functions
@@ -561,7 +358,7 @@ class Main extends React.Component {
       ...data,
       ...this.state.selectedPlace
     }
-    this.handleEditPlace(e, formData)
+    this.props.handleEditPlace(e, formData)
   }
 
 
@@ -611,28 +408,26 @@ class Main extends React.Component {
   calculateFacts = (context) => {
     if (context === "cities") {
       const cities = []
-      this.state.viewCities.forEach(obj => {
+      this.props.viewCities.forEach(obj => {
         cities.push(obj.city)
       })
       return cities.length
     } else if (context === "countries") {
       const countries = []
-      this.state.viewCities.forEach(obj => {
+      this.props.viewCities.forEach(obj => {
         if (!countries.includes(obj.countryCode.toLowerCase())) {
           countries.push(obj.countryCode.toLowerCase())
         }
       })
       return countries.length
     } else if (context === "places") {
-      return this.state.viewPlaces.length
+      return this.props.viewPlaces.length
     }
   }
 
   render() {
-    console.log(this.props)
-
     const isOwner = this.props.viewUser === this.props.loggedInUser || this.props.viewUser === undefined;
-    if (this.state.ready) {
+    if (true) {
       return (
         <div style={{ backgroundColor: "#000" }}>
           <Navigation
@@ -681,8 +476,8 @@ class Main extends React.Component {
               <Map
                 center={this.state.mapCenter}
                 zoom={this.state.mapZoom}
-                cities={this.state.viewCities}
-                places={this.state.viewPlaces}
+                cities={this.props.viewCities}
+                places={this.props.viewPlaces}
                 hoverIndex={this.state.granularity ? this.state.hoverIndexCity : this.state.hoverIndexPlace}
                 changeHoverIndex={this.state.granularity ? this.changeHoverIndexCity : this.changeHoverIndexPlace}
                 getClosestCity={this.getClosestCity}
@@ -697,16 +492,16 @@ class Main extends React.Component {
 
               <Table
                 context={this.props.context}
-                cities={this.state.viewCities}
-                places={this.state.viewPlaces}
+                cities={this.props.viewCities}
+                places={this.props.viewPlaces}
                 backendURL={this.props.backendURL}
                 hoverIndex={this.state.granularity ? this.state.hoverIndexCity : this.state.hoverIndexPlace}
                 // changeHoverIndexCity={this.changeHoverIndexCity}
                 changeHoverIndex={this.state.granularity ? this.changeHoverIndexCity : this.changeHoverIndexPlace}
                 tableRowClick={this.tableRowClick}
                 toggleEditForm={this.state.granularity ? this.toggleEditCityForm : this.toggleEditPlaceForm}
-                handleDeleteCity={this.handleDeleteCity}
-                handleDeletePlace={this.handleDeletePlace}
+                handleDeleteCity={this.props.handleDeleteCity}
+                handleDeletePlace={this.props.handleDeletePlace}
                 toggleUploader={this.toggleUploader}
                 granularity={this.state.granularity}
                 selectedCity={this.state.selectedCity}
@@ -716,7 +511,6 @@ class Main extends React.Component {
                 onCityGalleryClick={this.cityGallery}
                 place_colors={place_colors}
                 city_colors={city_colors}
-                style={{ backgroundColor: 'red' }}
               />
 
             </div>
@@ -755,34 +549,32 @@ class Main extends React.Component {
 
             <ImageViewer
               // context={this.props.context}
+              owner={this.props.owner}
               isOpen={this.state.imageViewerOpen}
               toggleViewer={this.toggleViewer}
+              toggleGallery={this.toggleGallery}
               views={this.state.preparedImages}
               currentIndex={this.state.currImg}
-              // getCurrentIndex={this.getCurrentIndex}
-              // handleImageOverwrite={this.props.handleImageOverwrite}
-              handleDeleteImage={this.handleDeleteImage}
+              handleDeleteImage={this.props.handleDeleteImage}
               // toggleEditor={this.toggleEditor}
               // editorOpen={this.state.editorOpen}
-              // toggleEditor={this.toggleEditor}
-              loggedIn={this.props.loggedIn}
-              deleteDisabled={this.state.deleteDisabled}
+              requestPending={this.props.pendingRequests.deleteImage}
             />
 
-            {this.state.editCityFormOpen & this.props.username === this.props.user ?
+            {this.props.username === this.props.user && (this.state.editCityFormOpen || this.props.pendingRequests.editCity) ?
               <EditCity
-                isOpen={this.state.editCityFormOpen}
+                isOpen={this.state.editCityFormOpen || this.props.pendingRequests.editCity}
                 toggle={this.toggleEditCityForm}
-                handleEditCity={this.handleEditCity}
+                handleEditCity={this.props.handleEditCity}
                 data={this.state.selectedCity}
-                editCityRequestPending={this.state.editCityRequestPending}
+                requestPending={this.props.pendingRequests.editCity}
               /> : null}
 
             {this.state.editPlaceFormOpen & this.props.username === this.props.user ?
               <EditPlace
                 isOpen={this.state.editPlaceFormOpen}
                 toggle={this.toggleEditPlaceForm}
-                handleEditPlace={this.handleEditPlace}
+                handleEditPlace={this.props.handleEditPlace}
                 data={this.state.selectedPlace}
                 editPlaceRequestPending={this.state.editPlaceRequestPending}
               /> : null}
@@ -791,7 +583,7 @@ class Main extends React.Component {
               <AddCity
                 isOpen={this.state.addCityFormOpen}
                 toggle={this.toggleAddCityForm}
-                handleAddCity={this.handleAddCity}
+                handleAddCity={this.props.handleAddCity}
                 addCityRequestPending={this.state.addCityRequestPending}
               /> : null}
 
@@ -799,9 +591,9 @@ class Main extends React.Component {
               <AddPlace
                 isOpen={this.state.addPlaceFormOpen}
                 toggle={this.toggleAddPlaceForm}
-                handleAddPlace={this.handleAddPlace}
+                handleAddPlace={this.props.handleAddPlace}
                 mapCenter={this.props.mapCenter}
-                cities={this.state.viewCities}
+                cities={this.props.viewCities}
                 default={this.state.closestCity}
                 placeTypes={PLACE_TYPES}
                 addPlaceRequestPending={this.state.addCityRequestPending}
@@ -812,7 +604,7 @@ class Main extends React.Component {
               <ImageUploader
                 handleImageSubmit={this.handleImageSubmit}
                 toggle={this.toggleUploader}
-                submitImageLoading={this.state.submitImageLoading}
+                requestPending={this.props.pendingRequests.editPlace}
               />
               : null
             }

@@ -55,13 +55,13 @@ export function putNewUser(data) {
 
 //Owner Functions
 export function postNewCity(token, data) {
-  const form = new FormData();
-  //form.append("pk", data.pk);
-  form.append('city', data.city);
-  form.append('country', data.country);
-  form.append('latitude', data.latitude);
-  form.append('longitude', data.longitude);
-  form.append('countryCode', data.countryCode)
+  // const form = new FormData();
+  // //form.append("pk", data.pk);
+  // form.append('city', data.city);
+  // form.append('country', data.country);
+  // form.append('latitude', data.latitude);
+  // form.append('longitude', data.longitude);
+  // form.append('countryCode', data.countryCode)
   //  for (var i=0; i<data.pictures.length; i++) {
   //    form.append('images', data.pictures[i]);
   // }
@@ -71,9 +71,9 @@ export function postNewCity(token, data) {
     method: "POST",
     headers: {
       Authorization: `JWT ${token}`,
-      //"Content-Type": "application/json",
+      "Content-Type": "application/json",
     },
-    body: form,
+    body: JSON.stringify(data),
   })
   .then(response => response.ok ? response.json() : null)
 }
