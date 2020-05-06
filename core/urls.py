@@ -1,10 +1,12 @@
 from django.urls import path
-from .views import CurrentUser, CreateUser, DestinationListView, DestinationView, PlaceView, PlaceImagesView
+from .views import CurrentUser, CreateUser, SearchUsers, DestinationListView, DestinationView, PlaceView, PlaceImagesView
 from django.conf.urls.static import static
 
 urlpatterns = [
     path('current_user/', CurrentUser.as_view()),
     path('users/', CreateUser.as_view()),
+
+    path('search/<str:username>/', SearchUsers.as_view()),
 
     path('destinations/<str:username>/', DestinationListView.as_view()),
 

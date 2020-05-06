@@ -7,6 +7,7 @@ from rest_framework.parsers import FileUploadParser
 from .serializers import UserSerializerLogin, UserSerializerSignUp, UserProfileSerializer, DestinationSerializer, PlaceSerializer, PlaceImagesSerializer
 from .models import Destination, DestinationImages, Place, PlaceImages
 from django.core import serializers
+from django.db.models import Q
 
 import logging
 logger = logging.getLogger('django')
@@ -78,6 +79,17 @@ class CreateUser(APIView):
         # else:
         #     errors = {**user_serializer.errors, **user_info_serializer.errors}
         #     return Response(errors, status=status.HTTP_400_BAD_REQUEST)
+
+class SearchUsers(APIView):
+    '''
+    Search for users based on their username or first/last name
+    '''
+    permission_classes = (permissions.AllowAny,)
+
+    def get(self, request, username, format=None):
+        results = User.objects.filter(username__icontains=username)
+        serializer = UserSerializerLogin(results, many=True)
+        return Response(serializer.data)
 
 #this returns the list of all destinations for a specified user and allows users to create new locations
 class DestinationListView(APIView):
