@@ -462,8 +462,6 @@ class App extends Component {
         loggedIn={this.state.loggedIn}
         loggedInUser={this.state.loggedInUser}
         handleLogout={this.handleLogout}
-        toggleLogin={this.toggleLogIn}
-        toggleSignUp={this.toggleSignUp}
         handleLogin={this.handleLogin}
         handleSignup={this.handleSignup}
         loadingUserData={this.state.loadingUserData}

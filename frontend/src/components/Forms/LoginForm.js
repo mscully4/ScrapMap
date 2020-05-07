@@ -83,6 +83,10 @@ class LoginForm extends React.Component {
     ReactDOM.findDOMNode(this.formLogin).dispatchEvent(new Event("submit"))
   }
 
+  allFieldsValid = () => { 
+    return this.state.username !== "" && this.state.password !== ""
+  }
+
   render() {
     const classes = this.props.classes
     return (
@@ -91,33 +95,6 @@ class LoginForm extends React.Component {
         <ModalBody style={styles.modalBody} className={classes.modalBody}>
           {!this.props.loadingUserData ?
             <Form ref={ref => this.formLogin = ref} onSubmit={e => this.props.handleLogin(e, this.state)}>
-              {/* <p className={classes.fieldLabel}>First Name:</p>
-              <Input
-                type="text"
-                boof="first_name"
-                value={this.state.first_name}
-                onChange={this.handleChange}
-                autoComplete={"new-password"}
-                className={clsx(this.props.classes.input)}
-              />  
-              <p className={classes.fieldLabel}>Last Name:</p>
-              <Input
-                type="text"
-                boof="last_name"
-                value={this.state.last_name}
-                onChange={this.handleChange}
-                autoComplete={"new-password"}
-                className={clsx(this.props.classes.input)}
-              />  
-              <p className={classes.fieldLabel}>Email:</p>
-              <Input
-                type="text"
-                boof="email"
-                value={this.state.first_name}
-                onChange={this.handleChange}
-                autoComplete={"new-password"}
-                className={clsx(this.props.classes.input)}
-              />   */}
               <p className={classes.fieldLabel}>Username:</p>
               <Input
                 type="text"
@@ -146,7 +123,7 @@ class LoginForm extends React.Component {
             />}
         </ModalBody>
         <ModalFooter className={classes.modalFooter}>
-          <Button disabled={this.props.loadingUserData} onClick={this.submitForm} className={classes.button}>Submit</Button>
+          <Button disabled={this.props.loadingUserData || !this.allFieldsValid()} onClick={this.submitForm} className={classes.button}>Submit</Button>
         </ModalFooter>
       </Modal>
     )

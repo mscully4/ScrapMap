@@ -292,50 +292,47 @@ class Navigation extends React.Component {
         )}
       />
 
-    if (this.props.loggedIn) {
-      content =
-        <div>
-          <Link to={`${this.props.loggedInUser}`}>
-            <Svg viewbox={home.viewBox} style={style.home}>
-              {home.path.map((el, i) => <path key={`${i}`} d={el} stroke={ICE_BLUE} fill={ICE_BLUE} />)}
-            </Svg>
-          </Link>
-          <h3 style={style.username}> Hello, {this.props.loggedInUser} </h3>
-          <h3 style={style.divider}> | </h3>
-          <Link style={style.logout} onClick={this.props.handleLogout} to="/">Logout</Link>
-        </div>
-    } else {
-      content =
-        <Nav className="ml-auto" navbar>
-          <NavItem>
-            <Button className="nav-button" style={style.button} onClick={this.toggleLogin}>Login</Button>
-            <LoginForm
-              handleLogin={this.props.handleLogin}
-              isOpen={this.state.showLoginModal}
-              toggle={this.toggleLogin}
-              style={style.modal}
-              loadingUserData={this.props.loadingUserData}
-            />
-          </NavItem>
-          <br />
-          {this.props.handleSignup ?
-            <NavItem>
-              <Button className="nav-button" style={style.button} onClick={this.toggleSignUp}>Sign Up</Button>
-              <Modal isOpen={this.state.showSignUpModal} toggle={this.toggleSignUp}>
-                <ModalHeader toggle={this.toggleSignUp}>Sign Up</ModalHeader>
-                <ModalBody>
-                  <SignUpForm handleSignup={this.props.handleSignup} />
-                </ModalBody>
-              </Modal>
-            </NavItem> : null
-          }
-        </Nav>
-    }
-
     return (
       <div className={clsx(classes.navigationBar)} >
         <span className={clsx(classes.logo)}>ScrapMap</span>
-        {searchBar}
+        <Autocomplete
+        id="free-solo-demo"
+        className={clsx(classes.searchBar)}
+        freeSolo
+        key={this.state.randomKey}
+        open={this.state.searchSuggestionsOpen}
+        options={this.state.suggestions}
+        filterOptions={(props, state) => {
+          //the filtering is done on the backend by django
+          return props
+        }}
+        getOptionLabel={(option) => option.username}
+        onChange={this.onChange}
+        inputValue={this.state.searchValue}
+        onInputChange={this.onInputChange}
+        renderOption={(option, state) => {
+          return <div className={clsx(classes.searchBarOptions)}>{`${option.username}`}</div>
+        }}
+        classes={{
+          option: classes.searchBarOptions,
+          listbox: classes.listbox
+        }}
+        renderInput={(params) => (
+          <TextField {...params} label="Search Users" margin="normal" variant="outlined"
+            value={this.state.searchValue}
+            InputProps={{
+              ...params.InputProps,
+              className: clsx(this.props.classes.searchBarInput),
+              classes: {
+                notchedOutline: clsx(classes.searchBarBorder),
+              }
+            }}
+            InputLabelProps={{
+              className: clsx(classes.searchBarLabel),
+            }}
+          />
+        )}
+      />
         {this.props.loggedIn ?
           <div className={clsx(classes.userInfo)}>
             <Link to={`${this.props.loggedInUser}`}>
@@ -349,25 +346,21 @@ class Navigation extends React.Component {
           </div>
           :
           <div className={clsx(classes.actionButtons)}>
-              <Button className={clsx(classes.button)} style={{ marginRight: 15 }} onClick={this.toggleLogin}>Login</Button>
-              <LoginForm
-                handleLogin={this.props.handleLogin}
-                isOpen={this.state.showLoginModal}
-                toggle={this.toggleLogin}
-                style={style.modal}
-                loadingUserData={this.props.loadingUserData}
-              />
-              <Button className={clsx(classes.button)} style={{ marginLeft: 15 }} onClick={this.toggleSignUp}>Sign Up</Button>
-              <Modal isOpen={this.state.showSignUpModal} toggle={this.toggleSignUp}>
-                <ModalHeader toggle={this.toggleSignUp}>Sign Up</ModalHeader>
-                <ModalBody>
-                  <SignUpForm 
-                    handleSignup={this.props.handleSignup} 
-                    isOpen={this.state.showSignUpModal}
-                    toggle={this.toggleSignUp}
-                  />
-                </ModalBody>
-              </Modal>
+            <Button className={clsx(classes.button)} style={{ marginRight: 15 }} onClick={this.toggleLogin}>Login</Button>
+            <LoginForm
+              handleLogin={this.props.handleLogin}
+              isOpen={this.state.showLoginModal}
+              toggle={this.toggleLogin}
+              style={style.modal}
+              loadingUserData={this.props.loadingUserData}
+            />
+            <Button className={clsx(classes.button)} style={{ marginLeft: 15 }} onClick={this.toggleSignUp}>Sign Up</Button>
+            <SignUpForm
+              handleSignUp={this.props.handleSignup}
+              isOpen={this.state.showSignUpModal}
+              toggle={this.toggleSignUp}
+              loadingSignUpRequest={this.props.loadingSignUpRequest}
+            />
           </div>}
       </div>
     )

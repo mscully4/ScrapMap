@@ -440,6 +440,7 @@ class Main extends React.Component {
             handleLogin={this.props.handleLogin}
             handleSignup={this.props.handleSignup}
             loadingUserData={this.props.loadingUserData}
+            loadingSignUpRequest={this.props.loadingSignUpRequest}
             history={this.props.history}
           />
 
