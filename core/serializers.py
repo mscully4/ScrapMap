@@ -24,7 +24,7 @@ class UserSerializerLogin(serializers.ModelSerializer):
     class Meta:
         model = User
         #only serialize the username and id fields
-        fields = ('username', 'id')
+        fields = ('username', 'id', 'first_name', 'last_name')
 
 #Serializer for sign-ups
 class UserSerializerSignUp(serializers.ModelSerializer):

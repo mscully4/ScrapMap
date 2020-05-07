@@ -429,16 +429,18 @@ class Main extends React.Component {
     const isOwner = this.props.viewUser === this.props.loggedInUser || this.props.viewUser === undefined;
     if (true) {
       return (
-        <div style={{ backgroundColor: "#000" }}>
+        <div>
           <Navigation
             loggedIn={this.props.loggedIn}
-            username={this.props.loggedInUser}
+            loggedInUser={this.props.loggedInUser}
+            viewUser={this.props.viewUser}
             handleLogout={this.props.handleLogout}
             toggleLogin={this.props.toggleLogin}
             toggleSignUp={this.props.toggleSignUp}
             handleLogin={this.props.handleLogin}
             handleSignup={this.props.handleSignup}
             loadingUserData={this.props.loadingUserData}
+            history={this.props.history}
           />
 
 

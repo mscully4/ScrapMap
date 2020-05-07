@@ -493,6 +493,7 @@ class App extends Component {
             viewPlaces: this.compilePlaces(data)
           })
         })
+        .catch(err => console.log(err))
     }
     return (
       <Main

@@ -86,9 +86,10 @@ class SearchUsers(APIView):
     '''
     permission_classes = (permissions.AllowAny,)
 
-    def get(self, request, username, format=None):
-        results = User.objects.filter(username__icontains=username)
-        serializer = UserSerializerLogin(results, many=True)
+    def get(self, request, term, format=None):
+        #allow users to search based on username, first name and last name
+        results = User.objects.filter(Q(username__istartswith=term) | Q(first_name__istartswith=term) | Q(last_name__istartswith=term))
+        serializer = UserSerializerLogin(results[:10], many=True)
         return Response(serializer.data)
 
 #this returns the list of all destinations for a specified user and allows users to create new locations

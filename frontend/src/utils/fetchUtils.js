@@ -210,3 +210,10 @@ export function getUser(token, username) {
   })
   .then(response => response.ok ? response.json() : null)
 }
+
+export function searchUsers(username) {
+  return fetch(baseURL + "core/search/" + username + "/", {
+    method: "GET",
+  })
+  .then(response => response.ok ? response.json() : null)
+}
