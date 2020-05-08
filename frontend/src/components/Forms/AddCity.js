@@ -38,8 +38,8 @@ class AddCity extends React.Component {
       city: "",
       country: "",
       countryCode: "",
-      latitude: null,
-      longitude: null,
+      latitude: "",
+      longitude: "",
       pictures: [],
       pictureNames: [],
     };
@@ -81,8 +81,8 @@ class AddCity extends React.Component {
     this.setState({
       city: "",
       country: "",
-      latitude: null,
-      longitude: null,
+      latitude: "",
+      longitude: "",
       countryCode: "",
       hover: false,
     })

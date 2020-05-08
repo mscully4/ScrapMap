@@ -2,15 +2,6 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import {
   Button,
-  Navbar,
-  Nav,
-  NavItem,
-  Modal,
-  ModalHeader,
-  ModalBody,
-  ModalFooter,
-  NavbarBrand,
-  NavbarToggler
 } from 'reactstrap';
 import { withStyles } from '@material-ui/styles';
 
@@ -22,78 +13,15 @@ import Autocomplete from '@material-ui/lab/Autocomplete';
 
 
 import { ICE_BLUE, FONT_GREY, OFF_BLACK_1, OFF_BLACK_2, OFF_BLACK_3, OFF_BLACK_4 } from '../utils/colors'
-import { withRouter, Link, Redirect } from 'react-router-dom';
+import { withRouter, Link } from 'react-router-dom';
 
 
 import LoginForm from './Forms/LoginForm';
 import SignUpForm from './Forms/SignUpForm';
 
-const style = {
-  navbar: {
-    backgroundColor: "#232323",
-    color: "#d4dada"
-  },
-  title: {
-    fontFamily: "Kaushan Script",
-    fontSize: 36,
-    color: "#0095d2",
-  },
-  username: {
-    // fontFamily: "Kaushan Script",
-    fontSize: 24,
-    margin: "auto",
-    lineHeight: 'inherit',
-    color: "#f8f8ff",
-    fontWeight: 'unset'
-  },
-  button: {
-    margin: '0 10px',
-    backgroundColor: '#0095d2',
-    width: 100,
-    display: 'block',
-  },
-  addIcon: {
-    height: 40,
-    width: 40,
-    cursor: 'pointer',
-  },
-  divider: {
-    fontSize: 24,
-    margin: 'auto 10px',
-    lineHeight: 'inherit'
-  },
-  logout: {
-    color: "#0095d2",
-    fontSize: 24
-  },
-
-  modal: {
-    backgroundColor: "#000"
-  },
-  modalHeader: {
-    backgroundColor: OFF_BLACK_2,
-    color: ICE_BLUE,
-    border: "none"
-  },
-  modalBody: {
-    backgroundColor: OFF_BLACK_3
-  },
-  modalFooter: {
-    backgroundColor: OFF_BLACK_2,
-    border: "none"
-  },
-  home: {
-    width: 32,
-    height: 32,
-    cursor: 'pointer',
-    margin: "0 15"
-  }
-}
-
 const styles = theme => ({
   navigationBar: {
-    backgroundColor: "#232323",
-    color: "#d4dada",
+    backgroundColor: OFF_BLACK_2,
     display: 'grid',
     gridTemplateRows: '1fr',
     gridTemplateColumns: '1fr 3fr 2fr',
@@ -146,12 +74,13 @@ const styles = theme => ({
     fontSize: '150%',
     margin: "auto",
     lineHeight: 'inherit',
-    color: "#f8f8ff",
+    color: FONT_GREY,
     fontWeight: 'unset',
   },
   divider: {
     fontSize: '150%',
     margin: 'auto',
+    color: FONT_GREY
   },
   logout: {
     color: "#0095d2",
@@ -187,7 +116,6 @@ class Navigation extends React.Component {
       showLoginModal: false,
       showSignUpModal: false,
 
-      randomKey: Math.random() * 100,
       searchValue: "",
       searchSuggestionsOpen: false,
       suggestions: []
@@ -250,48 +178,6 @@ class Navigation extends React.Component {
 
   render() {
     const classes = this.props.classes
-    let content;
-
-    const searchBar =
-      <Autocomplete
-        id="free-solo-demo"
-        className={clsx(classes.searchBar)}
-        freeSolo
-        key={this.state.randomKey}
-        open={this.state.searchSuggestionsOpen}
-        options={this.state.suggestions}
-        filterOptions={(props, state) => {
-          //the filtering is done on the backend by django
-          return props
-        }}
-        getOptionLabel={(option) => option.username}
-        onChange={this.onChange}
-        inputValue={this.state.searchValue}
-        onInputChange={this.onInputChange}
-        renderOption={(option, state) => {
-          return <div className={clsx(classes.searchBarOptions)}>{`${option.username}`}</div>
-        }}
-        classes={{
-          option: classes.searchBarOptions,
-          listbox: classes.listbox
-        }}
-        renderInput={(params) => (
-          <TextField {...params} label="Search Users" margin="normal" variant="outlined"
-            value={this.state.searchValue}
-            InputProps={{
-              ...params.InputProps,
-              className: clsx(this.props.classes.searchBarInput),
-              classes: {
-                notchedOutline: clsx(classes.searchBarBorder),
-              }
-            }}
-            InputLabelProps={{
-              className: clsx(classes.searchBarLabel),
-            }}
-          />
-        )}
-      />
-
     return (
       <div className={clsx(classes.navigationBar)} >
         <span className={clsx(classes.logo)}>ScrapMap</span>
@@ -333,7 +219,7 @@ class Navigation extends React.Component {
           />
         )}
       />
-        {this.props.loggedIn ?
+        {this.props.loggedIn && this.props.loggedInUserDataLoaded ?
           <div className={clsx(classes.userInfo)}>
             <Link to={`${this.props.loggedInUser}`}>
               <Svg viewbox={home.viewBox} className={clsx(classes.homeIcon)}>
@@ -351,7 +237,6 @@ class Navigation extends React.Component {
               handleLogin={this.props.handleLogin}
               isOpen={this.state.showLoginModal}
               toggle={this.toggleLogin}
-              style={style.modal}
               loadingUserData={this.props.loadingUserData}
             />
             <Button className={clsx(classes.button)} style={{ marginLeft: 15 }} onClick={this.toggleSignUp}>Sign Up</Button>
@@ -367,7 +252,4 @@ class Navigation extends React.Component {
   }
 }
 
-
-// export default withStyles(Navigation);
-// export default withRouter(Navigation);
 export default withRouter(withStyles(styles)(Navigation));

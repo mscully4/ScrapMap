@@ -7,7 +7,7 @@ import 'react-virtualized/styles.css'; // only needs to be imported once
 import "flag-icon-css/css/flag-icon.min.css";
 import { getDistanceBetweenTwoPoints } from '../../utils/Formulas.js';
 import ReactCountryFlag from "react-country-flag"
-import { place_colors } from "../../utils/colors"
+import { place_colors, FONT_GREY } from "../../utils/colors"
 
 import {
   add,
@@ -226,7 +226,7 @@ class VirtualTable extends Component {
         {this.generateSVG(cellData.rowData.main_type)}
 
 
-        {this.props.context === "Owner" ?
+        {this.props.owner ?
           <OptionsDropdown
             toggleEditForm={this.props.toggleEditForm}
             cellData={cellData}
@@ -235,7 +235,7 @@ class VirtualTable extends Component {
           /> : null
         }
 
-        {this.props.context === "Owner" && this.props.granularity === 0 ?
+        {this.props.owner && this.props.granularity === 0 ?
           <Svg viewBox={add.viewBox} value={"KILL"} className={clsx(classes.addSVG)} onClick={() => this.props.toggleUploader(cellData.cellData.pk)}>
             {add.path.map((el, i) => <path key={`${i}`} d={el} stroke={color} fill={color} />)}
           </Svg> : null}
@@ -278,34 +278,14 @@ class VirtualTable extends Component {
 
         {/* {granularity && cellData.rowData.images.length ? <img className={clsx(classes.cellImage)} src={this.props.backendURL + cellData.rowData.images[0].src}></img> : null} */}
 
-        {this.props.context === "Owner" ?
+        {this.props.owner ?
           <OptionsDropdown
             toggleEditForm={this.props.toggleEditForm}
             cellData={cellData}
             handleDelete={this.props.granularity ? this.props.handleDeleteCity : this.props.handleDeletePlace}
-            color={"#f8f8ff"}
+            color={FONT_GREY}
           /> : null
         }
-
-        {/* { this.props.context === "Owner" && this.props.granularity === 0 ?
-          <svg
-          className={clsx(this.props.classes.addSVG)}
-          viewBox="0 0 1024 1024"
-          version="1.1"
-          xmlns="http://www.w3.org/2000/svg"
-          onClick={() => this.props.toggleUploader(cellData.cellData.pk)}
-          value={"KILL"}
-          >
-            <path
-            d={Add1}
-            value={"KILL"}
-            />
-            <path
-            d={Add2}
-            value={"KILL"}
-            />
-          </svg> : null
-        } */}
 
         {this.props.granularity == 1 ?
           <Svg

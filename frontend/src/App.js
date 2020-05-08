@@ -8,8 +8,8 @@ import {
 } from "react-router-dom";
 import RingLoader from "react-spinners/RingLoader";
 import {
-  fetchCurrentUser, 
-  fetchToken, 
+  fetchCurrentUser,
+  fetchToken,
   putNewUser,
   postNewCity,
   putEditCity,
@@ -71,8 +71,8 @@ class App extends Component {
     let token = localStorage.getItem("token");
 
     this.state = {
-      loadingUserData: false,
       loggedIn: token && (jwt_decode(token).exp > (Date.now() / 1000)) ? true : false,
+      loggedInUserDataLoaded: false,
       loggedInUser: null,
       // modalSignUp: false,
 
@@ -87,6 +87,9 @@ class App extends Component {
       height: window.innerHeight * .8,
       ready: false,
 
+      loginRequestPending: false,
+      signUpRequestPending: false,
+
       editPlaceRequestPending: false,
       editCityRequestPending: false,
 
@@ -95,7 +98,10 @@ class App extends Component {
 
       deleteCityRequestPending: false,
       deletePlaceRequestPending: false,
-      deleteImageRequestPending: false
+      deleteImageRequestPending: false,
+
+      showError: false,
+      errorMessage: "",
     }
 
     this.setPreparedImages = null
@@ -133,30 +139,40 @@ class App extends Component {
   }
 
   handleLoadSession = (e) => {
-    fetchCurrentUser(localStorage.getItem("token")).then(data => {
-      const places = this.compilePlaces(data.destinations)
-      this.setState({
-        loggedInUser: data.user.username,
-        loggedInCities: data.destinations.map((el, i) => {
-          el.index = i;
-          el.color = city_colors[Math.floor(Math.random() * city_colors.length)]
-          return el;
-        }),
-        loggedInPlaces: places,
-        ready: true,
+    fetchCurrentUser(localStorage.getItem("token"))
+      .then(data => {
+        const places = this.compilePlaces(data.destinations)
+        this.setState({
+          loggedInUser: data.user.username,
+          loggedInCities: data.destinations.map((el, i) => {
+            el.index = i;
+            el.color = city_colors[Math.floor(Math.random() * city_colors.length)]
+            return el;
+          }),
+          loggedInPlaces: places,
+          ready: true,
+          loggedInUserDataLoaded: true
+        })
       })
-    });
+      .catch(err => {
+        console.log(err)
+        this.setState({
+          showError: true,
+          errorMessage: err,
+          ready: true
+        })
+      })
   }
 
   // baseURL + token-auth/
   handleLogin = (e, data) => {
     e.preventDefault();
     this.setState({
-      loadingUserData: true
+      loginRequestPending: true
     })
 
-    fetchToken(data).then(json => {
-      if (json) {
+    fetchToken(data)
+      .then(json => {
         localStorage.setItem('token', json.token);
         const places = this.compilePlaces(json.destinations)
         this.setState({
@@ -168,36 +184,44 @@ class App extends Component {
             return el;
           }),
           loggedInPlaces: places,
-          loadingUserData: false,
+          loginRquestPending: false,
         })
-      } else {
+      })
+      .catch(err => {
         this.setState({
-          loadingUserData: false
+          showError: true,
+          errorMessage: err,
+          loginRequestPending: false
         })
-      }
-    })
+        console.log(err)
+      })
   }
 
   //baseURL + core/users/
-  handleSignup = (e, data) => {
+  handleSignUp = (e, data) => {
     e.preventDefault();
     this.setState({
       loadingSignupRequest: true
     })
-    putNewUser(data).then(json => {
-      if (json) {
+    putNewUser(data)
+      .then(json => {
         localStorage.setItem("token", json.token);
         this.setState({
           loggedIn: true,
           loggedInUser: json.username,
           loggedInCities: [],
-          loggedInPlaces: []
+          loggedInPlaces: [],
+          loadingSignupRequest: false
+
         })
-      }
-      this.setState({
-        loadingSignupRequest: false
       })
-    })
+      .catch(err => {
+        this.setState({
+          showError: true,
+          errorMessage: err
+        })
+        console.log(err)
+      })
   };
 
   handleLogout = () => {
@@ -205,8 +229,6 @@ class App extends Component {
     this.setState({
       loggedIn: false,
       loggedInUser: null,
-      // showModalLogin: false,
-      // modalSignUp: false,
       loggedInCities: null,
     })
   };
@@ -233,7 +255,13 @@ class App extends Component {
               addCityRequestPending: false
             }, () => console.log(this.state))
           })
-          .catch(err => { console.log(err) })
+          .catch(err => {
+            this.setState({
+              showError: true,
+              errorMessage: err
+            }) 
+            console.log(err) 
+          })
       })
     }
   }
@@ -271,7 +299,13 @@ class App extends Component {
             addPlaceRequestPending: false
           })
         })
-        .catch(err => console.log(err))
+        .catch(err => {
+          console.log(err)
+          this.setState({
+            showError: true,
+            errorMessage: err
+          })
+        })
     })
   }
 
@@ -296,7 +330,13 @@ class App extends Component {
             editCityRequestPending: false
           })
         })
-        .catch(err => console.log(err))
+        .catch(err => {
+          console.log(err)
+          this.setState({
+            showError: true,
+            errorMessage: err
+          })
+        })
     )
   }
 
@@ -317,7 +357,16 @@ class App extends Component {
             editPlaceRequestPending: false,
           })
         })
-        .catch(err => console.log(err))
+        .catch(err => {
+          this.setState({
+            showError: true,
+            editCityRequestPending: false,
+            errorMessage: err
+
+          })
+          
+          console.log(err)
+        })
     })
   }
 
@@ -343,7 +392,8 @@ class App extends Component {
           console.log(err)
           this.setState({
             deleteCityRequestPending: false,
-            showError: true
+            showError: true,
+            errorMessage: err
           })
         })
 
@@ -374,7 +424,8 @@ class App extends Component {
           console.log(err)
           this.setState({
             showError: true,
-            deletePlaceRequestPending: false
+            deletePlaceRequestPending: false,
+            errorMessage: err
           })
         })
     })
@@ -413,10 +464,10 @@ class App extends Component {
           })
         })
         .catch(err => {
-          console.log(err)
           this.setState({
             showError: true,
-            deleteImageRequestPending: false
+            deleteImageRequestPending: false,
+            errorMessage: err
           })
         })
     })
@@ -426,7 +477,7 @@ class App extends Component {
     this.setPreparedImages = func
   }
 
-  
+
 
   // handleImageOverwrite = (img, dataURL) => {
   //   // const username = this.state.username;
@@ -451,7 +502,7 @@ class App extends Component {
 
   // // changeGranularity = (zoom) => {
   // //   this.setState({
-  // //     granularity: zoom > 11 ? 0 : 1,
+  // //     granularity: zoom >   toggleLogin: false,
   // //     mapZoom: zoom,
   // //   })
   // // }
@@ -461,11 +512,18 @@ class App extends Component {
       <Home
         loggedIn={this.state.loggedIn}
         loggedInUser={this.state.loggedInUser}
-        handleLogout={this.handleLogout}
-        handleLogin={this.handleLogin}
-        handleSignup={this.handleSignup}
-        loadingUserData={this.state.loadingUserData}
-        loadingSignupRequest={this.state.loadingSignupRequest}
+        handlers={{
+          logout: this.handleLogout,
+          login: this.handleLogin,
+          signUp: this.handleSignUp
+        }}
+        pendingRequests={{
+          login: this.state.loginRequestPending,
+          signUp: this.state.signUpRequestPending
+        }}
+        loggedInUserDataLoaded={this.state.loggedInUserDataLoaded}
+        showError={this.state.showError}
+        errorMessage={this.state.errorMessage}
 
       />
     )
@@ -474,7 +532,7 @@ class App extends Component {
   renderMain = (props) => {
     const user = props.match.params.username;
     const context = user === undefined || user === this.state.loggedInUser ? "Owner" : "Viewer";
-    if (user !== this.state.loggedInUser && user !== this.state.viewUser) {
+    if (user !== this.state.loggedInUser && user !== this.state.viewUser && !this.state.showError) {
       getUser(localStorage.getItem("token"), user)
         .then(data => {
           const cities = data.map((el, i) => {
@@ -491,24 +549,34 @@ class App extends Component {
             viewPlaces: this.compilePlaces(data)
           })
         })
-        .catch(err => console.log(err))
+        .catch(err => {
+          console.log(err)
+          this.setState({
+            errorMessage: err,
+            showError: true,
+          })
+        })
     }
     return (
       <Main
         {...props}
-        context={context}
         owner={this.state.loggedInUser === user}
-        compilePlaces={this.compilePlaces}
-        loadingUserData={this.state.loadingUserData}
-        loadingSignupRequest={this.state.loadingSignupRequest}
         //Navigation Props
         loggedIn={this.state.loggedIn}
         loggedInUser={this.state.loggedInUser}
-        // loggedInCities={this.state.loggedInCities}
-        // loggedInPlaces={this.state.loggedInPlaces}
-        handleLogout={this.handleLogout}
-        handleLogin={this.handleLogin}
-        handleSignup={this.handleSignup}
+        loggedInUserDataLoaded={this.state.loggedInUserDataLoaded}
+        handlers={{
+          logout: this.handleLogout,
+          login: this.handleLogin,
+          signUp: this.handleSignUp,
+          addCity: this.handleAddCity,
+          addPlace: this.handleAddPlace,
+          editCity: this.handleEditCity,
+          editPlace: this.handleEditPlace,
+          deleteCity: this.handleDeleteCity,
+          deletePlace: this.handleDeletePlace,
+          deleteImage: this.handleDeleteImage
+        }}
         //view info
         viewUser={user}
         viewPlaces={user === this.state.loggedInUser ? this.state.loggedInPlaces : this.state.viewPlaces}
@@ -524,6 +592,8 @@ class App extends Component {
         preparedImagesSetter={this.preparedImagesSetter}
         //Pending Requests
         pendingRequests={{
+          login: this.state.loginRequestPending,
+          signUp: this.state.signUpRequestPending,
           addPlace: this.state.addPlaceRequestPending,
           addCity: this.state.addCityRequestPending,
           editPlace: this.state.editPlaceRequestPending,
@@ -532,6 +602,8 @@ class App extends Component {
           deleteCity: this.state.deleteCityRequestPending,
           deleteImage: this.state.deleteImageRequestPending,
         }}
+        showError={this.state.showError}
+        errorMessage={this.state.errorMessage}
       />)
   }
 
@@ -540,12 +612,10 @@ class App extends Component {
     if (this.state.ready) {
       return (
         <React.Fragment>
-          {/* <h1 style={styles.quote}>"To Travel is to BOOF"</h1> */}
           <Router>
             <Switch>
               <Route path="/liveliness" render={(props) => <div></div>}></Route>
               <Route path="/:username" render={(props) => this.renderMain(props)}></Route>
-              {/* <Route path="/test" render={(props) => <Test {...props}/>}></Route> */}
               <Route path="/" render={(props) => this.renderHome(props)}></Route>
             </Switch>
           </Router>
@@ -562,7 +632,6 @@ class App extends Component {
             color={"#0095d2"}
             loading={true}
             css={`margin: auto; background-color: #000000; top: ${(window.innerHeight - 500) / 2.5}px`}
-            // ; height: ${window.innerHeight}px; width: ${window.innerWidth}px`}
             size={500}
           />
           <p style={{
