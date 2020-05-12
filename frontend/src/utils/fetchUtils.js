@@ -1,7 +1,8 @@
 //const baseURL = 'http://35.223.155.224/'
 import axios from 'axios';
 
-const baseURL = 'http://127.0.0.1:8000/'
+const baseURL = window.location.hostname === 'localhost' ? 'http://127.0.0.1:8000/' : `${window.location.origin}`
+console.log(window.location, baseURL)
 
 export function debounce(inner, ms = 0) {
   let timer = null;

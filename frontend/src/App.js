@@ -138,9 +138,17 @@ class App extends Component {
     return places
   }
 
+  setError = (error, errorMessage) => {
+    this.setState({
+      showError: error,
+      errorMessage: errorMessage
+    })
+  }
+
   handleLoadSession = (e) => {
     fetchCurrentUser(localStorage.getItem("token"))
       .then(data => {
+        console.log(data)
         const places = this.compilePlaces(data.destinations)
         this.setState({
           loggedInUser: data.user.username,
@@ -150,8 +158,8 @@ class App extends Component {
             return el;
           }),
           loggedInPlaces: places,
+          loggedInUserDataLoaded: true,
           ready: true,
-          loggedInUserDataLoaded: true
         })
       })
       .catch(err => {
@@ -185,6 +193,7 @@ class App extends Component {
           }),
           loggedInPlaces: places,
           loginRquestPending: false,
+          loggedInUserDataLoaded: true,
         })
       })
       .catch(err => {
@@ -211,7 +220,8 @@ class App extends Component {
           loggedInUser: json.username,
           loggedInCities: [],
           loggedInPlaces: [],
-          loadingSignupRequest: false
+          loadingSignupRequest: false,
+          loggedInUserDataLoaded: true
 
         })
       })
@@ -364,8 +374,6 @@ class App extends Component {
             errorMessage: err
 
           })
-          
-          console.log(err)
         })
     })
   }
@@ -604,6 +612,7 @@ class App extends Component {
         }}
         showError={this.state.showError}
         errorMessage={this.state.errorMessage}
+        setError={this.setError}
       />)
   }
 

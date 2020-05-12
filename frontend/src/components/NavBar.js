@@ -182,43 +182,43 @@ class Navigation extends React.Component {
       <div className={clsx(classes.navigationBar)} >
         <span className={clsx(classes.logo)}>ScrapMap</span>
         <Autocomplete
-        id="free-solo-demo"
-        className={clsx(classes.searchBar)}
-        freeSolo
-        key={this.state.randomKey}
-        open={this.state.searchSuggestionsOpen}
-        options={this.state.suggestions}
-        filterOptions={(props, state) => {
-          //the filtering is done on the backend by django
-          return props
-        }}
-        getOptionLabel={(option) => option.username}
-        onChange={this.onChange}
-        inputValue={this.state.searchValue}
-        onInputChange={this.onInputChange}
-        renderOption={(option, state) => {
-          return <div className={clsx(classes.searchBarOptions)}>{`${option.username}`}</div>
-        }}
-        classes={{
-          option: classes.searchBarOptions,
-          listbox: classes.listbox
-        }}
-        renderInput={(params) => (
-          <TextField {...params} label="Search Users" margin="normal" variant="outlined"
-            value={this.state.searchValue}
-            InputProps={{
-              ...params.InputProps,
-              className: clsx(this.props.classes.searchBarInput),
-              classes: {
-                notchedOutline: clsx(classes.searchBarBorder),
-              }
-            }}
-            InputLabelProps={{
-              className: clsx(classes.searchBarLabel),
-            }}
-          />
-        )}
-      />
+          id="free-solo-demo"
+          className={clsx(classes.searchBar)}
+          freeSolo
+          key={this.state.randomKey}
+          open={this.state.searchSuggestionsOpen}
+          options={this.state.suggestions}
+          filterOptions={(props, state) => {
+            //the filtering is done on the backend by django
+            return props
+          }}
+          getOptionLabel={(option) => option.username}
+          onChange={this.onChange}
+          inputValue={this.state.searchValue}
+          onInputChange={this.onInputChange}
+          renderOption={(option, state) => {
+            return <div className={clsx(classes.searchBarOptions)}>{`${option.username}`}</div>
+          }}
+          classes={{
+            option: classes.searchBarOptions,
+            listbox: classes.listbox
+          }}
+          renderInput={(params) => (
+            <TextField {...params} label="Search Users" margin="normal" variant="outlined"
+              value={this.state.searchValue}
+              InputProps={{
+                ...params.InputProps,
+                className: clsx(this.props.classes.searchBarInput),
+                classes: {
+                  notchedOutline: clsx(classes.searchBarBorder),
+                }
+              }}
+              InputLabelProps={{
+                className: clsx(classes.searchBarLabel),
+              }}
+            />
+          )}
+        />
         {this.props.loggedIn && this.props.loggedInUserDataLoaded ?
           <div className={clsx(classes.userInfo)}>
             <Link to={`${this.props.loggedInUser}`}>

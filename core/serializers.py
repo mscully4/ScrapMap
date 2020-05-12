@@ -3,8 +3,7 @@ from rest_framework_jwt.settings import api_settings
 import random, hashlib, io
 from PIL import Image
 from django.core.files.uploadedfile import InMemoryUploadedFile, TemporaryUploadedFile
-
-
+from the_big_username_blacklist import validate
 
 from django.contrib.auth.models import User
 from .models import Destination, DestinationImages, Place, PlaceImages, UserProfile
@@ -13,11 +12,6 @@ from datetime import datetime
 
 import logging
 logger = logging.getLogger('django')
-
-# def pictures_2png(file):
-#     buffer = StringIO()
-#     Image.open(file).save(buffer, "PNG")
-#     return InMemoryUploadedFile(buffer, None, 'test.png', 'image/png', buffer.nbytes, None)
 
 #Serializer for User log-ins
 class UserSerializerLogin(serializers.ModelSerializer):
@@ -30,8 +24,14 @@ class UserSerializerLogin(serializers.ModelSerializer):
 class UserSerializerSignUp(serializers.ModelSerializer):
     #this field is generated using the get_token method below
     token = serializers.SerializerMethodField()
+
     #write only means that this field will not be serialized
     password = serializers.CharField(write_only=True)
+
+    def validate_username(self, value):
+        if not validate(value) or value.lower() in ('backend', 'core'):
+            raise serializers.ValidationError("Invalid Username: Please Try Another")
+        return value
 
     def get_token(self, obj):
         jwt_payload_handler = api_settings.JWT_PAYLOAD_HANDLER
@@ -44,6 +44,7 @@ class UserSerializerSignUp(serializers.ModelSerializer):
     def create(self, validated_data):
         #remove password from the validated data
         password = validated_data.pop('password', None)
+        
         #create an instance on the model with the validated data
         instance = self.Meta.model(**validated_data)
         
@@ -52,8 +53,8 @@ class UserSerializerSignUp(serializers.ModelSerializer):
             instance.set_password(password)
         
         #save the instance to the DB
-        instance.save()
-        print(validated_data)
+        # instance.save()
+
         return instance
 
     class Meta:
@@ -62,21 +63,16 @@ class UserSerializerSignUp(serializers.ModelSerializer):
         #serialize these fields
         fields = ('id', 'token', 'username', 'password', 'first_name', 'last_name', 'email')
 
-class UserProfileSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = UserProfile
-        fields = ('user', 'email', 'first_name', 'last_name', 'city', 'country', 'zip_code')
+# class UserProfileSerializer(serializers.ModelSerializer):
+#     class Meta:
+#         model = UserProfile
+#         fields = ('user', 'email', 'first_name', 'last_name', 'city', 'country', 'zip_code')
     
-    def create(self, validated_data):
-        # validated_data['user'] = User.objects.get(pk=self.context['user_id'])
-        return UserProfile.objects.create(**validated_data)
+#     def create(self, validated_data):
+#         # validated_data['user'] = User.objects.get(pk=self.context['user_id'])
+#         return UserProfile.objects.create(**validated_data)
 
 class DestinationSerializer(serializers.ModelSerializer):
-    #I think this is garbage
-    # images = serializers.SerializerMethodField()
-    # def get_images(self, obj):
-    #     images = [{'src': obj.image.url, 'width': obj.image.width, 'height': obj.image.height, 'name': obj.name, 'name': obj.image.__str__() } for obj in DestinationImages.objects.filter(destination=obj.pk)]
-    #     return images
 
     user = serializers.SerializerMethodField()
     def get_user(self, obj):

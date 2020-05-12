@@ -1,24 +1,41 @@
 import React from 'react';
-import ReactDOM from 'react-dom';
-import GooglePlacesAutocomplete, { geocodeByPlaceId } from 'react-google-places-autocomplete';
+import { geocodeByPlaceId } from 'react-google-places-autocomplete';
 // If you want to use the provided css
 import 'react-google-places-autocomplete/dist/assets/index.css';
 import { Input } from 'reactstrap';
 import ReactAutocomplete from 'react-autocomplete';
-import { ICE_BLUE, OFF_BLACK_4 } from '../../utils/colors';
+import { ICE_BLUE, OFF_BLACK_4, FONT_GREY } from '../../utils/colors';
+import { withStyles } from '@material-ui/styles';
+import clsx from 'clsx'
 
 
-// const placeURL= "https://maps.googleapis.com/maps/api/place/autocomplete/json?types=establishment&strictbounds&"
 const placeURL = "https://maps.googleapis.com/maps/api/place/autocomplete/json?"
-
 const cityURL = "https://maps.googleapis.com/maps/api/place/autocomplete/json?types=(cities)&"
-//input=Amoeba&location=37.76999,-122.44696&radius=500&strictbounds&key=YOUR_API_KEY
 
-const style = {
+const styles = theme => ({
   dropdownItem: {
+    cursor: 'pointer',
+    backgroundColor: 'transparent',
+    color: ICE_BLUE,
+    padding: "5px 0",
+    paddingLeft: 5,
     cursor: 'pointer'
-  }
-}
+  },
+  dropdownItemHighlighted: {
+    backgroundColor: ICE_BLUE,
+    color: FONT_GREY
+  },
+  inputStyle: {
+    backgroundColor: OFF_BLACK_4,
+    color: ICE_BLUE,
+    borderColor: ICE_BLUE,
+    "&:focus": {
+      backgroundColor: OFF_BLACK_4,
+      color: ICE_BLUE,
+      borderColor: ICE_BLUE,
+    }
+  },
+})
 
 class AutoComplete extends React.Component {
   constructor(props) {
@@ -53,16 +70,24 @@ class AutoComplete extends React.Component {
     switch (this.props.context) {
       case "Place":
         this.props.handleAutoCompleteChange(value)
-        this.loadPlaceSuggestions(value).then(json => {
-          var predictions = json.predictions.filter((pred) => pred.types.includes("establishment") ? true : false);
-          this.setState({
-            suggestions: predictions
+        this.loadPlaceSuggestions(value)
+          .then(json => {
+            var predictions = json.predictions.filter((pred) => pred.types.includes("establishment") ? true : false);
+            this.setState({
+              suggestions: predictions
+            })
           })
-        })
+          .catch(err => {
+            this.props.setError(true, err)
+          })
         break;
       case "City":
         this.props.handleAutoCompleteChangeCity(value)
-        this.loadCitySuggestions(value).then(json => this.setState({ suggestions: json.predictions }))
+        this.loadCitySuggestions(value)
+          .then(json => this.setState({ suggestions: json.predictions }))
+          .catch(err => {
+            this.props.setError(true, err)
+          })
         break
     }
   };
@@ -108,11 +133,9 @@ class AutoComplete extends React.Component {
 
 
   onSelectPlace = (obj, selection) => {
-    console.log(selection)
     const place_id = selection.place_id
     const name = selection.terms[0].value
     geocodeByPlaceId(place_id).then(data => {
-      console.log(data)
       var street_number = "", street = "", county = "", city = "", state = "", zip = "", country = "", address = "", countryCode = "";
       data[0].address_components.forEach(element => {
         if (element.types.includes("street_number")) street_number = element.long_name;
@@ -133,7 +156,7 @@ class AutoComplete extends React.Component {
       const types = data[0].types.join(",")
       //Establishment is the default type for all results
       var main_type = "estalishment";
-      for (var i=0; i<this.props.placeTypes.length; ++i) {
+      for (var i = 0; i < this.props.placeTypes.length; ++i) {
         if (data[0].types.includes(this.props.placeTypes[i])) {
           main_type = this.props.placeTypes[i];
           break
@@ -146,20 +169,15 @@ class AutoComplete extends React.Component {
   }
 
   render = () => {
+    const classes = this.props.classes
     return (
       <ReactAutocomplete
         items={this.state.suggestions}
-        //shouldItemRender={(item, value) => item.label.toLowerCase().indexOf(value.toLowerCase()) > -1}
         getItemValue={item => item.description}
         renderItem={(item, highlighted) =>
           <div
             key={item.id}
-            style={{ 
-              backgroundColor: highlighted ? ICE_BLUE : 'transparent', 
-              color: highlighted ? "#000" : ICE_BLUE,
-              padding: "5px 0",
-              paddingLeft: 5,
-            }}
+            className={clsx({ [classes.dropdownItem]: true, [classes.dropdownItemHighlighted]: highlighted })}
           >
             {item.description}
           </div>
@@ -170,7 +188,7 @@ class AutoComplete extends React.Component {
         onSelect={(value, obj) => this.props.context === "City" ? this.onSelectCity(value, obj) : this.onSelectPlace(value, obj)}
         renderInput={(props) => {
           const { ref, ...rest } = props;
-          return <Input {...rest} style={this.props.inputStyle} autoComplete={"new-password"} innerRef={ref} />
+          return <Input {...rest} className={clsx(classes.inputStyle)} autoComplete={"new-password"} innerRef={ref} />
         }}
         wrapperProps={{ style: { width: '100%' } }}
         menuStyle={{
@@ -184,4 +202,4 @@ class AutoComplete extends React.Component {
 }
 
 
-export default AutoComplete;
+export default withStyles(styles)(AutoComplete);

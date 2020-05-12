@@ -5,18 +5,33 @@ import {
   Button,
   Form,
   Input,
-  InputGroup,
   Modal,
   ModalHeader,
   ModalBody,
   ModalFooter,
 } from 'reactstrap';
-import { ICE_BLUE, FONT_GREY, OFF_BLACK_1, OFF_BLACK_2, OFF_BLACK_3, OFF_BLACK_4 } from '../../utils/colors'
 import RingLoader from "react-spinners/RingLoader";
+import { withStyles } from '@material-ui/styles'
 
+import { ICE_BLUE, FONT_GREY, OFF_BLACK_1, OFF_BLACK_2, OFF_BLACK_3, OFF_BLACK_4 } from '../../utils/colors'
 import Autocomplete from './Autocomplete';
 
-const styles = {
+const styles = themes => ({
+  modal: {
+    backgroundColor: "#000"
+  },
+  modalHeader: {
+    backgroundColor: OFF_BLACK_2,
+    color: ICE_BLUE,
+    border: "none"
+  },
+  modalBody: {
+    backgroundColor: OFF_BLACK_3
+  },
+  modalFooter: {
+    backgroundColor: OFF_BLACK_2,
+    border: "none"
+  },
   addIcon: {
     height: 40,
     width: 40,
@@ -27,8 +42,18 @@ const styles = {
     fontSize: 18,
     marginBottom: 0,
     marginTop: 10
-  }
-}
+  },
+  inputStyle: {
+    backgroundColor: OFF_BLACK_4,
+    color: ICE_BLUE,
+    borderColor: ICE_BLUE,
+    "&:focus": {
+      backgroundColor: OFF_BLACK_4,
+      color: ICE_BLUE,
+      borderColor: ICE_BLUE,
+    }
+  },
+})
 
 class AddCity extends React.Component {
   constructor(props) {
@@ -98,34 +123,25 @@ class AddCity extends React.Component {
 
   render() {
     const disableButtom = !this.allFieldsValid();
-    const inputStyle = {
-      backgroundColor: OFF_BLACK_4,
-      color: ICE_BLUE,
-      borderColor: ICE_BLUE
-    }
+    const classes = this.props.classes
+  
     return (
       <React.Fragment>
         <Modal
           isOpen={this.props.isOpen}
           toggle={this.props.toggle}
-          style={{
-            backgroundColor: "#000"
-          }}
+          className={classes.modal}
         >
           <ModalHeader
             toggle={this.toggle}
-            style={{
-              backgroundColor: OFF_BLACK_2,
-              color: ICE_BLUE,
-              border: "none"
-            }}
+            className={classes.modalHeader}
           >
             Add City
           </ModalHeader>
-          <ModalBody style={{ backgroundColor: OFF_BLACK_3 }}>
+          <ModalBody className={classes.modalBody}>
             {!this.props.addCityRequestPending ?
               <Form ref={ref => this.formAddCity = ref} onSubmit={e => this.props.handleAddCity(e, this.state)} autoComplete={"new-password"}>
-                <p style={styles.fieldLabel}>City:</p>
+                <p className={classes.fieldLabel}>City:</p>
                 <Autocomplete
                   name="city"
                   placeholder="city"
@@ -135,45 +151,47 @@ class AddCity extends React.Component {
                   handleAutoCompleteChangeCity={this.handleAutoCompleteChange}
                   value={this.state.city}
                   clearSuggestionsHook={this.clearSuggestionsHook}
-                  inputStyle={inputStyle}
+                  inputStyle={{
+                    backgroundColor: OFF_BLACK_4,
+                    color: ICE_BLUE,
+                    borderColor: ICE_BLUE,
+                  }}
+                  setError={this.props.setError}
                 />
-                <p style={styles.fieldLabel}>Country:</p>
+                <p className={classes.fieldLabel}>Country:</p>
                 <Input
                   type="text"
                   boof="country"
-                  // placeholder="Country"
                   value={this.state.country}
                   onChange={this.handleChange}
                   autoComplete={"new-password"}
-                  style={inputStyle}
+                  className={classes.inputStyle}
                 />
-                <p style={styles.fieldLabel}>Country Code:</p>
+                <p className={classes.fieldLabel}>Country Code:</p>
                 <Input
                   type="text"
                   boof="countryCode"
-                  // placeholder="Country Code"
                   value={this.state.countryCode}
                   onChange={this.handleChange}
                   autoComplete={"new-password"}
-                  style={inputStyle}
+                  className={classes.inputStyle}
                 />
-                <p style={styles.fieldLabel}>Latitude:</p>
+                <p className={classes.fieldLabel}>Latitude:</p>
                 <Input
                   type="text"
                   boof="latitude"
-                  // placeholder="Latitude"
                   value={this.state.latitude}
                   onChange={this.handleChange}
-                  style={inputStyle}
+                  className={classes.inputStyle}
                 />
-                <p style={styles.fieldLabel}>Longitude:</p>
+                <p className={classes.fieldLabel}>Longitude:</p>
                 <Input
                   type="text"
                   boof="longitude"
                   // placeholder="Longitude"
                   value={this.state.longitude}
                   onChange={this.handleChange}
-                  style={inputStyle}
+                  className={classes.inputStyle}
                 />
                 <br />
               </Form> :
@@ -184,8 +202,8 @@ class AddCity extends React.Component {
                 size={200}
               />}
           </ModalBody>
-          <ModalFooter style={{ backgroundColor: OFF_BLACK_2, border: "none" }}>
-            <Button onClick={this.submitForm} disabled={disableButtom} style={{ backgroundColor: ICE_BLUE, width: '90%', margin: "auto" }}>Submit</Button>
+          <ModalFooter className={classes.modalFooter}>
+            <Button onClick={this.submitForm} disabled={disableButtom} className={classes.button}>Submit</Button>
           </ModalFooter>
         </Modal>
       </React.Fragment>
@@ -193,4 +211,4 @@ class AddCity extends React.Component {
   }
 }
 
-export default AddCity;
+export default withStyles(styles)(AddCity);

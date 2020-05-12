@@ -48,7 +48,6 @@ class ErrorMessage extends React.Component {
 
 
   render() {
-    console.log(this.props.errorMessage)
     const classes = this.props.classes
     return (
       <Modal isOpen={this.props.isOpen} className={classes.modal}>

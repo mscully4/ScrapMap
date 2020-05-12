@@ -42,53 +42,6 @@ const PLACE_TYPES = [
 ]
 
 const DEFAULT_CENTER = { lat: 33.7490, lng: -84.3880 }
-// const FONT_GREY = "#f8f8ff"
-// const ICE_BLUE = "#0095d2"
-
-// const DOLLAR_BILL = "#006400"
-// const CHILI_PEPPER = "#9B1B30"
-// const GALAXY_BLUE = "#2A4B7C"
-// const BLUESTONE = "#577284"
-// const ORANGE_TIGER = "#f96714"
-// const EDEN = "#264e36"
-// const TUMERIC = "#FE840E"
-// const PINK_PEACOCK = "#C62168"
-// const ASPEN_GOLD = "#FFD662"
-// const TOFFEE = "#755139"
-// const SWEET_LILAC = "#E8B5CE"
-// const ULTRA_VIOLET = "#6B5B95"
-// const TRUE_RED = "#BC243C"
-// const BEER = "#f28e1c"
-// const NEBULAS_BLUE = "#3F69AA"
-// const LIMELIGHT = "#F1EA7F"
-// const NOTRE_DAME_GOLD = "##D39F10"
-// const MARBLE = "#fffcf0"
-// const ARCADIA = "#00A591"
-// const ISLAND_PARADISE = "#95DEE3"
-// const HAZELNUT = "#CFB095"
-
-// const colors = {
-//   font_grey: FONT_GREY,
-//   ice_blue: ICE_BLUE,
-//   natural_feature: EDEN,
-//   museum: ULTRA_VIOLET,
-//   zoo: ORANGE_TIGER,
-//   church: TRUE_RED,
-//   casino: DOLLAR_BILL,
-//   stadium: NEBULAS_BLUE,
-//   bar: BEER,
-//   food: CHILI_PEPPER,
-//   amusement_park: GALAXY_BLUE,
-//   park: SWEET_LILAC,
-//   store: PINK_PEACOCK,
-//   city_hall: MARBLE,
-//   airport: BLUESTONE,
-//   university: NOTRE_DAME_GOLD,
-//   tourist_attraction: TUMERIC,
-//   establishment: ARCADIA
-// }
-
-
 
 const styles = theme => ({
   page: {
@@ -130,13 +83,13 @@ const styles = theme => ({
 })
 
 class Main extends React.Component {
-  static defaultProps = {
-    loggedInCities: [],
-
-  }
+  // static defaultProps = {
+  //   loggedInCities: [],
+  // }
 
   constructor(props) {
     super(props)
+    console.log(props)
     this.state = {
       //General
       ready: false,
@@ -144,28 +97,31 @@ class Main extends React.Component {
       selectedPlace: null,
       hoverIndexCity: null,
       hoverIndexPlace: null,
+
       //Map
       granularity: 1,
       mapZoom: 4,
       mapCenter: {
-        lat: this.props.loggedInCities.length > 0 ? this.props.loggedInCities[0].latitude : DEFAULT_CENTER.lat,
-        lng: this.props.loggedInCities.length > 0 ? this.props.loggedInCities[0].longitude : DEFAULT_CENTER.lng,
+        lat: this.props.viewCities.length > 0 ? this.props.viewCities[0].latitude : DEFAULT_CENTER.lat,
+        lng: this.props.viewCities.length > 0 ? this.props.viewCities[0].longitude : DEFAULT_CENTER.lng,
       },
       closestCity: null,
+
       //Gallery
       galleryOpen: false,
       preparedImages: [],
+
       //ImageViewer
       imageViewerOpen: false,
       currImg: null,
       getCurrImg: null,
       deleteDisabled: null,
+
       //ImageUploader
       uploaderOpen: false,
       uploaderPK: null,
       //Editor
       // editorOpen: false,
-
       // showLoader: false,
 
       //Edit Forms
@@ -559,6 +515,8 @@ class Main extends React.Component {
               toggle={this.toggleAddCityForm}
               handleAddCity={this.props.handlers.addCity}
               addCityRequestPending={this.state.addCityRequestPending}
+              setError={this.props.setError}
+
             /> : null}
 
           {this.state.addPlaceFormOpen && this.state.granularity === 0 && this.props.username === this.props.user ?
@@ -571,6 +529,7 @@ class Main extends React.Component {
               default={this.state.closestCity}
               placeTypes={PLACE_TYPES}
               addPlaceRequestPending={this.state.addCityRequestPending}
+              setError={this.props.setError}
             /> : null
           }
 

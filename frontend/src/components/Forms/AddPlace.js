@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react';
+import React from 'react';
 import ReactDOM from 'react-dom';
 import PropTypes from 'prop-types';
 import {
@@ -10,14 +10,17 @@ import {
   ModalBody,
   ModalFooter,
 } from 'reactstrap';
-import Autocomplete from './Autocomplete';
+import clsx from 'clsx'
 import Select from 'react-select';
 import { Checkbox } from '@material-ui/core';
+import { withStyles } from '@material-ui/styles'
+
+import Autocomplete from './Autocomplete';
 import RingLoader from "react-spinners/RingLoader";
 import { ICE_BLUE, FONT_GREY, OFF_BLACK_1, OFF_BLACK_2, OFF_BLACK_3, OFF_BLACK_4 } from '../../utils/colors'
 
 
-const styles = {
+const styles = theme => ({
   addIcon: {
     height: 40,
     width: 40,
@@ -41,15 +44,31 @@ const styles = {
   inputStyle: {
     backgroundColor: OFF_BLACK_4,
     color: ICE_BLUE,
-    borderColor: ICE_BLUE
+    borderColor: ICE_BLUE,
+    "&:focus": {
+      backgroundColor: OFF_BLACK_4,
+      color: ICE_BLUE,
+      borderColor: ICE_BLUE,
+    }
   },
   fieldLabel: {
     color: ICE_BLUE,
     fontSize: 18,
     marginBottom: 0,
-    marginTop: 10
+    marginTop: 10,
+  },
+  parameterWrapper: {
+    display: "grid",
+    gridTemplateRows: "1fr",
+    gridTemplateColumns: "2fr 1fr 1fr 2fr 1fr",
+    alignItems: 'center'
+  }, 
+  button: {
+    backgroundColor: ICE_BLUE, 
+    width: "90%", 
+    margin: "auto" 
   }
-}
+})
 
 const reactSelectStyling = {
   menu: base => ({
@@ -62,10 +81,6 @@ const reactSelectStyling = {
     marginTop: 0,
     borderTop: "none",
     borderRadius: 8
-  }),
-  selected: base => ({
-    ...base,
-    color: 'green'
   }),
   control: base => ({
     ...base,
@@ -112,10 +127,9 @@ class AddPlace extends React.Component {
       state: "",
       country: "",
       zip: "",
-      latitude: null,
-      longitude: null,
-      main_type: null,
-      types: null,
+      latitude: "",
+      longitude: "",
+      types: "",
       main_type: "",
       placeId: "",
 
@@ -197,10 +211,10 @@ class AddPlace extends React.Component {
       state: "",
       country: "",
       zip: "",
-      latitude: null,
-      longitude: null,
-      main_type: null,
-      types: null,
+      latitude: "",
+      longitude: "",
+      main_type: "",
+      types: "",
       main_type: "",
       placeId: "",
     })
@@ -225,6 +239,8 @@ class AddPlace extends React.Component {
   }
 
   render() {
+    const classes = this.props.classes;
+
     const options = this.props.cities.map((obj, i) => {
       return {
         index: i,
@@ -257,43 +273,34 @@ class AddPlace extends React.Component {
         })
       }
     })
+    console.log(placeTypes[placeTypes.length - 1])
 
     return (
       <React.Fragment>
-        <Modal isOpen={this.props.isOpen} toggle={this.props.toggle} style={styles.modal}>
-          <ModalHeader toggle={this.toggle} style={styles.modalHeader}>Add Place</ModalHeader>
-          <ModalBody style={styles.modalBody}>
+        <Modal isOpen={this.props.isOpen} toggle={this.props.toggle} className={classes.modal}>
+          <ModalHeader toggle={this.toggle} className={classes.modalHeader}>Add Place</ModalHeader>
+          <ModalBody className={classes.modalBody} >
             {!this.props.addPlaceRequestPending ?
               <Form ref={ref => this.formAddCity = ref} onSubmit={e => this.props.handleAddPlace(e, this.state)}>
                 <Select
                   className="basic-single"
                   classNamePrefix="select"
                   defaultValue={options[this.props.default.index]}
-                  // isDisabled={isDisabled}
-                  // isLoading={isLoading}
-                  // isClearable={isClearable}
-                  // isRtl={isRtl}
-                  // isSearchable={isSearchable}
+                  isSearchable={true}
                   options={options}
                   onChange={this.dropdownSelect}
                   // defaultMenuIsOpen={true}
                   styles={reactSelectStyling}
                 />
                 <br />
-                <div style={{
-                  display: "grid",
-                  gridTemplateRows: "1fr",
-                  gridTemplateColumns: "2fr 1fr 1fr 2fr 1fr",
-                  alignItems: 'center'
-                }}>
+                <div className={clsx(classes.parameterWrapper)}>
                   <span style={{ textAlign: "center", color: ICE_BLUE }}>Search Radius</span>
                   <Input
                     type="text"
                     boof="searchRadius"
-                    placeholder="Search Radius"
                     value={this.state.searchRadius}
                     onChange={this.handleChange}
-                    style={styles.inputStyle}
+                    className={classes.inputStyle}
                     autoComplete={"new-password"}
 
                   />
@@ -303,15 +310,11 @@ class AddPlace extends React.Component {
                     checked={this.state.strictBounds}
                     onChange={this.handleChangeCheckbox}
                     name="strictBounds"
-                    labelStyle={{ color: '#0095d2' }}
-                    iconStyle={{ fill: '#0095d2' }}
-                    inputStyle={{ color: '#0095d2' }}
                     style={{ color: '#0095d2' }}
 
                   />
                 </div>
-                <p style={styles.fieldLabel}>Name:</p>
-
+                <p className={clsx(classes.fieldLabel)}>Name:</p>
                 <Autocomplete
                   name="place"
                   placeholder="place"
@@ -327,15 +330,20 @@ class AddPlace extends React.Component {
                   clearSuggestionsHook={this.clearSuggestionsHook}
                   changeMainType={this.changeMainType}
                   placeTypes={this.props.placeTypes}
-                  inputStyle={styles.inputStyle}
+                  inputStyle={{
+                    backgroundColor: OFF_BLACK_4,
+                    color: ICE_BLUE,
+                    borderColor: ICE_BLUE,
+                  }}
+                  setError={this.props.setError}
                 />
-                <p style={styles.fieldLabel}>Type:</p>
-
+                <p className={clsx(classes.fieldLabel)}>Type:</p>
                 <Select
                   className="basic-single"
                   classNamePrefix="select"
                   options={placeTypes}
                   styles={reactSelectStyling}
+                  defaultValue={placeTypes[placeTypes.length - 1]}
                   onChange={option => {
                     this.setState({
                       main_type: option.value
@@ -343,81 +351,72 @@ class AddPlace extends React.Component {
                   }}
                   value={placeTypes.find(el => el.value === this.state.main_type)}
                 />
-                <p style={styles.fieldLabel}>Address:</p>
+                <p className={classes.fieldLabel}>Address:</p>
                 <Input
                   type="text"
                   boof="address"
-                  placeholder="Address"
                   value={this.state.address}
                   onChange={this.handleChange}
-                  style={styles.inputStyle}
+                  className={classes.inputStyle}
                   autoComplete={"new-password"}
                 />
-                <p style={styles.fieldLabel}>City:</p>
+                <p className={classes.fieldLabel}>City:</p>
                 <Input
                   type="text"
                   boof="city"
-                  placeholder="City"
                   value={this.state.city}
                   onChange={this.handleChange}
-                  //disabled={this.state.disabled}
-                  //autoComplete={"new-password"}
-                  style={styles.inputStyle}
+                  className={classes.inputStyle}
                   autoComplete={"new-password"}
                 />
-                <p style={styles.fieldLabel}>State:</p>
+                <p className={classes.fieldLabel}>State:</p>
 
                 <Input
                   type="text"
                   boof="state"
-                  placeholder="State"
                   value={this.state.state}
                   onChange={this.handleChange}
-                  style={styles.inputStyle}
+                  className={classes.inputStyle}
                   autoComplete={"new-password"}
                 />
-                <p style={styles.fieldLabel}>Country:</p>
+                <p className={classes.fieldLabel}>Country:</p>
 
                 <Input
                   type="text"
                   boof="country"
-                  placeholder="Country"
                   value={this.state.country}
                   onChange={this.handleChange}
-                  style={styles.inputStyle}
+                  className={classes.inputStyle}
                   autoComplete={"new-password"}
                 />
-                <p style={styles.fieldLabel}>Zip Code:</p>
+                <p className={classes.fieldLabel}>Zip Code:</p>
 
                 <Input
                   type="text"
                   boof="zip"
-                  placeholder="Zip Code"
                   value={this.state.zip}
                   onChange={this.handleChange}
-                  style={styles.inputStyle}
+                  className={classes.inputStyle}
                   autoComplete={"new-password"}
                 />
-                <p style={styles.fieldLabel}>Latitude:</p>
+                <p className={classes.fieldLabel}>Latitude:</p>
 
                 <Input
                   type="text"
                   boof="latitude"
-                  placeholder="Latitude"
                   value={this.state.latitude}
                   onChange={this.handleChange}
-                  style={styles.inputStyle}
+                  className={classes.inputStyle}
                   autoComplete={"new-password"}
                 />
-                <p style={styles.fieldLabel}>Longitude:</p>
+                <p className={classes.fieldLabel}>Longitude:</p>
 
                 <Input
                   type="text"
                   boof="longitude"
-                  placeholder="Longitude"
                   value={this.state.longitude}
                   onChange={this.handleChange}
-                  style={styles.inputStyle}
+                  className={classes.inputStyle}
                   autoComplete={"new-password"}
                 />
                 <br />
@@ -429,8 +428,8 @@ class AddPlace extends React.Component {
                 size={200}
               />}
           </ModalBody>
-          <ModalFooter style={styles.modalFooter}>
-            <Button onClick={this.submitForm} disabled={!this.allFieldsValid()} style={{ backgroundColor: ICE_BLUE, width: "90%", margin: "auto" }}>Submit</Button>
+          <ModalFooter className={classes.modalFooter}>
+            <Button onClick={this.submitForm} disabled={!this.allFieldsValid()} className={clsx(classes.button)}>Submit</Button>
           </ModalFooter>
         </Modal>
       </React.Fragment>
@@ -438,4 +437,4 @@ class AddPlace extends React.Component {
   }
 }
 
-export default AddPlace;
+export default withStyles(styles)(AddPlace);
