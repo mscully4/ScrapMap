@@ -5,9 +5,12 @@ metadata:
   labels:
     app: backend-nodeport
 spec:
-  type: NodePort
   ports:
-  - port: 8000
+  - port: 8080
+    protocol: TCP
     targetPort: 8080
+    #nodePort: 31076
   selector:
     app: backend-pods
+  # sessionAffinity: None
+  type: NodePort

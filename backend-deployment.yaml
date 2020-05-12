@@ -15,19 +15,18 @@ spec:
         app: backend-pods
     spec:
       containers:
-        name: backend-pod
-        livenessProbe:
-          httpGet:
-            path: /liveliness
-            port: 8000
-          initialDelaySeconds: 20
-          timeoutSeconds: 3
-        # Replace  with your project ID or use `make template`
-        image: gcr.io/scrapmap/backend
+        - name: backend-pod
+          livenessProbe:
+            httpGet:
+              path: /liveliness
+              port: 8080
+            initialDelaySeconds: 20
+            timeoutSeconds: 3
+          image: gcr.io/scrapmap/backend
         # This setting makes nodes pull the docker image every time before
         # starting the pod. This is useful when debugging, but should be turned
         # off in production.
-        imagePullPolicy: Always
+          imagePullPolicy: Always
         # env:
         #     # [START cloudsql_secrets]
         #     - name: DATABASE_USER

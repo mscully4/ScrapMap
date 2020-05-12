@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: frontend-nodeport
+  labels:
+    app: frontend-nodeport
+spec:
+  ports:
+  #The port that the service is listening on
+  - port: 80
+  #The port of the container that the service will forward requests to
+    targetPort: 80
+  selector:
+    app: frontend-pods
+  type: NodePort

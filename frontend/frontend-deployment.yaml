@@ -17,11 +17,11 @@ spec:
       containers:
       - name: frontend-pod
         image: gcr.io/scrapmap/frontend
-        livenessProbe:
-          httpGet:
-            path: /liveliness
-            port: 80
-          initialDelaySeconds: 20
-          timeoutSeconds: 3
+        # livenessProbe:
+        #   httpGet:
+        #     path: /liveliness
+        #     port: 80
+        #   initialDelaySeconds: 20
+        #   timeoutSeconds: 3
         imagePullPolicy: Always
 
