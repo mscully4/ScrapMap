@@ -1,7 +1,7 @@
 //const baseURL = 'http://35.223.155.224/'
 import axios from 'axios';
 
-const baseURL = window.location.hostname === 'localhost' ? 'http://127.0.0.1:8000/' : `${window.location.origin}`
+const baseURL = window.location.hostname === 'localhost' ? 'http://127.0.0.1:8000/' : `${window.location.origin}/backend/`
 console.log(window.location, baseURL)
 
 export function debounce(inner, ms = 0) {
