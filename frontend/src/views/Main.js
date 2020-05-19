@@ -61,25 +61,44 @@ const styles = theme => ({
     height: '100%',
     backgroundColor: "transparent"
   },
+  topBar: {
+    display: "grid",
+    gridTemplateColumns: "1fr 2fr 5fr auto 1fr",
+    gridTemplateRows: '1fr',
+    alignItems: 'center',
+    paddingTop: 30,
+    paddingBottom: 30
+  },
   addSVG: {
     height: 100,
     width: 100,
     fill: ICE_BLUE,
-    float: 'right',
-    margin: '50px 0',
-    marginRight: 100
+    // position: 'absolute',
+    // right: '7.5%',
+    // marginTop: 40
   },
   factDiv: {
-    margin: "0px 100px",
-    padding: "20px 0px",
+    // marginTop: 20,
+    // marginBottom: 20,
+    // marginLeft: '10%',
     fontSize: 24,
-    color: FONT_GREY
+    color: FONT_GREY,
+    // float: 'left'
   },
   factLine: {
     textIndent: 20,
     margin: 0,
     color: FONT_GREY
-  }
+  },
+  addSVGText: {
+    fontSize: 24,
+    marginRight: 20,
+    // marginTop: 80,
+    // float: "right",
+    color: "#f8f8ff",
+    textAlign: 'right',
+
+  },
 })
 
 class Main extends React.Component {
@@ -89,7 +108,6 @@ class Main extends React.Component {
 
   constructor(props) {
     super(props)
-    console.log(props)
     this.state = {
       //General
       ready: false,
@@ -141,7 +159,8 @@ class Main extends React.Component {
   }
 
   componentDidMount = () => {
-    this.props.preparedImagesSetter(this.setPreparedImages)
+    this.props.setPreparedImagesSetter(this.setPreparedImages)
+    this.props.changeMapCenterSetter(this.changeMapCenter)
   }
 
   //General Functions
@@ -186,6 +205,7 @@ class Main extends React.Component {
 
   //This is passed up to App.js
   setPreparedImages = (images) => {
+    console.log(images)
     this.setState({
       preparedImages: images
     })
@@ -211,9 +231,10 @@ class Main extends React.Component {
   onMarkerClick = (obj) => {
     if (this.state.granularity === 1) {
       this.changeMapCenter(obj)
+      this.changeGranularity(12)
+      this.changeHoverIndexCity(null)
       this.setState({
         selectedCity: obj,
-        mapZoom: 12,
       })
     } else if (this.state.granularity === 0) {
       this.setState({
@@ -359,8 +380,18 @@ class Main extends React.Component {
     }
   }
 
+  recenter = () => {
+    const coords = {
+      latitude: this.props.viewUserCities[0].latitude,
+      longitude: this.props.viewUserCities[0].longitude
+    }
+    this.changeMapCenter(coords)
+    this.changeGranularity(4)
+  }
+
 
   render() {
+    const classes = this.props.classes;
     return (
       <div>
         <Navigation
@@ -374,35 +405,37 @@ class Main extends React.Component {
           pendingLoginRequest={this.props.pendingRequests.login}
           pendingSignUpRequest={this.props.pendingRequests.signUp}
           history={this.props.history}
+          recenter={this.recenter}
+          signUpError={this.props.signUpError}
         />
 
+        <div className={clsx(classes.page)}>
+          <div className={clsx(classes.topBar)}>
 
-        {this.props.owner ?
-          <Svg viewBox={add.viewBox} className={clsx(this.props.classes.addSVG)} onClick={this.state.granularity ? this.toggleAddCityForm : this.toggleAddPlaceForm}>
-            {add.path.map((el, i) => <path key={`${i}`} d={el} />)}
-          </Svg> : null
-        }
+            <div></div>
 
-        <div className={clsx(this.props.classes.page)}>
-          {this.props.owner ?
-            <p style={{
-              fontSize: 24,
-              marginRight: 20,
-              marginTop: 80,
-              float: "right",
-              color: "#f8f8ff"
-            }}>
-              {`Add a New ${this.state.granularity ? "City" : "Place"} -->`}
-            </p>
-            :
-            null
-          }
+            <div className={clsx(classes.factDiv)}>
+              <span>{`${this.props.owner ? "You've" : this.props.viewUser[0].toUpperCase() + this.props.viewUser.substring(1) + " Has "} Visited: `}</span><br />
+              <p className={clsx(this.props.classes.factLine)}>{`${this.calculateFacts('countries')} Countries`}</p>
+              <p className={clsx(this.props.classes.factLine)}>{`${this.calculateFacts("cities")} Cities`}</p>
+              <p className={clsx(this.props.classes.factLine)}>{`${this.calculateFacts("places")} Places`}</p>
+            </div>
 
-          <div className={clsx(this.props.classes.factDiv)}>
-            <span>{`${this.props.owner ? "You've" : this.props.viewUser[0].toUpperCase() + this.props.viewUser.substring(1) + " Has "} Visited: `}</span><br />
-            <p className={clsx(this.props.classes.factLine)}>{`${this.calculateFacts('countries')} Countries`}</p>
-            <p className={clsx(this.props.classes.factLine)}>{`${this.calculateFacts("cities")} Cities`}</p>
-            <p className={clsx(this.props.classes.factLine)}>{`${this.calculateFacts("places")} Places`}</p>
+            {this.props.owner ?
+              <span className={classes.addSVGText}>
+                {`Add a New ${this.state.granularity ? "City" : "Place"} -->`}
+              </span>
+              :
+              null
+            }
+
+            {this.props.owner ?
+              <Svg viewBox={add.viewBox} className={clsx(this.props.classes.addSVG)} onClick={this.state.granularity ? this.toggleAddCityForm : this.toggleAddPlaceForm}>
+                {add.path.map((el, i) => <path key={`${i}`} d={el} />)}
+              </Svg> : null
+            }
+
+            <div></div>
           </div>
 
           <div className={clsx(this.props.classes.main)}>
@@ -459,7 +492,8 @@ class Main extends React.Component {
               }
             }}
           >
-            {this.state.preparedImages.length > 0 ?
+            {/* Only Open Gallery if there are images to show.  If there is an error message, close the gallery */}
+            {this.state.preparedImages.length > 0 && !this.props.showError ?
               <Gallery
                 photos={this.state.preparedImages}
                 onClick={this.galleryOnClick}
@@ -473,7 +507,8 @@ class Main extends React.Component {
                   paddingBottom: "25%",
                   textAlign: "center",
                   backgroundColor: "rgba(40, 40, 40, .6)",
-                  marginTop: "5%"
+                  marginTop: "5%",
+                  visibility: this.props.showError ? 'hidden' : 'visible'
                 }}
               >No Images...</div>}
           </Modal>

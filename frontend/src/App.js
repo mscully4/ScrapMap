@@ -85,10 +85,15 @@ class App extends Component {
 
       width: window.innerWidth * .8,
       height: window.innerHeight * .8,
+
+      dataChanged: false,
+
       ready: false,
 
       loginRequestPending: false,
+      loginError: null,
       signUpRequestPending: false,
+      signUpError: null,
 
       editPlaceRequestPending: false,
       editCityRequestPending: false,
@@ -105,10 +110,12 @@ class App extends Component {
     }
 
     this.setPreparedImages = null
+    this.changeMapCenter = null
   }
 
   componentDidMount() {
     window.addEventListener('resize', this.updateWindowDimensions);
+
     if (this.state.loggedIn) {
       this.handleLoadSession()
     } else {
@@ -145,10 +152,20 @@ class App extends Component {
     })
   }
 
+  handleErrors = (response) => {
+    if (!response.ok) {
+      this.setState({
+        showError: true,
+        errorMessage: `${response.status}: ${response.statusText}`
+      })
+    }
+    return response.json()
+  }
+
   handleLoadSession = (e) => {
     fetchCurrentUser(localStorage.getItem("token"))
+      .then(this.handleErrors)
       .then(data => {
-        console.log(data)
         const places = this.compilePlaces(data.destinations)
         this.setState({
           loggedInUser: data.user.username,
@@ -164,10 +181,10 @@ class App extends Component {
       })
       .catch(err => {
         console.log(err)
-        this.setState({
-          showError: true,
-          errorMessage: err,
-          ready: true
+        //In the case of 500 errors
+        this.setState({ 
+          ready: true, 
+          showError: true 
         })
       })
   }
@@ -180,6 +197,14 @@ class App extends Component {
     })
 
     fetchToken(data)
+      .then(response => {
+        if (!response.ok) {
+          //TODO there should be some explanation as to what happened
+          console.log("Login Failed")
+          throw Error(response.statusText)
+        }
+        return response.json()
+      })
       .then(json => {
         localStorage.setItem('token', json.token);
         const places = this.compilePlaces(json.destinations)
@@ -192,17 +217,17 @@ class App extends Component {
             return el;
           }),
           loggedInPlaces: places,
-          loginRquestPending: false,
+          loginRequestPending: false,
           loggedInUserDataLoaded: true,
         })
       })
       .catch(err => {
-        this.setState({
-          showError: true,
-          errorMessage: err,
-          loginRequestPending: false
-        })
         console.log(err)
+        //In the case of 500 errors
+        this.setState({
+          loginRequestPending: false,
+          showError: true
+        })
       })
   }
 
@@ -213,6 +238,16 @@ class App extends Component {
       loadingSignupRequest: true
     })
     putNewUser(data)
+      .then(response => {
+        if (!response.ok) {
+          //The status code will be used to determine what error message is shown
+          this.setState({
+            signUpError: response.status
+          })
+          throw Error(response.statusText)
+        }
+        return response.json()
+      })
       .then(json => {
         localStorage.setItem("token", json.token);
         this.setState({
@@ -225,13 +260,14 @@ class App extends Component {
 
         })
       })
-      .catch(err => {
-        this.setState({
-          showError: true,
-          errorMessage: err
-        })
-        console.log(err)
+    .catch(err => {
+      console.log(err)
+      //In the case of 500 errors
+      this.setState({
+        showError: true,
+        loadingSignupRequest: false
       })
+    })
   };
 
   handleLogout = () => {
@@ -254,23 +290,26 @@ class App extends Component {
       }, () => {
         //Hit the /core/destinations/ endpoint with a post request to add the new city
         postNewCity(localStorage.getItem('token'), data)
-          .then(res => {
+          .then(this.handleErrors)
+          .then(data => {
             //Change state to reflect the changes
             this.setState({
               loggedInCities: this.state.loggedInCities.concat([{
-                ...res, index: this.state.loggedInCities.length, color: city_colors[Math.floor(Math.random() * city_colors.length)]
+                ...data, index: this.state.loggedInCities.length, color: city_colors[Math.floor(Math.random() * city_colors.length)]
               }]),
               mapZoom: 4,
-              mapCenter: { lat: res.latitude, lng: res.longitude },
-              addCityRequestPending: false
-            }, () => console.log(this.state))
+              mapCenter: { lat: data.latitude, lng: data.longitude },
+              addCityRequestPending: false,
+              dataChanged: true
+            })
           })
           .catch(err => {
+            console.log(err)
+            //In the case of 500 errors
             this.setState({
-              showError: true,
-              errorMessage: err
-            }) 
-            console.log(err) 
+              addCityRequestPending: false,
+              showError: true
+            })
           })
       })
     }
@@ -301,19 +340,22 @@ class App extends Component {
     }, () => {
       //Hit the /core/places/ endpoint with a POST to add a new place
       postNewPlace(localStorage.getItem('token'), payload)
-        .then(res => {
+        .then(this.handleErrors)
+        .then(data => {
           //Update state to reflect changes
           this.setState({
-            loggedInPlaces: this.state.loggedInPlaces.concat([{ ...res, index: this.state.loggedInPlaces.length }]),
-            loggedInCities: this.state.loggedInCities.map(obj => obj.pk === res.destination ? { ...obj, places: obj.places.concat([res]) } : obj),
-            addPlaceRequestPending: false
+            loggedInPlaces: this.state.loggedInPlaces.concat([{ ...data, index: this.state.loggedInPlaces.length }]),
+            loggedInCities: this.state.loggedInCities.map(obj => obj.pk === data.destination ? { ...obj, places: obj.places.concat([data]) } : obj),
+            addPlaceRequestPending: false,
+            dataChanged: true
           })
         })
         .catch(err => {
           console.log(err)
+          //In the case of 500 errors
           this.setState({
             showError: true,
-            errorMessage: err
+            addPlaceRequestPending: false
           })
         })
     })
@@ -329,22 +371,23 @@ class App extends Component {
     }, () =>
       //Hit the /core/destination/:pk/ endpoint with a PUT request
       putEditCity(localStorage.getItem('token'), data)
-        .then(json => {
+        .then(this.handleErrors)
+        .then(data => {
           //Update state to reflect changes
           this.setState({
             loggedInCities: this.state.loggedInCities.map(el => {
               const color = el.color
-              return el.pk === json.pk ? { ...json, color } : el
+              return el.pk === data.pk ? { ...data, color } : el
             }),
-            loggedInPlaces: this.compilePlaces(json),
-            editCityRequestPending: false
+            loggedInPlaces: this.compilePlaces(data),
+            editCityRequestPending: false,
+            dataChanged: true
           })
         })
         .catch(err => {
           console.log(err)
           this.setState({
-            showError: true,
-            errorMessage: err
+            editCityRequestPending: false
           })
         })
     )
@@ -360,19 +403,28 @@ class App extends Component {
       //Hit the /core/place/:pk/ endpoint with a PUT request to edit the place/upload images
       putEditPlaceAxios(localStorage.getItem('token'), data)
         //Update state to reflect the changes
-        .then(json => {
+        .then(res => {
+          const data = res.data
+
+          //update the place in state
+          const destinations = this.state.loggedInCities.map(el => {
+            el.places = el.places.map(obj => data.pk === obj.pk ? data : obj)
+            return el
+          })
+
           this.setState({
-            loggedInCities: json.data.map((el, i) => { return { ...el, index: i } }),
-            loggedInPlaces: this.compilePlaces(json.data),
+            loggedInCities: destinations,
+            loggedInPlaces: this.compilePlaces(destinations),
             editPlaceRequestPending: false,
+            dataChanged: true
           })
         })
         .catch(err => {
+          console.log(err)
           this.setState({
             showError: true,
             editCityRequestPending: false,
-            errorMessage: err
-
+            errorMessage: `${err.response.status}: ${err.response.statusText}`
           })
         })
     })
@@ -387,21 +439,23 @@ class App extends Component {
     }, () => {
       //Hit the /core/destination/:pk/ endpoint with a DELETE request
       deleteCity(localStorage.getItem('token'), data)
-        .then(json => {
+        .then(this.handleErrors)
+        .then(data => {
           //Update state to reflect the changes
-          const destinations = this.state.loggedInCities.filter(el => el.pk !== json.pk)
+          const destinations = this.state.loggedInCities.filter(el => el.pk !== data.pk)
           this.setState({
             loggedInCities: destinations,
             loggedInPlaces: this.compilePlaces(destinations),
-            deleteCityRequestPending: false
-          }, () => console.log(this.state))
+            deleteCityRequestPending: false,
+            dataChanged: true
+          })
         })
         .catch(err => {
+          //In the case of 500 errors
           console.log(err)
           this.setState({
             deleteCityRequestPending: false,
-            showError: true,
-            errorMessage: err
+            showError: true
           })
         })
 
@@ -416,24 +470,26 @@ class App extends Component {
     }, () => {
       //hit the /core/place/:pk/ endpoint with a DELETE request
       deletePlace(localStorage.getItem('token'), data)
-        .then(json => {
+        .then(this.handleErrors)
+        .then(data => {
           //remove the deleted place from the list of cities
           const destinations = this.state.loggedInCities.map(el => {
-            el.places = el.places.filter(obj => json.pk !== obj.pk)
+            el.places = el.places.filter(obj => data.pk !== obj.pk)
             return el
           })
           this.setState({
             loggedInCities: destinations,
             loggedInPlaces: this.compilePlaces(destinations),
-            deletePlaceRequestPending: false
+            deletePlaceRequestPending: false,
+            dataChanged: true
           })
         })
         .catch(err => {
           console.log(err)
+          //In the case of 500 errors
           this.setState({
-            showError: true,
             deletePlaceRequestPending: false,
-            errorMessage: err
+            showError: true
           })
         })
     })
@@ -447,17 +503,18 @@ class App extends Component {
     }, () => {
 
       deleteImage(localStorage.getItem('token'), data)
-        .then(json => {
+        .then(this.handleErrors)
+        .then(data => {
           //Find the place that houses the image
-          const obj = this.state.loggedInPlaces.find(obj => obj.pk === json.place)
+          const obj = this.state.loggedInPlaces.find(obj => obj.pk === data.place)
 
           //Remove the image from the place
-          obj.images = obj.images.filter(el => el.pk !== json.id)
+          obj.images = obj.images.filter(el => el.pk !== data.id)
 
           const destinations = this.state.loggedInCities.map(city => {
             //swap out the old place for the new
             city.places = city.places.map(place => {
-              return place.pk === json.place ? obj : place
+              return place.pk === data.place ? obj : place
             })
             return city
           })
@@ -472,17 +529,22 @@ class App extends Component {
           })
         })
         .catch(err => {
+          console.log(err)
+          //In the case of 500 errors
           this.setState({
-            showError: true,
             deleteImageRequestPending: false,
-            errorMessage: err
+            showError: true
           })
         })
     })
   }
 
-  preparedImagesSetter = (func) => {
+  setPreparedImagesSetter = (func) => {
     this.setPreparedImages = func
+  }
+
+  changeMapCenterSetter = (func) => {
+    this.changeMapCenter = func
   }
 
 
@@ -532,16 +594,35 @@ class App extends Component {
         loggedInUserDataLoaded={this.state.loggedInUserDataLoaded}
         showError={this.state.showError}
         errorMessage={this.state.errorMessage}
-
+        signUpError={this.state.signUpError}
       />
     )
   }
 
   renderMain = (props) => {
     const user = props.match.params.username;
-    const context = user === undefined || user === this.state.loggedInUser ? "Owner" : "Viewer";
-    if (user !== this.state.loggedInUser && user !== this.state.viewUser && !this.state.showError) {
+    //If redirecting to Logged In User's Page, make sure that viewUser is set to LooggedInUser
+    if (user === this.state.loggedInUser && (user !== this.state.viewUser || this.state.dataChanged)) {
+      const viewUser = this.state.viewUser
+      this.setState({
+        viewUser: user,
+        viewCities: this.state.loggedInCities,
+        viewPlaces: this.state.loggedInPlaces,
+        dataChanged: false
+      })
+
+      if (this.changeMapCenter && user !== viewUser) {
+        this.changeMapCenter({
+          latitude: this.state.loggedInCities.length > 0 ? this.state.loggedInCities[0].latitude : DEFAULT_CENTER.latitude,
+          longitude: this.state.loggedInCities.length > 0 ? this.state.loggedInCities[0].longitude : DEFAULT_CENTER.longitude
+        })
+      }
+
+    }
+    //If redirecting to a user's page that is not the viewUser, load this user's data
+    else if (user !== this.state.viewUser && !this.state.showError) {
       getUser(localStorage.getItem("token"), user)
+        .then(this.handleErrors)
         .then(data => {
           const cities = data.map((el, i) => {
             return {
@@ -551,20 +632,24 @@ class App extends Component {
             }
           })
 
+          //Update the user data in state
           this.setState({
             viewUser: user,
             viewCities: cities,
             viewPlaces: this.compilePlaces(data)
           })
+
+          //Change the map center to the first city returned for the user
+          if (this.changeMapCenter) {
+            this.changeMapCenter({
+              latitude: cities.length > 0 ? cities[0].latitude : DEFAULT_CENTER.latitude,
+              longitude: cities.length > 0 ? cities[0].longitude : DEFAULT_CENTER.longitude
+            })
+          }
         })
-        .catch(err => {
-          console.log(err)
-          this.setState({
-            errorMessage: err,
-            showError: true,
-          })
-        })
+        .catch(err => console.log(err))
     }
+
     return (
       <Main
         {...props}
@@ -573,6 +658,7 @@ class App extends Component {
         loggedIn={this.state.loggedIn}
         loggedInUser={this.state.loggedInUser}
         loggedInUserDataLoaded={this.state.loggedInUserDataLoaded}
+        loggedInUserCities={this.state.loggedInCities}
         handlers={{
           logout: this.handleLogout,
           login: this.handleLogin,
@@ -587,8 +673,8 @@ class App extends Component {
         }}
         //view info
         viewUser={user}
-        viewPlaces={user === this.state.loggedInUser ? this.state.loggedInPlaces : this.state.viewPlaces}
-        viewCities={user === this.state.loggedInUser ? this.state.loggedInCities : this.state.viewCities}
+        viewPlaces={this.state.viewPlaces}
+        viewCities={this.state.viewCities}
         //Handler Functions
         handleAddCity={this.handleAddCity}
         handleAddPlace={this.handleAddPlace}
@@ -597,7 +683,8 @@ class App extends Component {
         handleDeleteCity={this.handleDeleteCity}
         handleDeletePlace={this.handleDeletePlace}
         handleDeleteImage={this.handleDeleteImage}
-        preparedImagesSetter={this.preparedImagesSetter}
+        setPreparedImagesSetter={this.setPreparedImagesSetter}
+        changeMapCenterSetter={this.changeMapCenterSetter}
         //Pending Requests
         pendingRequests={{
           login: this.state.loginRequestPending,
@@ -613,6 +700,7 @@ class App extends Component {
         showError={this.state.showError}
         errorMessage={this.state.errorMessage}
         setError={this.setError}
+        signUpError={this.state.signUpError}
       />)
   }
 
@@ -623,7 +711,6 @@ class App extends Component {
         <React.Fragment>
           <Router>
             <Switch>
-              <Route path="/liveliness" render={(props) => <div></div>}></Route>
               <Route path="/:username" render={(props) => this.renderMain(props)}></Route>
               <Route path="/" render={(props) => this.renderHome(props)}></Route>
             </Switch>

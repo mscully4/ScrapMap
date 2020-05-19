@@ -84,10 +84,15 @@ class AutoComplete extends React.Component {
       case "City":
         this.props.handleAutoCompleteChangeCity(value)
         this.loadCitySuggestions(value)
-          .then(json => this.setState({ suggestions: json.predictions }))
-          .catch(err => {
-            this.props.setError(true, err)
+          .then(response => {
+            if (!response.ok) {
+              this.props.setError(true, response.statusText)
+              throw Error(response.statusText)
+            }
+            return response.json()
           })
+          .then(json => this.setState({ suggestions: json.predictions }))
+          .catch(err => console.log(err))
         break
     }
   };
@@ -128,7 +133,7 @@ class AutoComplete extends React.Component {
       headers: {
         "Content-Type": "application/json",
       },
-    }).then(resp => resp.ok ? resp.json() : [])
+    })
   }
 
 

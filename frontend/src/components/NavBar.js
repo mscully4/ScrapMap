@@ -222,7 +222,7 @@ class Navigation extends React.Component {
         {this.props.loggedIn && this.props.loggedInUserDataLoaded ?
           <div className={clsx(classes.userInfo)}>
             <Link to={`${this.props.loggedInUser}`}>
-              <Svg viewbox={home.viewBox} className={clsx(classes.homeIcon)}>
+              <Svg viewbox={home.viewBox} className={clsx(classes.homeIcon)} /*onClick={this.props.recenter}*/>
                 {home.path.map((el, i) => <path key={`${i}`} d={el} stroke={ICE_BLUE} fill={ICE_BLUE} />)}
               </Svg>
             </Link>
@@ -232,6 +232,7 @@ class Navigation extends React.Component {
           </div>
           :
           <div className={clsx(classes.actionButtons)}>
+            <div></div>
             <Button className={clsx(classes.button)} style={{ marginRight: 15 }} onClick={this.toggleLogin}>Login</Button>
             <LoginForm
               handleLogin={this.props.handleLogin}
@@ -239,13 +240,14 @@ class Navigation extends React.Component {
               toggle={this.toggleLogin}
               loadingUserData={this.props.loadingUserData}
             />
-            <Button className={clsx(classes.button)} style={{ marginLeft: 15 }} onClick={this.toggleSignUp}>Sign Up</Button>
+            {/* <Button className={clsx(classes.button)} style={{ marginLeft: 15 }} onClick={this.toggleSignUp}>Sign Up</Button>
             <SignUpForm
-              handleSignUp={this.props.handleSignup}
+              handleSignUp={this.props.handleSignUp}
               isOpen={this.state.showSignUpModal}
               toggle={this.toggleSignUp}
               loadingSignUpRequest={this.props.loadingSignUpRequest}
-            />
+              signUpError={this.props.signUpError}
+            /> */}
           </div>}
       </div>
     )

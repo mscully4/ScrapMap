@@ -34,17 +34,14 @@ class CreateUser(APIView):
 
     #POST requests only
     def post(self, request, format=None):
-        user = {
-            'username': request.data['username'], 
-            'password': request.data['password']
-            }
         serializer = UserSerializerSignUp(data=request.data)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         else:
+            status_code = status.HTTP_403_FORBIDDEN if serializer.errors.get('username')[0] == 'A user with that username already exists.' else status.HTTP_400_BAD_REQUEST
             logger.error("Cannot Create New User: %s" % serializer.errors)
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            return Response(serializer.errors, status=status_code)
 
 class SearchUsers(APIView):
     '''
@@ -147,7 +144,8 @@ class PlaceView(APIView):
             serializer = PlaceSerializer(instance, data=request.data, context={'request': request})
             if serializer.is_valid():
                 serializer.save()
-                return Response(DestinationSerializer(Destination.objects.filter(user=request.user), many=True).data)
+                return Response(serializer.data)
+                # return Response(DestinationSerializer(Destination.objects.filter(user=request.user), many=True).data)
             else:
                 logger.info(serializer.errors)
                 return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
@@ -155,7 +153,6 @@ class PlaceView(APIView):
 
     def delete(self, request, pk, format=None):
         instance = Place.objects.get(pk=pk)
-        print(instance.destination_id, Destination.objects.get(pk=instance.destination_id))
         serializer = PlaceSerializer(instance=instance, data={**instance.__dict__, 'destination': instance.destination.id})
         if serializer.is_valid():
             resp = Response(serializer.data)
@@ -168,11 +165,22 @@ class PlaceView(APIView):
 class PlaceImagesView(APIView):
     def delete(self, request, pk):
         instance = PlaceImages.objects.get(pk=pk)
-        serializer = PlaceImagesSerializer(instance)
-        resp = Response(serializer.data)
-        instance.delete()
-        #return the PK of the image so that it can be deleted from state in the frontend app
-        return resp
+        data = {
+            'id': instance.id, 
+            'place': instance.place_id, 
+            'image': instance.image, 
+            'width': instance.width, 
+            'height': instance.height
+        }
+        serializer = PlaceImagesSerializer(instance, data=data)
+        if serializer.is_valid():
+            resp = Response(serializer.data)
+            instance.delete()
+            #return the PK of the image so that it can be deleted from state in the frontend app
+            return resp
+        else:
+            logger.error(serializer.errors)
+            return Response(serializer.errors)
 
         
 

@@ -28,7 +28,7 @@ export function fetchCurrentUser(token) {
     headers: {
       Authorization: `JWT ${token}`,
     }
-  }).then(response => response.json());
+  });
 }
 
 export function fetchToken(data) {
@@ -39,7 +39,6 @@ export function fetchToken(data) {
     },
     body: JSON.stringify(data)
   })
-  .then(response => response.ok ? response.json() : null);
 }
 
 export function putNewUser(data) {
@@ -50,7 +49,6 @@ export function putNewUser(data) {
     },
     body: JSON.stringify(data)
   })
-  .then(response =>  response.ok ? response.json() : null);
 }
 
 
@@ -64,7 +62,6 @@ export function postNewCity(token, data) {
     },
     body: JSON.stringify(data),
   })
-  .then(response => response.ok ? response.json() : null)
 }
 
 export function postNewPlace(token, data) {
@@ -76,7 +73,6 @@ export function postNewPlace(token, data) {
     },
     body: JSON.stringify(data)
   })
-  .then(response => response.ok ? response.json() : null)
 }
 
 export function putEditCity(token, data) {
@@ -92,10 +88,10 @@ export function putEditCity(token, data) {
     method: "PUT",
     headers: {
       Authorization: `JWT ${token}`,
+      "Content-Type": "application/json",
     },
-    body: form,
+    body: JSON.stringify(data),
   })
-  .then(response => response.ok ? response.json() : null)
 }
 
 export function putEditPlace(token, data) {
@@ -165,9 +161,9 @@ export function deleteCity(token, data) {
     method: "DELETE",
     headers: {
       Authorization: `JWT ${token}`,
+      "Content-Type": "application/json",
     }
   })
-  .then(response => response.ok ? response.json() : null)
 }
 
 export function deletePlace(token, data) {
@@ -178,7 +174,6 @@ export function deletePlace(token, data) {
       "Content-Type": "application/json",
     }
   })
-  .then(response => response.ok ? response.json() : null)
 }
 
 export function deleteImage(token, data) {
@@ -189,7 +184,6 @@ export function deleteImage(token, data) {
       "Content-Type": "application/json",
     }
   })
-  .then(response => response.ok ? response.json() : null)
 }
 
 //User Functions
@@ -197,7 +191,7 @@ export function getUser(token, username) {
   return fetch(baseURL + "core/destinations/" + username + "/",{
     method: "GET",
   })
-  .then(response => response.ok ? response.json() : null)
+  // .then(response => response.ok ? response : null )
 }
 
 export function searchUsers(username) {

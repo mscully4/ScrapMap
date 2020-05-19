@@ -53,6 +53,11 @@ const styles = themes => ({
       borderColor: ICE_BLUE,
     }
   },
+  button: {
+    backgroundColor: ICE_BLUE, 
+    width: "90%", 
+    margin: "auto" 
+  }
 })
 
 class AddCity extends React.Component {

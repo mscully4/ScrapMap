@@ -89,20 +89,21 @@ class Home extends React.Component {
         <Navigation
           loggedIn={this.props.loggedIn}
           username={this.props.username}
-          toggleLogin={this.props.toggleLogin}
-          toggleSignUp={this.props.toggleSignUp}
+          // toggleLogin={this.props.toggleLogin}
+          // toggleSignUp={this.props.toggleSignUp}
           handleLogin={this.props.handlers.login}
           handleLogout={this.props.handlers.logout}
-          handleSignup={this.props.handlers.signUp}
+          handleSignUp={this.props.handlers.signUp}
           pendingRequestLogin={this.props.pendingRequests.login}
           pendingRequestSignUp={this.props.pendingRequests.signUp}
+          signUpError={this.props.signUpError}
         />
         {!this.props.pendingRequests.login ?
           <Form
             ref={ref => this.formSignUp = ref}
             className={clsx(classes.form)}
             onSubmit={(e) => {
-              this.props.handleSignup(e, this.state)
+              this.props.handlers.signUp(e, this.state)
               this.setState({
                 redirect: true
               })
@@ -144,6 +145,8 @@ class Home extends React.Component {
               autoComplete={"new-password"}
             />
             <br />
+            {this.props.signUpError ?
+              <span style={{ color: 'red' }}>A user with that username already exists</span> : null}
             <Input
               type="text"
               boof="username"
@@ -171,10 +174,11 @@ class Home extends React.Component {
             css={`margin: auto; top: ${(window.innerHeight - 500) / 2.5}px`}
             size={500}
           />}
-        <Error
-          isOpen={this.props.showError}
-          errorMessage={this.props.errorMessage}
-        />
+        {this.props.showError ?
+          <Error
+            isOpen={this.props.showError}
+            errorMessage={this.props.errorMessage}
+          /> : null}
       </div>
     )
   }

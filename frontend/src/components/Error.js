@@ -16,7 +16,8 @@ const styles = theme => ({
   errorText: {
     color: ICE_BLUE,
     fontSize: 24,
-    marginLeft: '5%'
+    marginLeft: '5%',
+    display: 'block'
   },
   modal: {
     backgroundColor: OFF_BLACK_1
@@ -53,8 +54,8 @@ class ErrorMessage extends React.Component {
       <Modal isOpen={this.props.isOpen} className={classes.modal}>
         <ModalHeader className={classes.modalHeader}><p className={classes.modalTitle}>Error</p></ModalHeader>
         <ModalBody className={classes.modalBody}>
-          {/* <span>{this.props.errorMessage}</span> */}
-          <span className={classes.errorText}>Please Refresh The Page</span>
+          <span className={classes.errorText}>{this.props.errorMessage}</span>
+          {/* <span className={classes.errorText}>Please Refresh The Page</span> */}
         </ModalBody>
       </Modal>
     )

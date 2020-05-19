@@ -24,8 +24,8 @@ const styles = theme => ({
   fieldLabel: {
     color: ICE_BLUE,
     fontSize: 18,
-    marginBottom: 5,
-    marginTop: 10,
+    marginBottom: 0,
+    marginTop: 15,
     marginLeft: '5%'
   },
   input: {
@@ -59,6 +59,12 @@ const styles = theme => ({
     backgroundColor: ICE_BLUE,
     width: '90%',
     margin: "auto"
+  },
+  errorMessage: {
+    marginLeft: '5%',
+    color: 'red',
+    marginBottom: 0,
+    marginTop: 2
   }
 })
 
@@ -84,6 +90,10 @@ class SignUpForm extends React.Component {
 
   submitForm = () => {
     ReactDOM.findDOMNode(this.formLogin).dispatchEvent(new Event("submit"))
+    this.setState({
+      username: "",
+      password: ""
+    })
   }
 
   validateEmail = (email) => {
@@ -91,13 +101,13 @@ class SignUpForm extends React.Component {
     return re.test(email);
   }
 
-  allFieldsValid = () => { 
-    return this.state.username !== "" 
-    && this.state.password !== "" 
-    && this.state.email !== "" 
-    && this.validateEmail(this.state.email)
-    && this.state.first_name !== "" 
-    && this.state.last_name
+  allFieldsValid = () => {
+    return this.state.username !== ""
+      && this.state.password !== ""
+      && this.state.email !== ""
+      && this.validateEmail(this.state.email)
+      && this.state.first_name !== ""
+      && this.state.last_name
   }
 
   render() {
@@ -117,7 +127,7 @@ class SignUpForm extends React.Component {
                 onChange={this.handleChange}
                 autoComplete={"new-password"}
                 className={clsx(this.props.classes.input)}
-              />  
+              />
               <p className={classes.fieldLabel}>Last Name:</p>
               <Input
                 type="text"
@@ -126,7 +136,7 @@ class SignUpForm extends React.Component {
                 onChange={this.handleChange}
                 autoComplete={"new-password"}
                 className={clsx(this.props.classes.input)}
-              />  
+              />
               <p className={classes.fieldLabel}>Email:</p>
               <Input
                 type="text"
@@ -135,7 +145,8 @@ class SignUpForm extends React.Component {
                 onChange={this.handleChange}
                 autoComplete={"new-password"}
                 className={clsx(this.props.classes.input)}
-              />  
+              />
+              
               <p className={classes.fieldLabel}>Username:</p>
               <Input
                 type="text"
@@ -144,8 +155,11 @@ class SignUpForm extends React.Component {
                 onChange={this.handleChange}
                 autoComplete={"new-password"}
                 className={clsx(this.props.classes.input)}
+
               />
-              <p className={classes.fieldLabel}>Password:</p>
+              {this.props.signUpError ?
+                <p className={classes.errorMessage}>A user with that username already exists</p> : null}
+              <p className={classes.fieldLabel} style={{marginTop: this.props.signUpError ? 5 : 15}}>Password:</p>
               <Input
                 type="password"
                 boof="password"

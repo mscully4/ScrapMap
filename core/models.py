@@ -67,6 +67,8 @@ class PlaceImages(models.Model):
     place = models.ForeignKey(Place, on_delete=models.CASCADE)
     image = models.ImageField(blank=True, null=True)
     name = models.CharField(max_length=500, blank=True, null=True)
+    width = models.IntegerField()
+    height = models.IntegerField()
 
     def __str__(self):
         return self.image.name

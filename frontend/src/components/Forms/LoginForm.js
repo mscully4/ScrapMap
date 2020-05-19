@@ -81,6 +81,10 @@ class LoginForm extends React.Component {
 
   submitForm = () => {
     ReactDOM.findDOMNode(this.formLogin).dispatchEvent(new Event("submit"))
+    this.setState({
+      username: "",
+      password: ""
+    })
   }
 
   allFieldsValid = () => { 
