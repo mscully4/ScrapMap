@@ -222,11 +222,9 @@ class App extends Component {
         })
       })
       .catch(err => {
-        console.log(err)
-        //In the case of 500 errors
         this.setState({
           loginRequestPending: false,
-          showError: true
+          // showError: true
         })
       })
   }
@@ -264,7 +262,7 @@ class App extends Component {
       console.log(err)
       //In the case of 500 errors
       this.setState({
-        showError: true,
+        // showError: true,
         loadingSignupRequest: false
       })
     })

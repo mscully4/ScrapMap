@@ -5,16 +5,18 @@ import {
   Button,
   Form,
   Input,
-  InputGroup,
   Modal,
   ModalHeader,
   ModalBody,
   ModalFooter,
 } from 'reactstrap';
+import clsx from 'clsx'
+import TextField from '@material-ui/core/TextField';
+import { withStyles } from '@material-ui/styles'
 import { ICE_BLUE, FONT_GREY, OFF_BLACK_1, OFF_BLACK_2, OFF_BLACK_3, OFF_BLACK_4 } from '../../utils/colors'
 import RingLoader from "react-spinners/RingLoader";
 
-const style = {
+const styles = theme => ({
   modal: {
     backgroundColor: "#000"
   },
@@ -45,8 +47,23 @@ const style = {
     fontSize: 18,
     marginBottom: 0,
     marginTop: 10
-  }
-}
+  },
+  textField: {
+    width: '90%',
+    marginLeft: '5% !important',
+    marginTop: '5% !important'
+  },
+  input: {
+    color: ICE_BLUE,
+  },
+  inputLabel: {
+    color: `${ICE_BLUE} !important`
+  },
+  inputBorder: {
+    borderWidth: '1px',
+    borderColor: `${ICE_BLUE} !important`
+  },
+})
 
 class EditPlace extends React.Component {
   static defaultProps = {
@@ -91,171 +108,105 @@ class EditPlace extends React.Component {
   }
 
   render() {
-    console.log(this.props.toggle)
     const buttonDisabled = this.props.editPlaceRequestPending || !this.hasBeenChanged();
-    const form = !this.props.editPlaceRequestPending ? (
-      <Form ref={ref => this.formEditPlace = ref} onSubmit={e => this.props.handleEditPlace(e, this.state)} >
-        <p style={style.fieldLabel}>Name:</p>
-        <Input
-          type="text"
-          boof="name"
-          value={this.state.name}
-          onChange={this.handleChange}
-          autoComplete={"new-password"}
-          style={style.inputStyle}
-        />
-        <p style={style.fieldLabel}>Address:</p>
-        <Input
-          type="text"
-          boof="address"
-          value={this.state.address}
-          onChange={this.handleChange}
-          autoComplete={"new-password"}
-          style={style.inputStyle}
-        />
-        <p style={style.fieldLabel}>City:</p>
-        <Input
-          type="text"
-          boof="city"
-          value={this.state.city}
-          onChange={this.handleChange}
-          autoComplete={"new-password"}
-          style={style.inputStyle}
-        />
-        <p style={style.fieldLabel}>State:</p>
-        <Input
-          type="text"
-          boof="state"
-          value={this.state.state}
-          onChange={this.handleChange}
-          autoComplete={"new-password"}
-          style={style.inputStyle}
-        />
-        <p style={style.fieldLabel}>Country:</p>
-        <Input
-          type="text"
-          boof="country"
-          value={this.state.country}
-          onChange={this.handleChange}
-          autoComplete={"new-password"}
-          style={style.inputStyle}
-        />
-        <p style={style.fieldLabel}>Zip:</p>
-        <Input
-          type="text"
-          boof="zip_code"
-          value={this.state.zip_code}
-          onChange={this.handleChange}
-          autoComplete={"new-password"}
-          style={style.inputStyle}
-        />
-        <p style={style.fieldLabel}>Latitude:</p>
-        <Input
-          type="text"
-          boof="latitude"
-          placeholder="Latitude"
-          value={this.state.latitude}
-          onChange={this.handleChange}
-          autoComplete={"new-password"}
-          style={style.inputStyle}
-        />
-        <p style={style.fieldLabel}>Longitude:</p>
-        <Input
-          type="text"
-          boof="longitude"
-          placeholder="Longitude"
-          value={this.state.longitude}
-          onChange={this.handleChange}
-          autoComplete={"new-password"}
-          style={style.inputStyle}
-        />
-      </Form>) :
-      <RingLoader
-        color={"#0095d2"}
-        loading={true}
-        css={`margin: auto`}
-        // ; height: ${window.innerHeight}px; width: ${window.innerWidth}px`}
-        size={200}
-      />
+    const classes = this.props.classes
+
+    const inputProps = {
+      className: clsx(classes.input),
+      classes: {
+        notchedOutline: clsx(classes.inputBorder),
+      }
+    }
+    const InputLabelProps = {
+      className: clsx(classes.inputLabel),
+    }
+
     return (
       <Modal isOpen={this.props.isOpen} toggle={this.props.toggle}>
-        <ModalHeader style={style.modalHeader} toggle={this.props.toggle}>Edit Place</ModalHeader>
-        <ModalBody style={style.modalBody}>
-          {!this.props.editPlaceRequestPending ? (
+        <ModalHeader className={classes.modalHeader} toggle={this.props.toggle}>Edit Place</ModalHeader>
+        <ModalBody className={classes.modalBody}>
+          {!this.props.requestPending ? (
             <Form ref={ref => this.formEditPlace = ref} onSubmit={e => this.props.handleEditPlace(e, this.state)} >
-              <p style={style.fieldLabel}>Name:</p>
-              <Input
-                type="text"
-                boof="name"
+              <TextField
+                label={"Name"}
+                variant={"outlined"}
+                onChange={this.handleChange}
                 value={this.state.name}
-                onChange={this.handleChange}
-                autoComplete={"new-password"}
-                style={style.inputStyle}
+                inputProps={{ "boof": "name", 'autoComplete': 'new-password' }}
+                InputProps={inputProps}
+                InputLabelProps={InputLabelProps}
+                className={classes.textField}
               />
-              <p style={style.fieldLabel}>Address:</p>
-              <Input
-                type="text"
-                boof="address"
+              <TextField
+                label={"Address"}
+                variant={"outlined"}
+                onChange={this.handleChange}
                 value={this.state.address}
-                onChange={this.handleChange}
-                autoComplete={"new-password"}
-                style={style.inputStyle}
+                inputProps={{ "boof": "address", 'autoComplete': 'new-password' }}
+                InputProps={inputProps}
+                InputLabelProps={InputLabelProps}
+                className={classes.textField}
               />
-              <p style={style.fieldLabel}>City:</p>
-              <Input
-                type="text"
-                boof="city"
+              <TextField
+                label={"City"}
+                variant={"outlined"}
+                onChange={this.handleChange}
                 value={this.state.city}
-                onChange={this.handleChange}
-                autoComplete={"new-password"}
-                style={style.inputStyle}
+                inputProps={{ "boof": "city", 'autoComplete': 'new-password' }}
+                InputProps={inputProps}
+                InputLabelProps={InputLabelProps}
+                className={classes.textField}
               />
-              <p style={style.fieldLabel}>State:</p>
-              <Input
-                type="text"
-                boof="state"
+              <TextField
+                label={"State"}
+                variant={"outlined"}
+                onChange={this.handleChange}
                 value={this.state.state}
-                onChange={this.handleChange}
-                autoComplete={"new-password"}
-                style={style.inputStyle}
+                inputProps={{ "boof": "state", 'autoComplete': 'new-password' }}
+                InputProps={inputProps}
+                InputLabelProps={InputLabelProps}
+                className={classes.textField}
               />
-              <p style={style.fieldLabel}>Country:</p>
-              <Input
-                type="text"
-                boof="country"
+              <TextField
+                label={"Country"}
+                variant={"outlined"}
+                onChange={this.handleChange}
                 value={this.state.country}
-                onChange={this.handleChange}
-                autoComplete={"new-password"}
-                style={style.inputStyle}
+                inputProps={{ "boof": "country", 'autoComplete': 'new-password' }}
+                InputProps={inputProps}
+                InputLabelProps={InputLabelProps}
+                className={classes.textField}
               />
-              <p style={style.fieldLabel}>Zip:</p>
-              <Input
-                type="text"
-                boof="zip_code"
+
+              <TextField
+                label={"Zip Code"}
+                variant={"outlined"}
+                onChange={this.handleChange}
                 value={this.state.zip_code}
-                onChange={this.handleChange}
-                autoComplete={"new-password"}
-                style={style.inputStyle}
+                inputProps={{ "boof": "zip_code", 'autoComplete': 'new-password' }}
+                InputProps={inputProps}
+                InputLabelProps={InputLabelProps}
+                className={classes.textField}
               />
-              <p style={style.fieldLabel}>Latitude:</p>
-              <Input
-                type="text"
-                boof="latitude"
-                placeholder="Latitude"
+              <TextField
+                label={"Latitude"}
+                variant={"outlined"}
+                onChange={this.handleChange}
                 value={this.state.latitude}
-                onChange={this.handleChange}
-                autoComplete={"new-password"}
-                style={style.inputStyle}
+                inputProps={{ "boof": "latitude", 'autoComplete': 'new-password' }}
+                InputProps={inputProps}
+                InputLabelProps={InputLabelProps}
+                className={classes.textField}
               />
-              <p style={style.fieldLabel}>Longitude:</p>
-              <Input
-                type="text"
-                boof="longitude"
-                placeholder="Longitude"
-                value={this.state.longitude}
+              <TextField
+                label={"Longitude"}
+                variant={"outlined"}
                 onChange={this.handleChange}
-                autoComplete={"new-password"}
-                style={style.inputStyle}
+                value={this.state.longitude}
+                inputProps={{ "boof": "longitude", 'autoComplete': 'new-password' }}
+                InputProps={inputProps}
+                InputLabelProps={InputLabelProps}
+                className={classes.textField}
               />
             </Form>) :
             <RingLoader
@@ -265,11 +216,11 @@ class EditPlace extends React.Component {
               size={200}
             />}
         </ModalBody>
-        <ModalFooter style={style.modalFooter}>
-          <Button style={style.button} disabled={buttonDisabled} onClick={this.submitForm}>Submit</Button>
+        <ModalFooter className={classes.modalFooter}>
+          <Button className={classes.button} disabled={buttonDisabled} onClick={this.submitForm}>Submit</Button>
         </ModalFooter>
       </Modal>)
   }
 }
 
-export default EditPlace;
+export default withStyles(styles)(EditPlace);

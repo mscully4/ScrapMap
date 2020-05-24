@@ -137,7 +137,7 @@ class ImageUploader extends React.Component {
         <div className={clsx(this.props.classes.imageUploaderHeader)}>
           <p className={clsx(this.props.classes.imageUploaderTitle)}>Image Uploader</p>
           <Svg viewBox={close.viewBox} className={clsx(this.props.classes.imageUploaderHeaderClose)} onClick={this.props.submitImageLoading ? null : this.onCloseClick}>
-            {close.path.map(el => <path d={el} />)}
+            {close.path.map((el, i) => <path key={i} d={el} />)}
           </Svg>
         </div>
         {this.props.requestPending ?

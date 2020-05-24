@@ -237,7 +237,7 @@ class VirtualTable extends Component {
 
         {this.props.owner && this.props.granularity === 0 ?
           <Svg viewBox={add.viewBox} value={"KILL"} className={clsx(classes.addSVG)} onClick={() => this.props.toggleUploader(cellData.cellData.pk)}>
-            {add.path.map((el, i) => <path key={`${i}`} d={el} stroke={color} fill={color} />)}
+            {add.path.map((el, i) => <path value={"KILL"} key={`${i}`} d={el} stroke={color} fill={color} />)}
           </Svg> : null}
       </div>
     )

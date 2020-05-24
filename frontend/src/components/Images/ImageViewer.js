@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import Carousel, { Modal, ModalGateway, NavigationPrev } from 'react-images';
 // import { ImgEditor} from '../components/ImageEditor';
 import { close, editorPath, trash, Svg } from '../../utils/SVGs'
+import { ICE_BLUE } from '../../utils/colors'
 
 const theme = {
   headerDiv: {
@@ -33,7 +34,7 @@ const theme = {
     position: 'absolute',
     top: 10,
     right: 10,
-    fill: '#d4dada',
+    fill: ICE_BLUE,
     height: 32,
     width: 32,
   },
@@ -41,7 +42,7 @@ const theme = {
     cursor: 'pointer',
     position: "absolute",
     right: 50,
-    fill: '#d4dada',
+    fill: ICE_BLUE,
     height: 32,
     top: 10
   }

@@ -11,11 +11,17 @@ import {
   ModalFooter,
 } from 'reactstrap';
 import clsx from 'clsx'
-import Select from 'react-select';
+import TextField from '@material-ui/core/TextField';
+import Select from '@material-ui/core/Select';
 import { Checkbox } from '@material-ui/core';
 import { withStyles } from '@material-ui/styles'
+import MenuItem from '@material-ui/core/MenuItem';
+import FormControl from '@material-ui/core/FormControl';
+import InputLabel from '@material-ui/core/InputLabel';
 
-import Autocomplete from './Autocomplete';
+
+
+import AutoComplete from './AutoComplete.js';
 import RingLoader from "react-spinners/RingLoader";
 import { ICE_BLUE, FONT_GREY, OFF_BLACK_1, OFF_BLACK_2, OFF_BLACK_3, OFF_BLACK_4 } from '../../utils/colors'
 
@@ -61,51 +67,59 @@ const styles = theme => ({
     display: "grid",
     gridTemplateRows: "1fr",
     gridTemplateColumns: "2fr 1fr 1fr 2fr 1fr",
-    alignItems: 'center'
-  }, 
+    alignItems: 'center',
+    marginTop: '5%'
+  },
   button: {
-    backgroundColor: ICE_BLUE, 
-    width: "90%", 
-    margin: "auto" 
+    backgroundColor: ICE_BLUE,
+    width: "90%",
+    margin: "auto"
+  },
+  textField: {
+    width: '90%',
+    marginLeft: '5% !important',
+    marginTop: '5% !important'
+  },
+  input: {
+    color: ICE_BLUE,
+  },
+  inputLabel: {
+    color: `${ICE_BLUE} !important`
+  },
+  inputBorder: {
+    borderWidth: '1px',
+    borderColor: `${ICE_BLUE} !important`
+  },
+  selectDropdownIcon: {
+    color: `${ICE_BLUE} !important`
+  },
+  select: {
+    color: ICE_BLUE
+  },
+  selectWrapper: {
+    // borderColor:  `${ICE_BLUE} !important`,
+    "& fieldset": {
+      // border: 'none',
+      borderColor: `${ICE_BLUE} !important`,
+
+    }
+  },
+  formControl: {
+    width: '90%',
+    marginLeft: '5%',
+    "& label": {
+      color: `${ICE_BLUE} !important`
+    }
+  },
+  menuPaper: {
+    backgroundColor: `${OFF_BLACK_1} !important`,
+    color: `${ICE_BLUE} !important`,
+    "& ul li:hover": {
+      color: OFF_BLACK_1,
+      backgroundColor: `${ICE_BLUE} !important`
+    }
   }
 })
-
-const reactSelectStyling = {
-  menu: base => ({
-    ...base,
-    marginBottom: 76,
-    color: ICE_BLUE,
-    cursor: 'pointer',
-    backgroundColor: OFF_BLACK_4,
-    border: `solid 1px ${ICE_BLUE}`,
-    marginTop: 0,
-    borderTop: "none",
-    borderRadius: 8
-  }),
-  control: base => ({
-    ...base,
-    backgroundColor: OFF_BLACK_4,
-    borderColor: ICE_BLUE, cursor: 'pointer'
-    , '&:hover': { borderColor: ICE_BLUE }
-  }),
-  singleValue: base => ({
-    ...base,
-    color: ICE_BLUE
-  }),
-  indicatorSeparator: base => ({
-    ...base,
-    backgroundColor: ICE_BLUE
-  }),
-  dropdownIndicator: base => ({
-    ...base,
-    color: ICE_BLUE
-  }),
-  option: (base, state) => ({
-    ...base, cursor: 'pointer',
-    backgroundColor: state.isFocused ? ICE_BLUE : "inherit",
-    color: state.isFocused ? "#000000" : ICE_BLUE
-  })
-}
 
 const MILES_TO_METERS = 1609.34
 
@@ -238,6 +252,14 @@ class AddPlace extends React.Component {
     })
   }
 
+  capitalize = (str) => {
+    let result = str.charAt(0).toUpperCase()
+    for (var i = 1; i < str.slice(1).length + 1; ++i) {
+      result += str.charAt(i - 1) === " " ? str.charAt(i).toUpperCase() : str.charAt(i)
+    }
+    return result
+  }
+
   render() {
     const classes = this.props.classes;
 
@@ -251,7 +273,6 @@ class AddPlace extends React.Component {
         longitude: obj.longitude,
       }
     })
-
     const placeTypes = []
     var counter = 0
     this.props.placeTypes.forEach((obj, i) => {
@@ -259,39 +280,78 @@ class AddPlace extends React.Component {
         placeTypes.push({
           index: counter,
           value: obj,
-          label: obj
+          label: this.capitalize(obj.replace('_', " "))
         })
         counter++;
-      } else if (typeof obj === 'object') {
-        obj.forEach((el, x) => {
-          placeTypes.push({
-            index: counter,
-            value: el,
-            label: el
-          })
-          counter++;
-        })
       }
+      // else if (typeof obj === 'object') {
+      //   obj.forEach((el, x) => {
+      //     placeTypes.push({
+      //       index: counter,
+      //       value: el,
+      //       label: el
+      //     })
+      //     counter++;
+      //   })
+      // }
     })
-    console.log(placeTypes[placeTypes.length - 1])
 
+    const inputProps = {
+      className: clsx(classes.input),
+      classes: {
+        notchedOutline: clsx(classes.inputBorder),
+      }
+    }
+    const InputLabelProps = {
+      className: clsx(classes.inputLabel),
+    }
+
+    const SelectProps = {
+      classes: {
+        icon: clsx(classes.selectDropdownIcon),
+      }
+    }
+
+    const MenuProps={
+      classes: {
+        paper: classes.menuPaper
+      }
+    }
     return (
       <React.Fragment>
         <Modal isOpen={this.props.isOpen} toggle={this.props.toggle} className={classes.modal}>
           <ModalHeader toggle={this.toggle} className={classes.modalHeader}>Add Place</ModalHeader>
           <ModalBody className={classes.modalBody} >
-            {!this.props.addPlaceRequestPending ?
+            {!this.props.requestPending ?
               <Form ref={ref => this.formAddCity = ref} onSubmit={e => this.props.handleAddPlace(e, this.state)}>
-                <Select
-                  className="basic-single"
-                  classNamePrefix="select"
-                  defaultValue={options[this.props.default.index]}
-                  isSearchable={true}
-                  options={options}
-                  onChange={this.dropdownSelect}
-                  // defaultMenuIsOpen={true}
-                  styles={reactSelectStyling}
-                />
+                <FormControl variant="outlined" className={classes.formControl}>
+                  <InputLabel id="city-label">City</InputLabel>
+                  <Select
+                    labelId="city-label"
+                    id="demo-simple-select-outlined"
+                    value={this.state.closestCity.city}
+                    className={clsx(classes.selectWrapper)}
+                    classes={{
+                      icon: clsx(classes.selectDropdownIcon),
+                      select: clsx(classes.select)
+                    }}
+                    MenuProps={MenuProps}
+                    onChange={(event) => {
+                      this.setState({
+                        closestCity: this.props.cities.find(el => el.city === event.target.value)
+                      })
+                    }}
+                    label="City"
+                  >
+                    {options.map((option) =>
+                      <MenuItem key={option.value} value={option.value}>
+                        {option.label}
+                      </MenuItem>
+                    )}
+                  </Select>
+                </FormControl>
+
+
                 <br />
                 <div className={clsx(classes.parameterWrapper)}>
                   <span style={{ textAlign: "center", color: ICE_BLUE }}>Search Radius</span>
@@ -304,6 +364,7 @@ class AddPlace extends React.Component {
                     autoComplete={"new-password"}
 
                   />
+
                   <span style={{ textAlign: "left", marginLeft: 10, color: ICE_BLUE }}>Miles</span>
                   <span style={{ textAlign: "right", color: ICE_BLUE }}>Strict Bounds?</span>
                   <Checkbox
@@ -314,8 +375,8 @@ class AddPlace extends React.Component {
 
                   />
                 </div>
-                <p className={clsx(classes.fieldLabel)}>Name:</p>
-                <Autocomplete
+                {/* TODO change this over to MUI */}
+                <AutoComplete
                   name="place"
                   placeholder="place"
                   value={this.state.place}
@@ -337,89 +398,104 @@ class AddPlace extends React.Component {
                   }}
                   setError={this.props.setError}
                 />
-                <p className={clsx(classes.fieldLabel)}>Type:</p>
-                <Select
-                  className="basic-single"
-                  classNamePrefix="select"
-                  options={placeTypes}
-                  styles={reactSelectStyling}
-                  defaultValue={placeTypes[placeTypes.length - 1]}
-                  onChange={option => {
-                    this.setState({
-                      main_type: option.value
-                    })
-                  }}
-                  value={placeTypes.find(el => el.value === this.state.main_type)}
-                />
-                <p className={classes.fieldLabel}>Address:</p>
-                <Input
-                  type="text"
-                  boof="address"
+                <FormControl variant="outlined" className={classes.formControl}>
+                  <InputLabel id="place-type-label">Place Type</InputLabel>
+                  <Select
+                    labelId="place-type-label"
+                    value={this.state.main_type}
+                    className={clsx(classes.selectWrapper)}
+                    MenuProps={MenuProps}
+                    classes={{
+                      icon: clsx(classes.selectDropdownIcon),
+                      select: clsx(classes.select)
+                    }}
+                    onChange={(event) => {
+                      this.setState({
+                        main_type: event.target.value
+                      })
+                    }}
+                    label="Place Type"
+                  >
+                     {placeTypes.map((option) =>
+                    <MenuItem key={option.value} value={option.value}>
+                      {option.label}
+                    </MenuItem>
+                  )}
+                  </Select>
+                </FormControl>
+
+
+                <TextField
+                  label={"Address"}
+                  variant={"outlined"}
+                  onChange={this.handleChange}
                   value={this.state.address}
-                  onChange={this.handleChange}
-                  className={classes.inputStyle}
-                  autoComplete={"new-password"}
+                  inputProps={{ "boof": "address", 'autoComplete': 'new-password' }}
+                  InputProps={inputProps}
+                  InputLabelProps={InputLabelProps}
+                  className={classes.textField}
                 />
-                <p className={classes.fieldLabel}>City:</p>
-                <Input
-                  type="text"
-                  boof="city"
+                <TextField
+                  label={"City"}
+                  variant={"outlined"}
+                  onChange={this.handleChange}
                   value={this.state.city}
-                  onChange={this.handleChange}
-                  className={classes.inputStyle}
-                  autoComplete={"new-password"}
+                  inputProps={{ "boof": "city", 'autoComplete': 'new-password' }}
+                  InputProps={inputProps}
+                  InputLabelProps={InputLabelProps}
+                  className={classes.textField}
                 />
-                <p className={classes.fieldLabel}>State:</p>
-
-                <Input
-                  type="text"
-                  boof="state"
+                <TextField
+                  label={"State"}
+                  variant={"outlined"}
+                  onChange={this.handleChange}
                   value={this.state.state}
-                  onChange={this.handleChange}
-                  className={classes.inputStyle}
-                  autoComplete={"new-password"}
+                  inputProps={{ "boof": "state", 'autoComplete': 'new-password' }}
+                  InputProps={inputProps}
+                  InputLabelProps={InputLabelProps}
+                  className={classes.textField}
                 />
-                <p className={classes.fieldLabel}>Country:</p>
-
-                <Input
-                  type="text"
-                  boof="country"
+                <TextField
+                  label={"Country"}
+                  variant={"outlined"}
+                  onChange={this.handleChange}
                   value={this.state.country}
-                  onChange={this.handleChange}
-                  className={classes.inputStyle}
-                  autoComplete={"new-password"}
+                  inputProps={{ "boof": "country", 'autoComplete': 'new-password' }}
+                  InputProps={inputProps}
+                  InputLabelProps={InputLabelProps}
+                  className={classes.textField}
                 />
-                <p className={classes.fieldLabel}>Zip Code:</p>
 
-                <Input
-                  type="text"
-                  boof="zip"
+                <TextField
+                  label={"Zip Code"}
+                  variant={"outlined"}
+                  onChange={this.handleChange}
                   value={this.state.zip}
-                  onChange={this.handleChange}
-                  className={classes.inputStyle}
-                  autoComplete={"new-password"}
+                  inputProps={{ "boof": "zip", 'autoComplete': 'new-password' }}
+                  InputProps={inputProps}
+                  InputLabelProps={InputLabelProps}
+                  className={classes.textField}
                 />
-                <p className={classes.fieldLabel}>Latitude:</p>
-
-                <Input
-                  type="text"
-                  boof="latitude"
+                <TextField
+                  label={"Latitude"}
+                  variant={"outlined"}
+                  onChange={this.handleChange}
                   value={this.state.latitude}
-                  onChange={this.handleChange}
-                  className={classes.inputStyle}
-                  autoComplete={"new-password"}
+                  inputProps={{ "boof": "latitude", 'autoComplete': 'new-password' }}
+                  InputProps={inputProps}
+                  InputLabelProps={InputLabelProps}
+                  className={classes.textField}
                 />
-                <p className={classes.fieldLabel}>Longitude:</p>
-
-                <Input
-                  type="text"
-                  boof="longitude"
+                <TextField
+                  label={"Longitude"}
+                  variant={"outlined"}
+                  onChange={this.handleChange}
                   value={this.state.longitude}
-                  onChange={this.handleChange}
-                  className={classes.inputStyle}
-                  autoComplete={"new-password"}
+                  inputProps={{ "boof": "longitude", 'autoComplete': 'new-password' }}
+                  InputProps={inputProps}
+                  InputLabelProps={InputLabelProps}
+                  className={classes.textField}
                 />
-                <br />
               </Form> :
               <RingLoader
                 color={"#0095d2"}

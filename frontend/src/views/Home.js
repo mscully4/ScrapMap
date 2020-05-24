@@ -89,8 +89,7 @@ class Home extends React.Component {
         <Navigation
           loggedIn={this.props.loggedIn}
           username={this.props.username}
-          // toggleLogin={this.props.toggleLogin}
-          // toggleSignUp={this.props.toggleSignUp}
+          context={"Home"}
           handleLogin={this.props.handlers.login}
           handleLogout={this.props.handlers.logout}
           handleSignUp={this.props.handlers.signUp}

@@ -5,16 +5,18 @@ import {
   Button,
   Form,
   Input,
-  InputGroup,
   Modal,
   ModalHeader,
   ModalBody,
   ModalFooter,
 } from 'reactstrap';
+import clsx from 'clsx'
+import { withStyles } from '@material-ui/styles'
 import { ICE_BLUE, FONT_GREY, OFF_BLACK_1, OFF_BLACK_2, OFF_BLACK_3, OFF_BLACK_4 } from '../../utils/colors'
+import TextField from '@material-ui/core/TextField';
 import RingLoader from "react-spinners/RingLoader";
 
-const style = {
+const styles = theme => ({
   addIcon: {
     height: 40,
     width: 40,
@@ -50,8 +52,23 @@ const style = {
     fontSize: 18,
     marginBottom: 0,
     marginTop: 10
-  }
-}
+  },
+  textField: {
+    width: '90%',
+    marginLeft: '5% !important',
+    marginTop: '5% !important'
+  },
+  input: {
+    color: ICE_BLUE,
+  },
+  inputLabel: {
+    color: `${ICE_BLUE} !important`
+  },
+  inputBorder: {
+    borderWidth: '1px',
+    borderColor: `${ICE_BLUE} !important`
+  },
+})
 
 class EditCity extends React.Component {
   static defaultProps = {
@@ -102,58 +119,74 @@ class EditCity extends React.Component {
 
   render() {
     const buttonDisabled = !this.hasBeenChanged() || this.props.requestPending;
+    const classes = this.props.classes
+
+    const inputProps = {
+      className: clsx(classes.input),
+      classes: {
+        notchedOutline: clsx(classes.inputBorder),
+      }
+    }
+    const InputLabelProps = {
+      className: clsx(classes.inputLabel),
+    }
+
     return (
       <Modal isOpen={this.props.isOpen} toggle={this.props.toggle}>
-        <ModalHeader style={style.modalHeader} toggle={this.props.toggle}>Edit City</ModalHeader>
-        <ModalBody style={style.modalBody}>
+        <ModalHeader className={classes.modalHeader} toggle={this.props.toggle}>Edit City</ModalHeader>
+        <ModalBody className={classes.modalBody}>
           {!this.props.requestPending ?
-            <Form ref={ref => this.formEditCity = ref} onSubmit={e => this.props.handleEditCity(e, this.state)} >
-              <p style={style.fieldLabel}>City:</p>
-              <Input
-                type="text"
-                boof="city"
+            <Form ref={ref => this.formEditCity = ref} onSubmit={e => this.props.handleEditCity(e, this.state)}>
+              <TextField
+                label={"City"}
+                variant={"outlined"}
+                onChange={this.handleChange}
                 value={this.state.city}
-                onChange={this.handleChange}
-                style={style.inputStyle}
-                autoComplete={"new-password"}
+                inputProps={{ "boof": "city", "autocomplete": 'new-password' }}
+                InputProps={inputProps}
+                InputLabelProps={InputLabelProps}
+                className={classes.textField}
               />
-              <p style={style.fieldLabel}>Country:</p>
-              <Input
-                type="text"
-                boof="country"
+              <TextField
+                label={"Country"}
+                variant={"outlined"}
+                onChange={this.handleChange}
                 value={this.state.country}
-                onChange={this.handleChange}
-                style={style.inputStyle}
-                autoComplete={"new-password"}
+                inputProps={{ "boof": "country", "autocomplete": 'new-password' }}
+                InputProps={inputProps}
+                InputLabelProps={InputLabelProps}
+                className={classes.textField}
               />
-              <p style={style.fieldLabel}>Country Code:</p>
-              <Input
-                type="text"
-                boof="countryCode"
-                value={this.state.countryCode}
+              <TextField
+                label={"Country Code"}
+                variant={"outlined"}
                 onChange={this.handleChange}
-                style={style.inputStyle}
-                autoComplete={"new-password"}
+                value={this.state.countryCode.toUpperCase()}
+                inputProps={{ "boof": "countryCode", "autocomplete": 'new-password' }}
+                InputProps={inputProps}
+                InputLabelProps={InputLabelProps}
+                className={classes.textField}
               />
-              <p style={style.fieldLabel}>Latitude:</p>
-              <Input
-                type="text"
-                boof="latitude"
+              <TextField
+                label={"Latitude"}
+                variant={"outlined"}
+                onChange={this.handleChange}
                 value={this.state.latitude}
-                onChange={this.handleChange}
-                style={style.inputStyle}
-                autoComplete={"new-password"}
+                inputProps={{ "boof": "latitude", "autocomplete": 'new-password' }}
+                InputProps={inputProps}
+                InputLabelProps={InputLabelProps}
+                className={classes.textField}
               />
-              <p style={style.fieldLabel}>Longitude:</p>
-              <Input
-                type="text"
-                boof="longitude"
+              <TextField
+                label={"Longitude"}
+                variant={"outlined"}
+                onChange={this.handleChange}
                 value={this.state.longitude}
-                onChange={this.handleChange}
-                style={style.inputStyle}
-                autoComplete={"new-password"}
+                inputProps={{ "boof": "longitude", "autocomplete": 'new-password' }}
+                InputProps={inputProps}
+                InputLabelProps={InputLabelProps}
+                className={classes.textField}
               />
-              <br />
             </Form> :
             <RingLoader
               color={"#0095d2"}
@@ -164,12 +197,13 @@ class EditCity extends React.Component {
             />
           }
         </ModalBody>
-        <ModalFooter style={style.modalFooter}>
-          <Button disabled={buttonDisabled} onClick={this.submitForm} style={style.button}>Submit</Button>
+        <ModalFooter className={classes.modalFooter}>
+          <Button disabled={buttonDisabled} onClick={this.submitForm} className={clsx(classes.button)}>Submit</Button>
         </ModalFooter>
       </Modal>
     )
   }
 }
 
-export default EditCity;
+export default withStyles(styles)(EditCity);
+// export default EditCity;

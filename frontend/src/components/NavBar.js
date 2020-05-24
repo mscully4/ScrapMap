@@ -24,7 +24,7 @@ const styles = theme => ({
     backgroundColor: OFF_BLACK_2,
     display: 'grid',
     gridTemplateRows: '1fr',
-    gridTemplateColumns: '1fr 3fr 2fr',
+    gridTemplateColumns: '1fr 3fr 1.5fr',
     alignItems: 'center'
   },
   logo: {
@@ -102,7 +102,7 @@ const styles = theme => ({
   },
   button: {
     backgroundColor: '#0095d2',
-    width: '50%',
+    width: '60%',
     display: 'block',
     margin: 'auto'
   }
@@ -178,11 +178,16 @@ class Navigation extends React.Component {
 
   render() {
     const classes = this.props.classes
+
+    const signUpButton =  this.props.context === "Main" ? 
+    <Button className={clsx(classes.button)} style={{ marginRight: 15 }} onClick={this.toggleSignUp}>Sign Up</Button>
+    : <div></div>;
+   
+
     return (
       <div className={clsx(classes.navigationBar)} >
         <span className={clsx(classes.logo)}>ScrapMap</span>
         <Autocomplete
-          id="free-solo-demo"
           className={clsx(classes.searchBar)}
           freeSolo
           key={this.state.randomKey}
@@ -232,22 +237,22 @@ class Navigation extends React.Component {
           </div>
           :
           <div className={clsx(classes.actionButtons)}>
-            <div></div>
-            <Button className={clsx(classes.button)} style={{ marginRight: 15 }} onClick={this.toggleLogin}>Login</Button>
-            <LoginForm
-              handleLogin={this.props.handleLogin}
-              isOpen={this.state.showLoginModal}
-              toggle={this.toggleLogin}
-              loadingUserData={this.props.loadingUserData}
-            />
-            {/* <Button className={clsx(classes.button)} style={{ marginLeft: 15 }} onClick={this.toggleSignUp}>Sign Up</Button>
+             {signUpButton}
             <SignUpForm
               handleSignUp={this.props.handleSignUp}
               isOpen={this.state.showSignUpModal}
               toggle={this.toggleSignUp}
               loadingSignUpRequest={this.props.loadingSignUpRequest}
               signUpError={this.props.signUpError}
-            /> */}
+            />
+            
+            <Button className={clsx(classes.button)} style={{ marginLeft: 15 }} onClick={this.toggleLogin}>Login</Button>
+            <LoginForm
+              handleLogin={this.props.handleLogin}
+              isOpen={this.state.showLoginModal}
+              toggle={this.toggleLogin}
+              loadingUserData={this.props.loadingUserData}
+            />
           </div>}
       </div>
     )

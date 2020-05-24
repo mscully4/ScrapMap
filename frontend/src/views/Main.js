@@ -22,19 +22,23 @@ import { add, Svg } from '../utils/SVGs';
 import { place_colors, city_colors, FONT_GREY, ICE_BLUE, OFF_BLACK_1 } from '../utils/colors';
 import { getDistanceBetweenTwoPoints } from '../utils/Formulas.js';
 
+//These can be expanded upon later
 const PLACE_TYPES = [
   "natural_feature",
-  ['museum', 'art_gallery'],
+  // ['museum', 'art_gallery'],
+  'museum',
   "zoo",
   "church",
   "casino",
   "stadium",
   "bar",
-  ["food", "restaurant"],
+  // ["food", "restaurant"],
+  "food",
   "amusement_park",
   "park",
   "store",
-  ["embassy", "city_hall"],
+  // ["embassy", "city_hall"],
+  "city_hall",
   'airport',
   "university",
   "tourist_attraction",
@@ -407,6 +411,7 @@ class Main extends React.Component {
           history={this.props.history}
           recenter={this.recenter}
           signUpError={this.props.signUpError}
+          context={"Main"}
         />
 
         <div className={clsx(classes.page)}>
@@ -541,7 +546,7 @@ class Main extends React.Component {
               toggle={this.toggleEditPlaceForm}
               handleEditPlace={this.props.handlers.editPlace}
               data={this.state.selectedPlace}
-              editPlaceRequestPending={this.state.editPlaceRequestPending}
+              requestPending={this.props.pendingRequests.editPlace}
             /> : null}
 
           {this.state.addCityFormOpen && this.state.granularity === 1 && this.props.username === this.props.user ?
@@ -549,7 +554,7 @@ class Main extends React.Component {
               isOpen={this.state.addCityFormOpen}
               toggle={this.toggleAddCityForm}
               handleAddCity={this.props.handlers.addCity}
-              addCityRequestPending={this.state.addCityRequestPending}
+              requestPending={this.props.pendingRequests.addCity}
               setError={this.props.setError}
 
             /> : null}
@@ -563,7 +568,7 @@ class Main extends React.Component {
               cities={this.props.viewCities}
               default={this.state.closestCity}
               placeTypes={PLACE_TYPES}
-              addPlaceRequestPending={this.state.addCityRequestPending}
+              requestPending={this.props.pendingRequests.addPlace}
               setError={this.props.setError}
             /> : null
           }

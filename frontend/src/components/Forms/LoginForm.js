@@ -5,16 +5,12 @@ import {
   Button,
   Form,
   Input,
-  Navbar,
-  Nav,
-  NavItem,
   Modal,
   ModalHeader,
   ModalBody,
   ModalFooter,
-  NavbarBrand,
-  NavbarToggler
 } from 'reactstrap';
+import TextField from '@material-ui/core/TextField';
 import { ICE_BLUE, FONT_GREY, OFF_BLACK_1, OFF_BLACK_2, OFF_BLACK_3, OFF_BLACK_4 } from '../../utils/colors'
 import clsx from 'clsx'
 import { withStyles } from '@material-ui/styles';
@@ -28,16 +24,10 @@ const styles = theme => ({
     marginTop: 10,
     marginLeft: '5%'
   },
-  input: {
+  textField: {
     width: '90%',
-    margin: 'auto',
-    backgroundColor: OFF_BLACK_2,
-    border: `solid 1px ${ICE_BLUE}`,
-    color: ICE_BLUE,
-    "&:focus": {
-      backgroundColor: OFF_BLACK_3,
-      color: ICE_BLUE,
-    }
+    marginLeft: '5% !important',
+    marginTop: '5% !important'
   },
   modal: {
     backgroundColor: "#000"
@@ -59,7 +49,17 @@ const styles = theme => ({
     backgroundColor: ICE_BLUE,
     width: '90%',
     margin: "auto"
-  }
+  },
+  input: {
+    color: ICE_BLUE,
+  },
+  inputLabel: {
+    color: `${ICE_BLUE} !important`
+  },
+  inputBorder: {
+    borderWidth: '1px',
+    borderColor: `${ICE_BLUE} !important`
+  },
 })
 
 class LoginForm extends React.Component {
@@ -79,6 +79,19 @@ class LoginForm extends React.Component {
     })
   }
 
+  handleChangePassword = e => {
+    const value = this.state.password + e.target.value.slice(-1);
+    if (e.target.value.length < this.state.password.length) {
+      this.setState({
+        password: this.state.password.slice(0, e.target.value.length )
+      })
+    } else {
+      this.setState({
+        password: value
+      })
+    }
+  }
+
   submitForm = () => {
     ReactDOM.findDOMNode(this.formLogin).dispatchEvent(new Event("submit"))
     this.setState({
@@ -93,31 +106,43 @@ class LoginForm extends React.Component {
 
   render() {
     const classes = this.props.classes
+
+    const inputProps = {
+      className: clsx(classes.input),
+      classes: {
+        notchedOutline: clsx(classes.inputBorder),
+      }
+    }
+    const InputLabelProps={
+      className: clsx(classes.inputLabel),
+    }
+
     return (
       <Modal isOpen={this.props.isOpen} toggle={this.props.toggle} className={classes.modal}>
         <ModalHeader toggle={this.props.toggle} className={classes.modalHeader}><p style={{fontSize:36, marginBottom: 0}}>Login</p></ModalHeader>
         <ModalBody style={styles.modalBody} className={classes.modalBody}>
           {!this.props.loadingUserData ?
             <Form ref={ref => this.formLogin = ref} onSubmit={e => this.props.handleLogin(e, this.state)}>
-              <p className={classes.fieldLabel}>Username:</p>
-              <Input
-                type="text"
-                boof="username"
-                value={this.state.username}
-                onChange={this.handleChange}
-                autoComplete={"new-password"}
-                className={clsx(this.props.classes.input)}
+              <TextField 
+              label={"Username"} 
+              variant={"outlined"} 
+              onChange={this.handleChange}
+              value={this.state.username}
+              inputProps={{"boof": "username"}}
+              InputProps={inputProps}
+              InputLabelProps={InputLabelProps}
+              className={classes.textField}
               />
-              <p className={classes.fieldLabel}>Password:</p>
-              <Input
-                type="password"
-                boof="password"
-                value={this.state.password}
-                onChange={this.handleChange}
-                autoComplete={"new-password"}
-                className={clsx(this.props.classes.input)}
+              <TextField 
+              label={"Password"} 
+              variant={"outlined"} 
+              onChange={this.handleChangePassword}
+              value={"*".repeat(this.state.password.length)}
+              inputProps={{"boof": "password"}}
+              InputProps={inputProps}
+              InputLabelProps={InputLabelProps}
+              className={classes.textField}
               />
-              <br />
             </Form> :
             <RingLoader
               color={"#0095d2"}

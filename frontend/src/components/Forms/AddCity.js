@@ -11,10 +11,11 @@ import {
   ModalFooter,
 } from 'reactstrap';
 import RingLoader from "react-spinners/RingLoader";
+import TextField from '@material-ui/core/TextField';
 import { withStyles } from '@material-ui/styles'
-
+import clsx from 'clsx';
 import { ICE_BLUE, FONT_GREY, OFF_BLACK_1, OFF_BLACK_2, OFF_BLACK_3, OFF_BLACK_4 } from '../../utils/colors'
-import Autocomplete from './Autocomplete';
+import AutoComplete from './AutoComplete.js';
 
 const styles = themes => ({
   modal: {
@@ -54,10 +55,25 @@ const styles = themes => ({
     }
   },
   button: {
-    backgroundColor: ICE_BLUE, 
-    width: "90%", 
-    margin: "auto" 
-  }
+    backgroundColor: ICE_BLUE,
+    width: "90%",
+    margin: "auto"
+  },
+  textField: {
+    width: '90%',
+    marginLeft: '5% !important',
+    marginTop: '5% !important'
+  },
+  input: {
+    color: ICE_BLUE,
+  },
+  inputLabel: {
+    color: `${ICE_BLUE} !important`
+  },
+  inputBorder: {
+    borderWidth: '1px',
+    borderColor: `${ICE_BLUE} !important`
+  },
 })
 
 class AddCity extends React.Component {
@@ -129,7 +145,17 @@ class AddCity extends React.Component {
   render() {
     const disableButtom = !this.allFieldsValid();
     const classes = this.props.classes
-  
+
+    const inputProps = {
+      className: clsx(classes.input),
+      classes: {
+        notchedOutline: clsx(classes.inputBorder),
+      }
+    }
+    const InputLabelProps = {
+      className: clsx(classes.inputLabel),
+    }
+
     return (
       <React.Fragment>
         <Modal
@@ -144,10 +170,9 @@ class AddCity extends React.Component {
             Add City
           </ModalHeader>
           <ModalBody className={classes.modalBody}>
-            {!this.props.addCityRequestPending ?
+            {!this.props.requestPending ?
               <Form ref={ref => this.formAddCity = ref} onSubmit={e => this.props.handleAddCity(e, this.state)} autoComplete={"new-password"}>
-                <p className={classes.fieldLabel}>City:</p>
-                <Autocomplete
+                <AutoComplete
                   name="city"
                   placeholder="city"
                   value={this.state.city}
@@ -163,42 +188,46 @@ class AddCity extends React.Component {
                   }}
                   setError={this.props.setError}
                 />
-                <p className={classes.fieldLabel}>Country:</p>
-                <Input
-                  type="text"
-                  boof="country"
+                <TextField
+                  label={"Country"}
+                  variant={"outlined"}
+                  onChange={this.handleChange}
                   value={this.state.country}
-                  onChange={this.handleChange}
-                  autoComplete={"new-password"}
-                  className={classes.inputStyle}
+                  inputProps={{ "boof": "country", autoComplete: 'new-password' }}
+                  InputProps={inputProps}
+                  InputLabelProps={InputLabelProps}
+                  className={classes.textField}
                 />
-                <p className={classes.fieldLabel}>Country Code:</p>
-                <Input
-                  type="text"
-                  boof="countryCode"
+                <TextField
+                  label={"Country Code"}
+                  variant={"outlined"}
+                  onChange={this.handleChange}
                   value={this.state.countryCode}
-                  onChange={this.handleChange}
-                  autoComplete={"new-password"}
-                  className={classes.inputStyle}
+                  inputProps={{ "boof": "countryCode", autoComplete: 'new-password' }}
+                  InputProps={inputProps}
+                  InputLabelProps={InputLabelProps}
+                  className={classes.textField}
                 />
-                <p className={classes.fieldLabel}>Latitude:</p>
-                <Input
-                  type="text"
-                  boof="latitude"
+                <TextField
+                  label={"Latitude"}
+                  variant={"outlined"}
+                  onChange={this.handleChange}
                   value={this.state.latitude}
-                  onChange={this.handleChange}
-                  className={classes.inputStyle}
+                  inputProps={{ "boof": "latitude", autoComplete: 'new-password' }}
+                  InputProps={inputProps}
+                  InputLabelProps={InputLabelProps}
+                  className={classes.textField}
                 />
-                <p className={classes.fieldLabel}>Longitude:</p>
-                <Input
-                  type="text"
-                  boof="longitude"
-                  // placeholder="Longitude"
+                <TextField
+                  label={"Longitude"}
+                  variant={"outlined"}
+                  onChange={this.handleChange}
                   value={this.state.longitude}
-                  onChange={this.handleChange}
-                  className={classes.inputStyle}
+                  inputProps={{ "boof": "longitude", autoComplete: 'new-password' }}
+                  InputProps={inputProps}
+                  InputLabelProps={InputLabelProps}
+                  className={classes.textField}
                 />
-                <br />
               </Form> :
               <RingLoader
                 color={"#0095d2"}
