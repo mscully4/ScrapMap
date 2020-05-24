@@ -7,8 +7,8 @@ from PIL import Image
 from django.core.files.uploadedfile import InMemoryUploadedFile, TemporaryUploadedFile
 from the_big_username_blacklist import validate
 
-from django.contrib.auth.models import User
-from .models import Destination, DestinationImages, Place, PlaceImages, UserProfile
+# from django.contrib.auth.models import User
+from .models import Destination, DestinationImages, Place, PlaceImages, User
 
 from datetime import datetime
 
@@ -52,7 +52,7 @@ class UserSerializerSignUp(serializers.ModelSerializer):
             instance.set_password(password)
 
         # save the instance to the DB
-        # instance.save()
+        instance.save()
 
         return instance
 
@@ -60,18 +60,7 @@ class UserSerializerSignUp(serializers.ModelSerializer):
         # Use Django's built in User class
         model = User
         # serialize these fields
-        fields = ('id', 'token', 'username', 'password',
-                  'first_name', 'last_name', 'email')
-
-# class UserProfileSerializer(serializers.ModelSerializer):
-#     class Meta:
-#         model = UserProfile
-#         fields = ('user', 'email', 'first_name', 'last_name', 'city', 'country', 'zip_code')
-
-#     def create(self, validated_data):
-#         # validated_data['user'] = User.objects.get(pk=self.context['user_id'])
-#         return UserProfile.objects.create(**validated_data)
-
+        fields = ('id', 'token', 'username', 'password','first_name', 'last_name', 'email')
 
 class DestinationSerializer(serializers.ModelSerializer):
 

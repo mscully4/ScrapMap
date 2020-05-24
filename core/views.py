@@ -1,11 +1,11 @@
-from django.contrib.auth.models import User
+# from django.contrib.auth.models import User
 from rest_framework import permissions, status
 from rest_framework.response import Response
 from rest_framework.views import APIView 
 from rest_framework.parsers import FileUploadParser
 
 from .serializers import UserSerializerLogin, UserSerializerSignUp, DestinationSerializer, PlaceSerializer, PlaceImagesSerializer
-from .models import Destination, DestinationImages, Place, PlaceImages
+from .models import Destination, DestinationImages, Place, PlaceImages, User
 from django.core import serializers
 from django.db.models import Q
 
@@ -39,8 +39,12 @@ class CreateUser(APIView):
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         else:
-            status_code = status.HTTP_403_FORBIDDEN if serializer.errors.get('username')[0] == 'A user with that username already exists.' else status.HTTP_400_BAD_REQUEST
-            logger.error("Cannot Create New User: %s" % serializer.errors)
+            if serializer.errors.get('username') and 'A user with that username already exists.' in serializer.errors['username']:
+                status_code = status.HTTP_403_FORBIDDEN
+                logger.error("A User With That Username Already Exists")
+            else:
+                status_code = status.HTTP_400_BAD_REQUEST
+                logger.error("Cannot Create New User: %s" % serializer.errors)
             return Response(serializer.errors, status=status_code)
 
 class SearchUsers(APIView):

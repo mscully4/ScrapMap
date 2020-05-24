@@ -1,29 +1,15 @@
 from django.db import models
 from django.template.defaultfilters import slugify
-from django.contrib.auth.models import User
+from django.contrib.auth.models import User, AbstractUser
 from django_countries.fields import CountryField
 from django.dispatch import receiver
 from django.db.models.signals import post_save
 
+class User(AbstractUser):
+    email = models.EmailField(unique=True, blank=False, null=False)
+    first_name = models.CharField(blank=False, null=False, max_length=60)
+    last_name = models.CharField(blank=False, null=False, max_length=60)
 
-# Create your models here.
-class UserProfile(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE)  
-    email = models.CharField(max_length=120, null=True, blank=True)
-    first_name = models.CharField(max_length=60, null=True, blank=True)
-    last_name = models.CharField(max_length=60, null=True, blank=True)
-    city = models.CharField(max_length=120, null=True, blank=True)
-    country = models.CharField(max_length=120, null=True, blank=True)
-    zip_code = models.CharField(max_length=6, null=True, blank=True)
-
-# @receiver(post_save, sender=User)
-# def create_user_profile(sender, instance, created, **kwargs):
-#     if created:
-#         UserInfo.objects.create(user=instance)
-
-# @receiver(post_save, sender=User)
-# def save_user_profile(sender, instance, **kwargs):
-#     instance.userinfo.save()
 
 class Destination(models.Model):
     #this allows one user to be linked to multiple destinations
@@ -33,7 +19,6 @@ class Destination(models.Model):
     countryCode = models.CharField(max_length=2)
     latitude = models.FloatField(default=0)
     longitude = models.FloatField(default=0)
-    #user = models.CharField(max_length=120)
 
     def __str__(self):
         return self.city
