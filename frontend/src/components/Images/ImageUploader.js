@@ -158,14 +158,13 @@ class ImageUploader extends React.Component {
           <div className={clsx(classes.imageUploaderDiv)}>
             <MyDropzone onDrop={this.onDrop} className={clsx(classes.dropzone)} />
             <p className={clsx(classes.imagesSelected)}>{`Images Selected: ${this.state.pictures.length}`}</p>
-            <Button color={"#0095d2"} className={classes.button} disabled={this.state.pictures.length === 0} onClick={
+            <Button color={"#0095d2"} className={classes.button} disabled={this.props.requestPending || this.state.pictures.length === 0} onClick={
               (e) => {
                 this.props.handleImageSubmit(e, this.state);
                 this.setState({
                   pictures: [],
                   pictureNames: []
                 })
-                // this.props.toggle(null)
               }}
             >
               Submit

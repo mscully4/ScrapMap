@@ -3,20 +3,26 @@ import ReactDOM from 'react-dom';
 import clsx from 'clsx'
 import { withStyles } from '@material-ui/styles';
 import { Button, Form, Input } from 'reactstrap';
+import TextField from '@material-ui/core/TextField';
 
 import Navigation from '../components/NavBar'
 import Error from '../components/Error.js'
 import RingLoader from "react-spinners/RingLoader";
 import { Redirect } from 'react-router-dom'
-
+import { ICE_BLUE, FONT_GREY, OFF_BLACK_1, OFF_BLACK_2, OFF_BLACK_3, OFF_BLACK_4 } from '../utils/colors'
 
 const styles = theme => ({
   main: {
-    backgroundColor: "#1a1a1a"
+    backgroundColor: OFF_BLACK_1
   },
   modalContent: {
     border: 'none',
     height: '100%'
+  },
+  signUpText: {
+    color: "#0095d2",
+    fontSize: 36,
+    marginBottom: 12
   },
   addSVG: {
     height: 100,
@@ -26,22 +32,28 @@ const styles = theme => ({
     marginLeft: '10%',
     marginTop: 50
   },
-  input: {
-    width: 350,
-    backgroundColor: "#232323",
-    border: "solid 1px #0095d2",
-    color: "#0095d2",
-    "&:focus": {
-      backgroundColor: "#292929",
-      color: "#0095d2",
-    }
-  },
   button: {
-    backgroundColor: "#0095d2",
+    backgroundColor: ICE_BLUE,
     // marginLeft: '5%',
     marginTop: 20,
     width: 350
-  }
+  },
+  textField: {
+    display: 'block',
+    width: 350,
+    marginTop: '2% !important'
+  },
+  input: {
+    color: ICE_BLUE,
+    width: '100%',
+  },
+  inputLabel: {
+    color: `${ICE_BLUE} !important`
+  },
+  inputBorder: {
+    borderWidth: '1px',
+    borderColor: `${ICE_BLUE} !important`
+  },
 })
 
 class Home extends React.Component {
@@ -69,6 +81,19 @@ class Home extends React.Component {
     });
   };
 
+  handleChangePassword = e => {
+    const value = this.state.password + e.target.value.slice(-1);
+    if (e.target.value.length < this.state.password.length) {
+      this.setState({
+        password: this.state.password.slice(0, e.target.value.length)
+      })
+    } else {
+      this.setState({
+        password: value
+      })
+    }
+  }
+
   submitForm = () => {
     ReactDOM.findDOMNode(this.formSignUp).dispatchEvent(new Event("submit"))
   }
@@ -83,6 +108,17 @@ class Home extends React.Component {
     if (this.state.redirect || this.props.loggedInUser) {
       return <Redirect to={this.props.loggedInUser} />
     }
+
+    const inputProps = {
+      className: clsx(classes.input),
+      classes: {
+        notchedOutline: clsx(classes.inputBorder),
+      }
+    }
+    const InputLabelProps = {
+      className: clsx(classes.inputLabel),
+    }
+
 
     return (
       <div style={{ height: window.innerHeight }} className={clsx(classes.main)}>
@@ -108,62 +144,58 @@ class Home extends React.Component {
               })
             }
             }>
-            <p
-              style={{
-                color: "#0095d2",
-                fontSize: 36,
-                marginBottom: 12
-              }}>Sign Up Now!</p>
-            <Input
-              type="text"
-              boof="first_name"
-              placeholder={"First Name"}
-              className={clsx(classes.input)}
+            <p className={classes.signUpText}>Sign Up Now!</p>
+            <TextField
+              label={"First Name"}
+              variant={"outlined"}
+              onChange={this.handleChange}
               value={this.state.first_name}
-              onChange={this.handleChange}
-              autoComplete={"new-password"}
+              inputProps={{ "boof": "first_name", "autoComplete": 'new-password' }}
+              InputProps={inputProps}
+              InputLabelProps={InputLabelProps}
+              className={classes.textField}
             />
-            <br />
-            <Input
-              type="text"
-              boof="last_name"
-              placeholder={"Last Name"}
-              className={clsx(classes.input)}
-              autoComplete={"new-password"}
+            <TextField
+              label={"Last Name"}
+              variant={"outlined"}
+              onChange={this.handleChange}
               value={this.state.last_name}
-              onChange={this.handleChange}
+              inputProps={{ "boof": "last_name", "autoComplete": 'new-password' }}
+              InputProps={inputProps}
+              InputLabelProps={InputLabelProps}
+              className={classes.textField}
             />
-            <br />
-            <Input
-              type="text"
-              boof="email"
-              placeholder={"Email"}
-              className={clsx(classes.input)}
+            <TextField
+              label={"Email"}
+              variant={"outlined"}
+              onChange={this.handleChange}
               value={this.state.email}
-              onChange={this.handleChange}
-              autoComplete={"new-password"}
+              inputProps={{ "boof": "email", "autoComplete": 'new-password' }}
+              InputProps={inputProps}
+              InputLabelProps={InputLabelProps}
+              className={classes.textField}
             />
-            <br />
             {this.props.signUpError ?
               <span style={{ color: 'red' }}>A user with that username already exists</span> : null}
-            <Input
-              type="text"
-              boof="username"
-              placeholder={"Username"}
-              className={clsx(classes.input)}
+            <TextField
+              label={"Username"}
+              variant={"outlined"}
+              onChange={this.handleChange}
               value={this.state.username}
-              onChange={this.handleChange}
-              autoComplete={"new-password"}
+              inputProps={{ "boof": "username", "autoComplete": 'new-password' }}
+              InputProps={inputProps}
+              InputLabelProps={InputLabelProps}
+              className={classes.textField}
             />
-            <br />
-            <Input
-              type="password"
-              boof="password"
-              placeholder={"Password"}
-              className={clsx(classes.input)}
-              autoComplete={"new-password"}
-              value={this.state.password}
+            <TextField
+              label={"Password"}
+              variant={"outlined"}
               onChange={this.handleChange}
+              value={this.state.password}
+              inputProps={{ "boof": "password", "autoComplete": 'new-password' }}
+              InputProps={inputProps}
+              InputLabelProps={InputLabelProps}
+              className={classes.textField}
             />
             <Button disabled={this.disableButton() || this.props.loadingSignupRequest} className={clsx(classes.button)} onClick={this.submitForm}>Submit</Button>
           </Form> :

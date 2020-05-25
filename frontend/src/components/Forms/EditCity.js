@@ -142,7 +142,7 @@ class EditCity extends React.Component {
                 variant={"outlined"}
                 onChange={this.handleChange}
                 value={this.state.city}
-                inputProps={{ "boof": "city", "autocomplete": 'new-password' }}
+                inputProps={{ "boof": "city", "autoComplete": 'new-password' }}
                 InputProps={inputProps}
                 InputLabelProps={InputLabelProps}
                 className={classes.textField}
@@ -152,7 +152,7 @@ class EditCity extends React.Component {
                 variant={"outlined"}
                 onChange={this.handleChange}
                 value={this.state.country}
-                inputProps={{ "boof": "country", "autocomplete": 'new-password' }}
+                inputProps={{ "boof": "country", "autoComplete": 'new-password' }}
                 InputProps={inputProps}
                 InputLabelProps={InputLabelProps}
                 className={classes.textField}
@@ -162,7 +162,7 @@ class EditCity extends React.Component {
                 variant={"outlined"}
                 onChange={this.handleChange}
                 value={this.state.countryCode.toUpperCase()}
-                inputProps={{ "boof": "countryCode", "autocomplete": 'new-password' }}
+                inputProps={{ "boof": "countryCode", "autoComplete": 'new-password' }}
                 InputProps={inputProps}
                 InputLabelProps={InputLabelProps}
                 className={classes.textField}
@@ -172,7 +172,7 @@ class EditCity extends React.Component {
                 variant={"outlined"}
                 onChange={this.handleChange}
                 value={this.state.latitude}
-                inputProps={{ "boof": "latitude", "autocomplete": 'new-password' }}
+                inputProps={{ "boof": "latitude", "autoComplete": 'new-password' }}
                 InputProps={inputProps}
                 InputLabelProps={InputLabelProps}
                 className={classes.textField}
@@ -182,7 +182,7 @@ class EditCity extends React.Component {
                 variant={"outlined"}
                 onChange={this.handleChange}
                 value={this.state.longitude}
-                inputProps={{ "boof": "longitude", "autocomplete": 'new-password' }}
+                inputProps={{ "boof": "longitude", "autoComplete": 'new-password' }}
                 InputProps={inputProps}
                 InputLabelProps={InputLabelProps}
                 className={classes.textField}

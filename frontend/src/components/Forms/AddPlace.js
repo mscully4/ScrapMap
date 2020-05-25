@@ -306,12 +306,6 @@ class AddPlace extends React.Component {
       className: clsx(classes.inputLabel),
     }
 
-    const SelectProps = {
-      classes: {
-        icon: clsx(classes.selectDropdownIcon),
-      }
-    }
-
     const MenuProps={
       classes: {
         paper: classes.menuPaper
@@ -375,7 +369,6 @@ class AddPlace extends React.Component {
 
                   />
                 </div>
-                {/* TODO change this over to MUI */}
                 <AutoComplete
                   name="place"
                   placeholder="place"
@@ -398,7 +391,7 @@ class AddPlace extends React.Component {
                   }}
                   setError={this.props.setError}
                 />
-                <FormControl variant="outlined" className={classes.formControl}>
+                <FormControl variant="outlined" className={classes.formControl} style={{marginTop: '4%'}}>
                   <InputLabel id="place-type-label">Place Type</InputLabel>
                   <Select
                     labelId="place-type-label"

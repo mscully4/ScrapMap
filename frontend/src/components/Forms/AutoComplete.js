@@ -54,7 +54,7 @@ const styles = theme => ({
   selectDropdown: {
     color: `${ICE_BLUE} !important`
   },
-  searchBarOptions: {
+  autocompleteOptions: {
     color: ICE_BLUE,
     width: '100%',
     height: '100%',
@@ -66,9 +66,15 @@ const styles = theme => ({
     },
   },
   listbox: {
-    backgroundColor: OFF_BLACK_1,
+    backgroundColor: OFF_BLACK_2,
     border: `solid 1px ${ICE_BLUE}`,
-    borderRadius: 5
+    borderRadius: 5,
+    "& li": {
+      borderBottom: 'solid 1px #333'
+    },
+    "& li:first-child": {
+      borderTop: 'solid 1px #333'
+    }
   },
 })
 
@@ -135,25 +141,6 @@ class AutoComplete extends React.Component {
     }
   };
 
-  onSelectCity = (obj, selection) => {
-    const city = selection.terms[0].value
-    const country = selection.terms[selection.terms.length - 1].value;
-    geocodeByPlaceId(selection.place_id).then((data) => {
-      let state, latitude, longitude, countryCode;
-      let address;
-      for (var i = 0; i < data[0].address_components.length; ++i) {
-        address = data[0].address_components[i];
-
-        state = address.long_name === "United States" ? data[0].address_components[i - 1].long_name : state;
-        latitude = parseFloat(data[0].geometry.location.lat().toFixed(4));
-        longitude = parseFloat(data[0].geometry.location.lng().toFixed(4));
-        countryCode = address.types && address.types.includes('country') ? address.short_name.toLowerCase() : countryCode
-      }
-      this.props.selectAutoSuggestCity({ city, country, latitude, longitude, countryCode, state })
-
-    })
-  }
-
   loadPlaceSuggestions = (input) => {
     const parameters = `input=${input}&location=${this.props.location.lat},${this.props.location.lng}&radius=${this.props.searchRadius}&key=${this.state.apiKey}${this.props.strictBounds ? "&strictbounds" : ""}`
     return fetch(placeURL + parameters, {
@@ -175,43 +162,7 @@ class AutoComplete extends React.Component {
   }
 
 
-  onSelectPlace = (obj, selection) => {
-    const place_id = selection.place_id
-    const name = selection.terms[0].value
-    geocodeByPlaceId(place_id).then(data => {
-      console.log(data)
-      // var street_number = "", street = "", county = "", city = "", state = "", zip = "", country = "", address = "", countryCode = "";
-      // data[0].address_components.forEach(element => {
-      //   if (element.types.includes("street_number")) street_number = element.long_name;
-      //   else if (element.types.includes("route")) street = element.long_name;
-      //   else if (element.types.includes("sublocality")) county = element.long_name;
-      //   else if (element.types.includes("locality")) city = element.long_name;
-      //   else if (element.types.includes("administrative_area_level_1")) state = element.long_name;
-      //   else if (element.types.includes("administrative_area_level_2")) county = element.long_name
-      //   else if (element.types.includes("country")) {
-      //     country = element.long_name;
-      //     countryCode = element.short_name === "US" ? "US" : element.short_name;
-      //   }
-      //   else if (element.types.includes("postal_code")) zip = element.long_name;
-      // });
-      // const latitude = parseFloat(data[0].geometry.location.lat().toFixed(4));
-      // const longitude = parseFloat(data[0].geometry.location.lng().toFixed(4));
-      // const placeId = data[0].place_id
-      // const types = data[0].types.join(",")
-      // //Establishment is the default type for all results
-      // var main_type = "establishment";
-      // for (var i = 0; i < this.props.placeTypes.length; ++i) {
-      //   if (data[0].types.includes(this.props.placeTypes[i])) {
-      //     main_type = this.props.placeTypes[i];
-      //     break
-      //   }
-      // }
-      // // this.props.changeMainType(main_type)
-      // address = street_number + " " + street
-      // this.props.selectAutoSuggestPlace({ name, address, city, state, country, countryCode, county, zip, types, placeId, latitude, longitude })
-    })
-  }
-
+ 
   onChangeCity = (e, option, reason) => {
     console.log(option, reason)
     const city = option.terms[0].value
@@ -231,7 +182,6 @@ class AutoComplete extends React.Component {
 
     })
   }
-
 
   onChangePlace = (e, option, reason) => {
     const place_id = option.place_id
@@ -267,7 +217,6 @@ class AutoComplete extends React.Component {
         this.props.changeMainType(main_type)
         address = street_number + " " + street
         this.props.selectAutoSuggestPlace({ name, address, city, state, country, countryCode, county, zip, types, placeId, latitude, longitude })
-
       })
   }
 
@@ -283,11 +232,12 @@ class AutoComplete extends React.Component {
             this.props.handleAutoCompleteChange(obj)
             this.loadPlaceSuggestions(obj)
               .then(response => {
+                console.log(response)
                 if (!response.ok) {
                   this.props.setError(true, response.statusText)
                   throw Error(response.statusText)
                 }
-                response.json()
+                return response.json()
               })
               .then(json => {
                 //Only want predictions that have addresses
@@ -323,17 +273,6 @@ class AutoComplete extends React.Component {
   render = () => {
     const classes = this.props.classes
 
-    const inputProps = {
-      className: clsx(classes.input),
-      classes: {
-        notchedOutline: clsx(classes.inputBorder),
-      }
-    }
-    const InputLabelProps = {
-      className: clsx(classes.inputLabel),
-    }
-
-
     const x = (
       <Autocomplete
         freeSolo
@@ -345,10 +284,10 @@ class AutoComplete extends React.Component {
         inputValue={this.state.searchValue}
         onInputChange={this.onInputChange}
         renderOption={(option, state) => {
-          return <div className={clsx(classes.searchBarOptions)}>{`${option.description}`}</div>
+          return <div className={clsx(classes.autocompleteOptions)}>{`${option.description}`}</div>
         }}
         classes={{
-          option: classes.searchBarOptions,
+          option: classes.autocompleteOptions,
           listbox: classes.listbox
         }}
         renderInput={(params) => (
