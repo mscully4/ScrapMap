@@ -5,10 +5,19 @@ metadata:
   labels:
     app: frontend-deployment
 spec:
-  replicas: 1
+  replicas: 3
+  #Wait 60 seconds before declaring a pod to be ready
+  minReadySeconds: 60
   selector:
     matchLabels: 
       app: frontend-pods
+  strategy: 
+    rollingUpdate:
+      #Only allows one additional pod to be created over the specified replica count
+      maxSurge: 1
+      #The number of pods available must be at least the specified replica count minus 0
+      maxUnavailable: 0
+    type: RollingUpdate
   template:
     metadata:
       labels:
@@ -16,12 +25,23 @@ spec:
     spec:
       containers:
       - name: frontend-pod
-        image: gcr.io/scrapmap/frontend
-        # livenessProbe:
-        #   httpGet:
-        #     path: /liveliness
-        #     port: 80
-        #   initialDelaySeconds: 20
-        #   timeoutSeconds: 3
+        image: gcr.io/scrapmap/frontend:latest
+        #Tests whether the pod is still responsive
+        livenessProbe:
+          httpGet:
+            path: /
+            port: 80
+          #Wait 30 seconds before probing 
+          initialDelaySeconds: 30
+          #Probe request times out after 3 seconds
+          timeoutSeconds: 3
+        #Tests whether the pod is ready to serve requests
+        readinessProbe:
+          #Probe will be executed every 3 seconds
+          periodSeconds: 3
+          httpGet:
+            path: /michael
+            port: 80
+        #Always re-pull the container image when the pod is starting up
         imagePullPolicy: Always
 

@@ -17,6 +17,11 @@ import configparser
 config = configparser.ConfigParser()
 config.read('./ScrapMap/config.ini')
 
+def read_secret(path):
+    assert os.path.exists(path)
+    with open(path, 'r') as fh:
+        return fh.read()
+
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -102,6 +107,8 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'ScrapMap.wsgi.application'
 
+AUTH_USER_MODEL = 'core.user'
+
 # print(os.getenv('DATABASE_USER'))
 # print(os.getenv('DATABASE_PASSWORD'))
 # Database
@@ -112,26 +119,36 @@ WSGI_APPLICATION = 'ScrapMap.wsgi.application'
 # https://docs.djangoproject.com/en/2.2/ref/settings/#databases
 # import pymysql
 # pymysql.install_as_MySQLdb()
-# DATABASES = {
-#     'default': {
-#         # If you are using Cloud SQL for MySQL rather than PostgreSQL, set
-#         #'ENGINE': 'django.db.backends.mysql' instead of the following.
-#         'ENGINE': 'django.db.backends.postgresql',
-#         'NAME': 'data', #database name
-#         'USER': os.getenv('DATABASE_USER'),
-#         'PASSWORD': os.getenv('DATABASE_PASSWORD'),
-#         'HOST': '127.0.0.1',
-#         'PORT': '5432',
-#     }
-# }
+
+
+# USERNAME = read_secret("/secrets/cloudsql/USERNAME")
+# PASSWORD = read_secret("/secrets/cloudsql/PASSWORD")
+# DATABASE_NAME = read_secret('/secrets/cloudsql/DATABASE_NAME')
+
+USERNAME = config['GCP'].get('USERNAME')
+PASSWORD = config['GCP'].get('PASSWORD')
+DATABASE_NAME = config['GCP'].get('DATABASE_NAME')
 
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+        # If you are using Cloud SQL for MySQL rather than PostgreSQL, set
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': DATABASE_NAME, #database name
+        'USER': USERNAME, #os.getenv('DATABASE_USER'),
+        'PASSWORD': PASSWORD, #os.getenv('DATABASE_PASSWORD'),
+        'HOST': '127.0.0.1',
+        'PORT': '5432',
     }
 }
+
+
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.sqlite3',
+#         'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+#     }
+# }
 
 # Password validation
 # https://docs.djangoproject.com/en/2.2/ref/settings/#auth-password-validators
