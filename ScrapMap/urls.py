@@ -29,6 +29,7 @@ from django.conf import settings
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('token-auth/', obtain_jwt_token),
+    # path('password_reset/', include('django_rest_passwordreset.urls')),
     path('core/', include('core.urls'))
 ]
 

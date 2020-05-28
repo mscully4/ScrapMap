@@ -51,7 +51,8 @@ INSTALLED_APPS = [
     'core',
     'rest_framework',
     'corsheaders',
-    'storages'
+    'storages',
+    'django_rest_passwordreset'
 
 ]
 
@@ -125,6 +126,19 @@ AUTH_USER_MODEL = 'core.user'
 # PASSWORD = read_secret("/secrets/cloudsql/PASSWORD")
 # DATABASE_NAME = read_secret('/secrets/cloudsql/DATABASE_NAME')
 
+
+# DATABASES = {
+#     'default': {
+#         # If you are using Cloud SQL for MySQL rather than PostgreSQL, set
+#         'ENGINE': 'django.db.backends.postgresql',
+#         'NAME': DATABASE_NAME, #database name
+#         'USER': USERNAME, #os.getenv('DATABASE_USER'),
+#         'PASSWORD': PASSWORD, #os.getenv('DATABASE_PASSWORD'),
+#         'HOST': '127.0.0.1',
+#         'PORT': '5432',
+#     }
+# }
+
 USERNAME = config['GCP'].get('USERNAME')
 PASSWORD = config['GCP'].get('PASSWORD')
 DATABASE_NAME = config['GCP'].get('DATABASE_NAME')
@@ -132,23 +146,10 @@ DATABASE_NAME = config['GCP'].get('DATABASE_NAME')
 
 DATABASES = {
     'default': {
-        # If you are using Cloud SQL for MySQL rather than PostgreSQL, set
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': DATABASE_NAME, #database name
-        'USER': USERNAME, #os.getenv('DATABASE_USER'),
-        'PASSWORD': PASSWORD, #os.getenv('DATABASE_PASSWORD'),
-        'HOST': '127.0.0.1',
-        'PORT': '5432',
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
     }
 }
-
-
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.sqlite3',
-#         'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
-#     }
-# }
 
 # Password validation
 # https://docs.djangoproject.com/en/2.2/ref/settings/#auth-password-validators
