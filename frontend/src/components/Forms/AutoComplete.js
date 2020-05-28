@@ -162,7 +162,7 @@ class AutoComplete extends React.Component {
   }
 
 
- 
+
   onChangeCity = (e, option, reason) => {
     console.log(option, reason)
     const city = option.terms[0].value
@@ -184,40 +184,42 @@ class AutoComplete extends React.Component {
   }
 
   onChangePlace = (e, option, reason) => {
-    const place_id = option.place_id
-    const name = option.terms[0].value
-    geocodeByPlaceId(place_id)
-      .then(data => {
-        var street_number = "", street = "", county = "", city = "", state = "", zip = "", country = "", address = "", countryCode = "";
-        data[0].address_components.forEach(element => {
-          if (element.types.includes("street_number")) street_number = element.long_name;
-          else if (element.types.includes("route")) street = element.long_name;
-          else if (element.types.includes("sublocality")) county = element.long_name;
-          else if (element.types.includes("locality")) city = element.long_name;
-          else if (element.types.includes("administrative_area_level_1")) state = element.long_name;
-          else if (element.types.includes("administrative_area_level_2")) county = element.long_name
-          else if (element.types.includes("country")) {
-            country = element.long_name;
-            countryCode = element.short_name === "US" ? "US" : element.short_name;
+    if (option.place_id !== "") {
+      const place_id = option.place_id
+      const name = option.terms[0].value
+      geocodeByPlaceId(place_id)
+        .then(data => {
+          var street_number = "", street = "", county = "", city = "", state = "", zip = "", country = "", address = "", countryCode = "";
+          data[0].address_components.forEach(element => {
+            if (element.types.includes("street_number")) street_number = element.long_name;
+            else if (element.types.includes("route")) street = element.long_name;
+            else if (element.types.includes("sublocality")) county = element.long_name;
+            else if (element.types.includes("locality")) city = element.long_name;
+            else if (element.types.includes("administrative_area_level_1")) state = element.long_name;
+            else if (element.types.includes("administrative_area_level_2")) county = element.long_name
+            else if (element.types.includes("country")) {
+              country = element.long_name;
+              countryCode = element.short_name === "US" ? "US" : element.short_name;
+            }
+            else if (element.types.includes("postal_code")) zip = element.long_name;
+          });
+          const latitude = parseFloat(data[0].geometry.location.lat().toFixed(4));
+          const longitude = parseFloat(data[0].geometry.location.lng().toFixed(4));
+          const placeId = data[0].place_id
+          const types = data[0].types.join(",")
+          //Establishment is the default type for all results
+          var main_type = "establishment";
+          for (var i = 0; i < this.props.placeTypes.length; ++i) {
+            if (data[0].types.includes(this.props.placeTypes[i])) {
+              main_type = this.props.placeTypes[i];
+              break
+            }
           }
-          else if (element.types.includes("postal_code")) zip = element.long_name;
-        });
-        const latitude = parseFloat(data[0].geometry.location.lat().toFixed(4));
-        const longitude = parseFloat(data[0].geometry.location.lng().toFixed(4));
-        const placeId = data[0].place_id
-        const types = data[0].types.join(",")
-        //Establishment is the default type for all results
-        var main_type = "establishment";
-        for (var i = 0; i < this.props.placeTypes.length; ++i) {
-          if (data[0].types.includes(this.props.placeTypes[i])) {
-            main_type = this.props.placeTypes[i];
-            break
-          }
-        }
-        this.props.changeMainType(main_type)
-        address = street_number + " " + street
-        this.props.selectAutoSuggestPlace({ name, address, city, state, country, countryCode, county, zip, types, placeId, latitude, longitude })
-      })
+          this.props.changeMainType(main_type)
+          address = street_number + " " + street
+          this.props.selectAutoSuggestPlace({ name, address, city, state, country, countryCode, county, zip, types, placeId, latitude, longitude })
+        })
+    }
   }
 
   onInputChange = (e, obj, reason) => {
@@ -273,7 +275,7 @@ class AutoComplete extends React.Component {
   render = () => {
     const classes = this.props.classes
 
-    const x = (
+    return (
       <Autocomplete
         freeSolo
         key={this.state.randomKey}
@@ -312,52 +314,6 @@ class AutoComplete extends React.Component {
           />
         )}
       />)
-
-    return x
-    //TODO eventually change this over to MUI
-    // return (
-    //   <ReactAutocomplete
-    //     items={this.state.suggestions}
-    //     getItemValue={item => item.description}
-    //     renderItem={(item, highlighted) =>
-    //       <div
-    //         key={item.id}
-    //         className={clsx({ [classes.dropdownItem]: true, [classes.dropdownItemHighlighted]: highlighted })}
-    //       >
-    //         {item.description}
-    //       </div>
-    //     }
-    //     name={"value"}
-    //     value={this.props.value}
-    //     onChange={this.handleChange}
-    //     onSelect={(value, obj) => this.props.context === "City" ? this.onSelectCity(value, obj) : this.onSelectPlace(value, obj)}
-    //     renderInput={(props) => {
-    //       const { ref, ...rest } = props;
-
-    //       return (
-    //         <TextField
-    //           {...rest}
-    //           innerRef={ref}
-    //           label={this.props.context}
-    //           variant={"outlined"}
-    //           inputProps={{ "autoComplete": 'new-password' }}
-    //           InputProps={inputProps}
-    //           InputLabelProps={InputLabelProps}
-    //           className={classes.textField}
-    //         />)
-    //     }}
-    //     wrapperProps={{ style: { width: '100%' } }}
-    //     menuStyle={{
-    //       backgroundColor: OFF_BLACK_4,
-    //       border: `solid 1px ${ICE_BLUE}`,
-    //       borderRadius: 3,
-    //       width: '90%',
-    //       margin: 'auto',
-    //       minWidth: 'none',
-    //       visibility: this.state.suggestions.length > 0 ? 'visible' : 'hidden'
-    //     }}
-    //   />
-    // )
   }
 }
 

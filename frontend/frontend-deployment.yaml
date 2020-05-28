@@ -5,7 +5,7 @@ metadata:
   labels:
     app: frontend-deployment
 spec:
-  replicas: 3
+  replicas: 1
   #Wait 60 seconds before declaring a pod to be ready
   minReadySeconds: 60
   selector:
@@ -25,8 +25,8 @@ spec:
     spec:
       containers:
       - name: frontend-pod
-        image: gcr.io/scrapmap/frontend:latest
-        #Tests whether the pod is still responsive
+        image: gcr.io/scrapmap-277602/frontend:latest
+        #Tests whether the pod is still alive
         livenessProbe:
           httpGet:
             path: /
@@ -40,8 +40,11 @@ spec:
           #Probe will be executed every 3 seconds
           periodSeconds: 3
           httpGet:
-            path: /michael
+            path: /
             port: 80
         #Always re-pull the container image when the pod is starting up
         imagePullPolicy: Always
+      imagePullSecrets:
+      - name: gcr
+
 

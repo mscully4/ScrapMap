@@ -18,32 +18,11 @@ import AddPlace from '../components/Forms/AddPlace.js';
 import ImageUploader from '../components/Images/ImageUploader.js';
 import Error from '../components/Error.js'
 
-import { add, Svg } from '../utils/SVGs';
+import { add, Svg, placeTypeSVGs } from '../utils/SVGs';
 import { place_colors, city_colors, FONT_GREY, ICE_BLUE, OFF_BLACK_1 } from '../utils/colors';
 import { getDistanceBetweenTwoPoints } from '../utils/Formulas.js';
 
-//These can be expanded upon later
-const PLACE_TYPES = [
-  "natural_feature",
-  // ['museum', 'art_gallery'],
-  'museum',
-  "zoo",
-  "church",
-  "casino",
-  "stadium",
-  "bar",
-  // ["food", "restaurant"],
-  "food",
-  "amusement_park",
-  "park",
-  "store",
-  // ["embassy", "city_hall"],
-  "city_hall",
-  'airport',
-  "university",
-  "tourist_attraction",
-  "establishment"
-]
+const PLACE_TYPES = Object.keys(placeTypeSVGs)
 
 const DEFAULT_CENTER = { lat: 33.7490, lng: -84.3880 }
 
@@ -547,6 +526,7 @@ class Main extends React.Component {
               handleEditPlace={this.props.handlers.editPlace}
               data={this.state.selectedPlace}
               requestPending={this.props.pendingRequests.editPlace}
+              placeTypes={PLACE_TYPES}
             /> : null}
 
           {this.state.addCityFormOpen && this.state.granularity === 1 && this.props.username === this.props.user ?

@@ -12,44 +12,11 @@ import { place_colors, FONT_GREY } from "../../utils/colors"
 import {
   add,
   gallery,
-  museum,
-  mountain,
-  tourist_attraction,
-  food,
-  bar,
-  park,
-  establishment,
-  zoo,
-  university,
-  amusementPark,
-  casino,
-  church,
-  airport,
-  shopping,
-  stadium,
   Svg,
-  city_hall
 } from "../../utils/SVGs"
+import { placeTypeSVGs } from '../../utils/SVGs'
 import OptionsDropdown from './Dropdown';
 
-const types = [
-  "natural_feature",
-  ['museum', 'art_gallery'],
-  "zoo",
-  "church",
-  "casino",
-  "stadium",
-  "bar",
-  ["food", "restaurant"],
-  "amusement_park",
-  "park",
-  "store",
-  ["embassy", "city_hall"],
-  'airport',
-  "university",
-  "tourist_attraction",
-  "establishment"
-]
 
 function hexToRgb(hex) {
   var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
@@ -130,11 +97,9 @@ const styles = theme => ({
   addSVG: {
     position: 'absolute',
     top: 10,
-    right: 10,
+    right: 20,
     height: 25,
     width: 25,
-    // stroke: "#d4dada",
-    // fill: "#d4dada"
   },
   photoGallerySVG: {
     position: 'absolute',
@@ -151,6 +116,10 @@ const styles = theme => ({
     top: '25%',
     stroke: "#d4dada",
     fill: "#d4dada"
+  },
+  columnHeader: {
+    textAlign: "center",
+    color: FONT_GREY
   }
 })
 
@@ -180,27 +149,10 @@ class VirtualTable extends Component {
   }
 
   generateSVG = (type) => {
-    const icons = {
-      museum,
-      mountain,
-      tourist_attraction,
-      food,
-      bar,
-      park,
-      establishment,
-      zoo,
-      university,
-      amusementPark,
-      casino,
-      church,
-      airport,
-      shopping,
-      stadium,
-      city_hall
-    }
+    const icons = placeTypeSVGs;
     var paths = icons[type].path.map((el, i) => <path key={`${i}`} d={el} fill={place_colors[type]} stroke={place_colors[type]} />)
     return (
-      <Svg className={clsx(this.props.classes.typeSVG)} viewbox={icons[type].viewBox}>
+      <Svg className={clsx(this.props.classes.typeSVG)} viewbox={icons[type].viewBox} transform={icons[type].transform}>
         {paths}
       </Svg>
     )
@@ -310,7 +262,7 @@ class VirtualTable extends Component {
 
   renderThumb({ style, ...props }) {
     const thumbStyle = {
-      backgroundColor: "#0095d2"
+      backgroundColor: FONT_GREY
     };
     return (
       <div
@@ -320,7 +272,8 @@ class VirtualTable extends Component {
   }
 
   renderView = ({style, ...props }) => {
-    style.marginRight = -16
+    style.marginRight = -50;
+    style.marginBottom = -50;
     return <div style={style} {...props} />
   }
 
@@ -332,6 +285,7 @@ class VirtualTable extends Component {
 
     const HEADER_HEIGHT = 40;
 
+    const classes = this.props.classes
     return (
       <div className={this.props.classes.container}>
 
@@ -378,14 +332,11 @@ class VirtualTable extends Component {
               dataKey="destination"
               width={WIDTH * 1}
               headerStyle={{
-                color: "#d4dada",
+                color: FONT_GREY,
               }}
               headerRenderer={() => {
                 return (
-                  <div style={{
-                    textAlign: "center",
-                    color: "#d4dada"
-                  }}>
+                  <div className={classes.columnHeader}>
                     {this.props.granularity ? "Destinations" : "Places"}
                   </div>
                 )

@@ -15,6 +15,10 @@ import TextField from '@material-ui/core/TextField';
 import { withStyles } from '@material-ui/styles'
 import { ICE_BLUE, FONT_GREY, OFF_BLACK_1, OFF_BLACK_2, OFF_BLACK_3, OFF_BLACK_4 } from '../../utils/colors'
 import RingLoader from "react-spinners/RingLoader";
+import MenuItem from '@material-ui/core/MenuItem';
+import FormControl from '@material-ui/core/FormControl';
+import InputLabel from '@material-ui/core/InputLabel';
+import Select from '@material-ui/core/Select';
 
 const styles = theme => ({
   modal: {
@@ -63,6 +67,33 @@ const styles = theme => ({
     borderWidth: '1px',
     borderColor: `${ICE_BLUE} !important`
   },
+  selectDropdownIcon: {
+    color: `${ICE_BLUE} !important`
+  },
+  select: {
+    color: ICE_BLUE
+  },
+  selectWrapper: {
+    "& fieldset": {
+      borderColor: `${ICE_BLUE} !important`,
+
+    }
+  },
+  formControl: {
+    width: '90%',
+    marginLeft: '5%',
+    "& label": {
+      color: `${ICE_BLUE} !important`
+    }
+  },
+  menuPaper: {
+    backgroundColor: `${OFF_BLACK_1} !important`,
+    color: `${ICE_BLUE} !important`,
+    "& ul li:hover": {
+      color: OFF_BLACK_1,
+      backgroundColor: `${ICE_BLUE} !important`
+    }
+  }
 })
 
 class EditPlace extends React.Component {
@@ -95,7 +126,7 @@ class EditPlace extends React.Component {
   }
 
   hasBeenChanged = () => {
-    const { name, address, city, state, country, zip_code, latitude, longitude } = this.props.data
+    const { name, address, city, state, country, zip_code, latitude, longitude, main_type } = this.props.data
     return (this.state.name !== name ||
       this.state.address !== address ||
       this.state.city !== city ||
@@ -103,13 +134,45 @@ class EditPlace extends React.Component {
       this.state.country !== country ||
       this.state.zip_code !== zip_code ||
       this.state.latitude !== latitude ||
-      this.state.longitude !== longitude
+      this.state.longitude !== longitude ||
+      this.state.main_type !== main_type
     )
+  }
+
+  capitalize = (str) => {
+    let result = str.charAt(0).toUpperCase()
+    for (var i = 1; i < str.slice(1).length + 1; ++i) {
+      result += str.charAt(i - 1) === " " ? str.charAt(i).toUpperCase() : str.charAt(i)
+    }
+    return result
   }
 
   render() {
     const buttonDisabled = this.props.editPlaceRequestPending || !this.hasBeenChanged();
     const classes = this.props.classes
+
+    const placeTypes = []
+    var counter = 0
+    this.props.placeTypes.forEach((obj, i) => {
+      if (typeof obj === 'string') {
+        placeTypes.push({
+          index: counter,
+          value: obj,
+          label: this.capitalize(obj.replace('_', " "))
+        })
+        counter++;
+      }
+      // else if (typeof obj === 'object') {
+      //   obj.forEach((el, x) => {
+      //     placeTypes.push({
+      //       index: counter,
+      //       value: el,
+      //       label: el
+      //     })
+      //     counter++;
+      //   })
+      // }
+    })
 
     const inputProps = {
       className: clsx(classes.input),
@@ -119,6 +182,12 @@ class EditPlace extends React.Component {
     }
     const InputLabelProps = {
       className: clsx(classes.inputLabel),
+    }
+
+    const MenuProps={
+      classes: {
+        paper: classes.menuPaper
+      }
     }
 
     return (
@@ -137,6 +206,31 @@ class EditPlace extends React.Component {
                 InputLabelProps={InputLabelProps}
                 className={classes.textField}
               />
+              <FormControl variant="outlined" className={classes.formControl} style={{ marginTop: '4%' }}>
+                <InputLabel id="place-type-label">Place Type</InputLabel>
+                <Select
+                  labelId="place-type-label"
+                  value={this.state.main_type}
+                  className={clsx(classes.selectWrapper)}
+                  MenuProps={MenuProps}
+                  classes={{
+                    icon: clsx(classes.selectDropdownIcon),
+                    select: clsx(classes.select)
+                  }}
+                  onChange={(event) => {
+                    this.setState({
+                      main_type: event.target.value
+                    })
+                  }}
+                  label="Place Type"
+                >
+                  {placeTypes.map((option) =>
+                    <MenuItem key={option.value} value={option.value}>
+                      {option.label}
+                    </MenuItem>
+                  )}
+                </Select>
+              </FormControl>
               <TextField
                 label={"Address"}
                 variant={"outlined"}

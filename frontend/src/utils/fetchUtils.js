@@ -137,6 +137,7 @@ export function putEditPlaceAxios(token, data) {
   form.append('latitude', data.latitude)
   form.append('longitude', data.longitude);
   form.append('types', data.types)
+  form.append('main_type', data.main_type)
   form.append('placeId', data.placeId)
   for (var i=0; i<data.pictures.length; i++) {
     form.append('images', data.pictures[i]);
