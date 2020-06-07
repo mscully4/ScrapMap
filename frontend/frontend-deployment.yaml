@@ -23,9 +23,23 @@ spec:
       labels:
         app: frontend-pods
     spec:
+       # run using the frontend service acccount
+      serviceAccountName: frontend-sa
       containers:
+      # [React App]
       - name: frontend-pod
         image: gcr.io/scrapmap-277602/frontend:latest
+        resources:
+          # Setting the amount of resources the pod needs to be guaranteed
+          requests:
+            cpu: .2
+            memory: '256M'
+        securityContext:
+          # Run as guest
+          # runAsUser: 405
+          # Don't allow the user to run as root
+          # runAsNonRoot: true
+          # readOnlyRootFilesystem: true
         #Tests whether the pod is still alive
         livenessProbe:
           httpGet:
@@ -42,9 +56,8 @@ spec:
           httpGet:
             path: /
             port: 80
+          initialDelaySeconds: 30
         #Always re-pull the container image when the pod is starting up
         imagePullPolicy: Always
-      imagePullSecrets:
-      - name: gcr
 
 

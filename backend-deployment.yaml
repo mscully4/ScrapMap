@@ -23,11 +23,25 @@ spec:
       labels:
         app: backend-pods
     spec:
+      # run using the backend service acccount
+      serviceAccountName: backend-sa
       containers:
+      # [Django App]
       - name: backend-pod
-        # image: gcr.io/scrapmap/backend:latest
         image: gcr.io/scrapmap-277602/backend:latest
+        resources:
+          # Setting the amount of resources the pod needs to be guaranteed
+          requests:
+            cpu: .2
+            memory: '256M'
+        securityContext:
+          # Run as guest
+          runAsUser: 405
+          # Don't allow the user to run as root
+          runAsNonRoot: true
+          # readOnlyRootFilesystem: true
         volumeMounts:
+            #Mount the credentials for the CloudSql DB
           - name: database-credentials
             mountPath: /secrets/cloudsql
             readOnly: true
@@ -47,14 +61,25 @@ spec:
           httpGet:
             path: /readiness
             port: 8080
+          initialDelaySeconds: 30
         #Always re-pull the container image when the pod is starting up
         imagePullPolicy: Always
         ports:
         - containerPort: 8080
 
-      # [START proxy_container]
+      # [SQL Proxy]
       - image: gcr.io/cloudsql-docker/gce-proxy:1.16
         name: cloudsql-proxy
+        resources:
+          #Setting the amount of resources the pod needs to be guarenteed
+          requests:
+            cpu: .2
+            memory: '128M'
+        securityContext:
+          # Run as guest
+          runAsUser: 405
+          # Don't allow container to run as root
+          runAsNonRoot: true
         command: ["/cloud_sql_proxy", "--dir=/cloudsql",
                   "-instances=scrapmap-277602:us-central1:scrapmap=tcp:5432",
                   "-credential_file=/secrets/cloudsql/credentials.json"]
@@ -66,8 +91,7 @@ spec:
             mountPath: /etc/ssl/certs
           - name: database-credentials
             mountPath: /cloudsql
-      # [END proxy_container] 
-      # [START volumes]
+      # Secrets
       volumes:
         - name: database-credentials
           secret:
@@ -78,12 +102,4 @@ spec:
         - name: ssl-certs
           hostPath:
             path: /etc/ssl/certs
-      imagePullSecrets:
-        - name: gcr
-      #   - name: ssl-certs
-      #     hostPath:
-      #       path: /etc/ssl/certs
-      #   - name: cloudsql
-      #     emptyDir:
-      # [END volumes]        
-# [END kubernetes_deployment]
+
