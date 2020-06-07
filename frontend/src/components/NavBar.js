@@ -252,6 +252,8 @@ class Navigation extends React.Component {
               isOpen={this.state.showLoginModal}
               toggle={this.toggleLogin}
               loadingUserData={this.props.loadingUserData}
+              error={this.props.error}
+              setError={this.props.setError}
             />
           </div>}
       </div>

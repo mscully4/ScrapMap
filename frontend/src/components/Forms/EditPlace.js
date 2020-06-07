@@ -19,6 +19,8 @@ import MenuItem from '@material-ui/core/MenuItem';
 import FormControl from '@material-ui/core/FormControl';
 import InputLabel from '@material-ui/core/InputLabel';
 import Select from '@material-ui/core/Select';
+import { validateString, validateLatitude, validateLongitude } from '../../utils/validators'
+
 
 const styles = theme => ({
   modal: {
@@ -139,6 +141,15 @@ class EditPlace extends React.Component {
     )
   }
 
+  allFieldsValid = () => {
+    return validateString(this.state.city, 60, false) &&
+      this.state.name.length <= 120 &&
+      validateString(this.state.country, 50, false) &&
+      this.state.main_type !== "" &&
+      validateLatitude(this.state.latitude) &&
+      validateLongitude(this.state.longitude)
+  }
+
   capitalize = (str) => {
     let result = str.charAt(0).toUpperCase()
     for (var i = 1; i < str.slice(1).length + 1; ++i) {
@@ -148,30 +159,15 @@ class EditPlace extends React.Component {
   }
 
   render() {
-    const buttonDisabled = this.props.editPlaceRequestPending || !this.hasBeenChanged();
+    const buttonDisabled = this.props.editPlaceRequestPending || !this.hasBeenChanged() || !this.allFieldsValid();
     const classes = this.props.classes
 
-    const placeTypes = []
-    var counter = 0
-    this.props.placeTypes.forEach((obj, i) => {
-      if (typeof obj === 'string') {
-        placeTypes.push({
-          index: counter,
-          value: obj,
-          label: this.capitalize(obj.replace('_', " "))
-        })
-        counter++;
+    const placeTypes = this.props.placeTypes.map((obj, i) => {
+      return {
+        index: i,
+        value: obj,
+        label: this.capitalize(obj.replace('_', " "))
       }
-      // else if (typeof obj === 'object') {
-      //   obj.forEach((el, x) => {
-      //     placeTypes.push({
-      //       index: counter,
-      //       value: el,
-      //       label: el
-      //     })
-      //     counter++;
-      //   })
-      // }
     })
 
     const inputProps = {
@@ -205,6 +201,8 @@ class EditPlace extends React.Component {
                 InputProps={inputProps}
                 InputLabelProps={InputLabelProps}
                 className={classes.textField}
+                error={this.state.name.length > 120}
+                helperText={this.state.name.length > 120 ? "Must less than 120 characters" : null}
               />
               <FormControl variant="outlined" className={classes.formControl} style={{ marginTop: '4%' }}>
                 <InputLabel id="place-type-label">Place Type</InputLabel>
@@ -240,6 +238,8 @@ class EditPlace extends React.Component {
                 InputProps={inputProps}
                 InputLabelProps={InputLabelProps}
                 className={classes.textField}
+                error={this.state.address.length > 150}
+                helperText={this.state.address.length > 150 ? "Must be either blank or less than 150 characters" : null}
               />
               <TextField
                 label={"City"}
@@ -250,6 +250,8 @@ class EditPlace extends React.Component {
                 InputProps={inputProps}
                 InputLabelProps={InputLabelProps}
                 className={classes.textField}
+                error={!validateString(this.state.city, 60, true)}
+                helperText={!validateString(this.state.city, 60, true) ? "Must be shorter than 60 characters and contain only alphabetical characters" : null}
               />
               <TextField
                 label={"State"}
@@ -260,6 +262,8 @@ class EditPlace extends React.Component {
                 InputProps={inputProps}
                 InputLabelProps={InputLabelProps}
                 className={classes.textField}
+                error={!validateString(this.state.state, 25, true)}
+                helperText={!validateString(this.state.state, 25, true) ? "Must be either blank or shorter than 25 characters and contain only alphabetical characters" : null}
               />
               <TextField
                 label={"Country"}
@@ -270,8 +274,9 @@ class EditPlace extends React.Component {
                 InputProps={inputProps}
                 InputLabelProps={InputLabelProps}
                 className={classes.textField}
+                error={!validateString(this.state.country, 50, true)}
+                helperText={!validateString(this.state.country, 50, true) ? "Must be shorter than 50 characters and contain only alphabetical characters" : null}
               />
-
               <TextField
                 label={"Zip Code"}
                 variant={"outlined"}
@@ -281,7 +286,9 @@ class EditPlace extends React.Component {
                 InputProps={inputProps}
                 InputLabelProps={InputLabelProps}
                 className={classes.textField}
-              />
+                error={this.state.zip_code.length > 6}
+                helperText={this.state.zip_code.length > 6 ? "Must be either blank or less than 6 characters" : null}
+                />
               <TextField
                 label={"Latitude"}
                 variant={"outlined"}
@@ -291,6 +298,8 @@ class EditPlace extends React.Component {
                 InputProps={inputProps}
                 InputLabelProps={InputLabelProps}
                 className={classes.textField}
+                error={!validateLatitude(this.state.latitude) && this.state.latitude !== ""}
+                helperText={!validateLatitude(this.state.latitude) && this.state.latitude !== "" ? "Must be a number between -90 and 90" : null}
               />
               <TextField
                 label={"Longitude"}
@@ -301,6 +310,8 @@ class EditPlace extends React.Component {
                 InputProps={inputProps}
                 InputLabelProps={InputLabelProps}
                 className={classes.textField}
+                error={!validateLongitude(this.state.longitude) && this.state.longitude !== ""}
+                helperText={!validateLongitude(this.state.longitude) && this.state.longitude !== "" ? "Must be a number between -180 and 180" : null}                  
               />
             </Form>) :
             <RingLoader

@@ -5,6 +5,7 @@ export const OFF_BLACK_1 = "#1a1a1a"
 export const OFF_BLACK_2 = "#232323"
 export const OFF_BLACK_3 = "#292929"
 export const OFF_BLACK_4 = "#2e2e2e"
+export const ERROR_RED = '#f44336'
 
 
 const DOLLAR_BILL = "#006400"

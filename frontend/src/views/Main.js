@@ -390,6 +390,8 @@ class Main extends React.Component {
           history={this.props.history}
           recenter={this.recenter}
           signUpError={this.props.signUpError}
+          error={this.props.error}
+          setError={this.props.setError}
           context={"Main"}
         />
 
@@ -562,10 +564,10 @@ class Main extends React.Component {
             : null
           }
 
-          {this.props.showError ?
+          {this.props.error.show ?
             <Error
-              isOpen={this.props.showError}
-              errorMessage={this.props.errorMessage}
+              isOpen={true}
+              error={this.props.error}
             /> : null}
 
         </div>

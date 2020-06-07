@@ -16,6 +16,7 @@ import { withStyles } from '@material-ui/styles'
 import clsx from 'clsx';
 import { ICE_BLUE, FONT_GREY, OFF_BLACK_1, OFF_BLACK_2, OFF_BLACK_3, OFF_BLACK_4 } from '../../utils/colors'
 import AutoComplete from './AutoComplete.js';
+import { validateLatitude, validateLongitude, validateString } from '../../utils/validators'
 
 const styles = themes => ({
   modal: {
@@ -135,11 +136,12 @@ class AddCity extends React.Component {
   }
 
   allFieldsValid = () => {
-    return this.state.city !== "" &&
-      this.state.country !== "" &&
-      this.state.countryCode !== "" &&
-      this.state.latitude !== null &&
-      this.state.longitude !== null ? true : false;
+    return validateString(this.state.city, 120)
+      && validateString(this.state.country, 120)
+      && validateString(this.state.countryCode, 2)
+      && this.state.countryCode.length === 2
+      && validateLatitude(this.state.latitude)
+      && validateLongitude(this.state.longitude)
   }
 
   render() {
@@ -197,16 +199,22 @@ class AddCity extends React.Component {
                   InputProps={inputProps}
                   InputLabelProps={InputLabelProps}
                   className={classes.textField}
+                  error={!validateString(this.state.country, 120) && this.state.country !== ""}
+                  helperText={!validateString(this.state.country, 120) && this.state.country != "" ? "Must be shorter than 120 characters and contain only alphabetical characters" : null}
                 />
                 <TextField
                   label={"Country Code"}
                   variant={"outlined"}
                   onChange={this.handleChange}
-                  value={this.state.countryCode}
+                  value={this.state.countryCode.toUpperCase()}
                   inputProps={{ "boof": "countryCode", autoComplete: 'new-password' }}
                   InputProps={inputProps}
                   InputLabelProps={InputLabelProps}
                   className={classes.textField}
+                  error={!validateString(this.state.countryCode, 2) && this.state.countryCode !== "" || this.state.countryCode.length !== 2}
+                  helperText={!validateString(this.state.country, 120) 
+                    && this.state.countryCode !==  "" 
+                    && this.state.countryCode.length !== 2 ? "Must be 2 alphabetical characters" : null}
                 />
                 <TextField
                   label={"Latitude"}
@@ -217,6 +225,8 @@ class AddCity extends React.Component {
                   InputProps={inputProps}
                   InputLabelProps={InputLabelProps}
                   className={classes.textField}
+                  error={!validateLatitude(this.state.latitude) && this.state.latitude !== ""}
+                  helperText={!validateLatitude(this.state.latitude) && this.state.latitude !== "" ? "Must be a number between -90 and 90" : null}
                 />
                 <TextField
                   label={"Longitude"}
@@ -227,6 +237,8 @@ class AddCity extends React.Component {
                   InputProps={inputProps}
                   InputLabelProps={InputLabelProps}
                   className={classes.textField}
+                  error={!validateLongitude(this.state.longitude) && this.state.longitude !== ""}
+                  helperText={!validateLongitude(this.state.longitude) && this.state.longitude !== "" ? "Must be a number between -180 and 180" : null}                  
                 />
               </Form> :
               <RingLoader

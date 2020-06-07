@@ -54,7 +54,7 @@ class ErrorMessage extends React.Component {
       <Modal isOpen={this.props.isOpen} className={classes.modal}>
         <ModalHeader className={classes.modalHeader}><p className={classes.modalTitle}>Error</p></ModalHeader>
         <ModalBody className={classes.modalBody}>
-          <span className={classes.errorText}>{this.props.errorMessage}</span>
+          <span className={classes.errorText}>{this.props.error.status}: {this.props.error.statusText}</span>
           {/* <span className={classes.errorText}>Please Refresh The Page</span> */}
         </ModalBody>
       </Modal>

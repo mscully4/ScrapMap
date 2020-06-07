@@ -105,8 +105,12 @@ class App extends Component {
       deletePlaceRequestPending: false,
       deleteImageRequestPending: false,
 
-      showError: false,
-      errorMessage: "",
+      error: {
+        show: false,
+        status: 0,
+        statusText: "",
+        message: {}
+      }
     }
 
     this.setPreparedImages = null
@@ -145,19 +149,35 @@ class App extends Component {
     return places
   }
 
-  setError = (error, errorMessage) => {
+  setError = (error) => {
     this.setState({
-      showError: error,
-      errorMessage: errorMessage
+      error: error
     })
   }
 
   handleErrors = (response) => {
-    if (!response.ok) {
+    if (response.status >= 500) {
       this.setState({
-        showError: true,
-        errorMessage: `${response.status}: ${response.statusText}`
+        error: {
+          status: response.status,
+          statusText: response.statusText,
+          show: true,
+          message: "Internal Server Error"
+        }
       })
+    } else if (response.status >= 400) {
+      response.json()
+        .then(json => {
+          this.setState({
+            error: {
+              status: response.status,
+              statusText: response.statusText,
+              show: false,
+              message: json
+            }
+          })
+        })
+      throw Error(`${response.status}: ${response.statusText}`)
     }
     return response.json()
   }
@@ -181,10 +201,10 @@ class App extends Component {
       })
       .catch(err => {
         console.log(err)
-        //In the case of 500 errors
-        this.setState({ 
-          ready: true, 
-          showError: true 
+        //In the case of Network errors
+        this.setState({
+          ready: true,
+          error: typeof err === "string" ? this.state.error : { show: true, statusText: 'Network Error'}
         })
       })
   }
@@ -197,16 +217,9 @@ class App extends Component {
     })
 
     fetchToken(data)
-      .then(response => {
-        if (!response.ok) {
-          //TODO there should be some explanation as to what happened
-          console.log("Login Failed")
-          throw Error(response.statusText)
-        }
-        return response.json()
-      })
+      .then(this.handleErrors)
       .then(json => {
-        localStorage.setItem('token', json.token);
+        if (json.token) localStorage.setItem('token', json.token);
         const places = this.compilePlaces(json.destinations)
         this.setState({
           loggedIn: true,
@@ -222,32 +235,28 @@ class App extends Component {
         })
       })
       .catch(err => {
+        let error = this.state.error
         this.setState({
           loginRequestPending: false,
-          // showError: true
+          error: {
+            show: true,
+            status: error.status,
+            statusText: err,
+            message: err
+          }
         })
       })
   }
 
-  //baseURL + core/users/
   handleSignUp = (e, data) => {
     e.preventDefault();
     this.setState({
       loadingSignupRequest: true
     })
     putNewUser(data)
-      .then(response => {
-        if (!response.ok) {
-          //The status code will be used to determine what error message is shown
-          this.setState({
-            signUpError: response.status
-          })
-          throw Error(response.statusText)
-        }
-        return response.json()
-      })
+      .then(this.handleErrors)
       .then(json => {
-        localStorage.setItem("token", json.token);
+        if (json.token) localStorage.setItem("token", json.token);
         this.setState({
           loggedIn: true,
           loggedInUser: json.username,
@@ -255,17 +264,16 @@ class App extends Component {
           loggedInPlaces: [],
           loadingSignupRequest: false,
           loggedInUserDataLoaded: true
-
         })
       })
-    .catch(err => {
-      console.log(err)
-      //In the case of 500 errors
-      this.setState({
-        // showError: true,
-        loadingSignupRequest: false
+      .catch(err => {
+        console.log(err)
+        //In the case of network errors
+        this.setState({
+          error: typeof err === "string" ? this.state.error : { show: true, statusText: 'Network Error'},
+          loadingSignupRequest: false
+        })
       })
-    })
   };
 
   handleLogout = () => {
@@ -280,37 +288,35 @@ class App extends Component {
   //The intermediary function for adding new cities
   handleAddCity = (e, data) => {
     e.preventDefault();
-    //As a precaution, make sure the user is Logged In
-    if (this.state.loggedIn) {
-      //This will prevent users spamming the submit button
-      this.setState({
-        addCityRequestPending: true,
-      }, () => {
-        //Hit the /core/destinations/ endpoint with a post request to add the new city
-        postNewCity(localStorage.getItem('token'), data)
-          .then(this.handleErrors)
-          .then(data => {
-            //Change state to reflect the changes
-            this.setState({
-              loggedInCities: this.state.loggedInCities.concat([{
-                ...data, index: this.state.loggedInCities.length, color: city_colors[Math.floor(Math.random() * city_colors.length)]
-              }]),
-              mapZoom: 4,
-              mapCenter: { lat: data.latitude, lng: data.longitude },
-              addCityRequestPending: false,
-              dataChanged: true
-            })
+    //This will prevent users spamming the submit button
+    this.setState({
+      addCityRequestPending: true,
+    }, () => {
+      //Hit the /core/destinations/ endpoint with a post request to add the new city
+      postNewCity(localStorage.getItem('token'), data)
+        .then(this.handleErrors)
+        .then(data => {
+          //Change state to reflect the changes
+          this.setState({
+            loggedInCities: this.state.loggedInCities.concat([{
+              ...data, index: this.state.loggedInCities.length, color: city_colors[Math.floor(Math.random() * city_colors.length)]
+            }]),
+            mapZoom: 4,
+            mapCenter: { lat: data.latitude, lng: data.longitude },
+            addCityRequestPending: false,
+            dataChanged: true
           })
-          .catch(err => {
-            console.log(err)
-            //In the case of 500 errors
-            this.setState({
-              addCityRequestPending: false,
-              showError: true
-            })
+        })
+        .catch(err => {
+          console.log(err)
+          //In the case of network errors
+          this.setState({
+            addCityRequestPending: false,
+            error: typeof err === "string" ? this.state.error : { show: true, statusText: 'Network Error'}
           })
-      })
-    }
+        })
+    })
+
   }
 
   //The intermediary function for adding new places
@@ -350,9 +356,9 @@ class App extends Component {
         })
         .catch(err => {
           console.log(err)
-          //In the case of 500 errors
+          const error = typeof err === "string" ? this.state.error : { show: true, statusText: 'Network Error'}
           this.setState({
-            showError: true,
+            error: error,
             addPlaceRequestPending: false
           })
         })
@@ -383,9 +389,10 @@ class App extends Component {
           })
         })
         .catch(err => {
-          console.log(err)
+          const error = typeof err === "string" ? this.state.error : { show: true, status: "ERR", statusText: 'Network Error'}
           this.setState({
-            editCityRequestPending: false
+            editCityRequestPending: false,
+            error: error
           })
         })
     )
@@ -590,9 +597,9 @@ class App extends Component {
           signUp: this.state.signUpRequestPending
         }}
         loggedInUserDataLoaded={this.state.loggedInUserDataLoaded}
-        showError={this.state.showError}
-        errorMessage={this.state.errorMessage}
         signUpError={this.state.signUpError}
+        error={this.state.error}
+        setError={this.setError}
       />
     )
   }
@@ -695,8 +702,7 @@ class App extends Component {
           deleteCity: this.state.deleteCityRequestPending,
           deleteImage: this.state.deleteImageRequestPending,
         }}
-        showError={this.state.showError}
-        errorMessage={this.state.errorMessage}
+        error={this.state.error}
         setError={this.setError}
         signUpError={this.state.signUpError}
       />)

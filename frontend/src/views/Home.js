@@ -94,6 +94,23 @@ class Home extends React.Component {
     }
   }
 
+  inputProps = (err) => {
+    const classes = this.props.classes
+    return {
+      className: err ? classes.inputError:classes.input,
+      classes: {
+        notchedOutline: err ? classes.inputBorderError : classes.inputBorder,
+      }
+    }
+  }
+
+  inputLabelProps = (err) => {
+    const classes = this.props.classes
+    return {
+      className: err ? classes.inputLabelError : classes.inputLabel,
+    }
+  }
+
   submitForm = () => {
     ReactDOM.findDOMNode(this.formSignUp).dispatchEvent(new Event("submit"))
   }
@@ -101,6 +118,18 @@ class Home extends React.Component {
   disableButton = () => {
     const { username, password, first_name, last_name, email } = this.state
     return !(username !== "" && password !== "" && first_name !== "" && last_name !== "" && email !== "")
+  }
+
+  userAlreadyExists = (error) => {
+    return error.status === 400
+    && error.message.username 
+    && error.message.username.includes('A user with that username already exists.')
+  }
+
+  emailAlreadyExists = (error) => {
+    return error.status === 400
+    && error.message.email
+    && error.message.email.includes('user with this email already exists.')
   }
 
   render() {
@@ -118,8 +147,7 @@ class Home extends React.Component {
     const InputLabelProps = {
       className: clsx(classes.inputLabel),
     }
-
-
+    console.log(this.props.error)
     return (
       <div style={{ height: window.innerHeight }} className={clsx(classes.main)}>
         <Navigation
@@ -132,6 +160,8 @@ class Home extends React.Component {
           pendingRequestLogin={this.props.pendingRequests.login}
           pendingRequestSignUp={this.props.pendingRequests.signUp}
           signUpError={this.props.signUpError}
+          error={this.props.error}
+          setError={this.props.setError}
         />
         {!this.props.pendingRequests.login ?
           <Form
@@ -139,9 +169,9 @@ class Home extends React.Component {
             className={clsx(classes.form)}
             onSubmit={(e) => {
               this.props.handlers.signUp(e, this.state)
-              this.setState({
-                redirect: true
-              })
+              // this.setState({
+              //   redirect: true
+              // })
             }
             }>
             <p className={classes.signUpText}>Sign Up Now!</p>
@@ -168,35 +198,61 @@ class Home extends React.Component {
             <TextField
               label={"Email"}
               variant={"outlined"}
-              onChange={this.handleChange}
+              onChange={(e) => {
+                this.handleChange(e)
+                if (this.emailAlreadyExists(this.props.error)) {
+                  this.props.setError({
+                    show: false,
+                    code: null,
+                    statusText: "",
+                    message: []
+                  })
+                }
+              }}
               value={this.state.email}
               inputProps={{ "boof": "email", "autoComplete": 'new-password' }}
               InputProps={inputProps}
               InputLabelProps={InputLabelProps}
               className={classes.textField}
+              error={this.emailAlreadyExists(this.props.error)}
+              helperText={this.emailAlreadyExists(this.props.error) ? this.props.error.message.email : null}
             />
             {this.props.signUpError ?
               <span style={{ color: 'red' }}>A user with that username already exists</span> : null}
             <TextField
               label={"Username"}
               variant={"outlined"}
-              onChange={this.handleChange}
+              onChange={(e) => {
+                this.handleChange(e)
+                if (this.userAlreadyExists(this.props.error)) {
+                  this.props.setError({
+                    show: false,
+                    code: null,
+                    statusText: "",
+                    message: []
+                  })
+                }
+              }}
               value={this.state.username}
               inputProps={{ "boof": "username", "autoComplete": 'new-password' }}
               InputProps={inputProps}
               InputLabelProps={InputLabelProps}
               className={classes.textField}
+              error={this.userAlreadyExists(this.props.error)}
+              helperText={this.userAlreadyExists(this.props.error) ? this.props.error.message.username : null}
             />
-            <TextField
-              label={"Password"}
-              variant={"outlined"}
-              onChange={this.handleChange}
-              value={this.state.password}
-              inputProps={{ "boof": "password", "autoComplete": 'new-password' }}
+             <TextField 
+              label={"Password"} 
+              variant={"outlined"} 
+              onChange={this.handleChangePassword}
+              value={"*".repeat(this.state.password.length)}
+              inputProps={{"boof": "password"}}
               InputProps={inputProps}
               InputLabelProps={InputLabelProps}
               className={classes.textField}
-            />
+              error={this.props.error.code === 400}
+              helperText={"Incorrect Password"}
+              />
             <Button disabled={this.disableButton() || this.props.loadingSignupRequest} className={clsx(classes.button)} onClick={this.submitForm}>Submit</Button>
           </Form> :
           <RingLoader
@@ -205,10 +261,10 @@ class Home extends React.Component {
             css={`margin: auto; top: ${(window.innerHeight - 500) / 2.5}px`}
             size={500}
           />}
-        {this.props.showError ?
+        {this.props.error.show ?
           <Error
-            isOpen={this.props.showError}
-            errorMessage={this.props.errorMessage}
+            isOpen={this.props.error.show}
+            errorMessage={this.props.error.message}
           /> : null}
       </div>
     )

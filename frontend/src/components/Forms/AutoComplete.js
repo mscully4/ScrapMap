@@ -8,6 +8,7 @@ import Autocomplete from '@material-ui/lab/Autocomplete';
 import { ICE_BLUE, OFF_BLACK_1, OFF_BLACK_2, OFF_BLACK_3, OFF_BLACK_4, FONT_GREY } from '../../utils/colors';
 import { withStyles } from '@material-ui/styles';
 import clsx from 'clsx'
+import { validateString } from '../../utils/validators'
 
 
 const placeURL = "https://maps.googleapis.com/maps/api/place/autocomplete/json?"
@@ -105,41 +106,41 @@ class AutoComplete extends React.Component {
     })
   }
 
-  handleChange = e => {
-    const value = e.target.value;
-    this.setState({
-      value: value
-    });
+  // handleChange = e => {
+  //   const value = e.target.value;
+  //   this.setState({
+  //     value: value
+  //   });
 
-    switch (this.props.context) {
-      case "Place":
-        this.props.handleAutoCompleteChange(value)
-        this.loadPlaceSuggestions(value)
-          .then(json => {
-            var predictions = json.predictions.filter((pred) => pred.types.includes("establishment") ? true : false);
-            this.setState({
-              suggestions: predictions
-            })
-          })
-          .catch(err => {
-            this.props.setError(true, err)
-          })
-        break;
-      case "City":
-        this.props.handleAutoCompleteChangeCity(value)
-        this.loadCitySuggestions(value)
-          .then(response => {
-            if (!response.ok) {
-              this.props.setError(true, response.statusText)
-              throw Error(response.statusText)
-            }
-            return response.json()
-          })
-          .then(json => this.setState({ suggestions: json.predictions }))
-          .catch(err => console.log(err))
-        break
-    }
-  };
+  //   switch (this.props.context) {
+  //     case "Place":
+  //       this.props.handleAutoCompleteChange(value)
+  //       this.loadPlaceSuggestions(value)
+  //         .then(json => {
+  //           var predictions = json.predictions.filter((pred) => pred.types.includes("establishment") ? true : false);
+  //           this.setState({
+  //             suggestions: predictions
+  //           })
+  //         })
+  //         .catch(err => {
+  //           this.props.setError(true, err)
+  //         })
+  //       break;
+  //     case "City":
+  //       this.props.handleAutoCompleteChangeCity(value)
+  //       this.loadCitySuggestions(value)
+  //         .then(response => {
+  //           if (!response.ok) {
+  //             this.props.setError(true, response.statusText)
+  //             throw Error(response.statusText)
+  //           }
+  //           return response.json()
+  //         })
+  //         .then(json => this.setState({ suggestions: json.predictions }))
+  //         .catch(err => console.log(err))
+  //       break
+  //   }
+  // };
 
   loadPlaceSuggestions = (input) => {
     const parameters = `input=${input}&location=${this.props.location.lat},${this.props.location.lng}&radius=${this.props.searchRadius}&key=${this.state.apiKey}${this.props.strictBounds ? "&strictbounds" : ""}`
@@ -164,7 +165,6 @@ class AutoComplete extends React.Component {
 
 
   onChangeCity = (e, option, reason) => {
-    console.log(option, reason)
     const city = option.terms[0].value
     const country = option.terms[option.terms.length - 1].value;
     geocodeByPlaceId(option.place_id).then((data) => {
@@ -179,7 +179,6 @@ class AutoComplete extends React.Component {
         countryCode = address.types && address.types.includes('country') ? address.short_name.toLowerCase() : countryCode
       }
       this.props.selectAutoSuggestCity({ city, country, latitude, longitude, countryCode, state })
-
     })
   }
 
@@ -230,11 +229,9 @@ class AutoComplete extends React.Component {
     if (obj !== "") {
       switch (this.props.context) {
         case "Place":
-          if (obj !== "") {
             this.props.handleAutoCompleteChange(obj)
             this.loadPlaceSuggestions(obj)
               .then(response => {
-                console.log(response)
                 if (!response.ok) {
                   this.props.setError(true, response.statusText)
                   throw Error(response.statusText)
@@ -249,7 +246,6 @@ class AutoComplete extends React.Component {
                 })
               })
               .catch(err => console.log(err))
-          }
           break;
         case "City":
           this.props.handleAutoCompleteChangeCity(obj)
@@ -275,16 +271,20 @@ class AutoComplete extends React.Component {
   render = () => {
     const classes = this.props.classes
 
+    const error = this.props.context === "City" ? !validateString(this.state.searchValue, 120, true) : this.state.searchValue.length > 120
+    const helperText = this.props.context === "City" ?"Must be shorter than 120 characters and contain only alphabetical characters" : "Must be less than 120 characters"
+
     return (
       <Autocomplete
         freeSolo
         key={this.state.randomKey}
-        open={this.state.searchSuggestionsOpen}
+        // open={true}
         options={this.state.suggestions}
         getOptionLabel={(option) => option.description}
         onChange={this.props.context === "City" ? this.onChangeCity : this.onChangePlace}
         inputValue={this.state.searchValue}
         onInputChange={this.onInputChange}
+        filterOptions={(options, state) => options}
         renderOption={(option, state) => {
           return <div className={clsx(classes.autocompleteOptions)}>{`${option.description}`}</div>
         }}
@@ -311,6 +311,8 @@ class AutoComplete extends React.Component {
             InputLabelProps={{
               className: clsx(classes.inputLabel),
             }}
+            helperText={error ? helperText : null}
+            error={error}
           />
         )}
       />)

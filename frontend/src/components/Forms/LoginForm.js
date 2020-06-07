@@ -11,7 +11,7 @@ import {
   ModalFooter,
 } from 'reactstrap';
 import TextField from '@material-ui/core/TextField';
-import { ICE_BLUE, FONT_GREY, OFF_BLACK_1, OFF_BLACK_2, OFF_BLACK_3, OFF_BLACK_4 } from '../../utils/colors'
+import { ICE_BLUE, FONT_GREY, OFF_BLACK_1, OFF_BLACK_2, OFF_BLACK_3, OFF_BLACK_4, ERROR_RED } from '../../utils/colors'
 import clsx from 'clsx'
 import { withStyles } from '@material-ui/styles';
 import RingLoader from "react-spinners/RingLoader";
@@ -53,13 +53,23 @@ const styles = theme => ({
   input: {
     color: ICE_BLUE,
   },
+  inputError: {
+    color: ERROR_RED
+  },
   inputLabel: {
     color: `${ICE_BLUE} !important`
+  },
+  inputLabelError: {
+    color: `${ERROR_RED} !important`
   },
   inputBorder: {
     borderWidth: '1px',
     borderColor: `${ICE_BLUE} !important`
   },
+  inputBorderError: {
+    borderWidth: '1px',
+    borderColor: `${ERROR_RED} !important`
+  }
 })
 
 class LoginForm extends React.Component {
@@ -95,7 +105,7 @@ class LoginForm extends React.Component {
   submitForm = () => {
     ReactDOM.findDOMNode(this.formLogin).dispatchEvent(new Event("submit"))
     this.setState({
-      username: "",
+      // username: "",
       password: ""
     })
   }
@@ -104,19 +114,38 @@ class LoginForm extends React.Component {
     return this.state.username !== "" && this.state.password !== ""
   }
 
-  render() {
+  inputProps = (err) => {
     const classes = this.props.classes
-
-    const inputProps = {
-      className: clsx(classes.input),
+    return {
+      className: err ? classes.inputError:classes.input,
       classes: {
-        notchedOutline: clsx(classes.inputBorder),
+        notchedOutline: err ? classes.inputBorderError : classes.inputBorder,
       }
     }
-    const InputLabelProps={
-      className: clsx(classes.inputLabel),
-    }
+  }
 
+  inputLabelProps = (err) => {
+    const classes = this.props.classes
+    return {
+      className: err ? classes.inputLabelError : classes.inputLabel,
+    }
+  }
+
+  userNotFound = (error) => {
+    return error.status === 404
+    && error.message
+    && error.message === 'User Not Found'
+  }
+
+  incorrectPassword = (error) => {
+    return error.status === 400 
+    && error.message.non_field_errors
+    && error.message.non_field_errors.includes("Unable to log in with provided credentials.")
+  }
+
+  render() {
+    const classes = this.props.classes
+    const error = this.props.error
     return (
       <Modal isOpen={this.props.isOpen} toggle={this.props.toggle} className={classes.modal}>
         <ModalHeader toggle={this.props.toggle} className={classes.modalHeader}><p style={{fontSize:36, marginBottom: 0}}>Login</p></ModalHeader>
@@ -126,22 +155,49 @@ class LoginForm extends React.Component {
               <TextField 
               label={"Username"} 
               variant={"outlined"} 
-              onChange={this.handleChange}
+              onChange={(e) => {
+                this.handleChange(e) 
+                if (this.userNotFound(error)) {
+                  this.props.setError({
+                    error: {
+                      show: false,
+                      status: null,
+                      statusText: "",
+                      message: []
+                    }
+                  })
+                }
+              }}
               value={this.state.username}
               inputProps={{"boof": "username"}}
-              InputProps={inputProps}
-              InputLabelProps={InputLabelProps}
+              InputProps={this.inputProps(this.props.error.status === 404)}
+              InputLabelProps={this.inputLabelProps(this.props.error.status === 404)}
               className={classes.textField}
+              helperText={this.userNotFound(error) ? "User Not Found" : null}
+              error={this.userNotFound(error)}
               />
               <TextField 
               label={"Password"} 
               variant={"outlined"} 
-              onChange={this.handleChangePassword}
+              onChange={(e) => {
+                this.handleChangePassword(e)
+                console.log(this.incorrectPassword(error))
+                if (this.incorrectPassword(error)) {
+                  this.props.setError({
+                    show: false,
+                    status: null,
+                    statusText: "",
+                    message: []
+                  })
+                }
+              }}
               value={"*".repeat(this.state.password.length)}
               inputProps={{"boof": "password"}}
-              InputProps={inputProps}
-              InputLabelProps={InputLabelProps}
+              InputProps={this.inputProps(this.props.error.status === 400)}
+              InputLabelProps={this.inputLabelProps(this.props.error.status === 400)}
               className={classes.textField}
+              error={this.incorrectPassword(this.props.error)}
+              helperText={this.incorrectPassword(this.props.error) ? "Incorrect Password" : null}
               />
             </Form> :
             <RingLoader

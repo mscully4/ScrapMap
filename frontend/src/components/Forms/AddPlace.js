@@ -18,7 +18,7 @@ import { withStyles } from '@material-ui/styles'
 import MenuItem from '@material-ui/core/MenuItem';
 import FormControl from '@material-ui/core/FormControl';
 import InputLabel from '@material-ui/core/InputLabel';
-
+import { validateString, validateLatitude, validateLongitude } from '../../utils/validators'
 
 
 import AutoComplete from './AutoComplete.js';
@@ -235,11 +235,12 @@ class AddPlace extends React.Component {
   }
 
   allFieldsValid = () => {
-    return this.state.city !== "" &&
-      this.state.name !== "" &&
+    return validateString(this.state.city, 60, false) &&
+      this.state.name.length <= 120 &&
+      validateString(this.state.country, 50, false) &&
       this.state.main_type !== "" &&
-      this.state.latitude !== null &&
-      this.state.longitude !== null
+      validateLatitude(this.state.latitude) &&
+      validateLongitude(this.state.longitude)
   }
 
   clearSuggestionsHook = (func) => {
@@ -427,6 +428,8 @@ class AddPlace extends React.Component {
                   InputProps={inputProps}
                   InputLabelProps={InputLabelProps}
                   className={classes.textField}
+                  error={this.state.address.length > 150}
+                  helperText={this.state.address.length > 150 ? "Must be either blank or less than 150 characters" : null}
                 />
                 <TextField
                   label={"City"}
@@ -437,6 +440,8 @@ class AddPlace extends React.Component {
                   InputProps={inputProps}
                   InputLabelProps={InputLabelProps}
                   className={classes.textField}
+                  error={!validateString(this.state.city, 60, true)}
+                  helperText={!validateString(this.state.city, 60, true) ? "Must be shorter than 60 characters and contain only alphabetical characters" : null}
                 />
                 <TextField
                   label={"State"}
@@ -447,6 +452,8 @@ class AddPlace extends React.Component {
                   InputProps={inputProps}
                   InputLabelProps={InputLabelProps}
                   className={classes.textField}
+                  error={!validateString(this.state.state, 25, true)}
+                  helperText={!validateString(this.state.state, 25, true) ? "Must be either blank or shorter than 25 characters and contain only alphabetical characters" : null}
                 />
                 <TextField
                   label={"Country"}
@@ -457,6 +464,8 @@ class AddPlace extends React.Component {
                   InputProps={inputProps}
                   InputLabelProps={InputLabelProps}
                   className={classes.textField}
+                  error={!validateString(this.state.country, 50, true)}
+                  helperText={!validateString(this.state.country, 50, true) ? "Must be shorter than 50 characters and contain only alphabetical characters" : null}
                 />
 
                 <TextField
@@ -468,6 +477,8 @@ class AddPlace extends React.Component {
                   InputProps={inputProps}
                   InputLabelProps={InputLabelProps}
                   className={classes.textField}
+                  error={this.state.zip.length > 6}
+                  helperText={this.state.zip.length > 6 ? "Must be either blank or less than 6 characters" : null}
                 />
                 <TextField
                   label={"Latitude"}
@@ -478,6 +489,8 @@ class AddPlace extends React.Component {
                   InputProps={inputProps}
                   InputLabelProps={InputLabelProps}
                   className={classes.textField}
+                  error={!validateLatitude(this.state.latitude) && this.state.latitude !== ""}
+                  helperText={!validateLatitude(this.state.latitude) && this.state.latitude !== "" ? "Must be a number between -90 and 90" : null}
                 />
                 <TextField
                   label={"Longitude"}
@@ -488,6 +501,8 @@ class AddPlace extends React.Component {
                   InputProps={inputProps}
                   InputLabelProps={InputLabelProps}
                   className={classes.textField}
+                  error={!validateLongitude(this.state.longitude) && this.state.longitude !== ""}
+                  helperText={!validateLongitude(this.state.longitude) && this.state.longitude !== "" ? "Must be a number between -180 and 180" : null}                  
                 />
               </Form> :
               <RingLoader
