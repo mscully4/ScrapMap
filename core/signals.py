@@ -18,6 +18,7 @@ def password_reset_token_created(sender, instance, reset_password_token, *args, 
     :param kwargs:
     :return:
     """
+    print('FUCK')
     ##TODO - send password reset token via email/text
     
     # send an e-mail to the user

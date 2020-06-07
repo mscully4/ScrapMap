@@ -8,7 +8,7 @@ from django.core.files.uploadedfile import InMemoryUploadedFile, TemporaryUpload
 from the_big_username_blacklist import validate
 
 # from django.contrib.auth.models import User
-from .models import Destination, DestinationImages, Place, PlaceImages, User
+from .models import Destination, Place, PlaceImages, User
 
 from datetime import datetime
 
@@ -90,19 +90,18 @@ class DestinationSerializer(serializers.ModelSerializer):
         instance.city = validated_data.get('city', instance.city)
         instance.country = validated_data.get('country', instance.country)
         instance.latitude = validated_data.get('latitude', instance.latitude)
-        instance.longitude = validated_data.get(
-            'longitude', instance.longitude)
+        instance.longitude = validated_data.get('longitude', instance.longitude)
         instance.save()
 
-        # #if the request has files attached to it
-        if self.context['request'].FILES:
-            images = self.context['request'].FILES.getlist('images')
-            # iterate over the list of images
-            for i in range(len(images)):
-                # Copy validation from DestinationList create method
-                DestinationImages.objects.create(
-                    destination=instance, image=images[i])
-        return instance
+        # # #if the request has files attached to it
+        # if self.context['request'].FILES:
+        #     images = self.context['request'].FILES.getlist('images')
+        #     # iterate over the list of images
+        #     for i in range(len(images)):
+        #         # Copy validation from DestinationList create method
+        #         DestinationImages.objects.create(
+        #             destination=instance, image=images[i])
+        # return instance
 
 
 class PlaceSerializer(serializers.ModelSerializer):
@@ -123,7 +122,7 @@ class PlaceSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Place
-        fields= ('pk', 'destination', 'name', 'address', 'city', 'county', 'countryCode', 'state',
+        fields= ('pk', 'destination', 'name', 'address', 'city', 'state',
             'country', 'zip_code', 'latitude', 'longitude', 'placeId', 'types', 'images', 'main_type')
 
     def create(self, validated_data):

@@ -19,17 +19,15 @@ from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib.staticfiles.urls import staticfiles_urlpatterns
-
-# from rest_framework import routers
-from rest_framework_jwt.views import obtain_jwt_token
+from .utils import ObtainJSONWebToken
 
 from core import views
 from django.conf import settings
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('token-auth/', obtain_jwt_token),
-    # path('password_reset/', include('django_rest_passwordreset.urls')),
+    path('token-auth/', ObtainJSONWebToken.as_view()),
+    path('password_reset/', include('django_rest_passwordreset.urls')),
     path('core/', include('core.urls'))
 ]
 

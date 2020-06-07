@@ -5,7 +5,7 @@ from rest_framework.views import APIView
 from rest_framework.parsers import FileUploadParser
 
 from .serializers import UserSerializerLogin, UserSerializerSignUp, DestinationSerializer, PlaceSerializer, PlaceImagesSerializer
-from .models import Destination, DestinationImages, Place, PlaceImages, User
+from .models import Destination, Place, PlaceImages, User
 from django.core import serializers
 from django.db.models import Q
 
@@ -38,14 +38,8 @@ class CreateUser(APIView):
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
-        else:
-            if serializer.errors.get('username') and 'A user with that username already exists.' in serializer.errors['username']:
-                status_code = status.HTTP_403_FORBIDDEN
-                logger.error("A User With That Username Already Exists")
-            else:
-                status_code = status.HTTP_400_BAD_REQUEST
-                logger.error("Cannot Create New User: %s" % serializer.errors)
-            return Response(serializer.errors, status=status_code)
+        logger.error("Cannot Create New User: %s" % serializer.errors)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 class SearchUsers(APIView):
     '''
@@ -114,6 +108,7 @@ class DestinationView(APIView):
             return Response(serializer.errors)
             
     def post(self, request, format=None):
+        # return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         serializer = DestinationSerializer(data=request.data, context={'request': request})
         if serializer.is_valid():
             serializer.save()
