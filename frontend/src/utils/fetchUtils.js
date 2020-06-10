@@ -2,7 +2,6 @@
 import axios from 'axios';
 
 const baseURL = window.location.hostname === 'localhost' ? 'http://127.0.0.1:8000/' : `${window.location.origin}/backend/`
-console.log(window.location, baseURL)
 
 export function debounce(inner, ms = 0) {
   let timer = null;
@@ -200,4 +199,25 @@ export function searchUsers(username) {
     method: "GET",
   })
   .then(response => response.ok ? response.json() : null)
+}
+
+//Password Reset Requests
+export function validateToken(token) {
+  return fetch(baseURL + "password_reset/validate_token/", {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({token: token})
+  })
+}
+
+export function changePassword(token, password) {
+  return fetch(baseURL + "password_reset/confirm/", {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({token: token, password: password})
+  })
 }

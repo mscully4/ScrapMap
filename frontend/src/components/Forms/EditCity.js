@@ -17,7 +17,6 @@ import TextField from '@material-ui/core/TextField';
 import RingLoader from "react-spinners/RingLoader";
 import { validateLatitude, validateLongitude, validateString } from '../../utils/validators'
 
-
 const styles = theme => ({
   addIcon: {
     height: 40,

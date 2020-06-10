@@ -52,7 +52,7 @@ class SearchUsers(APIView):
         results = User.objects.filter(Q(username__istartswith=term) | Q(first_name__istartswith=term) | Q(last_name__istartswith=term))
         serializer = UserSerializerLogin(results[:10], many=True)
         return Response(serializer.data)
-
+        
 #this returns the list of all destinations for a specified user and allows users to create new locations
 class DestinationListView(APIView):
     '''
@@ -67,7 +67,7 @@ class DestinationListView(APIView):
             serializer = DestinationSerializer(Destination.objects.filter(user=User.objects.get(username=username).pk if username != None else request.user), many=True)
             return Response(serializer.data)
         else: 
-            return Response(status=status.HTTP_404_NOT_FOUND)
+            return Response({"username": username}, status=status.HTTP_404_NOT_FOUND)
 
 #this is for individual destinations, for retreiving the data/editing or deleting existing ones
 class DestinationView(APIView):

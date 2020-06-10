@@ -119,6 +119,7 @@ class AddCity extends React.Component {
   }
 
   selectAutoSuggest = (obj) => {
+    console.log(obj)
     this.setState({
       ...obj
     })
@@ -158,6 +159,7 @@ class AddCity extends React.Component {
       className: clsx(classes.inputLabel),
     }
 
+    const { city, country, countryCode, latitude, longitude} = this.state
     return (
       <React.Fragment>
         <Modal
@@ -176,12 +178,9 @@ class AddCity extends React.Component {
               <Form ref={ref => this.formAddCity = ref} onSubmit={e => this.props.handleAddCity(e, this.state)} autoComplete={"new-password"}>
                 <AutoComplete
                   name="city"
-                  placeholder="city"
-                  value={this.state.city}
                   selectAutoSuggestCity={this.selectAutoSuggest}
                   context={"City"}
                   handleAutoCompleteChangeCity={this.handleAutoCompleteChange}
-                  value={this.state.city}
                   clearSuggestionsHook={this.clearSuggestionsHook}
                   inputStyle={{
                     backgroundColor: OFF_BLACK_4,
@@ -194,39 +193,37 @@ class AddCity extends React.Component {
                   label={"Country"}
                   variant={"outlined"}
                   onChange={this.handleChange}
-                  value={this.state.country}
+                  value={country}
                   inputProps={{ "boof": "country", autoComplete: 'new-password' }}
                   InputProps={inputProps}
                   InputLabelProps={InputLabelProps}
                   className={classes.textField}
-                  error={!validateString(this.state.country, 120) && this.state.country !== ""}
-                  helperText={!validateString(this.state.country, 120) && this.state.country != "" ? "Must be shorter than 120 characters and contain only alphabetical characters" : null}
+                  error={!validateString(country, 120) && country !== ""}
+                  helperText={!validateString(country, 120) && country != "" ? "Must be shorter than 120 characters and contain only alphabetical characters" : null}
                 />
                 <TextField
                   label={"Country Code"}
                   variant={"outlined"}
                   onChange={this.handleChange}
-                  value={this.state.countryCode.toUpperCase()}
+                  value={countryCode.toUpperCase()}
                   inputProps={{ "boof": "countryCode", autoComplete: 'new-password' }}
                   InputProps={inputProps}
                   InputLabelProps={InputLabelProps}
                   className={classes.textField}
-                  error={!validateString(this.state.countryCode, 2) && this.state.countryCode !== "" || this.state.countryCode.length !== 2}
-                  helperText={!validateString(this.state.country, 120) 
-                    && this.state.countryCode !==  "" 
-                    && this.state.countryCode.length !== 2 ? "Must be 2 alphabetical characters" : null}
+                  error={!validateString(countryCode, 2, true) || (countryCode.length > 0 && countryCode.length !== 2)}
+                  helperText={!validateString(countryCode, 2, true) || (countryCode.length > 0 && countryCode.length !== 2) ? "Must be 2 alphabetical characters" : null}
                 />
                 <TextField
                   label={"Latitude"}
                   variant={"outlined"}
                   onChange={this.handleChange}
-                  value={this.state.latitude}
+                  value={latitude}
                   inputProps={{ "boof": "latitude", autoComplete: 'new-password' }}
                   InputProps={inputProps}
                   InputLabelProps={InputLabelProps}
                   className={classes.textField}
-                  error={!validateLatitude(this.state.latitude) && this.state.latitude !== ""}
-                  helperText={!validateLatitude(this.state.latitude) && this.state.latitude !== "" ? "Must be a number between -90 and 90" : null}
+                  error={!validateLatitude(latitude) && latitude !== ""}
+                  helperText={!validateLatitude(latitude) && latitude !== "" ? "Must be a number between -90 and 90" : null}
                 />
                 <TextField
                   label={"Longitude"}

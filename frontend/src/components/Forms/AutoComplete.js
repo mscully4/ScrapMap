@@ -106,42 +106,6 @@ class AutoComplete extends React.Component {
     })
   }
 
-  // handleChange = e => {
-  //   const value = e.target.value;
-  //   this.setState({
-  //     value: value
-  //   });
-
-  //   switch (this.props.context) {
-  //     case "Place":
-  //       this.props.handleAutoCompleteChange(value)
-  //       this.loadPlaceSuggestions(value)
-  //         .then(json => {
-  //           var predictions = json.predictions.filter((pred) => pred.types.includes("establishment") ? true : false);
-  //           this.setState({
-  //             suggestions: predictions
-  //           })
-  //         })
-  //         .catch(err => {
-  //           this.props.setError(true, err)
-  //         })
-  //       break;
-  //     case "City":
-  //       this.props.handleAutoCompleteChangeCity(value)
-  //       this.loadCitySuggestions(value)
-  //         .then(response => {
-  //           if (!response.ok) {
-  //             this.props.setError(true, response.statusText)
-  //             throw Error(response.statusText)
-  //           }
-  //           return response.json()
-  //         })
-  //         .then(json => this.setState({ suggestions: json.predictions }))
-  //         .catch(err => console.log(err))
-  //       break
-  //   }
-  // };
-
   loadPlaceSuggestions = (input) => {
     const parameters = `input=${input}&location=${this.props.location.lat},${this.props.location.lng}&radius=${this.props.searchRadius}&key=${this.state.apiKey}${this.props.strictBounds ? "&strictbounds" : ""}`
     return fetch(placeURL + parameters, {
@@ -162,30 +126,42 @@ class AutoComplete extends React.Component {
     })
   }
 
-
-
   onChangeCity = (e, option, reason) => {
-    const city = option.terms[0].value
-    const country = option.terms[option.terms.length - 1].value;
-    geocodeByPlaceId(option.place_id).then((data) => {
-      let state, latitude, longitude, countryCode;
-      let address;
-      for (var i = 0; i < data[0].address_components.length; ++i) {
-        address = data[0].address_components[i];
+    //This function will get run if the text box is cleared, so need to make sure a selection was actually made
+    if (option) {
+      //Update state to reflect the selection
+      const city = option.terms[0].value
+      this.setState({
+        searchValue: city
+      })
+      this.props.handleAutoCompleteChangeCity(city)
 
-        state = address.long_name === "United States" ? data[0].address_components[i - 1].long_name : state;
-        latitude = parseFloat(data[0].geometry.location.lat().toFixed(4));
-        longitude = parseFloat(data[0].geometry.location.lng().toFixed(4));
-        countryCode = address.types && address.types.includes('country') ? address.short_name.toLowerCase() : countryCode
-      }
-      this.props.selectAutoSuggestCity({ city, country, latitude, longitude, countryCode, state })
-    })
+      const country = option.terms[option.terms.length - 1].value;
+      geocodeByPlaceId(option.place_id).then((data) => {
+        let state, latitude, longitude, countryCode;
+        let address;
+        for (var i = 0; i < data[0].address_components.length; ++i) {
+          address = data[0].address_components[i];
+
+          state = address.long_name === "United States" ? data[0].address_components[i - 1].long_name : state;
+          latitude = parseFloat(data[0].geometry.location.lat().toFixed(4));
+          longitude = parseFloat(data[0].geometry.location.lng().toFixed(4));
+          countryCode = address.types && address.types.includes('country') ? address.short_name.toLowerCase() : countryCode
+        }
+        this.props.selectAutoSuggestCity({ city, country, latitude, longitude, countryCode, state })
+      })
+    }
   }
 
   onChangePlace = (e, option, reason) => {
+    //Dont know if this if is needed
     if (option.place_id !== "") {
       const place_id = option.place_id
       const name = option.terms[0].value
+      this.setState({
+        searchValue: name
+      })
+      this.props.handleAutoCompleteChangePlace(name)
       geocodeByPlaceId(place_id)
         .then(data => {
           var street_number = "", street = "", county = "", city = "", state = "", zip = "", country = "", address = "", countryCode = "";
@@ -222,33 +198,33 @@ class AutoComplete extends React.Component {
   }
 
   onInputChange = (e, obj, reason) => {
-    this.setState({
-      searchValue: obj
-    })
+    if (reason !== 'reset') {
+      this.setState({
+        searchValue: obj
+      })
+    }
 
-    if (obj !== "") {
+    if (obj !== "" && reason !== 'reset') {
       switch (this.props.context) {
         case "Place":
-            this.props.handleAutoCompleteChange(obj)
-            this.loadPlaceSuggestions(obj)
-              .then(response => {
-                if (!response.ok) {
-                  this.props.setError(true, response.statusText)
-                  throw Error(response.statusText)
-                }
-                return response.json()
+          this.loadPlaceSuggestions(obj)
+            .then(response => {
+              if (!response.ok) {
+                this.props.setError(true, response.statusText)
+                throw Error(response.statusText)
+              }
+              return response.json()
+            })
+            .then(json => {
+              //Only want predictions that have addresses
+              var predictions = json.predictions.filter((pred) => pred.types.includes("establishment") ? true : false);
+              this.setState({
+                suggestions: predictions
               })
-              .then(json => {
-                //Only want predictions that have addresses
-                var predictions = json.predictions.filter((pred) => pred.types.includes("establishment") ? true : false);
-                this.setState({
-                  suggestions: predictions
-                })
-              })
-              .catch(err => console.log(err))
+            })
+            .catch(err => console.log(err))
           break;
         case "City":
-          this.props.handleAutoCompleteChangeCity(obj)
           this.loadCitySuggestions(obj)
             .then(response => {
               if (!response.ok) {
@@ -272,7 +248,7 @@ class AutoComplete extends React.Component {
     const classes = this.props.classes
 
     const error = this.props.context === "City" ? !validateString(this.state.searchValue, 120, true) : this.state.searchValue.length > 120
-    const helperText = this.props.context === "City" ?"Must be shorter than 120 characters and contain only alphabetical characters" : "Must be less than 120 characters"
+    const helperText = this.props.context === "City" ? "Must be shorter than 120 characters and contain only alphabetical characters" : "Must be less than 120 characters"
 
     return (
       <Autocomplete

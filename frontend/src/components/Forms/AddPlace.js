@@ -371,25 +371,16 @@ class AddPlace extends React.Component {
                   />
                 </div>
                 <AutoComplete
-                  name="place"
-                  placeholder="place"
-                  value={this.state.place}
-                  selectAutoSuggestCity={this.selectAutoSuggest}
                   context={"Place"}
                   location={{ lat: this.state.closestCity.latitude, lng: this.state.closestCity.longitude }}
                   value={this.state.name}
-                  handleAutoCompleteChange={this.handleAutoCompleteChange}
+                  handleAutoCompleteChangePlace={this.handleAutoCompleteChange}
                   selectAutoSuggestPlace={this.selectAutoSuggest}
                   strictBounds={this.state.strictBounds}
                   searchRadius={this.state.searchRadius * MILES_TO_METERS}
                   clearSuggestionsHook={this.clearSuggestionsHook}
                   changeMainType={this.changeMainType}
                   placeTypes={this.props.placeTypes}
-                  inputStyle={{
-                    backgroundColor: OFF_BLACK_4,
-                    color: ICE_BLUE,
-                    borderColor: ICE_BLUE,
-                  }}
                   setError={this.props.setError}
                 />
                 <FormControl variant="outlined" className={classes.formControl} style={{marginTop: '4%'}}>

@@ -28,7 +28,7 @@ class UserSerializerSignUp(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True)
 
     def validate_username(self, value):
-        if not validate(value) or value.lower() in ('backend', 'core'):
+        if not validate(value) or value.lower() in ('backend', 'core', 'password_reset'):
             raise serializers.ValidationError("Invalid Username: Please Try Another")
         return value
 
@@ -101,7 +101,7 @@ class DestinationSerializer(serializers.ModelSerializer):
         #         # Copy validation from DestinationList create method
         #         DestinationImages.objects.create(
         #             destination=instance, image=images[i])
-        # return instance
+        return instance
 
 
 class PlaceSerializer(serializers.ModelSerializer):
@@ -138,9 +138,9 @@ class PlaceSerializer(serializers.ModelSerializer):
         instance.name=validated_data.get('name', instance.name)
         instance.address=validated_data.get('address', instance.address)
         instance.city=validated_data.get('city', instance.city)
-        instance.county=validated_data.get('county', instance.county)
+        # instance.county=validated_data.get('county', instance.county)
         instance.state=validated_data.get('state', instance.state)
-        instance.countryCode=validated_data.get('countryCode', instance.countryCode)
+        # instance.countryCode=validated_data.get('countryCode', instance.countryCode)
         instance.zip_code=validated_data.get('zip_code', instance.zip_code)
         instance.country=validated_data.get('country', instance.country)
         instance.latitude=validated_data.get('latitude', instance.latitude)

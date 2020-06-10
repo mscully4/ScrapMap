@@ -34,7 +34,7 @@ spec:
           requests:
             cpu: .2
             memory: '256M'
-        securityContext:
+        # securityContext:
           # Run as guest
           # runAsUser: 405
           # Don't allow the user to run as root
@@ -58,6 +58,14 @@ spec:
             port: 80
           initialDelaySeconds: 30
         #Always re-pull the container image when the pod is starting up
+        #Disable in Production
         imagePullPolicy: Always
+        lifecycle:
+          preStop:
+            exec:
+              command:
+                - sh
+                - -c 
+                - "sleep 5"
 
 

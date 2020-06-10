@@ -11,5 +11,11 @@ export const validateLongitude = (lng) => {
 }
 
 export const validateString = (str, length, canBeBlank) => {
-    return canBeBlank ? (/^[a-zA-Z ]+$/.test(str) && str.length <= length) || str === "" : /^[a-zA-Z ]+$/.test(str) && str.length <= length && str.charAt(0) !== " "
+    const regex = /^[a-zA-Z.,\' /-]+$/
+    return canBeBlank ? (regex.test(str) && str.length <= length) || str === "" : regex.test(str) && str.length <= length && str.charAt(0) !== " "
+}
+
+export const validatePassword = (str) => {
+    const regex = /^[a-zA-Z1-9!@#$%^&*()-_=+<,>./?]+$/
+    return regex.test(str)
 }

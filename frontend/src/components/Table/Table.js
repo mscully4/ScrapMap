@@ -106,16 +106,14 @@ const styles = theme => ({
     height: 25,
     width: 30,
     top: 10,
-    right: 10,
+    right: 20,
 
   },
   typeSVG: {
     position: 'absolute',
     height: '50%',
-    left: 10,
+    left: 40,
     top: '25%',
-    stroke: "#d4dada",
-    fill: "#d4dada"
   },
   columnHeader: {
     textAlign: "center",
@@ -152,7 +150,7 @@ class VirtualTable extends Component {
     const icons = placeTypeSVGs;
     var paths = icons[type].path.map((el, i) => <path key={`${i}`} d={el} fill={place_colors[type]} stroke={place_colors[type]} />)
     return (
-      <Svg className={clsx(this.props.classes.typeSVG)} viewbox={icons[type].viewBox} transform={icons[type].transform}>
+      <Svg className={clsx(this.props.classes.typeSVG)} viewbox={icons[type].viewBox}>
         {paths}
       </Svg>
     )
@@ -206,8 +204,7 @@ class VirtualTable extends Component {
       });
     }
 
-    const rgb = hexToRgb("#f8f8ff")
-    const fill = `rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, ${greyOutGalleryIcon ? ".2" : "1"})`
+    const rgb = hexToRgb(FONT_GREY)
     return (
       <div>
         <ReactCountryFlag
@@ -271,7 +268,7 @@ class VirtualTable extends Component {
     );
   }
 
-  renderView = ({style, ...props }) => {
+  renderView = ({ style, ...props }) => {
     style.marginRight = -50;
     style.marginBottom = -50;
     return <div style={style} {...props} />
@@ -279,7 +276,7 @@ class VirtualTable extends Component {
 
 
   render = () => {
-    const WIDTH =  window.innerWidth * .36;
+    const WIDTH = window.innerWidth * .36;
     const HEIGHT = window.innerHeight;
     const list = this.props.granularity ? this.props.cities : this.getPlaces();
 

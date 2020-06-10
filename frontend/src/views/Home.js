@@ -147,7 +147,6 @@ class Home extends React.Component {
     const InputLabelProps = {
       className: clsx(classes.inputLabel),
     }
-    console.log(this.props.error)
     return (
       <div style={{ height: window.innerHeight }} className={clsx(classes.main)}>
         <Navigation
@@ -169,9 +168,6 @@ class Home extends React.Component {
             className={clsx(classes.form)}
             onSubmit={(e) => {
               this.props.handlers.signUp(e, this.state)
-              // this.setState({
-              //   redirect: true
-              // })
             }
             }>
             <p className={classes.signUpText}>Sign Up Now!</p>
@@ -264,7 +260,7 @@ class Home extends React.Component {
         {this.props.error.show ?
           <Error
             isOpen={this.props.error.show}
-            errorMessage={this.props.error.message}
+            error={this.props.error}
           /> : null}
       </div>
     )

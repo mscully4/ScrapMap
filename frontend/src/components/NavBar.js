@@ -24,7 +24,7 @@ const styles = theme => ({
     backgroundColor: OFF_BLACK_2,
     display: 'grid',
     gridTemplateRows: '1fr',
-    gridTemplateColumns: '1fr 3fr 1.5fr',
+    gridTemplateColumns: '1fr 3fr 2fr',
     alignItems: 'center'
   },
   logo: {
@@ -66,12 +66,12 @@ const styles = theme => ({
   userInfo: {
     display: 'grid',
     gridTemplateRows: '1fr',
-    gridTemplateColumns: '3fr auto 40px auto',
+    gridTemplateColumns: '3fr auto 30px auto',
     alignItems: 'center',
   },
   username: {
     // fontFamily: "Kaushan Script",
-    fontSize: '150%',
+    fontSize: 20,
     margin: "auto",
     lineHeight: 'inherit',
     color: FONT_GREY,
@@ -84,7 +84,7 @@ const styles = theme => ({
   },
   logout: {
     color: "#0095d2",
-    fontSize: '150%',
+    fontSize: 20,
     textAlign: 'left',
     paddingRight: 50
   },
@@ -194,8 +194,8 @@ class Navigation extends React.Component {
           open={this.state.searchSuggestionsOpen}
           options={this.state.suggestions}
           filterOptions={(props, state) => {
-            //the filtering is done on the backend by django
-            return props
+            //Most of the filtering is done by the backend, just need to exlude the user currently logged in from search results
+            return props.filter(el => el.username !== this.props.loggedInUser)
           }}
           getOptionLabel={(option) => option.username}
           onChange={this.onChange}

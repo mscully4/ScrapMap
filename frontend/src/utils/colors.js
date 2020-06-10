@@ -66,7 +66,7 @@ export const place_colors = {
   airport: BLUESTONE,
   university: NOTRE_DAME_GOLD,
   tourist_attraction: TUMERIC,
-  establishment: ARCADIA,
+  establishment: ASPEN_GOLD,
   hindu_temple: DEEP_SAFFRON,
   night_club: RAVE
 }

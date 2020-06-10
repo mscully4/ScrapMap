@@ -149,8 +149,9 @@ class ImageUploader extends React.Component {
               loading={true}
               css={"margin: auto; top: 100px; "}
             />
+            <span>Uploading...</span>
             <Progress 
-              value={this.state.Progress} 
+              value={this.state.progress} 
               className={clsx(classes.progressBarContainer)} 
               barClassName={clsx(classes.progressBar)}
             />

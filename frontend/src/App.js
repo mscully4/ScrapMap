@@ -24,13 +24,13 @@ import {
 
 import Main from './views/Main';
 import Home from './views/Home';
-// import Test from './views/Test';
+ import PasswordReset from './views/PasswordReset';
 
-import { city_colors } from "./utils/colors"
+import { city_colors, ICE_BLUE } from "./utils/colors"
 
 import "./App.css";
 
-const BACKEND_URL = "http://localhost:8000";
+const baseURL = window.location.hostname === 'localhost' ? 'http://127.0.0.1:8000/' : `${window.location.origin}/backend/`
 const DEFAULT_CENTER = { lat: 33.7490, lng: -84.3880 }
 
 
@@ -156,7 +156,9 @@ class App extends Component {
   }
 
   handleErrors = (response) => {
-    if (response.status >= 500) {
+    if (this.state.error.show === true) {
+      throw Error `${response.status}: ${response.statusText}`
+    } else if (response.status >= 500) {
       this.setState({
         error: {
           status: response.status,
@@ -164,6 +166,8 @@ class App extends Component {
           show: true,
           message: "Internal Server Error"
         }
+      }, () => {
+        throw Error(`${response.status}: ${response.statusText}`)
       })
     } else if (response.status >= 400) {
       response.json()
@@ -175,11 +179,13 @@ class App extends Component {
               show: false,
               message: json
             }
+          }, () => {
+            throw Error(`${response.status}: ${response.statusText}`)
           })
         })
-      throw Error(`${response.status}: ${response.statusText}`)
+    } else {
+      return response.json()
     }
-    return response.json()
   }
 
   handleLoadSession = (e) => {
@@ -200,12 +206,21 @@ class App extends Component {
         })
       })
       .catch(err => {
-        console.log(err)
-        //In the case of Network errors
         this.setState({
           ready: true,
-          error: typeof err === "string" ? this.state.error : { show: true, statusText: 'Network Error'}
         })
+        //this will only execute if there is a network error
+        if (this.state.error.show === false) {
+          this.setState({
+            error: {
+              show: true,
+              status: "net",
+              statusText: "ERR_CONNECTION_REFUSED",
+              message: "Network Error"
+            }
+          })
+        }
+
       })
   }
 
@@ -235,45 +250,63 @@ class App extends Component {
         })
       })
       .catch(err => {
-        let error = this.state.error
         this.setState({
           loginRequestPending: false,
-          error: {
-            show: true,
-            status: error.status,
-            statusText: err,
-            message: err
-          }
         })
+
+        //this will only execute if there is a network error
+        if (this.state.error.show === false) {
+          this.setState({
+            error: {
+              show: true,
+              status: "net",
+              statusText: "ERR_CONNECTION_REFUSED",
+              message: "Network Error"
+            }
+          })
+        }
       })
   }
 
+  //The intermediary function for adding new users
   handleSignUp = (e, data) => {
     e.preventDefault();
     this.setState({
+      //Prevent the user from spamming requests
       loadingSignupRequest: true
+    }, () => {
+      //Hit the /core/users/ endpoint with a POST request
+      putNewUser(data)
+        .then(this.handleErrors)
+        .then(json => {
+          if (json.token) localStorage.setItem("token", json.token);
+          this.setState({
+            loggedIn: true,
+            loggedInUser: json.username,
+            loggedInCities: [],
+            loggedInPlaces: [],
+            loadingSignupRequest: false,
+            loggedInUserDataLoaded: true
+          })
+        })
+        .catch(err => {
+          this.setState({
+            loadingSignupRequest: false
+          })
+
+          //this will only execute if there is a network error
+          if (this.state.error.show === false) {
+            this.setState({
+              error: {
+                show: true,
+                status: "net",
+                statusText: "ERR_CONNECTION_REFUSED",
+                message: "Network Error"
+              }
+            })
+          }
+        })
     })
-    putNewUser(data)
-      .then(this.handleErrors)
-      .then(json => {
-        if (json.token) localStorage.setItem("token", json.token);
-        this.setState({
-          loggedIn: true,
-          loggedInUser: json.username,
-          loggedInCities: [],
-          loggedInPlaces: [],
-          loadingSignupRequest: false,
-          loggedInUserDataLoaded: true
-        })
-      })
-      .catch(err => {
-        console.log(err)
-        //In the case of network errors
-        this.setState({
-          error: typeof err === "string" ? this.state.error : { show: true, statusText: 'Network Error'},
-          loadingSignupRequest: false
-        })
-      })
   };
 
   handleLogout = () => {
@@ -308,15 +341,23 @@ class App extends Component {
           })
         })
         .catch(err => {
-          console.log(err)
-          //In the case of network errors
           this.setState({
             addCityRequestPending: false,
-            error: typeof err === "string" ? this.state.error : { show: true, statusText: 'Network Error'}
           })
+
+          //this will only execute if there is a network error
+          if (this.state.error === false) {
+            this.setState({
+              error: {
+                show: true,
+                status: "net",
+                statusText: "ERR_CONNECTION_REFUSED",
+                message: "Network Error"
+              }
+            })
+          }
         })
     })
-
   }
 
   //The intermediary function for adding new places
@@ -355,12 +396,21 @@ class App extends Component {
           })
         })
         .catch(err => {
-          console.log(err)
-          const error = typeof err === "string" ? this.state.error : { show: true, statusText: 'Network Error'}
           this.setState({
-            error: error,
             addPlaceRequestPending: false
           })
+
+          //This will only execute if there is a network error
+          if (this.state.error.show === false) {
+            this.setState({
+              error: {
+                show: true,
+                status: "net",
+                statusText: "ERR_CONNECTION_REFUSED",
+                message: "Network Error"
+              }
+            })
+          }
         })
     })
   }
@@ -389,11 +439,21 @@ class App extends Component {
           })
         })
         .catch(err => {
-          const error = typeof err === "string" ? this.state.error : { show: true, status: "ERR", statusText: 'Network Error'}
           this.setState({
             editCityRequestPending: false,
-            error: error
           })
+
+          //this will only execute if there is a network error
+          if (this.state.error.show === false) {
+            this.setState({
+              error: {
+                show: true,
+                status: "net",
+                statusText: "ERR_CONNECTION_REFUSED",
+                message: "Network Error"
+              }
+            })
+          }
         })
     )
   }
@@ -425,12 +485,22 @@ class App extends Component {
           })
         })
         .catch(err => {
-          console.log(err)
           this.setState({
-            showError: true,
-            editCityRequestPending: false,
-            errorMessage: `${err.response.status}: ${err.response.statusText}`
+            editPlaceRequestPending: false,
           })
+
+          //this will only execute if there is a network error
+          if (this.state.error.show === false) {
+            this.setState({
+              error: {
+                show: true,
+                status: "net",
+                statusText: "ERR_CONNECTION_REFUSED",
+                message: "Network Error"
+              }
+            })
+          }
+
         })
     })
   }
@@ -456,14 +526,12 @@ class App extends Component {
           })
         })
         .catch(err => {
-          //In the case of 500 errors
-          console.log(err)
+          //In the case of network errors
           this.setState({
             deleteCityRequestPending: false,
-            showError: true
+            // error: typeof err === "string" ? this.state.error : { show: true, status: "NERR", statusText: 'Network Error'},
           })
         })
-
     })
   }
 
@@ -494,7 +562,7 @@ class App extends Component {
           //In the case of 500 errors
           this.setState({
             deletePlaceRequestPending: false,
-            showError: true
+            // error: typeof err === "string" ? this.state.error : { show: true, status: "NERR", statusText: 'Network Error'},
           })
         })
     })
@@ -538,7 +606,7 @@ class App extends Component {
           //In the case of 500 errors
           this.setState({
             deleteImageRequestPending: false,
-            showError: true
+            // error: typeof err === "string" ? this.state.error : { show: true, status: "NERR", statusText: 'Network Error'},
           })
         })
     })
@@ -581,6 +649,15 @@ class App extends Component {
   // //     mapZoom: zoom,
   // //   })
   // // }
+
+  renderPasswordReset = (props) => {
+    return (
+      <PasswordReset
+        token={props.match.params.token}
+        baseURL={baseURL}
+      />
+    )
+  }
 
   renderHome = (props) => {
     return (
@@ -627,6 +704,23 @@ class App extends Component {
     //If redirecting to a user's page that is not the viewUser, load this user's data
     else if (user !== this.state.viewUser && !this.state.showError) {
       getUser(localStorage.getItem("token"), user)
+        //Overriding the default error handling behavior, if the user being searched for does not exists, show a pop-up
+        .then(response => {
+          if (this.state.error.show === true) {
+            throw Error `${response.status}: ${response.statusText}`
+          } else if (response.status === 404 && this.state.error.show !== true) {
+            this.setState({
+              error: {
+                show: true,
+                status: 404,
+                statusText: "Not Found",
+                message: `No User ${user} Exists`
+              }
+            })
+            throw Error `${response.status}: ${response.statusText}`
+          }
+          return response
+        })
         .then(this.handleErrors)
         .then(data => {
           const cities = data.map((el, i) => {
@@ -652,7 +746,14 @@ class App extends Component {
             })
           }
         })
-        .catch(err => console.log(err))
+        .catch(err => {
+          console.log(err)
+          // const error = this.state.error 
+          // error.show = true
+          // this.setState({
+          //   error: error
+          // })
+        })
     }
 
     return (
@@ -715,6 +816,7 @@ class App extends Component {
         <React.Fragment>
           <Router>
             <Switch>
+              <Route path="/password_reset/:token" render={(props) => this.renderPasswordReset(props)}></Route>
               <Route path="/:username" render={(props) => this.renderMain(props)}></Route>
               <Route path="/" render={(props) => this.renderHome(props)}></Route>
             </Switch>
@@ -729,7 +831,7 @@ class App extends Component {
           backgroundColor: "#000000",
         }}>
           <RingLoader
-            color={"#0095d2"}
+            color={ICE_BLUE}
             loading={true}
             css={`margin: auto; background-color: #000000; top: ${(window.innerHeight - 500) / 2.5}px`}
             size={500}
@@ -738,7 +840,7 @@ class App extends Component {
             position: 'absolute',
             left: 0,
             right: 0,
-            color: "#0095d2",
+            color: ICE_BLUE,
             textAlign: 'center',
             fontSize: 50,
             bottom: window.innerHeight * .1,

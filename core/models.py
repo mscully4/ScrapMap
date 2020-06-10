@@ -8,7 +8,7 @@ from django.core.validators import RegexValidator
 from django.core.exceptions import ValidationError
 from django.utils.translation import gettext_lazy as _
 
-alpha = RegexValidator(r'^[a-zA-Z]*$', 'Only letters are allowed.')
+alpha = RegexValidator(r'^[a-zA-Z,. _\']*$', 'Only letters are allowed.')
 
 def validate_latitude(lat):
     if not (-90 <= lat <= 90):
