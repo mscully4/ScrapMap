@@ -7,6 +7,8 @@ from django.conf import settings
 from django_rest_passwordreset.signals import reset_password_token_created
 import smtplib
 import ssl
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
 
 
 @receiver(reset_password_token_created)
@@ -36,7 +38,22 @@ def password_reset_token_created(sender, instance, reset_password_token, *args, 
     EMAIL_ADDRESS = settings.EMAIL_ADDRESS
     EMAIL_PASSWORD = settings.EMAIL_PASSWORD
 
-    print(EMAIL_ADDRESS, EMAIL_PASSWORD)
+    message = MIMEMultipart("alternative")
+    message["Subject"] = "multipart test"
+    message["From"] = EMAIL_ADDRESS
+    message["To"] = reset_password_token.user.email
+
+    text = """\
+Hi {},
+Reset your password here:
+{}:3000{}{}
+""".format(reset_password_token.user.username, IP_ADDRESS, reverse('password_reset:reset-password-request'), reset_password_token.key)
+
+    print(text)
+
+    plain = MIMEText(text, "plain")
+    message.attach(plain)
+
 
     port = 465  # For SSL
     # password = input("Type your password and press enter: ")
@@ -47,21 +64,6 @@ def password_reset_token_created(sender, instance, reset_password_token, *args, 
     with smtplib.SMTP_SSL("smtp.gmail.com", port, context=context) as server:
         server.login(EMAIL_ADDRESS, EMAIL_PASSWORD)
 
-    # # render email text
-    # email_html_message = render_to_string('email/user_reset_password.html', context)
-    email_plaintext_message = "{}:3000{}?token={}".format(IP_ADDRESS, reverse('password_reset:reset-password-request'), reset_password_token.key)
-
-    print(email_plaintext_message)
-
-    # msg = EmailMultiAlternatives(
-    #     # title:
-    #     "Password Reset for {}".format(reset_password_token.user.username),
-    #     # message:
-    #     email_plaintext_message,
-    #     # from:
-    #     "scrapmap.login@gmail.com",
-    #     # to:
-    #     [reset_password_token.user.email]
-    # )
-    # # msg.attach_alternative(email_html_message, "text/html")
-    # msg.send()
+        # message = "{}:3000{}?token={}".format(IP_ADDRESS, reverse('password_reset:reset-password-request'), reset_password_token.key)
+        # print(message)
+        server.sendmail(EMAIL_ADDRESS, reset_password_token.user.email, message.as_string())

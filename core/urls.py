@@ -1,8 +1,10 @@
-from django.urls import path
+from django.urls import path, include
 from .views import CurrentUser, CreateUser, SearchUsers, DestinationListView, DestinationView, PlaceView, PlaceImagesView
 from django.conf.urls.static import static
 
 urlpatterns = [
+    path('password_reset/', include('django_rest_passwordreset.urls')),
+
     path('current_user/', CurrentUser.as_view()),
     path('users/', CreateUser.as_view()),
 

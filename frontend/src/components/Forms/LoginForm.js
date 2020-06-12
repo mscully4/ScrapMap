@@ -15,12 +15,13 @@ import { ICE_BLUE, FONT_GREY, OFF_BLACK_1, OFF_BLACK_2, OFF_BLACK_3, OFF_BLACK_4
 import clsx from 'clsx'
 import { withStyles } from '@material-ui/styles';
 import RingLoader from "react-spinners/RingLoader";
+import { validateEmail } from '../../utils/validators'
+import { requestToken } from '../../utils/fetchUtils'
 
 const styles = theme => ({
   fieldLabel: {
     color: ICE_BLUE,
     fontSize: 18,
-    marginBottom: 5,
     marginTop: 10,
     marginLeft: '5%'
   },
@@ -69,6 +70,17 @@ const styles = theme => ({
   inputBorderError: {
     borderWidth: '1px',
     borderColor: `${ERROR_RED} !important`
+  },
+  forgotPassword: {
+    color: ICE_BLUE,
+    cursor: 'pointer',
+    marginLeft: '5%',
+    marginTop: 5,
+    display: 'inline',
+    "&:hover": {
+      textDecoration: 'underline',
+      // fontWeight: 'bold'
+    }
   }
 })
 
@@ -77,10 +89,13 @@ class LoginForm extends React.Component {
     username: "",
     password: "",
     showLoader: false,
+    showForgotPassword: false,
+    email: "",
+    passwordResetRequestSuccess: null,
+    passwordResetRequestPending: false
   };
 
-  handleChange = e => {
-    const name = e.target.getAttribute("boof");
+  handleChange = (e, name) => {
     const value = e.target.value;
     this.setState(prevState => {
       const newState = { ...prevState };
@@ -93,7 +108,7 @@ class LoginForm extends React.Component {
     const value = this.state.password + e.target.value.slice(-1);
     if (e.target.value.length < this.state.password.length) {
       this.setState({
-        password: this.state.password.slice(0, e.target.value.length )
+        password: this.state.password.slice(0, e.target.value.length)
       })
     } else {
       this.setState({
@@ -109,14 +124,14 @@ class LoginForm extends React.Component {
     })
   }
 
-  allFieldsValid = () => { 
+  loginFieldsValid = () => {
     return this.state.username !== "" && this.state.password !== ""
   }
 
   inputProps = (err) => {
     const classes = this.props.classes
     return {
-      className: err ? classes.inputError:classes.input,
+      className: err ? classes.inputError : classes.input,
       classes: {
         notchedOutline: err ? classes.inputBorderError : classes.inputBorder,
       }
@@ -132,82 +147,144 @@ class LoginForm extends React.Component {
 
   userNotFound = (error) => {
     return error.status === 404
-    && error.message
-    && error.message === 'User Not Found'
+      && error.message
+      && error.message === 'User Not Found'
   }
 
   incorrectPassword = (error) => {
-    return error.status === 400 
-    && error.message.non_field_errors
-    && error.message.non_field_errors.includes("Unable to log in with provided credentials.")
+    return error.status === 400
+      && error.message.non_field_errors
+      && error.message.non_field_errors.includes("Unable to log in with provided credentials.")
+  }
+
+  submitPasswordResetRequest = () => {
+    this.setState({
+      passwordResetRequestPending: true
+    }, () => {
+      requestToken(this.state.email)
+        .then(response => {
+          this.setState({
+            passwordResetRequestSuccess: response.status === 200,
+            showForgotPassword: response.status === 200 ? false : true,
+            passwordResetRequestPending: false
+          })
+        })
+    })
   }
 
   render() {
     const classes = this.props.classes
     const error = this.props.error
-    return (
-      <Modal isOpen={this.props.isOpen} toggle={this.props.toggle} className={classes.modal}>
-        <ModalHeader toggle={this.props.toggle} className={classes.modalHeader}><p style={{fontSize:36, marginBottom: 0}}>Login</p></ModalHeader>
+    var body, buttonDisabled, onClick;
+
+    if (this.state.showForgotPassword) {
+      onClick = this.submitPasswordResetRequest
+      buttonDisabled = !validateEmail(this.state.email) || this.state.passwordResetRequestPending
+      body = (
         <ModalBody style={styles.modalBody} className={classes.modalBody}>
-          {!this.props.loadingUserData ?
-            <Form ref={ref => this.formLogin = ref} onSubmit={e => this.props.handleLogin(e, this.state)}>
-              <TextField 
-              label={"Username"} 
-              variant={"outlined"} 
-              onChange={(e) => {
-                this.handleChange(e) 
-                if (this.userNotFound(error)) {
-                  this.props.setError({
-                    error: {
-                      show: false,
-                      status: null,
-                      statusText: "",
-                      message: []
-                    }
-                  })
-                }
-              }}
-              value={this.state.username}
-              inputProps={{"boof": "username"}}
-              InputProps={this.inputProps(this.props.error.status === 404)}
-              InputLabelProps={this.inputLabelProps(this.props.error.status === 404)}
-              className={classes.textField}
-              helperText={this.userNotFound(error) ? "User Not Found" : null}
-              error={this.userNotFound(error)}
-              />
-              <TextField 
-              label={"Password"} 
-              variant={"outlined"} 
-              onChange={(e) => {
-                this.handleChangePassword(e)
-                console.log(this.incorrectPassword(error))
-                if (this.incorrectPassword(error)) {
-                  this.props.setError({
+          <div className={classes.fieldLabel}>Enter the email address associated with your account</div>
+          <TextField
+            label={"Email"}
+            variant={"outlined"}
+            onChange={(e) => this.handleChange(e, 'email')}
+            value={this.state.email}
+            InputProps={this.inputProps(false)}
+            InputLabelProps={this.inputLabelProps(false)}
+            className={classes.textField}
+            helperText={this.state.passwordResetRequestSuccess === false ? "No User Found with that Email Address" : null}
+            error={this.state.passwordResetRequestSuccess === false}
+          />
+        </ModalBody>)
+    } else if (this.state.passwordResetRequestSuccess === true) {
+      onClick = null
+      buttonDisabled = true
+      body = (
+        <ModalBody style={styles.modalBody} className={classes.modalBody}>
+          <div className={classes.fieldLabel}>An email with instructions for reseting your password has been sent to {this.state.email}</div>
+        </ModalBody>
+      )
+    }
+    else if (this.props.loadingUserData) {
+      buttonDisabled = this.props.loadingUserData
+      body = (
+        <ModalBody style={styles.modalBody} className={classes.modalBody}>
+          <RingLoader
+            color={"#0095d2"}
+            loading={true}
+            css={`margin: auto`}
+            size={200}
+          />
+        </ModalBody>
+      )
+    } else {
+      buttonDisabled = !this.loginFieldsValid();
+      onClick = (e) => this.props.handleLogin(e, this.state);
+      body = (
+        <ModalBody style={styles.modalBody} className={classes.modalBody}>
+          <TextField
+            label={"Username"}
+            variant={"outlined"}
+            onChange={(e) => {
+              this.handleChange(e, 'username')
+              if (this.userNotFound(error)) {
+                this.props.setError({
+                  error: {
                     show: false,
                     status: null,
                     statusText: "",
                     message: []
-                  })
-                }
-              }}
-              value={"*".repeat(this.state.password.length)}
-              inputProps={{"boof": "password"}}
-              InputProps={this.inputProps(this.props.error.status === 400)}
-              InputLabelProps={this.inputLabelProps(this.props.error.status === 400)}
-              className={classes.textField}
-              error={this.incorrectPassword(this.props.error)}
-              helperText={this.incorrectPassword(this.props.error) ? "Incorrect Password" : null}
-              />
-            </Form> :
-            <RingLoader
-              color={"#0095d2"}
-              loading={true}
-              css={`margin: auto`}
-              size={200}
-            />}
+                  }
+                })
+              }
+            }}
+            value={this.state.username}
+            InputProps={this.inputProps(this.props.error.status === 404)}
+            InputLabelProps={this.inputLabelProps(this.props.error.status === 404)}
+            className={classes.textField}
+            helperText={this.userNotFound(error) ? "User Not Found" : null}
+            error={this.userNotFound(error)}
+          />
+          <TextField
+            label={"Password"}
+            variant={"outlined"}
+            onChange={(e) => {
+              this.handleChangePassword(e, 'password')
+              console.log(this.incorrectPassword(error))
+              if (this.incorrectPassword(error)) {
+                this.props.setError({
+                  show: false,
+                  status: null,
+                  statusText: "",
+                  message: []
+                })
+              }
+            }}
+            value={"*".repeat(this.state.password.length)}
+            InputProps={this.inputProps(this.props.error.status === 400)}
+            InputLabelProps={this.inputLabelProps(this.props.error.status === 400)}
+            className={classes.textField}
+            error={this.incorrectPassword(this.props.error)}
+            helperText={this.incorrectPassword(this.props.error) ? "Incorrect Password" : null}
+            style={{ marginBottom: 5 }}
+          />
+          <div
+            className={classes.forgotPassword}
+            onClick={(e) => {
+              this.setState({
+                showForgotPassword: true
+              })
+            }}
+          >Forgot Password?</div>
         </ModalBody>
+      )
+    }
+
+    return (
+      <Modal isOpen={this.props.isOpen} toggle={this.props.toggle} className={classes.modal}>
+        <ModalHeader toggle={this.props.toggle} className={classes.modalHeader}><p style={{ fontSize: 36, marginBottom: 0 }}>Login</p></ModalHeader>
+        {body}
         <ModalFooter className={classes.modalFooter}>
-          <Button disabled={this.props.loadingUserData || !this.allFieldsValid()} onClick={this.submitForm} className={classes.button}>Submit</Button>
+          <Button disabled={buttonDisabled} onClick={onClick} className={classes.button}>Submit</Button>
         </ModalFooter>
       </Modal>
     )

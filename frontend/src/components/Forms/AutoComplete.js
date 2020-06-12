@@ -9,7 +9,7 @@ import { ICE_BLUE, OFF_BLACK_1, OFF_BLACK_2, OFF_BLACK_3, OFF_BLACK_4, FONT_GREY
 import { withStyles } from '@material-ui/styles';
 import clsx from 'clsx'
 import { validateString } from '../../utils/validators'
-
+var debounce = require('debounce-promise')
 
 const placeURL = "https://maps.googleapis.com/maps/api/place/autocomplete/json?"
 const cityURL = "https://maps.googleapis.com/maps/api/place/autocomplete/json?types=(cities)&"
@@ -94,6 +94,9 @@ class AutoComplete extends React.Component {
     };
 
     this.myRef = React.createRef();
+    this.loadPlaceSuggestionsDebounced = debounce(this.loadPlaceSuggestions, 1000)
+    this.loadCitySuggestionsDebounced = debounce(this.loadCitySuggestions, 1000)
+
   }
 
   componentDidMount = () => {
@@ -207,8 +210,9 @@ class AutoComplete extends React.Component {
     if (obj !== "" && reason !== 'reset') {
       switch (this.props.context) {
         case "Place":
-          this.loadPlaceSuggestions(obj)
-            .then(response => {
+          this.loadPlaceSuggestionsDebounced(obj)
+            .then(resp => {
+              const response = resp.clone()
               if (!response.ok) {
                 this.props.setError(true, response.statusText)
                 throw Error(response.statusText)
@@ -225,8 +229,9 @@ class AutoComplete extends React.Component {
             .catch(err => console.log(err))
           break;
         case "City":
-          this.loadCitySuggestions(obj)
-            .then(response => {
+          this.loadCitySuggestionsDebounced(obj)
+            .then(resp => {
+              const response = resp.clone()
               if (!response.ok) {
                 this.props.setError(true, response.statusText)
                 throw Error(response.statusText)

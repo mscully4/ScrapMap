@@ -17,7 +17,7 @@ import {
   deleteCity,
   deletePlace,
   deleteImage,
-  getUser,
+  getUserDebounced,
   postNewPlace,
   // putEditPlace 
 } from "./utils/fetchUtils"
@@ -703,7 +703,7 @@ class App extends Component {
     }
     //If redirecting to a user's page that is not the viewUser, load this user's data
     else if (user !== this.state.viewUser && !this.state.showError) {
-      getUser(localStorage.getItem("token"), user)
+      getUserDebounced(localStorage.getItem("token"), user)
         //Overriding the default error handling behavior, if the user being searched for does not exists, show a pop-up
         .then(response => {
           if (this.state.error.show === true) {

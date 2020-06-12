@@ -20,6 +20,7 @@ import TextField from '@material-ui/core/TextField';
 import clsx from 'clsx'
 import { withStyles } from '@material-ui/styles';
 import RingLoader from "react-spinners/RingLoader";
+import { validateEmail } from '../../utils/validators'
 
 const styles = theme => ({
   fieldLabel: {
@@ -114,10 +115,6 @@ class SignUpForm extends React.Component {
     })
   }
 
-  validateEmail = (email) => {
-    var re = /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
-    return re.test(email);
-  }
 
   allFieldsValid = () => {
     return this.state.username !== ""

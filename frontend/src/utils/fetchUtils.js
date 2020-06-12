@@ -1,25 +1,8 @@
 //const baseURL = 'http://35.223.155.224/'
 import axios from 'axios';
+var debounce = require('debounce-promise')
 
-const baseURL = window.location.hostname === 'localhost' ? 'http://127.0.0.1:8000/' : `${window.location.origin}/backend/`
-
-export function debounce(inner, ms = 0) {
-  let timer = null;
-  let resolves = [];
-  return function (...args) {    
-    // Run the function after a certain amount of time
-    clearTimeout(timer);
-    timer = setTimeout(() => {
-      // Get the result of the inner function, then apply it to the resolve function of
-      // each promise that has been created since the last time the inner function was run
-      let result = inner(...args);
-      resolves.forEach(r => r(result));
-      resolves = [];
-    }, ms);
-
-    return new Promise(r => resolves.push(r));
-  };
-}
+const baseURL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' ? 'http://127.0.0.1:8000/' : `${window.location.origin}/backend/`
 
 //General Functions
 export function fetchCurrentUser(token) {
@@ -187,23 +170,35 @@ export function deleteImage(token, data) {
 }
 
 //User Functions
-export function getUser(token, username) {
+function getUser(token, username) {
   return fetch(baseURL + "core/destinations/" + username + "/",{
     method: "GET",
   })
-  // .then(response => response.ok ? response : null )
 }
 
-export function searchUsers(username) {
+export const getUserDebounced = debounce(getUser, 1000)
+
+function searchUsers(username) {
   return fetch(baseURL + "core/search/" + username + "/", {
     method: "GET",
   })
-  .then(response => response.ok ? response.json() : null)
 }
 
+export const searchUsersDebounced = debounce(searchUsers, 1000)
+
 //Password Reset Requests
+export function requestToken(email) {
+  return fetch(baseURL + 'core/password_reset/', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({email: email})
+  })
+}
+
 export function validateToken(token) {
-  return fetch(baseURL + "password_reset/validate_token/", {
+  return fetch(baseURL + "core/password_reset/validate_token/", {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json'
@@ -213,7 +208,7 @@ export function validateToken(token) {
 }
 
 export function changePassword(token, password) {
-  return fetch(baseURL + "password_reset/confirm/", {
+  return fetch(baseURL + "core/password_reset/confirm/", {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json'

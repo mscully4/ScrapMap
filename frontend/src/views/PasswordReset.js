@@ -3,6 +3,7 @@ import ReactDOM from 'react-dom';
 import clsx from 'clsx'
 import { withStyles } from '@material-ui/styles';
 import TextField from '@material-ui/core/TextField';
+import { Redirect } from 'react-router-dom'
 
 import {
   Button,
@@ -100,6 +101,7 @@ class PasswordReset extends React.Component {
   componentDidMount = () => {
     validateToken(this.props.token)
       .then(response => {
+        console.log(response)
         if (response.status === 200) {
           this.setState({
             tokenIsValid: true
@@ -132,7 +134,14 @@ class PasswordReset extends React.Component {
   submitNewPassword = () => {
     changePassword(this.props.token, this.state.newPassword)
       .then(response => {
-        console.log(response)
+        if (response.status === 200) {
+          this.setState({
+            redirect: true
+          })
+        }
+      })
+      .catch(err => {
+        console.log(err)
       })
   }
 
@@ -145,6 +154,7 @@ class PasswordReset extends React.Component {
   render() {
     const classes = this.props.classes
     const buttonDisabled = !this.passwordIsValid()
+    let modal;
 
     const inputProps = {
       className: clsx(classes.input),
@@ -156,8 +166,11 @@ class PasswordReset extends React.Component {
       className: clsx(classes.inputLabel),
     }
 
-    return (
-      <div className={classes.background}>
+    if (this.state.redirect) {
+      modal = (<Redirect to="/" />)
+    }
+    else if (this.state.tokenIsValid) {
+      modal = (
         <Modal isOpen={true} className={classes.modal}>
           <ModalHeader className={classes.modalHeader}>Password Reset</ModalHeader>
           <ModalBody className={classes.modalBody}>
@@ -185,12 +198,27 @@ class PasswordReset extends React.Component {
               InputLabelProps={InputLabelProps}
               className={classes.textField}
             />
-
           </ModalBody>
           <ModalFooter className={classes.modalFooter}>
             <Button className={classes.button} onClick={this.submitNewPassword} disabled={buttonDisabled}>Submit</Button>
           </ModalFooter>
         </Modal>
+      )
+    }
+    else {
+      modal = (
+        <Modal isOpen={true} className={classes.modal}>
+          <ModalHeader className={classes.modalHeader}>Password Reset</ModalHeader>
+          <ModalBody className={classes.modalBody}>
+            <div className={classes.text}>Error: Invalid Token</div>
+          </ModalBody>
+        </Modal>
+      )
+    }
+
+    return (
+      <div className={classes.background}>
+        {modal}
       </div>)
   }
 }

@@ -6,7 +6,7 @@ import {
 import { withStyles } from '@material-ui/styles';
 
 import clsx from 'clsx'
-import { searchUsers } from '../utils/fetchUtils';
+import { searchUsersDebounced } from '../utils/fetchUtils';
 import { Svg, home } from '../utils/SVGs';
 import TextField from '@material-ui/core/TextField';
 import Autocomplete from '@material-ui/lab/Autocomplete';
@@ -140,14 +140,21 @@ class Navigation extends React.Component {
     if (reason !== 'reset') {
       //only search for users when the search bar isn't empty
       if (obj !== "") {
-        //TODO debounce this
-        searchUsers(obj)
+        this.setState({
+          searchValue: obj
+        })
+        searchUsersDebounced(obj)
           .then(response => {
-            this.setState({
-              searchSuggestionsOpen: true,
-              suggestions: response,
-              searchValue: obj
-            })
+            //There is an issue with the body stream being read more than once due to debouncing
+            const copy = response.clone()
+            copy.json()
+              .then(json => {
+                this.setState({
+                  searchSuggestionsOpen: true,
+                  suggestions: json,
+                })
+              })
+
           })
           .catch((err) => {
             console.log(err)
@@ -179,10 +186,10 @@ class Navigation extends React.Component {
   render() {
     const classes = this.props.classes
 
-    const signUpButton =  this.props.context === "Main" ? 
-    <Button className={clsx(classes.button)} style={{ marginRight: 15 }} onClick={this.toggleSignUp}>Sign Up</Button>
-    : <div></div>;
-   
+    const signUpButton = this.props.context === "Main" ?
+      <Button className={clsx(classes.button)} style={{ marginRight: 15 }} onClick={this.toggleSignUp}>Sign Up</Button>
+      : <div></div>;
+
 
     return (
       <div className={clsx(classes.navigationBar)} >
@@ -237,7 +244,7 @@ class Navigation extends React.Component {
           </div>
           :
           <div className={clsx(classes.actionButtons)}>
-             {signUpButton}
+            {signUpButton}
             <SignUpForm
               handleSignUp={this.props.handleSignUp}
               isOpen={this.state.showSignUpModal}
@@ -245,7 +252,7 @@ class Navigation extends React.Component {
               loadingSignUpRequest={this.props.loadingSignUpRequest}
               signUpError={this.props.signUpError}
             />
-            
+
             <Button className={clsx(classes.button)} style={{ marginLeft: 15 }} onClick={this.toggleLogin}>Login</Button>
             <LoginForm
               handleLogin={this.props.handleLogin}
