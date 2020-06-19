@@ -64,6 +64,13 @@ spec:
           initialDelaySeconds: 30
         #Always re-pull the container image when the pod is starting up
         imagePullPolicy: Always
+        lifecycle:
+          preStop:
+            exec:
+              command:
+                - sh
+                - -c 
+                - "sleep 5"
         ports:
         - containerPort: 8080
 
@@ -73,7 +80,7 @@ spec:
         resources:
           #Setting the amount of resources the pod needs to be guarenteed
           requests:
-            cpu: .2
+            # cpu: '200M'
             memory: '128M'
         securityContext:
           # Run as guest
