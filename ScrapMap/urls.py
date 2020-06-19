@@ -26,7 +26,7 @@ from django.conf import settings
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('token-auth/', ObtainJSONWebToken.as_view()),
+    # path('token-auth/', ObtainJSONWebToken.as_view()),
     path('core/', include('core.urls'))
 ]
 

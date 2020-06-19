@@ -32,6 +32,11 @@ class UserSerializerSignUp(serializers.ModelSerializer):
             raise serializers.ValidationError("Invalid Username: Please Try Another")
         return value
 
+    def validate_password(self, value):
+        if len(value) < 7:
+            raise serializers.ValidationError("Password Must Be At Least 7 Characters")
+        return value
+
     def get_token(self, obj):
         jwt_payload_handler = api_settings.JWT_PAYLOAD_HANDLER
         jwt_encode_handler = api_settings.JWT_ENCODE_HANDLER
@@ -93,14 +98,6 @@ class DestinationSerializer(serializers.ModelSerializer):
         instance.longitude = validated_data.get('longitude', instance.longitude)
         instance.save()
 
-        # # #if the request has files attached to it
-        # if self.context['request'].FILES:
-        #     images = self.context['request'].FILES.getlist('images')
-        #     # iterate over the list of images
-        #     for i in range(len(images)):
-        #         # Copy validation from DestinationList create method
-        #         DestinationImages.objects.create(
-        #             destination=instance, image=images[i])
         return instance
 
 
@@ -109,15 +106,6 @@ class PlaceSerializer(serializers.ModelSerializer):
 
     def get_images(self, obj):
         images = [{'pk': obj.pk, 'src': obj.image.url, 'width': obj.width, 'height': obj.height, 'name': obj.image.__str__() } for obj in PlaceImages.objects.filter(place=obj.pk)]
-        # images = []
-        # qs = PlaceImages.objects.filter(place=obj.pk)
-        # for obj in qs:
-        #     images.append({
-        #         'pk': obj.pk,
-        #         'src': obj.image.url,
-        #         'width': obj.width,
-        #         'height': obj.height
-        #     })
         return images
 
     class Meta:
@@ -138,9 +126,7 @@ class PlaceSerializer(serializers.ModelSerializer):
         instance.name=validated_data.get('name', instance.name)
         instance.address=validated_data.get('address', instance.address)
         instance.city=validated_data.get('city', instance.city)
-        # instance.county=validated_data.get('county', instance.county)
         instance.state=validated_data.get('state', instance.state)
-        # instance.countryCode=validated_data.get('countryCode', instance.countryCode)
         instance.zip_code=validated_data.get('zip_code', instance.zip_code)
         instance.country=validated_data.get('country', instance.country)
         instance.latitude=validated_data.get('latitude', instance.latitude)
@@ -163,7 +149,7 @@ class PlaceSerializer(serializers.ModelSerializer):
                 height, width = img.height, img.width
 
                 # generate a unique name for the image
-                name=hashlib.sha224(image.__dict__['file'].read()).hexdigest() + ".png"
+                name = "{}/{}".format(self.context['request'].user,hashlib.sha224(image.__dict__['file'].read()).hexdigest() + ".png")
                 # check to see if the image is already in the database
                 if name not in image_names:
                     image.__dict__['_name']=name

@@ -20,7 +20,7 @@ config.read('./ScrapMap/config.ini')
 def read_secret(path):
     assert os.path.exists(path)
     with open(path, 'r') as fh:
-        return fh.read()
+        return fh.read().strip('\n')
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -52,8 +52,8 @@ INSTALLED_APPS = [
     'rest_framework',
     'corsheaders',
     'storages',
-    'django_rest_passwordreset'
-
+    'django_rest_passwordreset',
+    'django_cleanup.apps.CleanupConfig'
 ]
 
 MIDDLEWARE = [
@@ -121,35 +121,39 @@ AUTH_USER_MODEL = 'core.user'
 # import pymysql
 # pymysql.install_as_MySQLdb()
 
+LOCAL = False
 
-# USERNAME = read_secret("/secrets/cloudsql/USERNAME")
-# PASSWORD = read_secret("/secrets/cloudsql/PASSWORD")
-# DATABASE_NAME = read_secret('/secrets/cloudsql/DATABASE_NAME')
-
-
-# DATABASES = {
-#     'default': {
-#         # If you are using Cloud SQL for MySQL rather than PostgreSQL, set
-#         'ENGINE': 'django.db.backends.postgresql',
-#         'NAME': DATABASE_NAME, #database name
-#         'USER': USERNAME, #os.getenv('DATABASE_USER'),
-#         'PASSWORD': PASSWORD, #os.getenv('DATABASE_PASSWORD'),
-#         'HOST': '127.0.0.1',
-#         'PORT': '5432',
-#     }
-# }
-
-USERNAME = config['GCP'].get('USERNAME')
-PASSWORD = config['GCP'].get('PASSWORD')
-DATABASE_NAME = config['GCP'].get('DATABASE_NAME')
+if LOCAL == True: 
+    USERNAME = config['GCP'].get('USERNAME')
+    PASSWORD = config['GCP'].get('PASSWORD')
+    DATABASE_NAME = config['GCP'].get('DATABASE_NAME')
 
 
-DATABASES = {
+    DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+        }
     }
-}
+
+else:
+    USERNAME = read_secret("/secrets/cloudsql/USERNAME")
+    PASSWORD = read_secret("/secrets/cloudsql/PASSWORD")
+    DATABASE_NAME = read_secret('/secrets/cloudsql/DATABASE_NAME')
+
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.postgresql',
+            'NAME': DATABASE_NAME, #database name
+            'USER': USERNAME,
+            'PASSWORD': PASSWORD,
+            'HOST': '127.0.0.1',
+            'PORT': '5432',
+        }
+    }
+    
+
+
 
 # Password validation
 # https://docs.djangoproject.com/en/2.2/ref/settings/#auth-password-validators

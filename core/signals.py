@@ -23,8 +23,6 @@ def password_reset_token_created(sender, instance, reset_password_token, *args, 
     :param kwargs:
     :return:
     """
-    print("Go Fuck Yourself")
-    # TODO - send password reset token via email/text
 
     # send an e-mail to the user
     context = {
@@ -56,14 +54,10 @@ Reset your password here:
 
 
     port = 465  # For SSL
-    # password = input("Type your password and press enter: ")
 
     # Create a secure SSL context
     context = ssl.create_default_context()
 
     with smtplib.SMTP_SSL("smtp.gmail.com", port, context=context) as server:
         server.login(EMAIL_ADDRESS, EMAIL_PASSWORD)
-
-        # message = "{}:3000{}?token={}".format(IP_ADDRESS, reverse('password_reset:reset-password-request'), reset_password_token.key)
-        # print(message)
         server.sendmail(EMAIL_ADDRESS, reset_password_token.user.email, message.as_string())

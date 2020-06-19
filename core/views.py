@@ -77,7 +77,6 @@ class DestinationView(APIView):
     permission_classes = (permissions.IsAuthenticated,)
     parser_class = (FileUploadParser,)
 
-
     def put(self, request, pk, format=None):
         #the files will be handled by the serializer
         logger.info("There are files: {}".format(bool(request.FILES)))

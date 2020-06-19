@@ -1,8 +1,10 @@
 from django.urls import path, include
 from .views import CurrentUser, CreateUser, SearchUsers, DestinationListView, DestinationView, PlaceView, PlaceImagesView
 from django.conf.urls.static import static
+from core.utils import ObtainJSONWebToken
 
 urlpatterns = [
+    path('token-auth/', ObtainJSONWebToken.as_view()),
     path('password_reset/', include('django_rest_passwordreset.urls')),
 
     path('current_user/', CurrentUser.as_view()),
