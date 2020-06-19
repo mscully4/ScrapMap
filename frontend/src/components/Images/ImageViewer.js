@@ -87,7 +87,7 @@ export default class ImageViewer extends Component {
     return (
       <ModalGateway>
         {this.props.isOpen ?
-          <Modal isOpen={this.props.isOpen} onClose={() => this.props.toggleViewer(false)}>
+          <Modal isOpen={true} onClose={() => this.props.toggleViewer(false)}>
             <Carousel views={this.props.views} currentIndex={this.props.currentIndex} components={{ Header: this.CustomHeader }} />
           </Modal>
           : null}

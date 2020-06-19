@@ -195,7 +195,7 @@ class Marker extends Component {
         >
           {this.props.granularity ? <span>{this.props.data.city}, {this.props.data.country}</span> : <span>{this.props.data.name}</span>}
           <br />
-          <span>Click To View Gallery</span>
+          <span>{this.props.granularity ? "Click to View Places" : "Click To View Gallery"}</span>
         </div>
 
       </div>

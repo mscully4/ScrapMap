@@ -7,6 +7,8 @@ import MyDropzone from './Dropzone';
 import RingLoader from "react-spinners/RingLoader";
 import axios from 'axios'
 import { Progress } from 'reactstrap'
+import { uploadImage } from '../../utils/fetchUtils'
+import LinearProgress from '@material-ui/core/LinearProgress';
 import { ICE_BLUE } from '../../utils/colors'
 
 const styles = theme => ({
@@ -39,7 +41,8 @@ const styles = theme => ({
     textAlign: 'left',
     top: "40%",
     lineHeight: '50px',
-    marginLeft: "10px"
+    marginLeft: "10px",
+    fontSize: 20
   },
   imagesSelected: {
     textAlign: "center",
@@ -65,11 +68,25 @@ const styles = theme => ({
     position: 'absolute'
   },
   progressBar: {
-    backgroundColor: ICE_BLUE
+    width: '80%',
+    position: 'absolute !important',
+    left: '10%',
+    bottom: '7.5%',
+    "& .MuiLinearProgress-barColorPrimary": {
+      backgroundColor: ICE_BLUE
+    }
+  },
+  uploadingText: {
+    textAlign: 'center',
+    left: '20%',
+    display: 'block',
+    bottom: '10%',
+    position: 'absolute',
+    width: '60%',
+    fontSize: '24px',
+    color: ICE_BLUE
   }
 })
-
-const BASE_URL = '127.0.0.1:8000/'
 
 class ImageUploader extends React.Component {
 
@@ -82,44 +99,6 @@ class ImageUploader extends React.Component {
     };
   }
 
-  putEditPlaceAxios = (token, data) => {
-    this.setState({
-      progress: 0
-    })
-
-    const form = new FormData();
-    form.append('pk', data.pk)
-    form.append('destination', data.destination);
-    form.append('name', data.name)
-    form.append("address", data.address);
-    form.append('street', data.street);
-    form.append('city', data.city);
-    form.append('state', data.state);
-    form.append('country', data.state);
-    form.append('zip_code', data.zip_code)
-    form.append('latitude', data.latitude)
-    form.append('longitude', data.longitude);
-    form.append('types', data.types)
-    form.append('placeId', data.placeId)
-    for (var i = 0; i < data.pictures.length; i++) {
-      form.append('images', data.pictures[i]);
-    }
-
-    const config = {
-      onUploadProgress: function (progressEvent) {
-        let percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total);
-        this.setState({
-          progress: percentCompleted
-        })
-      },
-      headers: {
-        'Content-Type': "multipart/form-data",
-        Authorization: `JWT ${token}`,
-      }
-    }
-    return axios.put(BASE_URL + "core/place/" + data.pk + "/", form, config)
-  }
-
   onDrop = (obj) => {
     this.setState({
       pictureNames: this.state.pictureNames.concat([obj.name]),
@@ -129,6 +108,14 @@ class ImageUploader extends React.Component {
 
   onCloseClick = (e) => {
     this.props.toggle(null)
+  }
+
+  uploadProgress = (progressEvent) => {
+    let percentCompleted = Math.round( (progressEvent.loaded * 100) / progressEvent.total );
+    console.log(percentCompleted)
+    this.setState({
+      progress: percentCompleted
+    })
   }
 
   render() {
@@ -149,11 +136,11 @@ class ImageUploader extends React.Component {
               loading={true}
               css={"margin: auto; top: 100px; "}
             />
-            <span>Uploading...</span>
-            <Progress 
+            <span className={classes.uploadingText}>Uploading...</span>
+            <LinearProgress 
+              className={classes.progressBar} 
+              variant="determinate" 
               value={this.state.progress} 
-              className={clsx(classes.progressBarContainer)} 
-              barClassName={clsx(classes.progressBar)}
             />
           </div>
           :
@@ -162,7 +149,7 @@ class ImageUploader extends React.Component {
             <p className={clsx(classes.imagesSelected)}>{`Images Selected: ${this.state.pictures.length}`}</p>
             <Button color={"#0095d2"} className={classes.button} disabled={this.props.requestPending || this.state.pictures.length === 0} onClick={
               (e) => {
-                this.props.handleImageSubmit(e, this.state);
+                this.props.handleImageSubmit(e, this.state, this.uploadProgress);
                 this.setState({
                   pictures: [],
                   pictureNames: []

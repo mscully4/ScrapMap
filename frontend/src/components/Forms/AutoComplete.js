@@ -2,7 +2,6 @@ import React from 'react';
 //TODO replace this with custom code
 import { geocodeByPlaceId } from 'react-google-places-autocomplete';
 // If you want to use the provided css
-import 'react-google-places-autocomplete/dist/assets/index.css';
 import TextField from '@material-ui/core/TextField';
 import Autocomplete from '@material-ui/lab/Autocomplete';
 import { ICE_BLUE, OFF_BLACK_1, OFF_BLACK_2, OFF_BLACK_3, OFF_BLACK_4, FONT_GREY } from '../../utils/colors';
@@ -94,8 +93,8 @@ class AutoComplete extends React.Component {
     };
 
     this.myRef = React.createRef();
-    this.loadPlaceSuggestionsDebounced = debounce(this.loadPlaceSuggestions, 1000)
-    this.loadCitySuggestionsDebounced = debounce(this.loadCitySuggestions, 1000)
+    // this.loadPlaceSuggestionsDebounced = debounce(this.loadPlaceSuggestions, 500)
+    // this.loadCitySuggestionsDebounced = debounce(this.loadCitySuggestions, 500)
 
   }
 
@@ -108,7 +107,7 @@ class AutoComplete extends React.Component {
       suggestions: []
     })
   }
-
+/*
   loadPlaceSuggestions = (input) => {
     const parameters = `input=${input}&location=${this.props.location.lat},${this.props.location.lng}&radius=${this.props.searchRadius}&key=${this.state.apiKey}${this.props.strictBounds ? "&strictbounds" : ""}`
     return fetch(placeURL + parameters, {
@@ -127,6 +126,93 @@ class AutoComplete extends React.Component {
         "Content-Type": "application/json",
       },
     })
+  }
+*/
+  getCitySuggestions = (input) => {
+    const autocomplete = new window.google.maps.places.AutocompleteService()
+    const requestParameters = {
+      input: input,
+      types: ['(cities)'],
+    }
+
+    autocomplete.getPlacePredictions(requestParameters,
+      (suggestions, status) => {
+        if (status === 'OK') {
+          this.setState({
+            suggestions: suggestions
+          })
+        }
+      })
+  }
+
+  getPlaceSuggestions = (input) => {
+    const autocomplete = new window.google.maps.places.AutocompleteService()
+    const requestParameters = {
+      input: input,
+      types: ['establishment'],
+      radius: this.props.searchRadius,
+      location: new window.google.maps.LatLng(this.props.location.lat, this.props.location.lng)
+    }
+
+    autocomplete.getPlacePredictions(requestParameters,
+      (suggestions, status) => {
+        if (status === 'OK') {
+          this.setState({
+            suggestions: suggestions
+          })
+        }
+      })
+  }
+
+  onInputChange = (e, obj, reason) => {
+    if (reason !== 'reset') {
+      this.setState({
+        searchValue: obj
+      })
+    }
+
+    if (obj !== "" && reason !== 'reset') {
+      switch (this.props.context) {
+        case "Place":
+          this.getPlaceSuggestions(obj)
+          // this.loadPlaceSuggestionsDebounced(obj)
+          //   .then(resp => {
+          //     const response = resp.clone()
+          //     if (!response.ok) {
+          //       this.props.setError(true, response.statusText)
+          //       throw Error(response.statusText)
+          //     }
+          //     return response.json()
+          //   })
+          //   .then(json => {
+          //     //Only want predictions that have addresses
+          //     var predictions = json.predictions.filter((pred) => pred.types.includes("establishment") ? true : false);
+          //     this.setState({
+          //       suggestions: predictions
+          //     })
+          //   })
+          //   .catch(err => console.log(err))
+          break;
+        case "City":
+          this.getCitySuggestions(obj)
+          // this.loadCitySuggestionsDebounced(obj)
+          //   .then(resp => {
+          //     const response = resp.clone()
+          //     if (!response.ok) {
+          //       this.props.setError(true, response.statusText)
+          //       throw Error(response.statusText)
+          //     }
+          //     return response.json()
+          //   })
+          //   .then(json => this.setState({ suggestions: json.predictions }))
+          //   .catch(err => console.log(err))
+          break
+      }
+    } else {
+      this.setState({
+        suggestions: []
+      })
+    }
   }
 
   onChangeCity = (e, option, reason) => {
@@ -197,55 +283,6 @@ class AutoComplete extends React.Component {
           address = street_number + " " + street
           this.props.selectAutoSuggestPlace({ name, address, city, state, country, countryCode, county, zip, types, placeId, latitude, longitude })
         })
-    }
-  }
-
-  onInputChange = (e, obj, reason) => {
-    if (reason !== 'reset') {
-      this.setState({
-        searchValue: obj
-      })
-    }
-
-    if (obj !== "" && reason !== 'reset') {
-      switch (this.props.context) {
-        case "Place":
-          this.loadPlaceSuggestionsDebounced(obj)
-            .then(resp => {
-              const response = resp.clone()
-              if (!response.ok) {
-                this.props.setError(true, response.statusText)
-                throw Error(response.statusText)
-              }
-              return response.json()
-            })
-            .then(json => {
-              //Only want predictions that have addresses
-              var predictions = json.predictions.filter((pred) => pred.types.includes("establishment") ? true : false);
-              this.setState({
-                suggestions: predictions
-              })
-            })
-            .catch(err => console.log(err))
-          break;
-        case "City":
-          this.loadCitySuggestionsDebounced(obj)
-            .then(resp => {
-              const response = resp.clone()
-              if (!response.ok) {
-                this.props.setError(true, response.statusText)
-                throw Error(response.statusText)
-              }
-              return response.json()
-            })
-            .then(json => this.setState({ suggestions: json.predictions }))
-            .catch(err => console.log(err))
-          break
-      }
-    } else {
-      this.setState({
-        suggestions: []
-      })
     }
   }
 

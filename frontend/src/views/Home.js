@@ -9,6 +9,7 @@ import Navigation from '../components/NavBar'
 import Error from '../components/Error.js'
 import RingLoader from "react-spinners/RingLoader";
 import { Redirect } from 'react-router-dom'
+import { validateEmail, validatePassword, validateString, validateUsername } from '../utils/validators'
 import { ICE_BLUE, FONT_GREY, OFF_BLACK_1, OFF_BLACK_2, OFF_BLACK_3, OFF_BLACK_4 } from '../utils/colors'
 
 const styles = theme => ({
@@ -20,7 +21,7 @@ const styles = theme => ({
     height: '100%'
   },
   signUpText: {
-    color: "#0095d2",
+    color: ICE_BLUE,
     fontSize: 36,
     marginBottom: 12
   },
@@ -54,6 +55,17 @@ const styles = theme => ({
     borderWidth: '1px',
     borderColor: `${ICE_BLUE} !important`
   },
+  listHeader: {
+    fontSize: 18,
+    marginTop: 10,
+    marginBottom: 5
+  },
+  listItems: {
+    fontSize: 14
+  },
+  text: {
+    color: ICE_BLUE
+  }
 })
 
 class Home extends React.Component {
@@ -71,8 +83,7 @@ class Home extends React.Component {
     }
   }
 
-  handleChange = e => {
-    const name = e.target.getAttribute("boof");
+  handleChange = (e, name) => {
     const value = e.target.value;
     this.setState(prevState => {
       const newState = { ...prevState };
@@ -97,7 +108,7 @@ class Home extends React.Component {
   inputProps = (err) => {
     const classes = this.props.classes
     return {
-      className: err ? classes.inputError:classes.input,
+      className: err ? classes.inputError : classes.input,
       classes: {
         notchedOutline: err ? classes.inputBorderError : classes.inputBorder,
       }
@@ -117,19 +128,28 @@ class Home extends React.Component {
 
   disableButton = () => {
     const { username, password, first_name, last_name, email } = this.state
-    return !(username !== "" && password !== "" && first_name !== "" && last_name !== "" && email !== "")
+    return !validateString(first_name,1 ) || first_name === ""
+    || !validateString(last_name, 1) || last_name === ""
+    || !validateUsername(username, 5) || username === ""
+    || !validateEmail(email) || email === ""
+    || !validatePassword(password, 7) || password === ''
   }
 
   userAlreadyExists = (error) => {
     return error.status === 400
-    && error.message.username 
-    && error.message.username.includes('A user with that username already exists.')
+      && error.message.username
+      && error.message.username.includes('A user with that username already exists.')
   }
 
   emailAlreadyExists = (error) => {
     return error.status === 400
-    && error.message.email
-    && error.message.email.includes('user with this email already exists.')
+      && error.message.email
+      && error.message.email.includes('user with this email already exists.')
+  }
+
+  passwordTooShort = (error) => {
+    return error.status === 400 
+    && error.message.password.includes('Password Must Be At Least 7 Characters')
   }
 
   render() {
@@ -168,34 +188,38 @@ class Home extends React.Component {
             className={clsx(classes.form)}
             onSubmit={(e) => {
               this.props.handlers.signUp(e, this.state)
-            }
-            }>
+            }}
+          >
             <p className={classes.signUpText}>Sign Up Now!</p>
             <TextField
               label={"First Name"}
               variant={"outlined"}
-              onChange={this.handleChange}
+              onChange={(e) => this.handleChange(e, "first_name")}
               value={this.state.first_name}
               inputProps={{ "boof": "first_name", "autoComplete": 'new-password' }}
               InputProps={inputProps}
               InputLabelProps={InputLabelProps}
               className={classes.textField}
+              error={!validateString(this.state.first_name, 1)}
+              helperText={!validateString(this.state.first_name, 1) ? "Must not be blank and contain only letters, spaces dashes aned/or periods" : null}
             />
             <TextField
               label={"Last Name"}
               variant={"outlined"}
-              onChange={this.handleChange}
+              onChange={(e) => this.handleChange(e, 'last_name')}
               value={this.state.last_name}
               inputProps={{ "boof": "last_name", "autoComplete": 'new-password' }}
               InputProps={inputProps}
               InputLabelProps={InputLabelProps}
               className={classes.textField}
+              error={!validateString(this.state.last_name, 1)}
+              helperText={!validateString(this.state.last_name, 1) ? "Must not be blank and contain only letters, dashes, periods and/or spaces" : null}
             />
             <TextField
               label={"Email"}
               variant={"outlined"}
               onChange={(e) => {
-                this.handleChange(e)
+                this.handleChange(e, 'email')
                 if (this.emailAlreadyExists(this.props.error)) {
                   this.props.setError({
                     show: false,
@@ -206,12 +230,12 @@ class Home extends React.Component {
                 }
               }}
               value={this.state.email}
-              inputProps={{ "boof": "email", "autoComplete": 'new-password' }}
+              inputProps={{ "autoComplete": 'new-password' }}
               InputProps={inputProps}
               InputLabelProps={InputLabelProps}
               className={classes.textField}
-              error={this.emailAlreadyExists(this.props.error)}
-              helperText={this.emailAlreadyExists(this.props.error) ? this.props.error.message.email : null}
+              error={this.emailAlreadyExists(this.props.error) || !validateEmail(this.state.email)}
+              helperText={this.emailAlreadyExists(this.props.error) ? this.props.error.message.email : !validateEmail(this.state.email) ? "Invalid Email": null}
             />
             {this.props.signUpError ?
               <span style={{ color: 'red' }}>A user with that username already exists</span> : null}
@@ -219,7 +243,7 @@ class Home extends React.Component {
               label={"Username"}
               variant={"outlined"}
               onChange={(e) => {
-                this.handleChange(e)
+                this.handleChange(e, 'username')
                 if (this.userAlreadyExists(this.props.error)) {
                   this.props.setError({
                     show: false,
@@ -230,29 +254,36 @@ class Home extends React.Component {
                 }
               }}
               value={this.state.username}
-              inputProps={{ "boof": "username", "autoComplete": 'new-password' }}
+              inputProps={{ "autoComplete": 'new-password' }}
               InputProps={inputProps}
               InputLabelProps={InputLabelProps}
               className={classes.textField}
-              error={this.userAlreadyExists(this.props.error)}
-              helperText={this.userAlreadyExists(this.props.error) ? this.props.error.message.username : null}
+              error={this.userAlreadyExists(this.props.error) || !validateUsername(this.state.username, 5)}
+              helperText={this.userAlreadyExists(this.props.error) ? this.props.error.message.username : !validateUsername(this.state.username, 5) ? "Invalid Username" : null}
             />
-             <TextField 
-              label={"Password"} 
-              variant={"outlined"} 
-              onChange={this.handleChangePassword}
+            <h4 className={clsx(classes.text, classes.listHeader)}>{"Password Criteria:"}</h4>
+            <ul>
+              <li className={clsx(classes.text, classes.listItems)}>{"Must be at least 8 characters long"}</li>
+              <li className={clsx(classes.text, classes.listItems)}>{" Allowed Characters are a-z, A-Z, 1-9 and !@#$%^&*()-_=+<,>./?"}</li>
+            </ul>
+            <TextField
+              label={"Password"}
+              variant={"outlined"}
+              onChange={(e) => {
+                this.handleChangePassword(e)
+              }}
               value={"*".repeat(this.state.password.length)}
-              inputProps={{"boof": "password"}}
+              inputProps={{ "autoComplete": 'new-password' }}
               InputProps={inputProps}
               InputLabelProps={InputLabelProps}
               className={classes.textField}
-              error={this.props.error.code === 400}
-              helperText={"Incorrect Password"}
-              />
+              error={this.passwordTooShort(this.props.error) || !validatePassword(this.state.password, 7)}
+              helperText={this.passwordTooShort(this.props.error) ? this.props.error.message.password : !validatePassword(this.state.password) ? "Invalid Password" : null}
+            />
             <Button disabled={this.disableButton() || this.props.loadingSignupRequest} className={clsx(classes.button)} onClick={this.submitForm}>Submit</Button>
           </Form> :
           <RingLoader
-            color={"#0095d2"}
+            color={ICE_BLUE}
             loading={true}
             css={`margin: auto; top: ${(window.innerHeight - 500) / 2.5}px`}
             size={500}

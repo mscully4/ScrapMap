@@ -20,7 +20,7 @@ import TextField from '@material-ui/core/TextField';
 import clsx from 'clsx'
 import { withStyles } from '@material-ui/styles';
 import RingLoader from "react-spinners/RingLoader";
-import { validateEmail } from '../../utils/validators'
+import { validateEmail, validateUsername, validatePassword, validateString } from '../../utils/validators'
 
 const styles = theme => ({
   fieldLabel: {
@@ -33,7 +33,10 @@ const styles = theme => ({
   textField: {
     width: '90%',
     marginLeft: '5% !important',
-    marginTop: '5% !important'
+    marginTop: '5% !important',
+    "&:last-child": {
+      marginTop: "0 !important",
+    }
   },
   modal: {
     backgroundColor: "#000"
@@ -72,6 +75,19 @@ const styles = theme => ({
     borderWidth: '1px',
     borderColor: `${ICE_BLUE} !important`
   },
+  listHeader: {
+    fontSize: 18,
+    marginTop: 10,
+    marginBottom: 5,
+    marginLeft: '5%'
+  },
+  listItems: {
+    fontSize: 14,
+    marginLeft: 15
+  },
+  text: {
+    color: ICE_BLUE
+  }
 })
 
 class SignUpForm extends React.Component {
@@ -84,8 +100,7 @@ class SignUpForm extends React.Component {
     showLoader: false,
   };
 
-  handleChange = e => {
-    const name = e.target.getAttribute("boof");
+  handleChange = (e, name) => {
     const value = e.target.value;
     this.setState(prevState => {
       const newState = { ...prevState };
@@ -98,7 +113,7 @@ class SignUpForm extends React.Component {
     const value = this.state.password + e.target.value.slice(-1);
     if (e.target.value.length < this.state.password.length) {
       this.setState({
-        password: this.state.password.slice(0, e.target.value.length )
+        password: this.state.password.slice(0, e.target.value.length)
       })
     } else {
       this.setState({
@@ -115,14 +130,30 @@ class SignUpForm extends React.Component {
     })
   }
 
+  userAlreadyExists = (error) => {
+    return error.status === 400
+      && error.message.username
+      && error.message.username.includes('A user with that username already exists.')
+  }
 
-  allFieldsValid = () => {
-    return this.state.username !== ""
-      && this.state.password !== ""
-      && this.state.email !== ""
-      && this.validateEmail(this.state.email)
-      && this.state.first_name !== ""
-      && this.state.last_name
+  emailAlreadyExists = (error) => {
+    return error.status === 400
+      && error.message.email
+      && error.message.email.includes('user with this email already exists.')
+  }
+
+  passwordTooShort = (error) => {
+    return error.status === 400
+      && error.message.password.includes('Password Must Be At Least 7 Characters')
+  }
+
+  disableButton = () => {
+    const { username, password, first_name, last_name, email } = this.state
+    return !validateString(first_name,1 ) || first_name === ""
+    || !validateString(last_name, 1) || last_name === ""
+    || !validateUsername(username, 5) || username === ""
+    || !validateEmail(email) || email === ""
+    || !validatePassword(password, 7) || password === ''
   }
 
   render() {
@@ -134,83 +165,112 @@ class SignUpForm extends React.Component {
         notchedOutline: clsx(classes.inputBorder),
       }
     }
-    const InputLabelProps={
+    const InputLabelProps = {
       className: clsx(classes.inputLabel),
     }
 
+    const buttonDisabled = this.props.loadingSignUpRequest || this.disableButton();
     return (
       <Modal isOpen={this.props.isOpen} toggle={this.props.toggle} className={classes.modal}>
         <ModalHeader toggle={this.props.toggle} className={classes.modalHeader}><p style={{ fontSize: 36, marginBottom: 0 }}>Sign Up</p></ModalHeader>
-        <ModalBody style={styles.modalBody} className={classes.modalBody}>
-
-          {!this.props.loadingSignUpRequest ?
-            <Form ref={ref => this.formLogin = ref} onSubmit={e => this.props.handleSignUp(e, this.state)}>
-              <TextField 
-              label={"First Name"} 
-              variant={"outlined"} 
-              onChange={this.handleChange}
+        {!this.props.loadingSignUpRequest ?
+          <ModalBody className={classes.modalBody}>
+            <TextField
+              label={"First Name"}
+              variant={"outlined"}
+              onChange={(e) => this.handleChange(e, 'first_name')}
               value={this.state.first_name}
-              inputProps={{"boof": "first_name", autocomplete: 'new-password'}}
+              inputProps={{ autocomplete: 'new-password' }}
               InputProps={inputProps}
               InputLabelProps={InputLabelProps}
               className={classes.textField}
-              />
-              <TextField 
-              label={"Last Name"} 
-              variant={"outlined"} 
-              onChange={this.handleChange}
+              error={!validateString(this.state.first_name, 1)}
+              helperText={!validateString(this.state.first_name, 1) ? "Must not be blank and contain only letters, spaces dashes aned/or periods" : null}
+            />
+            <TextField
+              label={"Last Name"}
+              variant={"outlined"}
+              onChange={(e) => this.handleChange(e, 'last_name')}
               value={this.state.last_name}
-              inputProps={{"boof": "last_name", autocomplete: 'new-password'}}
+              inputProps={{ autocomplete: 'new-password' }}
               InputProps={inputProps}
               InputLabelProps={InputLabelProps}
               className={classes.textField}
-              />
-              <TextField 
-              label={"Email Address"} 
-              variant={"outlined"} 
-              onChange={this.handleChange}
+              error={!validateString(this.state.last_name, 1)}
+              helperText={!validateString(this.state.last_name, 1) ? "Must not be blank and contain only letters, dashes, periods and/or spaces" : null}
+            />
+            <TextField
+              label={"Email Address"}
+              variant={"outlined"}
+              onChange={(e) => {
+                this.handleChange(e, 'email')
+                if (this.emailAlreadyExists(this.props.error)) {
+                  this.props.setError({
+                    show: false,
+                    code: null,
+                    statusText: "",
+                    message: []
+                  })
+                }
+              }}
               value={this.state.email}
-              inputProps={{"boof": "email", autocomplete: 'new-password'}}
+              inputProps={{ autocomplete: 'new-password' }}
               InputProps={inputProps}
-              autoComplete="off"
               InputLabelProps={InputLabelProps}
               className={classes.textField}
-              />
-              <TextField 
-              label={"Username"} 
-              variant={"outlined"} 
-              onChange={this.handleChange}
+              error={this.emailAlreadyExists(this.props.error) || !validateEmail(this.state.email)}
+              helperText={this.emailAlreadyExists(this.props.error) ? this.props.error.message.email : !validateEmail(this.state.email) ? "Invalid Email" : null}
+
+            />
+            <TextField
+              label={"Username"}
+              variant={"outlined"}
+              onChange={(e) => {
+                this.handleChange(e, "username")
+                if (this.userAlreadyExists(this.props.error)) {
+                  this.props.setError({
+                    show: false,
+                    code: null,
+                    statusText: "",
+                    message: []
+                  })
+                }
+              }}
               value={this.state.username}
-              inputProps={{"boof": "username"}}
               InputProps={inputProps}
               InputLabelProps={InputLabelProps}
               className={classes.textField}
-              />
-              {this.props.signUpError ?
-                <p className={classes.errorMessage}>A user with that username already exists</p> : null}
-              <TextField 
-              label={"Password"} 
-              variant={"outlined"} 
+              error={this.userAlreadyExists(this.props.error) || !validateUsername(this.state.username, 5)}
+              helperText={this.userAlreadyExists(this.props.error) ? this.props.error.message.username : !validateUsername(this.state.username, 5) ? "Invalid Username" : null}
+            />
+            <h4 className={clsx(classes.text, classes.listHeader)}>{"Password Criteria:"}</h4>
+            <ul>
+              <li className={clsx(classes.text, classes.listItems)}>{"Must be at least 8 characters long"}</li>
+              <li className={clsx(classes.text, classes.listItems)}>{" Allowed Characters are a-z, A-Z, 1-9 and !@#$%^&*()-_=+<,>./?"}</li>
+            </ul>
+            <TextField
+              label={"Password"}
+              variant={"outlined"}
               onChange={this.handleChangePassword}
               value={"*".repeat(this.state.password.length)}
-              inputProps={{"boof": "password"}}
+              // inputProps={{ "boof": "password" }}
               InputProps={inputProps}
               InputLabelProps={InputLabelProps}
               className={classes.textField}
-              />
-              <br />
-            </Form> :
-            <RingLoader
-              color={"#0095d2"}
-              loading={true}
-              css={`margin: auto`}
-              size={200}
+              error={this.passwordTooShort(this.props.error) || !validatePassword(this.state.password, 7)}
+              helperText={this.passwordTooShort(this.props.error) ? this.props.error.message.password : !validatePassword(this.state.password) ? "Invalid Password" : null}
             />
-          }
-
-        </ModalBody>
+          </ModalBody>
+          :
+          <RingLoader
+            color={ICE_BLUE}
+            loading={true}
+            css={`margin: auto`}
+            size={200}
+          />
+        }
         <ModalFooter className={classes.modalFooter}>
-          <Button disabled={this.props.loadingSignUpRequest || !this.allFieldsValid()} onClick={this.submitForm} className={classes.button}>Submit</Button>
+          <Button disabled={buttonDisabled} onClick={e => this.props.handleSignUp(e, this.state)} className={classes.button}>Submit</Button>
         </ModalFooter>
       </Modal>
 

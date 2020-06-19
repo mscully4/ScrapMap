@@ -3,6 +3,7 @@ import axios from 'axios';
 var debounce = require('debounce-promise')
 
 const baseURL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' ? 'http://127.0.0.1:8000/' : `${window.location.origin}/backend/`
+console.log(baseURL)
 
 //General Functions
 export function fetchCurrentUser(token) {
@@ -14,7 +15,7 @@ export function fetchCurrentUser(token) {
 }
 
 export function fetchToken(data) {
-  return fetch(baseURL + 'token-auth/', {
+  return fetch(baseURL + 'core/token-auth/', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json'
@@ -32,7 +33,6 @@ export function putNewUser(data) {
     body: JSON.stringify(data)
   })
 }
-
 
 //Owner Functions
 export function postNewCity(token, data) {
@@ -58,14 +58,6 @@ export function postNewPlace(token, data) {
 }
 
 export function putEditCity(token, data) {
-  const form = new FormData();
-  form.append("pk", data.pk);
-  form.append('city', data.city);
-  form.append('country', data.country);
-  form.append('countryCode', data.countryCode)
-  form.append('latitude', data.latitude);
-  form.append('longitude', data.longitude);
-
   return fetch(baseURL + "core/destination/" + data.pk + "/", {
     method: "PUT",
     headers: {
@@ -102,7 +94,6 @@ export function putEditPlace(token, data) {
     },
     body: form,
   })
-  .then(response => response.ok ? response.json() : null)
 }
 
 export function putEditPlaceAxios(token, data) {
@@ -130,6 +121,28 @@ export function putEditPlaceAxios(token, data) {
       let percentCompleted = Math.round( (progressEvent.loaded * 100) / progressEvent.total );
       console.log(percentCompleted)
     },
+    headers: {
+      'Content-Type': "multipart/form-data",
+      Authorization: `JWT ${token}`,
+    }
+  }
+ return axios.put(baseURL + "core/place/" + data.pk + "/", form, config)
+
+}
+
+export function uploadImage(token, data, uploadProgress) {
+  const form = new FormData();
+  form.append('pk', data.pk)
+  form.append('destination', data.destination);
+  form.append('name', data.name)
+  form.append('city', data.city);
+  form.append('country', data.country);
+  for (var i=0; i<data.pictures.length; i++) {
+    form.append('images', data.pictures[i]);
+  }
+
+  const config = {
+    onUploadProgress: uploadProgress,
     headers: {
       'Content-Type': "multipart/form-data",
       Authorization: `JWT ${token}`,

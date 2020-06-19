@@ -1,6 +1,6 @@
 import React from 'react';
 import Gallery from "react-photo-gallery";
-import { Modal } from 'reactstrap';
+import { Modal, ModalBody } from 'reactstrap';
 import { withStyles } from '@material-ui/styles';
 import clsx from 'clsx'
 import RingLoader from "react-spinners/RingLoader";
@@ -19,7 +19,7 @@ import ImageUploader from '../components/Images/ImageUploader.js';
 import Error from '../components/Error.js'
 
 import { add, Svg, placeTypeSVGs } from '../utils/SVGs';
-import { place_colors, city_colors, FONT_GREY, ICE_BLUE, OFF_BLACK_1 } from '../utils/colors';
+import { place_colors, city_colors, FONT_GREY, ICE_BLUE, OFF_BLACK_1, OFF_BLACK_2, OFF_BLACK_3 } from '../utils/colors';
 import { getDistanceBetweenTwoPoints } from '../utils/Formulas.js';
 
 const PLACE_TYPES = Object.keys(placeTypeSVGs)
@@ -144,6 +144,7 @@ class Main extends React.Component {
   componentDidMount = () => {
     this.props.setPreparedImagesSetter(this.setPreparedImages)
     this.props.changeMapCenterSetter(this.changeMapCenter)
+    this.props.changeGranularitySetter(this.changeGranularity)
   }
 
   //General Functions
@@ -298,12 +299,12 @@ class Main extends React.Component {
   }
 
 
-  handleImageSubmit = (e, data) => {
+  handleImageSubmit = (e, data, uploadProgress) => {
     const formData = {
       ...data,
       ...this.state.selectedPlace
     }
-    this.props.handlers.editPlace(e, formData)
+    this.props.handlers.uploadImage(e, formData, uploadProgress)
   }
 
 
@@ -384,7 +385,7 @@ class Main extends React.Component {
           viewUser={this.props.viewUser}
           handleLogout={this.props.handlers.logout}
           handleLogin={this.props.handlers.login}
-          handleSignup={this.props.handlers.signUp}
+          handleSignUp={this.props.handlers.signUp}
           pendingLoginRequest={this.props.pendingRequests.login}
           pendingSignUpRequest={this.props.pendingRequests.signUp}
           history={this.props.history}
@@ -499,18 +500,37 @@ class Main extends React.Component {
               >No Images...</div>}
           </Modal>
 
-          <ImageViewer
-            owner={this.props.owner}
-            isOpen={this.state.imageViewerOpen}
-            toggleViewer={this.toggleViewer}
-            toggleGallery={this.toggleGallery}
-            views={this.state.preparedImages}
-            currentIndex={this.state.currImg}
-            handleDeleteImage={this.props.handlers.deleteImage}
-            // toggleEditor={this.toggleEditor}
-            // editorOpen={this.state.editorOpen}
-            requestPending={this.props.pendingRequests.deleteImage}
-          />
+          {this.state.imageViewerOpen && !this.props.pendingRequests.deleteImage ?
+            <ImageViewer
+              owner={this.props.owner}
+              isOpen={true}
+              toggleViewer={this.toggleViewer}
+              toggleGallery={this.toggleGallery}
+              views={this.state.preparedImages}
+              currentIndex={this.state.currImg}
+              handleDeleteImage={this.props.handlers.deleteImage}
+              // toggleEditor={this.toggleEditor}
+              // editorOpen={this.state.editorOpen}
+              requestPending={this.props.pendingRequests.deleteImage}
+            /> : null}
+          {this.props.pendingRequests.deleteImage ?
+            <Modal
+              isOpen={true}
+              style={{
+                backgroundColor: OFF_BLACK_1
+              }}
+            >
+              <ModalBody style={{ backgroundColor: OFF_BLACK_2 }}>
+                <RingLoader
+                  color={ICE_BLUE}
+                  loading={true}
+                  css={`margin: auto`}
+                  size={300}
+                />
+                <div style={{ textAlign: 'center', color: ICE_BLUE, marginTop: 25, fontSize: 28 }}>Deleting Image...</div>
+              </ModalBody>
+            </Modal> : null
+          }
 
           {this.props.username === this.props.user && (this.state.editCityFormOpen || this.props.pendingRequests.editCity) ?
             <EditCity
@@ -559,7 +579,7 @@ class Main extends React.Component {
             <ImageUploader
               handleImageSubmit={this.handleImageSubmit}
               toggle={this.toggleUploader}
-              requestPending={this.props.pendingRequests.editPlace}
+              requestPending={this.props.pendingRequests.uploadImage}
             />
             : null
           }

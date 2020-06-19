@@ -19,6 +19,7 @@ import {
   deleteImage,
   getUserDebounced,
   postNewPlace,
+  uploadImage,
   // putEditPlace 
 } from "./utils/fetchUtils"
 
@@ -98,6 +99,8 @@ class App extends Component {
       editPlaceRequestPending: false,
       editCityRequestPending: false,
 
+      uploadImageRequestPending: false,
+
       addCityRequestPending: false,
       addPlaceRequestPending: false,
 
@@ -115,6 +118,7 @@ class App extends Component {
 
     this.setPreparedImages = null
     this.changeMapCenter = null
+    this.changeGranularity = null
   }
 
   componentDidMount() {
@@ -166,9 +170,8 @@ class App extends Component {
           show: true,
           message: "Internal Server Error"
         }
-      }, () => {
-        throw Error(`${response.status}: ${response.statusText}`)
       })
+      throw Error(`${response.status}: ${response.statusText}`)
     } else if (response.status >= 400) {
       response.json()
         .then(json => {
@@ -179,10 +182,9 @@ class App extends Component {
               show: false,
               message: json
             }
-          }, () => {
-            throw Error(`${response.status}: ${response.statusText}`)
           })
         })
+      throw Error(`${response.status}: ${response.statusText}`)
     } else {
       return response.json()
     }
@@ -433,7 +435,6 @@ class App extends Component {
               const color = el.color
               return el.pk === data.pk ? { ...data, color } : el
             }),
-            loggedInPlaces: this.compilePlaces(data),
             editCityRequestPending: false,
             dataChanged: true
           })
@@ -501,6 +502,32 @@ class App extends Component {
             })
           }
 
+        })
+    })
+  }
+
+  handleUploadImage = (e, data, uploadProgress) => {
+    this.setState({
+      uploadImageRequestPending: true
+    }, () => {
+      console.log(data)
+      uploadImage(localStorage.getItem('token'), data, uploadProgress)
+        .then(response => {
+          console.log(response)
+          this.setState({
+            uploadImageRequestPending: false
+          })
+        })
+        .catch(err => {
+          console.log(err)
+          this.setState({
+            error: {
+              show: true, 
+              status: 500,
+              statusText: 'Interal Server Error',
+              message: 'Internal Server Error'
+            }
+          })
         })
     })
   }
@@ -620,6 +647,10 @@ class App extends Component {
     this.changeMapCenter = func
   }
 
+  changeGranularitySetter = (func) => {
+    this.changeGranularity = func
+  }
+
 
 
   // handleImageOverwrite = (img, dataURL) => {
@@ -699,13 +730,17 @@ class App extends Component {
           longitude: this.state.loggedInCities.length > 0 ? this.state.loggedInCities[0].longitude : DEFAULT_CENTER.longitude
         })
       }
+      if (this.changeGranularity && user !== viewUser) {
+        this.changeGranularity(4)
+      }
 
     }
     //If redirecting to a user's page that is not the viewUser, load this user's data
     else if (user !== this.state.viewUser && !this.state.showError) {
       getUserDebounced(localStorage.getItem("token"), user)
         //Overriding the default error handling behavior, if the user being searched for does not exists, show a pop-up
-        .then(response => {
+        .then(resp => {
+          const response = resp.clone()
           if (this.state.error.show === true) {
             throw Error `${response.status}: ${response.statusText}`
           } else if (response.status === 404 && this.state.error.show !== true) {
@@ -745,6 +780,10 @@ class App extends Component {
               longitude: cities.length > 0 ? cities[0].longitude : DEFAULT_CENTER.longitude
             })
           }
+
+          if (this.changeGranularity) {
+            this.changeGranularity(4)
+          }
         })
         .catch(err => {
           console.log(err)
@@ -773,6 +812,7 @@ class App extends Component {
           addPlace: this.handleAddPlace,
           editCity: this.handleEditCity,
           editPlace: this.handleEditPlace,
+          uploadImage: this.handleUploadImage,
           deleteCity: this.handleDeleteCity,
           deletePlace: this.handleDeletePlace,
           deleteImage: this.handleDeleteImage
@@ -791,6 +831,7 @@ class App extends Component {
         handleDeleteImage={this.handleDeleteImage}
         setPreparedImagesSetter={this.setPreparedImagesSetter}
         changeMapCenterSetter={this.changeMapCenterSetter}
+        changeGranularitySetter={this.changeGranularitySetter}
         //Pending Requests
         pendingRequests={{
           login: this.state.loginRequestPending,
@@ -799,6 +840,7 @@ class App extends Component {
           addCity: this.state.addCityRequestPending,
           editPlace: this.state.editPlaceRequestPending,
           editCity: this.state.editCityRequestPending,
+          uploadImage: this.state.uploadImageRequestPending,
           deletePlace: this.state.deletePlaceRequestPending,
           deleteCity: this.state.deleteCityRequestPending,
           deleteImage: this.state.deleteImageRequestPending,

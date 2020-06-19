@@ -24,7 +24,7 @@ const TRUE_RED = "#BC243C"
 const BEER = "#f28e1c"
 const NEBULAS_BLUE = "#3F69AA"
 const LIMELIGHT = "#F1EA7F"
-const NOTRE_DAME_GOLD = "##D39F10"
+const NOTRE_DAME_GOLD = "#D39F10"
 const ARCADIA = "#00A591"
 const ISLAND_PARADISE = "#95DEE3"
 const HAZELNUT = "#CFB095"
@@ -50,7 +50,7 @@ export const place_colors = {
   campground: EARTH,
   cafe: TOFFEE,
   aquarium: OCEAN_BLUE,
-  natural_feature: EDEN,
+  natural_feature: ISLAND_PARADISE,
   museum: BONE,
   art_gallery: ULTRA_VIOLET,
   zoo: ORANGE_TIGER,

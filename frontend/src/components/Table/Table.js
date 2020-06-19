@@ -85,9 +85,11 @@ const styles = theme => ({
   },
   cellText: {
     textAlign: 'center',
-    paddingLeft: "25%",
+    paddingLeft: "30%",
     margin: 'auto',
-    color: "#f8f8ff"
+    color: FONT_GREY,
+    whiteSpace: 'normal',
+    wordWrap: 'break-word'
   },
   cellImage: {
     width: 100,
@@ -162,16 +164,9 @@ class VirtualTable extends Component {
     return (
       <div>
 
-        <p
-          className={clsx(classes.cellText)}
-          style={{
-            color: color
-          }}
-        >
-          {cellData.rowData.name} <br />
-          {cellData.rowData.address} <br />
-          {cellData.rowData.city} {cellData.rowData.state ? `, ${cellData.rowData.state}` : ""}
-        </p>
+          <div className={clsx(classes.cellText)} style={{ color: color }}>{cellData.rowData.name}</div>
+          <div className={clsx(classes.cellText)} style={{ color: color }}>{cellData.rowData.address}</div>
+          <div className={clsx(classes.cellText)} style={{ color: color }}>{cellData.rowData.city} {cellData.rowData.state ? `, ${cellData.rowData.state}` : ""}</div>
 
         {this.generateSVG(cellData.rowData.main_type)}
 

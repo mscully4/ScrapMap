@@ -251,6 +251,8 @@ class Navigation extends React.Component {
               toggle={this.toggleSignUp}
               loadingSignUpRequest={this.props.loadingSignUpRequest}
               signUpError={this.props.signUpError}
+              error={this.props.error}
+              setError={this.props.setError}
             />
 
             <Button className={clsx(classes.button)} style={{ marginLeft: 15 }} onClick={this.toggleLogin}>Login</Button>

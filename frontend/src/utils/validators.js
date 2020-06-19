@@ -10,17 +10,27 @@ export const validateLongitude = (lng) => {
         && parseFloat(lng) <= 180 ? true : false
 }
 
-export const validateString = (str, length, canBeBlank) => {
+// export const validateString = (str, length, canBeBlank) => {
+//     const regex = /^[a-zA-Z.,\' /-]+$/
+//     return canBeBlank ? (regex.test(str) && str.length <= length) || str === "" : regex.test(str) && str.length <= length && str.charAt(0) !== " "
+// }
+
+export const validateString = (str, length) => {
     const regex = /^[a-zA-Z.,\' /-]+$/
-    return canBeBlank ? (regex.test(str) && str.length <= length) || str === "" : regex.test(str) && str.length <= length && str.charAt(0) !== " "
+    return str !== "" ? regex.test(str) && str.length >= length : true
 }
 
-export const validatePassword = (str) => {
+export const validateUsername = (str, length) => {
+    const regex = /^[a-zA-Z1-9.-_]+$/
+    return str !== "" ? regex.test(str) && str.length >= length && str.charAt(0) !== " ": true;
+}
+
+export const validatePassword = (str, length) => {
     const regex = /^[a-zA-Z1-9!@#$%^&*()-_=+<,>./?]+$/
-    return regex.test(str)
+    return str !== "" ? regex.test(str) && str.length >= length : true
 }
 
 export const validateEmail = (email) => {
     var re = /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
-    return re.test(email);
+    return email !== "" ? re.test(email) : true;
   }
