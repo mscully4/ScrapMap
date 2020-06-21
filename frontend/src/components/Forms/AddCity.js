@@ -1,10 +1,7 @@
 import React from 'react';
-import ReactDOM from 'react-dom';
 import PropTypes from 'prop-types';
 import {
   Button,
-  Form,
-  Input,
   Modal,
   ModalHeader,
   ModalBody,
@@ -20,7 +17,7 @@ import { validateLatitude, validateLongitude, validateString } from '../../utils
 
 const styles = themes => ({
   modal: {
-    backgroundColor: "#000"
+    backgroundColor: "#000",
   },
   modalHeader: {
     backgroundColor: OFF_BLACK_2,
@@ -33,27 +30,6 @@ const styles = themes => ({
   modalFooter: {
     backgroundColor: OFF_BLACK_2,
     border: "none"
-  },
-  addIcon: {
-    height: 40,
-    width: 40,
-    cursor: 'pointer',
-  },
-  fieldLabel: {
-    color: ICE_BLUE,
-    fontSize: 18,
-    marginBottom: 0,
-    marginTop: 10
-  },
-  inputStyle: {
-    backgroundColor: OFF_BLACK_4,
-    color: ICE_BLUE,
-    borderColor: ICE_BLUE,
-    "&:focus": {
-      backgroundColor: OFF_BLACK_4,
-      color: ICE_BLUE,
-      borderColor: ICE_BLUE,
-    }
   },
   button: {
     backgroundColor: ICE_BLUE,
@@ -87,8 +63,6 @@ class AddCity extends React.Component {
       countryCode: "",
       latitude: "",
       longitude: "",
-      pictures: [],
-      pictureNames: [],
     };
 
     this.clearSuggestions = null
@@ -99,8 +73,7 @@ class AddCity extends React.Component {
     this.clearSuggestions = func
   }
 
-  handleChange = e => {
-    const name = e.target.getAttribute("boof");
+  handleChange = (e, name) => {
     const value = e.target.value;
     this.setState({
       [name]: value
@@ -113,13 +86,7 @@ class AddCity extends React.Component {
     })
   }
 
-  submitForm = () => {
-    ReactDOM.findDOMNode(this.formAddCity).dispatchEvent(new Event("submit"))
-    this.props.toggle();
-  }
-
   selectAutoSuggest = (obj) => {
-    console.log(obj)
     this.setState({
       ...obj
     })
@@ -132,7 +99,6 @@ class AddCity extends React.Component {
       latitude: "",
       longitude: "",
       countryCode: "",
-      hover: false,
     })
   }
 
@@ -143,6 +109,11 @@ class AddCity extends React.Component {
       && this.state.countryCode.length === 2
       && validateLatitude(this.state.latitude)
       && validateLongitude(this.state.longitude)
+  }
+
+  handleAddCity = (e) => {
+    this.props.handleAddCity(e, this.state)
+    this.props.toggle()
   }
 
   render() {
@@ -159,7 +130,7 @@ class AddCity extends React.Component {
       className: clsx(classes.inputLabel),
     }
 
-    const { city, country, countryCode, latitude, longitude} = this.state
+    const { city, country, countryCode, latitude, longitude } = this.state
     return (
       <React.Fragment>
         <Modal
@@ -167,91 +138,90 @@ class AddCity extends React.Component {
           toggle={this.props.toggle}
           className={classes.modal}
         >
-          <ModalHeader
-            toggle={this.toggle}
-            className={classes.modalHeader}
-          >
-            Add City
-          </ModalHeader>
-          <ModalBody className={classes.modalBody}>
-            {!this.props.requestPending ?
-              <Form ref={ref => this.formAddCity = ref} onSubmit={e => this.props.handleAddCity(e, this.state)} autoComplete={"new-password"}>
-                <AutoComplete
-                  name="city"
-                  selectAutoSuggestCity={this.selectAutoSuggest}
-                  context={"City"}
-                  handleAutoCompleteChangeCity={this.handleAutoCompleteChange}
-                  clearSuggestionsHook={this.clearSuggestionsHook}
-                  inputStyle={{
-                    backgroundColor: OFF_BLACK_4,
-                    color: ICE_BLUE,
-                    borderColor: ICE_BLUE,
-                  }}
-                  setError={this.props.setError}
-                />
-                <TextField
-                  label={"Country"}
-                  variant={"outlined"}
-                  onChange={this.handleChange}
-                  value={country}
-                  inputProps={{ "boof": "country", autoComplete: 'new-password' }}
-                  InputProps={inputProps}
-                  InputLabelProps={InputLabelProps}
-                  className={classes.textField}
-                  error={!validateString(country, 120) && country !== ""}
-                  helperText={!validateString(country, 120) && country != "" ? "Must be shorter than 120 characters and contain only alphabetical characters" : null}
-                />
-                <TextField
-                  label={"Country Code"}
-                  variant={"outlined"}
-                  onChange={this.handleChange}
-                  value={countryCode.toUpperCase()}
-                  inputProps={{ "boof": "countryCode", autoComplete: 'new-password' }}
-                  InputProps={inputProps}
-                  InputLabelProps={InputLabelProps}
-                  className={classes.textField}
-                  error={!validateString(countryCode, 2, true) || (countryCode.length > 0 && countryCode.length !== 2)}
-                  helperText={!validateString(countryCode, 2, true) || (countryCode.length > 0 && countryCode.length !== 2) ? "Must be 2 alphabetical characters" : null}
-                />
-                <TextField
-                  label={"Latitude"}
-                  variant={"outlined"}
-                  onChange={this.handleChange}
-                  value={latitude}
-                  inputProps={{ "boof": "latitude", autoComplete: 'new-password' }}
-                  InputProps={inputProps}
-                  InputLabelProps={InputLabelProps}
-                  className={classes.textField}
-                  error={!validateLatitude(latitude) && latitude !== ""}
-                  helperText={!validateLatitude(latitude) && latitude !== "" ? "Must be a number between -90 and 90" : null}
-                />
-                <TextField
-                  label={"Longitude"}
-                  variant={"outlined"}
-                  onChange={this.handleChange}
-                  value={this.state.longitude}
-                  inputProps={{ "boof": "longitude", autoComplete: 'new-password' }}
-                  InputProps={inputProps}
-                  InputLabelProps={InputLabelProps}
-                  className={classes.textField}
-                  error={!validateLongitude(this.state.longitude) && this.state.longitude !== ""}
-                  helperText={!validateLongitude(this.state.longitude) && this.state.longitude !== "" ? "Must be a number between -180 and 180" : null}                  
-                />
-              </Form> :
+          <ModalHeader toggle={this.toggle} className={classes.modalHeader}>Add City</ModalHeader>
+          {!this.props.requestPending ?
+            <ModalBody className={classes.modalBody}>
+              <AutoComplete
+                selectAutoSuggest={this.selectAutoSuggest}
+                context={"City"}
+                handleAutoCompleteChange={this.handleAutoCompleteChange}
+                clearSuggestionsHook={this.clearSuggestionsHook}
+                setError={this.props.setError}
+              />
+              <TextField
+                label={"Country"}
+                variant={"outlined"}
+                onChange={(e) => this.handleChange(e, "country")}
+                value={country}
+                inputProps={{ autoComplete: 'new-password' }}
+                InputProps={inputProps}
+                InputLabelProps={InputLabelProps}
+                className={classes.textField}
+                error={!validateString(country, 120) && country !== ""}
+                helperText={!validateString(country, 120) && country != "" ? "Must be shorter than 120 characters and contain only alphabetical characters" : null}
+              />
+              <TextField
+                label={"Country Code"}
+                variant={"outlined"}
+                onChange={(e) => this.handleChange(e, "countryCode")}
+                value={countryCode.toUpperCase()}
+                inputProps={{ autoComplete: 'new-password' }}
+                InputProps={inputProps}
+                InputLabelProps={InputLabelProps}
+                className={classes.textField}
+                error={!validateString(countryCode, 2, true) || (countryCode.length > 0 && countryCode.length !== 2)}
+                helperText={!validateString(countryCode, 2, true) || (countryCode.length > 0 && countryCode.length !== 2) ? "Must be 2 alphabetical characters" : null}
+              />
+              <TextField
+                label={"Latitude"}
+                variant={"outlined"}
+                onChange={(e) => this.handleChange(e, "latitude")}
+                value={latitude}
+                inputProps={{ autoComplete: 'new-password' }}
+                InputProps={inputProps}
+                InputLabelProps={InputLabelProps}
+                className={classes.textField}
+                error={!validateLatitude(latitude) && latitude !== ""}
+                helperText={!validateLatitude(latitude) && latitude !== "" ? "Must be a number between -90 and 90" : null}
+              />
+              <TextField
+                label={"Longitude"}
+                variant={"outlined"}
+                onChange={(e) => this.handleChange(e, 'longitude')}
+                value={longitude}
+                inputProps={{ autoComplete: 'new-password' }}
+                InputProps={inputProps}
+                InputLabelProps={InputLabelProps}
+                className={classes.textField}
+                error={!validateLongitude(this.state.longitude) && this.state.longitude !== ""}
+                helperText={!validateLongitude(this.state.longitude) && this.state.longitude !== "" ? "Must be a number between -180 and 180" : null}
+              />
+            </ModalBody>
+            :
+            <div style={{backgroundColor: OFF_BLACK_1, paddingTop: 25, paddingBottom: 25}}>
               <RingLoader
-                color={"#0095d2"}
+                color={ICE_BLUE}
                 loading={true}
                 css={`margin: auto`}
                 size={200}
-              />}
-          </ModalBody>
+              />
+            </div>
+          }
           <ModalFooter className={classes.modalFooter}>
-            <Button onClick={this.submitForm} disabled={disableButtom} className={classes.button}>Submit</Button>
+            <Button onClick={this.handleAddCity} disabled={disableButtom} className={classes.button}>Submit</Button>
           </ModalFooter>
         </Modal>
       </React.Fragment>
     )
   }
+}
+
+AddCity.propTypes = {
+  handleAddCity: PropTypes.func,
+  isOpen: PropTypes.bool,
+  requestPending: PropTypes.bool,
+  setError: PropTypes.func,
+  toggle: PropTypes.func,
 }
 
 export default withStyles(styles)(AddCity);

@@ -1,7 +1,6 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 //TODO replace this with custom code
-import { geocodeByPlaceId } from 'react-google-places-autocomplete';
-// If you want to use the provided css
 import TextField from '@material-ui/core/TextField';
 import Autocomplete from '@material-ui/lab/Autocomplete';
 import { ICE_BLUE, OFF_BLACK_1, OFF_BLACK_2, OFF_BLACK_3, OFF_BLACK_4, FONT_GREY } from '../../utils/colors';
@@ -10,36 +9,11 @@ import clsx from 'clsx'
 import { validateString } from '../../utils/validators'
 var debounce = require('debounce-promise')
 
-const placeURL = "https://maps.googleapis.com/maps/api/place/autocomplete/json?"
-const cityURL = "https://maps.googleapis.com/maps/api/place/autocomplete/json?types=(cities)&"
-
 const styles = theme => ({
-  dropdownItem: {
-    cursor: 'pointer',
-    backgroundColor: 'transparent',
-    color: ICE_BLUE,
-    padding: "5px 0",
-    paddingLeft: 5,
-    cursor: 'pointer'
-  },
-  dropdownItemHighlighted: {
-    backgroundColor: ICE_BLUE,
-    color: FONT_GREY
-  },
-  inputStyle: {
-    backgroundColor: OFF_BLACK_4,
-    color: ICE_BLUE,
-    borderColor: ICE_BLUE,
-    "&:focus": {
-      backgroundColor: OFF_BLACK_4,
-      color: ICE_BLUE,
-      borderColor: ICE_BLUE,
-    }
-  },
   textField: {
     width: '90%',
     marginLeft: '5% !important',
-    marginTop: '5% !important'
+    marginTop: '2.5% !important'
   },
   input: {
     color: ICE_BLUE,
@@ -50,9 +24,6 @@ const styles = theme => ({
   inputBorder: {
     borderWidth: '1px',
     borderColor: `${ICE_BLUE} !important`
-  },
-  selectDropdown: {
-    color: `${ICE_BLUE} !important`
   },
   autocompleteOptions: {
     color: ICE_BLUE,
@@ -82,24 +53,21 @@ class AutoComplete extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      listIndex: null,
       suggestions: [],
-      apiKey: "AIzaSyBpXqyXMWAbXFs6XCxkMUFX09ZuHzjpKHU",
-      value: "",
-      menuOpen: false,
-
-      suggestionsOpen: false,
       searchValue: ""
     };
 
     this.myRef = React.createRef();
-    // this.loadPlaceSuggestionsDebounced = debounce(this.loadPlaceSuggestions, 500)
-    // this.loadCitySuggestionsDebounced = debounce(this.loadCitySuggestions, 500)
+    this.getPlaceSuggestionsDebounced = debounce(this.getPlaceSuggestions, 500)
+    this.getCitySuggestionsDebounced = debounce(this.getCitySuggestions, 500)
 
   }
 
   componentDidMount = () => {
     this.props.clearSuggestionsHook(this.clearSuggestions)
+    if (this.props.clearInputHook) {
+      this.props.clearInputHook(this.clearInput)
+    }
   }
 
   clearSuggestions = () => {
@@ -107,27 +75,13 @@ class AutoComplete extends React.Component {
       suggestions: []
     })
   }
-/*
-  loadPlaceSuggestions = (input) => {
-    const parameters = `input=${input}&location=${this.props.location.lat},${this.props.location.lng}&radius=${this.props.searchRadius}&key=${this.state.apiKey}${this.props.strictBounds ? "&strictbounds" : ""}`
-    return fetch(placeURL + parameters, {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-      },
+
+  clearInput = () => {
+    this.setState({
+      searchValue: ""
     })
   }
 
-  loadCitySuggestions = (input) => {
-    const parameters = `input=${input}&key=${this.state.apiKey}`
-    return fetch(cityURL + parameters, {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-      },
-    })
-  }
-*/
   getCitySuggestions = (input) => {
     const autocomplete = new window.google.maps.places.AutocompleteService()
     const requestParameters = {
@@ -165,47 +119,21 @@ class AutoComplete extends React.Component {
   }
 
   onInputChange = (e, obj, reason) => {
+    //update the input value
     if (reason !== 'reset') {
       this.setState({
         searchValue: obj
       })
     }
 
+    //Only pull suggestions when the search string isn't empty and the user didn't clear the field
     if (obj !== "" && reason !== 'reset') {
       switch (this.props.context) {
         case "Place":
-          this.getPlaceSuggestions(obj)
-          // this.loadPlaceSuggestionsDebounced(obj)
-          //   .then(resp => {
-          //     const response = resp.clone()
-          //     if (!response.ok) {
-          //       this.props.setError(true, response.statusText)
-          //       throw Error(response.statusText)
-          //     }
-          //     return response.json()
-          //   })
-          //   .then(json => {
-          //     //Only want predictions that have addresses
-          //     var predictions = json.predictions.filter((pred) => pred.types.includes("establishment") ? true : false);
-          //     this.setState({
-          //       suggestions: predictions
-          //     })
-          //   })
-          //   .catch(err => console.log(err))
+          this.getPlaceSuggestionsDebounced(obj)
           break;
         case "City":
-          this.getCitySuggestions(obj)
-          // this.loadCitySuggestionsDebounced(obj)
-          //   .then(resp => {
-          //     const response = resp.clone()
-          //     if (!response.ok) {
-          //       this.props.setError(true, response.statusText)
-          //       throw Error(response.statusText)
-          //     }
-          //     return response.json()
-          //   })
-          //   .then(json => this.setState({ suggestions: json.predictions }))
-          //   .catch(err => console.log(err))
+          this.getCitySuggestionsDebounced(obj)
           break
       }
     } else {
@@ -223,85 +151,93 @@ class AutoComplete extends React.Component {
       this.setState({
         searchValue: city
       })
-      this.props.handleAutoCompleteChangeCity(city)
+      this.props.handleAutoCompleteChange(city)
 
-      const country = option.terms[option.terms.length - 1].value;
-      geocodeByPlaceId(option.place_id).then((data) => {
-        let state, latitude, longitude, countryCode;
-        let address;
-        for (var i = 0; i < data[0].address_components.length; ++i) {
-          address = data[0].address_components[i];
-
-          state = address.long_name === "United States" ? data[0].address_components[i - 1].long_name : state;
-          latitude = parseFloat(data[0].geometry.location.lat().toFixed(4));
-          longitude = parseFloat(data[0].geometry.location.lng().toFixed(4));
-          countryCode = address.types && address.types.includes('country') ? address.short_name.toLowerCase() : countryCode
+      //Get additional data on the selection
+      const geocoder = new window.google.maps.Geocoder()
+      geocoder.geocode({ placeId: option.place_id }, (results, status) => {
+        if (status === "OK") {
+          var state, latitude, longitude, countryCode, country;
+          latitude = results[0].geometry.location.lat().toFixed(4)
+          longitude = results[0].geometry.location.lng().toFixed(4)
+          results[0].address_components.forEach((el, i) => {
+            if (el.types.includes("administrative_area_level_1")) {
+              state = el.long_name
+            } else if (el.types.includes('country')) {
+              country = el.long_name
+              countryCode = el.short_name
+            }
+          })
+          this.props.selectAutoSuggest({ city, country, latitude, longitude, countryCode, state })
         }
-        this.props.selectAutoSuggestCity({ city, country, latitude, longitude, countryCode, state })
       })
     }
   }
 
   onChangePlace = (e, option, reason) => {
-    //Dont know if this if is needed
-    if (option.place_id !== "") {
-      const place_id = option.place_id
+    if (option) {
       const name = option.terms[0].value
+      //Update the search value
       this.setState({
         searchValue: name
       })
-      this.props.handleAutoCompleteChangePlace(name)
-      geocodeByPlaceId(place_id)
-        .then(data => {
+      //Send the place name back to the form
+      this.props.handleAutoCompleteChange(name)
+
+      const geocoder = new window.google.maps.Geocoder()
+      geocoder.geocode({ placeId: option.place_id }, (results, status) => {
+        if (status === 'OK') {
           var street_number = "", street = "", county = "", city = "", state = "", zip = "", country = "", address = "", countryCode = "";
-          data[0].address_components.forEach(element => {
-            if (element.types.includes("street_number")) street_number = element.long_name;
-            else if (element.types.includes("route")) street = element.long_name;
-            else if (element.types.includes("sublocality")) county = element.long_name;
-            else if (element.types.includes("locality")) city = element.long_name;
-            else if (element.types.includes("administrative_area_level_1")) state = element.long_name;
-            else if (element.types.includes("administrative_area_level_2")) county = element.long_name
-            else if (element.types.includes("country")) {
-              country = element.long_name;
-              countryCode = element.short_name === "US" ? "US" : element.short_name;
+          results[0].address_components.forEach(el => {
+            if (el.types.includes("street_number")) street_number = el.long_name;
+            else if (el.types.includes("route")) street = el.long_name;
+            else if (el.types.includes("sublocality")) county = el.long_name;
+            else if (el.types.includes("locality")) city = el.long_name;
+            else if (el.types.includes("administrative_area_level_1")) state = el.long_name;
+            else if (el.types.includes("administrative_area_level_2")) county = el.long_name
+            else if (el.types.includes("country")) {
+              country = el.long_name;
+              countryCode = el.short_name === "US" ? "US" : el.short_name;
             }
-            else if (element.types.includes("postal_code")) zip = element.long_name;
+            else if (el.types.includes("postal_code")) zip = el.long_name;
           });
-          const latitude = parseFloat(data[0].geometry.location.lat().toFixed(4));
-          const longitude = parseFloat(data[0].geometry.location.lng().toFixed(4));
-          const placeId = data[0].place_id
-          const types = data[0].types.join(",")
-          //Establishment is the default type for all results
-          var main_type = "establishment";
-          for (var i = 0; i < this.props.placeTypes.length; ++i) {
-            if (data[0].types.includes(this.props.placeTypes[i])) {
-              main_type = this.props.placeTypes[i];
-              break
-            }
-          }
-          this.props.changeMainType(main_type)
-          address = street_number + " " + street
-          this.props.selectAutoSuggestPlace({ name, address, city, state, country, countryCode, county, zip, types, placeId, latitude, longitude })
-        })
+          const latitude = parseFloat(results[0].geometry.location.lat().toFixed(4));
+          const longitude = parseFloat(results[0].geometry.location.lng().toFixed(4));
+          const placeId = results[0].place_id
+          const types = results[0].types.join(",")
+           //Establishment is the default type for all results, search for a more meaningful one
+           var main_type = "establishment";
+           for (var i = 0; i < this.props.placeTypes.length; ++i) {
+             if (results[0].types.includes(this.props.placeTypes[i])) {
+               main_type = this.props.placeTypes[i];
+               break
+             }
+           }
+           //Change the main type on the form
+           this.props.changeMainType(main_type)
+           address = street_number + " " + street
+           //Send the location information back to the form, the fields will be filled with this information
+           this.props.selectAutoSuggest({ name, address, city, state, country, countryCode, county, zip, types, placeId, latitude, longitude })
+        }
+      })
     }
   }
 
   render = () => {
     const classes = this.props.classes
 
-    const error = this.props.context === "City" ? !validateString(this.state.searchValue, 120, true) : this.state.searchValue.length > 120
+    const error = this.props.context === "City" ? !validateString(this.state.searchValue, 120) : this.state.searchValue.length > 120
     const helperText = this.props.context === "City" ? "Must be shorter than 120 characters and contain only alphabetical characters" : "Must be less than 120 characters"
-
     return (
       <Autocomplete
         freeSolo
         key={this.state.randomKey}
-        // open={true}
         options={this.state.suggestions}
         getOptionLabel={(option) => option.description}
         onChange={this.props.context === "City" ? this.onChangeCity : this.onChangePlace}
         inputValue={this.state.searchValue}
         onInputChange={this.onInputChange}
+        //The component will automatically filter some options out if this isn't specified
         filterOptions={(options, state) => options}
         renderOption={(option, state) => {
           return <div className={clsx(classes.autocompleteOptions)}>{`${option.description}`}</div>
@@ -314,7 +250,6 @@ class AutoComplete extends React.Component {
           <TextField
             {...params}
             label={this.props.context}
-            margin="normal"
             variant="outlined"
             value={this.state.searchValue}
             className={clsx(classes.textField)}
@@ -337,5 +272,12 @@ class AutoComplete extends React.Component {
   }
 }
 
+AutoComplete.propTypes = {
+  context: PropTypes.string,
+  selectAutoSuggest: PropTypes.func,
+  clearSuggestionsHook: PropTypes.func,
+  setError: PropTypes.func,
+  handleAutoCompleteChange: PropTypes.func
+}
 
 export default withStyles(styles)(AutoComplete);
