@@ -3,8 +3,6 @@ import ReactDOM from 'react-dom'
 import PropTypes from 'prop-types';
 import {
   Button,
-  Form,
-  Input,
   Modal,
   ModalHeader,
   ModalBody,
@@ -12,7 +10,6 @@ import {
 } from 'reactstrap';
 import TextField from '@material-ui/core/TextField';
 import { ICE_BLUE, FONT_GREY, OFF_BLACK_1, OFF_BLACK_2, OFF_BLACK_3, OFF_BLACK_4, ERROR_RED } from '../../utils/colors'
-import clsx from 'clsx'
 import { withStyles } from '@material-ui/styles';
 import RingLoader from "react-spinners/RingLoader";
 import { validateEmail } from '../../utils/validators'
@@ -37,7 +34,8 @@ const styles = theme => ({
     backgroundColor: OFF_BLACK_2,
     color: ICE_BLUE,
     border: "none",
-    fontSize: 24
+    fontSize: 36,
+    borderBottom: 0
   },
   modalBody: {
     backgroundColor: OFF_BLACK_3
@@ -79,7 +77,6 @@ const styles = theme => ({
     display: 'inline',
     "&:hover": {
       textDecoration: 'underline',
-      // fontWeight: 'bold'
     }
   }
 })
@@ -94,6 +91,15 @@ class LoginForm extends React.Component {
     passwordResetRequestSuccess: null,
     passwordResetRequestPending: false
   };
+
+  toggle = () => {
+    this.props.toggle()
+    this.setState({
+      showForgotPassword: false,
+      passwordResetRequestPending: false,
+      passwordResetRequestSuccess: null
+    })
+  }
 
   handleChange = (e, name) => {
     const value = e.target.value;
@@ -115,13 +121,6 @@ class LoginForm extends React.Component {
         password: value
       })
     }
-  }
-
-  submitForm = () => {
-    ReactDOM.findDOMNode(this.formLogin).dispatchEvent(new Event("submit"))
-    this.setState({
-      password: ""
-    })
   }
 
   loginFieldsValid = () => {
@@ -177,7 +176,19 @@ class LoginForm extends React.Component {
     const error = this.props.error
     var body, buttonDisabled, onClick;
 
-    if (this.state.showForgotPassword) {
+    if (this.props.loadingUserData || this.state.passwordResetRequestPending) {
+      buttonDisabled = true
+      body = (
+        <ModalBody style={styles.modalBody} className={classes.modalBody}>
+          <RingLoader
+            color={ICE_BLUE}
+            loading={true}
+            css={`margin: auto`}
+            size={200}
+          />
+        </ModalBody>
+      )
+    } else if (this.state.showForgotPassword) {
       onClick = this.submitPasswordResetRequest
       buttonDisabled = !validateEmail(this.state.email) || this.state.passwordResetRequestPending
       body = (
@@ -188,6 +199,7 @@ class LoginForm extends React.Component {
             variant={"outlined"}
             onChange={(e) => this.handleChange(e, 'email')}
             value={this.state.email}
+            inputProps={{ autoComplete: 'new-password' }}
             InputProps={this.inputProps(false)}
             InputLabelProps={this.inputLabelProps(false)}
             className={classes.textField}
@@ -201,19 +213,6 @@ class LoginForm extends React.Component {
       body = (
         <ModalBody style={styles.modalBody} className={classes.modalBody}>
           <div className={classes.fieldLabel}>An email with instructions for reseting your password has been sent to {this.state.email}</div>
-        </ModalBody>
-      )
-    }
-    else if (this.props.loadingUserData) {
-      buttonDisabled = this.props.loadingUserData
-      body = (
-        <ModalBody style={styles.modalBody} className={classes.modalBody}>
-          <RingLoader
-            color={"#0095d2"}
-            loading={true}
-            css={`margin: auto`}
-            size={200}
-          />
         </ModalBody>
       )
     } else {
@@ -249,7 +248,6 @@ class LoginForm extends React.Component {
             variant={"outlined"}
             onChange={(e) => {
               this.handleChangePassword(e, 'password')
-              console.log(this.incorrectPassword(error))
               if (this.incorrectPassword(error)) {
                 this.props.setError({
                   show: false,
@@ -280,8 +278,8 @@ class LoginForm extends React.Component {
     }
 
     return (
-      <Modal isOpen={this.props.isOpen} toggle={this.props.toggle} className={classes.modal}>
-        <ModalHeader toggle={this.props.toggle} className={classes.modalHeader}><p style={{ fontSize: 36, marginBottom: 0 }}>Login</p></ModalHeader>
+      <Modal isOpen={this.props.isOpen} toggle={this.toggle} className={classes.modal}>
+        <ModalHeader toggle={this.toggle} className={classes.modalHeader}><p style={{ fontSize: 36, marginBottom: 0 }}>Login</p></ModalHeader>
         {body}
         <ModalFooter className={classes.modalFooter}>
           <Button disabled={buttonDisabled} onClick={onClick} className={classes.button}>Submit</Button>
@@ -295,5 +293,10 @@ export default withStyles(styles)(LoginForm);
 
 
 LoginForm.propTypes = {
-  handleLogin: PropTypes.func.isRequired
+  error: PropTypes.object,
+  handleLogin: PropTypes.func.isRequired,
+  isOpen: PropTypes.bool,
+  loadingUserData: PropTypes.bool,
+  setError: PropTypes.func,
+  toggle: PropTypes.func
 };

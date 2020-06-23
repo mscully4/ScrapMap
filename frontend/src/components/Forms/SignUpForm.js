@@ -3,17 +3,10 @@ import ReactDOM from 'react-dom'
 import PropTypes from 'prop-types';
 import {
   Button,
-  Form,
-  Input,
-  Navbar,
-  Nav,
-  NavItem,
   Modal,
   ModalHeader,
   ModalBody,
   ModalFooter,
-  NavbarBrand,
-  NavbarToggler
 } from 'reactstrap';
 import { ICE_BLUE, FONT_GREY, OFF_BLACK_1, OFF_BLACK_2, OFF_BLACK_3, OFF_BLACK_4 } from '../../utils/colors'
 import TextField from '@material-ui/core/TextField';
@@ -23,13 +16,6 @@ import RingLoader from "react-spinners/RingLoader";
 import { validateEmail, validateUsername, validatePassword, validateString } from '../../utils/validators'
 
 const styles = theme => ({
-  fieldLabel: {
-    color: ICE_BLUE,
-    fontSize: 18,
-    marginBottom: 0,
-    marginTop: 15,
-    marginLeft: '5%'
-  },
   textField: {
     width: '90%',
     marginLeft: '5% !important',
@@ -58,12 +44,6 @@ const styles = theme => ({
     backgroundColor: ICE_BLUE,
     width: '90%',
     margin: "auto"
-  },
-  errorMessage: {
-    marginLeft: '5%',
-    color: 'red',
-    marginBottom: 0,
-    marginTop: 2
   },
   input: {
     color: ICE_BLUE,
@@ -122,14 +102,6 @@ class SignUpForm extends React.Component {
     }
   }
 
-  submitForm = () => {
-    ReactDOM.findDOMNode(this.formLogin).dispatchEvent(new Event("submit"))
-    this.setState({
-      username: "",
-      password: ""
-    })
-  }
-
   userAlreadyExists = (error) => {
     return error.status === 400
       && error.message.username
@@ -144,6 +116,7 @@ class SignUpForm extends React.Component {
 
   passwordTooShort = (error) => {
     return error.status === 400
+      && error.message.password
       && error.message.password.includes('Password Must Be At Least 7 Characters')
   }
 
@@ -253,7 +226,6 @@ class SignUpForm extends React.Component {
               variant={"outlined"}
               onChange={this.handleChangePassword}
               value={"*".repeat(this.state.password.length)}
-              // inputProps={{ "boof": "password" }}
               InputProps={inputProps}
               InputLabelProps={InputLabelProps}
               className={classes.textField}
@@ -278,9 +250,13 @@ class SignUpForm extends React.Component {
   }
 }
 
+SignUpForm.propTypes = {
+  error: PropTypes.object,
+  handleSignUp: PropTypes.func,
+  isOpen: PropTypes.bool,
+  loadingSignUpRequest: PropTypes.bool,
+  setError: PropTypes.func,
+  toggle: PropTypes.func
+}
+
 export default withStyles(styles)(SignUpForm);
-
-
-// LoginForm.propTypes = {
-//   handleLogin: PropTypes.func.isRequired
-// };

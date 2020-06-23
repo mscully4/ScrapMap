@@ -18,11 +18,6 @@ import RingLoader from "react-spinners/RingLoader";
 import { validateLatitude, validateLongitude, validateString } from '../../utils/validators'
 
 const styles = theme => ({
-  addIcon: {
-    height: 40,
-    width: 40,
-    cursor: 'pointer',
-  },
   modal: {
     backgroundColor: "#000"
   },
@@ -38,21 +33,10 @@ const styles = theme => ({
     backgroundColor: OFF_BLACK_2,
     border: "none"
   },
-  inputStyle: {
-    backgroundColor: OFF_BLACK_4,
-    color: ICE_BLUE,
-    borderColor: ICE_BLUE
-  },
   button: {
     width: '90%',
     margin: '10px auto',
     backgroundColor: ICE_BLUE,
-  },
-  fieldLabel: {
-    color: ICE_BLUE,
-    fontSize: 18,
-    marginBottom: 0,
-    marginTop: 10
   },
   textField: {
     width: '90%',
@@ -72,19 +56,14 @@ const styles = theme => ({
 })
 
 class EditCity extends React.Component {
-  static defaultProps = {
-  };
-
   constructor(props) {
     super(props);
     this.state = {
       ...this.props.data,
-      disabled: false,
     };
   }
 
-  handleChange = e => {
-    const name = e.target.getAttribute("boof")
+  handleChange = (e, name) => {
     const value = e.target.value;
     this.setState(prevState => {
       const newState = { ...prevState };
@@ -127,6 +106,11 @@ class EditCity extends React.Component {
       && validateLongitude(this.state.longitude)
   }
 
+  handleEditCity = (e) => {
+    this.props.handleEditCity(e, this.state)
+    this.props.toggle()
+  }
+
   render() {
     const buttonDisabled = !this.hasBeenChanged() || this.props.requestPending || !this.allFieldsValid();
     const classes = this.props.classes
@@ -144,88 +128,95 @@ class EditCity extends React.Component {
     return (
       <Modal isOpen={this.props.isOpen} toggle={this.props.toggle}>
         <ModalHeader className={classes.modalHeader} toggle={this.props.toggle}>Edit City</ModalHeader>
-        <ModalBody className={classes.modalBody}>
-          {!this.props.requestPending ?
-            <Form ref={ref => this.formEditCity = ref} onSubmit={e => this.props.handleEditCity(e, this.state)}>
-              <TextField
-                label={"City"}
-                variant={"outlined"}
-                onChange={this.handleChange}
-                value={this.state.city}
-                inputProps={{ "boof": "city", "autoComplete": 'new-password' }}
-                InputProps={inputProps}
-                InputLabelProps={InputLabelProps}
-                className={classes.textField}
-                error={!validateString(this.state.city, 120) && this.state.city !== ""}
-                helperText={!validateString(this.state.city, 120) && this.state.city != "" ? "Must be shorter than 120 characters and contain only alphabetical characters" : null}
-              />
-              <TextField
-                label={"Country"}
-                variant={"outlined"}
-                onChange={this.handleChange}
-                value={this.state.country}
-                inputProps={{ "boof": "country", "autoComplete": 'new-password' }}
-                InputProps={inputProps}
-                InputLabelProps={InputLabelProps}
-                className={classes.textField}
-                error={!validateString(this.state.country, 120) && this.state.country !== ""}
-                helperText={!validateString(this.state.country, 120) && this.state.country != "" ? "Must be shorter than 120 characters and contain only alphabetical characters" : null}
-              />
-              <TextField
-                label={"Country Code"}
-                variant={"outlined"}
-                onChange={this.handleChange}
-                value={this.state.countryCode.toUpperCase()}
-                inputProps={{ "boof": "countryCode", "autoComplete": 'new-password' }}
-                InputProps={inputProps}
-                InputLabelProps={InputLabelProps}
-                className={classes.textField}
-                error={!validateString(this.state.countryCode, 2) && this.state.countryCode !== "" || this.state.countryCode.length !== 2}
-                helperText={!validateString(this.state.country, 120) 
-                  && this.state.countryCode !==  "" 
-                  && this.state.countryCode.length !== 2 ? "Must be 2 alphabetical characters" : null}
-              />
-              <TextField
-                label={"Latitude"}
-                variant={"outlined"}
-                onChange={this.handleChange}
-                value={this.state.latitude}
-                inputProps={{ "boof": "latitude", "autoComplete": 'new-password' }}
-                InputProps={inputProps}
-                InputLabelProps={InputLabelProps}
-                className={classes.textField}
-                error={!validateLatitude(this.state.latitude) && this.state.latitude !== ""}
-                helperText={!validateLatitude(this.state.latitude) && this.state.latitude !== "" ? "Must be a number between -90 and 90" : null}
-              />
-              <TextField
-                label={"Longitude"}
-                variant={"outlined"}
-                onChange={this.handleChange}
-                value={this.state.longitude}
-                inputProps={{ "boof": "longitude", "autoComplete": 'new-password' }}
-                InputProps={inputProps}
-                InputLabelProps={InputLabelProps}
-                className={classes.textField}
-                error={!validateLongitude(this.state.longitude) && this.state.longitude !== ""}
-                  helperText={!validateLongitude(this.state.longitude) && this.state.longitude !== "" ? "Must be a number between -180 and 180" : null} 
-              />
-            </Form> :
+        {!this.props.requestPending ?
+          <ModalBody className={classes.modalBody}>
+            <TextField
+              label={"City"}
+              variant={"outlined"}
+              onChange={(e) => this.handleChange(e, "city")}
+              value={this.state.city}
+              inputProps={{ "autoComplete": 'new-password' }}
+              InputProps={inputProps}
+              InputLabelProps={InputLabelProps}
+              className={classes.textField}
+              error={!validateString(this.state.city, 120) && this.state.city !== ""}
+              helperText={!validateString(this.state.city, 120) && this.state.city != "" ? "Must be shorter than 120 characters and contain only alphabetical characters" : null}
+            />
+            <TextField
+              label={"Country"}
+              variant={"outlined"}
+              onChange={(e) => this.handleChange(e, 'country')}
+              value={this.state.country}
+              inputProps={{ "autoComplete": 'new-password' }}
+              InputProps={inputProps}
+              InputLabelProps={InputLabelProps}
+              className={classes.textField}
+              error={!validateString(this.state.country, 120) && this.state.country !== ""}
+              helperText={!validateString(this.state.country, 120) && this.state.country != "" ? "Must be shorter than 120 characters and contain only alphabetical characters" : null}
+            />
+            <TextField
+              label={"Country Code"}
+              variant={"outlined"}
+              onChange={(e) => this.handleChange('countryCode')}
+              value={this.state.countryCode.toUpperCase()}
+              inputProps={{ "autoComplete": 'new-password' }}
+              InputProps={inputProps}
+              InputLabelProps={InputLabelProps}
+              className={classes.textField}
+              error={!validateString(this.state.countryCode, 2) && this.state.countryCode !== "" || this.state.countryCode.length !== 2}
+              helperText={!validateString(this.state.country, 120)
+                && this.state.countryCode !== ""
+                && this.state.countryCode.length !== 2 ? "Must be 2 alphabetical characters" : null}
+            />
+            <TextField
+              label={"Latitude"}
+              variant={"outlined"}
+              onChange={e => this.handleChange(e, 'latitude')}
+              value={this.state.latitude}
+              inputProps={{ "autoComplete": 'new-password' }}
+              InputProps={inputProps}
+              InputLabelProps={InputLabelProps}
+              className={classes.textField}
+              error={!validateLatitude(this.state.latitude) && this.state.latitude !== ""}
+              helperText={!validateLatitude(this.state.latitude) && this.state.latitude !== "" ? "Must be a number between -90 and 90" : null}
+            />
+            <TextField
+              label={"Longitude"}
+              variant={"outlined"}
+              onChange={e => this.handleChange(e, 'longitude')}
+              value={this.state.longitude}
+              inputProps={{ "autoComplete": 'new-password' }}
+              InputProps={inputProps}
+              InputLabelProps={InputLabelProps}
+              className={classes.textField}
+              error={!validateLongitude(this.state.longitude) && this.state.longitude !== ""}
+              helperText={!validateLongitude(this.state.longitude) && this.state.longitude !== "" ? "Must be a number between -180 and 180" : null}
+            />
+          </ModalBody>
+          :
+          <div style={{backgroundColor: OFF_BLACK_1, paddingTop: 25, paddingBottom: 25}}>
             <RingLoader
               color={"#0095d2"}
               loading={true}
               css={`margin: auto`}
-              // ; height: ${window.innerHeight}px; width: ${window.innerWidth}px`}
               size={200}
             />
-          }
-        </ModalBody>
+          </div>
+        }
         <ModalFooter className={classes.modalFooter}>
-          <Button disabled={buttonDisabled} onClick={this.submitForm} className={clsx(classes.button)}>Submit</Button>
+          <Button disabled={buttonDisabled} onClick={this.handleEditCity} className={clsx(classes.button)}>Submit</Button>
         </ModalFooter>
       </Modal>
     )
   }
 }
 
+EditCity.propTypes = {
+  data: PropTypes.object,
+  handleEditCity: PropTypes.func,
+  isOpen: PropTypes.bool,
+  requestPending: PropTypes.bool,
+  toggle: PropTypes.func,
+}
+
 export default withStyles(styles)(EditCity);
-// export default EditCity;
