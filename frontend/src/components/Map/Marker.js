@@ -1,11 +1,11 @@
 import React, { Component } from 'react';
-import ReactDOM from 'react-dom';
 import PropTypes from 'prop-types';
 import { withStyles } from '@material-ui/styles';
 import clsx from 'clsx';
 
 import { place_colors } from "../../utils/colors"
-import { pin, Svg } from '../../utils/SVGs'
+import { pin, pinBase, Svg } from '../../utils/SVGs'
+import { ICE_BLUE, FONT_GREY } from '../../utils/colors'
 
 
 const WIDTH = 20;
@@ -16,58 +16,13 @@ const styles = theme => ({
     width: WIDTH,
     height: HEIGHT,
     position: 'absolute',
-    // left: -WIDTH / 2,
-    // top: -HEIGHT,
   },
   MarkerStyle: {
-    // initially any map object has left top corner at lat lng coordinates
-    // it's on you to set object origin to 0,0 coordinates
-    // position: 'absolute',
-    // width: K_SIZE,
-    // height: K_SIZE,
     cursor: 'pointer',
-    // fill: "#0095d2",
-    //backgroundColor: "blue",
-
-    // border: '5px solid #f44336',
-    // borderRadius: K_SIZE,
-    // backgroundColor: 'white',
-    // textAlign: 'center',
-    // color: '#3f51b5',
-    // fontSize: 16,
-    // fontWeight: 'bold',
-    // padding: 4,
-    // cursor: 'pointer',
-    "&:hover": {
-      fill: "black"
-    }
-  },
-  MarkerStyleHover: {
-    fill: "black"
-  },
-  BoxStyle: {
-    display: 'inline-block',
-    backgroundColor: "#ffffff",
-    minWidth: 150,
-    height: 150,
-    left: 30,
-    position: 'absolute',
-    zIndex: 9999,
-    // borderRadius: 4,
-    // boxShadow: '0px 0px 8px -1px black',
-    boxShadow: "2px 2px 12px rgba(0, 0, 0, .75)",
-    border: "solid 1px rgba(0, 0, 0, .1)",
-    top: -14,
-  },
-  BoxStyleMouseEnter: {
-    visibility: "visible",
-  },
-  BoxStyleMouseLeave: {
-    visibility: "hidden"
   },
   Tooltip: {
     position: 'absolute',
-    backgroundColor: '#0095d2',
+    backgroundColor: ICE_BLUE,
     padding: '12px 21px',
     opacity: .9,
     fontSize: 13,
@@ -82,7 +37,7 @@ const styles = theme => ({
       width: 0,
       height: 0,
 
-      borderTopColor: "#0095d2",
+      borderTopColor: ICE_BLUE,
 
       borderTopStyle: "Solid",
       borderTopWidth: "6px",
@@ -100,22 +55,11 @@ const styles = theme => ({
 })
 
 class Marker extends Component {
-  static propTypes = {
-    // text: PropTypes.string,
-  };
-
-  static defaultProps = {
-    //data: {city: "", country: "", countryCode: "", lat: null, lng: null, index: null, urls: [[]]},
-  };
-
-  //shouldComponentUpdate = shouldPureComponentUpdate;
-
   constructor(props) {
     super(props);
     this.state = {
       //the data for the destination
       ...this.props.data,
-      hover: false,
 
       // editorIsOpen: false,
 
@@ -135,20 +79,6 @@ class Marker extends Component {
     })
   }
 
-  onMouseEnter = (e) => {
-    this.setState({
-      hover: true,
-    })
-    this.props.changeHoverIndex(this.props.data.index)
-  }
-
-  onMouseLeave = (e) => {
-    this.setState({
-      hover: false,
-    })
-    this.props.changeHoverIndex(null)
-  }
-
   render() {
     const { zoom, data } = this.props
     const scale = ((zoom - 4) / 10);
@@ -156,8 +86,8 @@ class Marker extends Component {
     return (
 
       <div
-        onMouseEnter={this.onMouseEnter}
-        onMouseLeave={this.onMouseLeave}
+        onMouseEnter={(e) => this.props.changeHoverIndex(this.props.data.index)}
+        onMouseLeave={(e) => this.props.changeHoverIndex(null)}
         className={clsx(this.props.classes.MarkerContainer)}
         onClick={() => this.props.markerClick(this.props.data)}
         style={{
@@ -169,22 +99,16 @@ class Marker extends Component {
         <Svg
           style={styles.addIcon}
           viewBox={pin.viewBox}
-          className={clsx(this.props.classes.MarkerStyle, { [this.props.classes.MarkerStyleHover]: this.props.hoverIndex === this.props.data.index })}
-          data-tip
-          data-for={this.props.granularity ? this.props.data.city : null}
+          className={clsx(this.props.classes.MarkerStyle)}
           style={{
             //The marker is re-sized as the zoom of the map changes
             width: WIDTH + (WIDTH * scale),
             height: HEIGHT + (HEIGHT * scale),
           }}
         >
-          <path
-            d={pin.path} fill={color}
-          />
+          <path d={pin.path} fill={this.props.hoverIndex === this.props.data.index ? ICE_BLUE : color}/>
           {/* To have a multi-colored pin, we need to two have two pins, one with the color of the base and the other will a custom color */}
-          <path style={{ fill: "Black" }}
-            d={'M112 316.94v156.69l22.02 33.02c4.75 7.12 15.22 7.12 19.97 0L176 473.63V316.94c-10.39 1.92-21.06 3.06-32 3.06s-21.61-1.14-32-3.06zM144 0C64.47'}
-          />
+          <path style={{ fill: "Black" }} d={pinBase} />
         </Svg>
 
         <div
@@ -201,6 +125,17 @@ class Marker extends Component {
       </div>
     );
   }
+}
+
+Marker.propTypes = {
+  hoverIndex: PropTypes.number, 
+  changeHoverIndex: PropTypes.func,
+  data: PropTypes.object,
+  lat: PropTypes.number,
+  lng: PropTypes.number,
+  markerClick: PropTypes.func,
+  zoom: PropTypes.number,
+  granularity: PropTypes.number,
 }
 
 export default withStyles(styles)(Marker);

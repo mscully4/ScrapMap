@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import GoogleMapReact from 'google-map-react';
-import controllable from 'react-controllables';
 
 import Marker from './Marker.js';
 
@@ -13,49 +12,19 @@ const styles = {
   }
 }
 
-// const Map = controllable(['center', 'zoom', 'hoverKey', 'clickKey'])(
 class Map extends Component {
-
-  // static propTypes = {
-  //   center: PropTypes.array,
-  //   zoom: PropTypes.number,
-  //   //hoverKey: PropTypes.string,
-  //   clickKey: PropTypes.string,
-  //   onCenterChange: PropTypes.func,
-  //   onZoomChange: PropTypes.func,
-  //   onHoverKeyChange: PropTypes.func,
-
-  //   greatPlaces: PropTypes.any,
-  //   cities: PropTypes.any,
-  // }
-
-  // static defaultProps = {
-  //   center: {lat: 40.7, lng: -74},
-  //   zoom: 4,
-  // }
-
   constructor(props) {
     super(props);
 
     this.state = {
-      apiKey: "AIzaSyBpXqyXMWAbXFs6XCxkMUFX09ZuHzjpKHU",
-      zoom: 4,
-      center: null,
-    }
 
-    this.mapRef = React.createRef();
+    }
   }
 
   onChange = ({ center, zoom }) => {
-    this.setState({
-      center: center,
-      zoom: zoom,
-    })
     this.props.changeGranularity(zoom)
-    // this.props.onCenterChange(center)
-    // this.props.onZoomChange(zoom)
     this.props.changeMapCenter({ latitude: center.lat, longitude: center.lng })
-    this.props.setClosestCity(this.props.getClosestCity(this.props.cities, center.lat, center.lng))
+    this.props.setClosestCity(this.props.cities, center.lat, center.lng)
   }
 
   createMapOptions = (maps) => {
@@ -112,15 +81,11 @@ class Map extends Component {
     return (
       <div style={styles.map}>
         <GoogleMapReact
-          bootstrapURLKeys={{ key: this.state.apiKey }}
           center={this.props.center}
           zoom={this.props.zoom}
           keyboardShortcuts={false}
           options={this.createMapOptions}
           onChange={this.onChange}
-
-        // yesIWantToUseGoogleMapApiInternals
-        // onGoogleApiLoaded={({ map, maps }) => this.handleApiLoaded(map, maps)}
         >
           {this.createMarkers(this.props.granularity)}
         </GoogleMapReact>
@@ -128,6 +93,18 @@ class Map extends Component {
     )
   }
 }
-// )
+
+Map.propTypes = {
+  center: PropTypes.array,
+  zoom: PropTypes.number,
+  places: PropTypes.array,
+  cities: PropTypes.array,
+  hoverIndex: PropTypes.number,
+  changeHoverIndex: PropTypes.func,
+  setClosestCity: PropTypes.func,
+  granularity: PropTypes.number,
+  hoverIndex: PropTypes.number,
+  markerClick: PropTypes.func,
+}
 
 export default Map;
