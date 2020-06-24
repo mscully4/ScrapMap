@@ -1,33 +1,22 @@
 import React, { Component } from 'react';
-import Carousel, { Modal, ModalGateway, NavigationPrev } from 'react-images';
+import Carousel, { Modal, ModalGateway } from 'react-images';
+import PropTypes from 'prop-types';
+
 // import { ImgEditor} from '../components/ImageEditor';
 import { close, editorPath, trash, Svg } from '../../utils/SVGs'
-import { ICE_BLUE } from '../../utils/colors'
+import { ICE_BLUE, FONT_GREY } from '../../utils/colors'
 
 const theme = {
   headerDiv: {
-    alignItems: 'center',
     position: 'absolute',
-    display: 'flex',
-    flex: '0 0 auto',
-    justifyContent: 'flex-end',
     top: 0,
     left: 0,
     right: 0,
-    padding: 10,
     paddingBottom: 20,
-    linearGgradient: 'rgba(0, 0, 0, 0.33), rgba(0, 0, 0, 0)',
+    background: 'linear-gradient(rgba(0, 0, 0, 0.99), rgba(0, 0, 0, 0))',
     zIndex: 9999,
+    height: 60
 
-  },
-  closeButton: {
-    color: 'rgba(255, 255, 255, 0.75)',
-    display: 'inline-flex',
-    padding: 0,
-    outline: 0,
-    border: 0,
-    background: 0,
-    textAlign: 'right'
   },
   closeSVG: {
     cursor: 'pointer',
@@ -48,16 +37,11 @@ const theme = {
   }
 }
 
-export default class ImageViewer extends Component {
+class ImageViewer extends Component {
   constructor(props) {
     super(props);
     this.state = {
-
     }
-  }
-
-  onClose = (e) => {
-    this.props.setImageViewerOpen(false);
   }
 
   trashOnClick = (e, currentView) => {
@@ -95,3 +79,17 @@ export default class ImageViewer extends Component {
     )
   }
 }
+
+ImageViewer.propTypes = {
+  views: PropTypes.array,
+  currentIndex: PropTypes.number,
+  toggleViewer: PropTypes.func,
+  handleDeleteImage: PropTypes.func,
+  toggleViewer: PropTypes.func,
+  toggleGallery: PropTypes.func,
+  owner: PropTypes.bool,
+  isOpen: PropTypes.bool,
+  requestPending: PropTypes.bool
+}
+
+export default ImageViewer

@@ -1,8 +1,9 @@
 import React, {useCallback} from 'react'
-import {useDropzone} from 'react-dropzone'
+import { useDropzone } from 'react-dropzone'
+import { FONT_GREY } from '../../utils/colors'
 
 const ACCEPTED_FORMATS = ["jpg", "jpeg", "png"]
-const MAX_SIZE = 10000000
+const MAX_SIZE = 20000000
 
 function MyDropzone(props) {
   const onDrop = useCallback(acceptedFiles => {
@@ -16,7 +17,7 @@ function MyDropzone(props) {
   return (
     <div {...getRootProps()} className={props.className} style={{
       width: "80%", 
-      border: "dashed 3px #c1c1c1", 
+      border: `dashed 3px ${FONT_GREY}`, 
       margin: 'auto',
       borderRadius: 20,
       display: 'flex',
@@ -28,22 +29,11 @@ function MyDropzone(props) {
       {
         isDragActive ?
           <div><p>Drop the files here ...</p></div> :
-          <div 
-          // style={{
-          //   width: "80%",
-          //   border: "dashed 3px #c1c1c1",
-          //   margin: "auto",
-          //   marginTop: 30,
-          //   borderRadius: 20,
-          //   display: "flex",
-          //   justifyContent: "center",/* align horizontal */
-          //   alignItems: "center"
-          // }}
-          >
+          <div >
             <p style={{
               margin: "auto",
               fontSize: 16,
-              color: "#c1c1c1",
+              color: `${FONT_GREY}`,
               fontWeight: "bold"
             }}
             >
