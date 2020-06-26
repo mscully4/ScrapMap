@@ -1,5 +1,6 @@
 import React from 'react';
 import { Dropdown, DropdownItem, DropdownMenu, DropdownToggle } from 'reactstrap';
+import { PropTypes } from 'prop-types'
 import { ellipsis, Svg } from "../../utils/SVGs"
 import clsx from 'clsx'
 import { withStyles } from '@material-ui/styles';
@@ -34,7 +35,6 @@ class OptionsDropdown extends React.Component {
   }
 
   toggleDropdown = () => {
-    //when opening dropwdown add the row data to selectedCity for use on edit form, otherwise set selectedCity to null
     this.setState(prevState => ({
       dropdownOpen: !prevState.dropdownOpen
     }))
@@ -45,7 +45,7 @@ class OptionsDropdown extends React.Component {
       <Dropdown value="KILL" isOpen={this.state.dropdownOpen} toggle={this.toggleDropdown} className={clsx(this.props.classes.icon)}>
         <DropdownToggle value="KILL" tag="span" data-toggle="dropdown" id="dropdown-custom-components">
           <Svg
-            viewBox="0 180 512 150"
+            viewBox={ellipsis.viewBox}
             style={{ width: 30 }}
             fill={this.props.color}
             value="KILL"
@@ -62,5 +62,11 @@ class OptionsDropdown extends React.Component {
   }
 }
 
+OptionsDropdown.propTypes = {
+  toggleEditForm: PropTypes.func,
+  handleDelete: PropTypes.func, 
+  color: PropTypes.string,
+  cellData: PropTypes.object
+}
 
 export default withStyles(styles)(OptionsDropdown);
