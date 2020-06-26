@@ -1,21 +1,15 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import {
-  Button,
-} from 'reactstrap';
+import { Button } from 'reactstrap';
 import { withStyles } from '@material-ui/styles';
-
 import clsx from 'clsx'
 import { searchUsersDebounced } from '../utils/fetchUtils';
 import { Svg, home } from '../utils/SVGs';
 import TextField from '@material-ui/core/TextField';
 import Autocomplete from '@material-ui/lab/Autocomplete';
-
-
-import { ICE_BLUE, FONT_GREY, OFF_BLACK_1, OFF_BLACK_2, OFF_BLACK_3, OFF_BLACK_4 } from '../utils/colors'
 import { withRouter, Link } from 'react-router-dom';
 
-
+import { ICE_BLUE, FONT_GREY, OFF_BLACK_1, OFF_BLACK_2, OFF_BLACK_3, OFF_BLACK_4 } from '../utils/colors'
 import LoginForm from './Forms/LoginForm';
 import SignUpForm from './Forms/SignUpForm';
 
@@ -30,7 +24,7 @@ const styles = theme => ({
   logo: {
     fontFamily: "Kaushan Script",
     fontSize: 36,
-    color: "#0095d2",
+    color: ICE_BLUE,
     marginLeft: '10%'
   },
   searchBar: {
@@ -83,7 +77,7 @@ const styles = theme => ({
     color: FONT_GREY
   },
   logout: {
-    color: "#0095d2",
+    color: ICE_BLUE,
     fontSize: 20,
     textAlign: 'left',
     paddingRight: 50
@@ -101,7 +95,7 @@ const styles = theme => ({
     gridTemplateColumns: '1fr 1fr'
   },
   button: {
-    backgroundColor: '#0095d2',
+    backgroundColor: ICE_BLUE,
     width: '60%',
     display: 'block',
     margin: 'auto'
@@ -112,14 +106,12 @@ class Navigation extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      toggleLogin: false,
       showLoginModal: false,
       showSignUpModal: false,
 
       searchValue: "",
       searchSuggestionsOpen: false,
       suggestions: []
-
     }
   }
 
@@ -136,7 +128,7 @@ class Navigation extends React.Component {
   }
 
   onInputChange = (e, obj, reason) => {
-    //There is a glitch that will run this function again when the input box is cleared
+    //There is a glitch that will run this function again when the input box is cleared, this if prevents that
     if (reason !== 'reset') {
       //only search for users when the search bar isn't empty
       if (obj !== "") {
@@ -145,7 +137,7 @@ class Navigation extends React.Component {
         })
         searchUsersDebounced(obj)
           .then(response => {
-            //There is an issue with the body stream being read more than once due to debouncing
+            //There is an issue with the body stream being read more than once due to debouncing, cloning provides a workaround
             const copy = response.clone()
             copy.json()
               .then(json => {
@@ -176,12 +168,11 @@ class Navigation extends React.Component {
         suggestions: [],
         searchValue: ""
       }, () => {
+        //go to the selected user's page
         this.props.history.push(`/${option.username}`)
       })
     }
   }
-
-
 
   render() {
     const classes = this.props.classes
@@ -189,7 +180,6 @@ class Navigation extends React.Component {
     const signUpButton = this.props.context === "Main" ?
       <Button className={clsx(classes.button)} style={{ marginRight: 15 }} onClick={this.toggleSignUp}>Sign Up</Button>
       : <div></div>;
-
 
     return (
       <div className={clsx(classes.navigationBar)} >
@@ -231,10 +221,12 @@ class Navigation extends React.Component {
             />
           )}
         />
+        {/* If the user is signed in and his/her data is loaded, then show the username with the logout button */}
+        {/* Otherwise show the login/signup buttons.  The signup button is shown on Main but not Home */}
         {this.props.loggedIn && this.props.loggedInUserDataLoaded ?
           <div className={clsx(classes.userInfo)}>
             <Link to={`${this.props.loggedInUser}`}>
-              <Svg viewbox={home.viewBox} className={clsx(classes.homeIcon)} /*onClick={this.props.recenter}*/>
+              <Svg viewbox={home.viewBox} className={clsx(classes.homeIcon)}>
                 {home.path.map((el, i) => <path key={`${i}`} d={el} stroke={ICE_BLUE} fill={ICE_BLUE} />)}
               </Svg>
             </Link>

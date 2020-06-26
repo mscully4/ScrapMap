@@ -1,16 +1,12 @@
 import React from 'react';
-import ReactDOM from 'react-dom'
 import PropTypes from 'prop-types';
 import {
   Modal,
   ModalHeader,
   ModalBody,
-  ModalFooter,
 } from 'reactstrap';
 import { ICE_BLUE, FONT_GREY, OFF_BLACK_1, OFF_BLACK_2, OFF_BLACK_3, OFF_BLACK_4 } from '../utils/colors'
-import clsx from 'clsx'
 import { withStyles } from '@material-ui/styles';
-import RingLoader from "react-spinners/RingLoader";
 
 const styles = theme => ({
   errorText: {
@@ -27,7 +23,6 @@ const styles = theme => ({
     color: ICE_BLUE,
     border: "none",
     fontSize: 36,
-    // marginBottom: 0
   },
   modalTitle: {
     fontSize: 36,
@@ -65,6 +60,7 @@ class ErrorMessage extends React.Component {
 export default withStyles(styles)(ErrorMessage);
 
 
-// LoginForm.propTypes = {
-//   handleLogin: PropTypes.func.isRequired
-// };
+ErrorMessage.propTypes = {
+  isOpen: PropTypes.bool,
+  error: PropTypes.object,
+};
