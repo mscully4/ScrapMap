@@ -4,6 +4,7 @@ import clsx from 'clsx'
 import { withStyles } from '@material-ui/styles';
 import { Button, Form, Input } from 'reactstrap';
 import TextField from '@material-ui/core/TextField';
+import { PropTypes } from 'prop-types'
 
 import Navigation from '../components/NavBar'
 import Error from '../components/Error.js'
@@ -16,18 +17,10 @@ const styles = theme => ({
   main: {
     backgroundColor: OFF_BLACK_1
   },
-  modalContent: {
-    border: 'none',
-    height: '100%'
-  },
   signUpText: {
     color: ICE_BLUE,
     fontSize: 36,
     marginBottom: 12
-  },
-  addSVG: {
-    height: 100,
-    width: 100
   },
   form: {
     marginLeft: '10%',
@@ -35,14 +28,13 @@ const styles = theme => ({
   },
   button: {
     backgroundColor: ICE_BLUE,
-    // marginLeft: '5%',
     marginTop: 20,
     width: 350
   },
   textField: {
     display: 'block',
     width: 350,
-    marginTop: '2% !important'
+    marginBottom: '2%',
   },
   input: {
     color: ICE_BLUE,
@@ -149,13 +141,14 @@ class Home extends React.Component {
 
   passwordTooShort = (error) => {
     return error.status === 400 
+    && error.message.password
     && error.message.password.includes('Password Must Be At Least 7 Characters')
   }
 
   render() {
     const classes = this.props.classes
-    if (this.state.redirect || this.props.loggedInUser) {
-      return <Redirect to={this.props.loggedInUser} />
+    if (this.state.redirect || this.props.loggedInInfo.user) {
+      return <Redirect to={this.props.loggedInInfo.user} />
     }
 
     const inputProps = {
@@ -167,36 +160,31 @@ class Home extends React.Component {
     const InputLabelProps = {
       className: clsx(classes.inputLabel),
     }
+
+    const buttonDisabled = this.disableButton() || this.props.loadingSignupRequest;
     return (
       <div style={{ height: window.innerHeight }} className={clsx(classes.main)}>
         <Navigation
-          loggedIn={this.props.loggedIn}
+          loggedIn={this.props.loggedInInfo.loggedIn}
           username={this.props.username}
           context={"Home"}
           handleLogin={this.props.handlers.login}
           handleLogout={this.props.handlers.logout}
           handleSignUp={this.props.handlers.signUp}
-          pendingRequestLogin={this.props.pendingRequests.login}
-          pendingRequestSignUp={this.props.pendingRequests.signUp}
-          signUpError={this.props.signUpError}
+          pendingLoginRequest={this.props.pendingRequests.login}
+          pendingSignUpRequest={this.props.pendingRequests.signUp}
           error={this.props.error}
           setError={this.props.setError}
         />
         {!this.props.pendingRequests.login ?
-          <Form
-            ref={ref => this.formSignUp = ref}
-            className={clsx(classes.form)}
-            onSubmit={(e) => {
-              this.props.handlers.signUp(e, this.state)
-            }}
-          >
+          <div className={clsx(classes.form)}>
             <p className={classes.signUpText}>Sign Up Now!</p>
             <TextField
               label={"First Name"}
               variant={"outlined"}
               onChange={(e) => this.handleChange(e, "first_name")}
               value={this.state.first_name}
-              inputProps={{ "boof": "first_name", "autoComplete": 'new-password' }}
+              inputProps={{ autoComplete: 'new-password' }}
               InputProps={inputProps}
               InputLabelProps={InputLabelProps}
               className={classes.textField}
@@ -208,7 +196,7 @@ class Home extends React.Component {
               variant={"outlined"}
               onChange={(e) => this.handleChange(e, 'last_name')}
               value={this.state.last_name}
-              inputProps={{ "boof": "last_name", "autoComplete": 'new-password' }}
+              inputProps={{ autoComplete: 'new-password' }}
               InputProps={inputProps}
               InputLabelProps={InputLabelProps}
               className={classes.textField}
@@ -237,8 +225,6 @@ class Home extends React.Component {
               error={this.emailAlreadyExists(this.props.error) || !validateEmail(this.state.email)}
               helperText={this.emailAlreadyExists(this.props.error) ? this.props.error.message.email : !validateEmail(this.state.email) ? "Invalid Email": null}
             />
-            {this.props.signUpError ?
-              <span style={{ color: 'red' }}>A user with that username already exists</span> : null}
             <TextField
               label={"Username"}
               variant={"outlined"}
@@ -258,6 +244,9 @@ class Home extends React.Component {
               InputProps={inputProps}
               InputLabelProps={InputLabelProps}
               className={classes.textField}
+              style={{
+                marginBottom: 0
+              }}
               error={this.userAlreadyExists(this.props.error) || !validateUsername(this.state.username, 5)}
               helperText={this.userAlreadyExists(this.props.error) ? this.props.error.message.username : !validateUsername(this.state.username, 5) ? "Invalid Username" : null}
             />
@@ -280,8 +269,9 @@ class Home extends React.Component {
               error={this.passwordTooShort(this.props.error) || !validatePassword(this.state.password, 7)}
               helperText={this.passwordTooShort(this.props.error) ? this.props.error.message.password : !validatePassword(this.state.password) ? "Invalid Password" : null}
             />
-            <Button disabled={this.disableButton() || this.props.loadingSignupRequest} className={clsx(classes.button)} onClick={this.submitForm}>Submit</Button>
-          </Form> :
+            <Button disabled={buttonDisabled} className={clsx(classes.button)} onClick={e => this.props.handlers.signUp(e, this.state)}>Submit</Button>
+          </div> 
+          :
           <RingLoader
             color={ICE_BLUE}
             loading={true}
@@ -296,6 +286,15 @@ class Home extends React.Component {
       </div>
     )
   }
+}
+
+Home.propTypes = {
+  loggedInInfo: PropTypes.object,
+  handlers: PropTypes.object,
+  pendingRequest: PropTypes.object,
+  loggedInUserDataLoaded: PropTypes.object,
+  error: PropTypes.object,
+  setError: PropTypes.func
 }
 
 export default withStyles(styles)(Home);

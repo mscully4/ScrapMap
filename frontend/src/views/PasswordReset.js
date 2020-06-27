@@ -1,14 +1,11 @@
 import React from 'react';
-import ReactDOM from 'react-dom';
+import { PropTypes } from 'prop-types'
 import clsx from 'clsx'
 import { withStyles } from '@material-ui/styles';
 import TextField from '@material-ui/core/TextField';
 import { Redirect } from 'react-router-dom'
-
 import {
   Button,
-  Form,
-  Input,
   Modal,
   ModalHeader,
   ModalBody,
@@ -19,17 +16,12 @@ import { validateToken, changePassword } from '../utils/fetchUtils'
 import { OFF_BLACK_1, OFF_BLACK_2, OFF_BLACK_3, OFF_BLACK_4, ICE_BLUE, FONT_GREY } from '../utils/colors'
 import { passwordValidator, validatePassword } from '../utils/validators'
 
-const baseURL = window.location.hostname === 'localhost' ? 'http://127.0.0.1:8000/' : `${window.location.origin}/backend/`
-
 const styles = theme => ({
   background: {
     backgroundColor: "#666",
     width: '100%',
     height: '1000px'
   },
-  // modal: {
-  //   // backgroundColor: "#000"
-  // },
   modalHeader: {
     backgroundColor: OFF_BLACK_2,
     color: ICE_BLUE,
@@ -44,16 +36,6 @@ const styles = theme => ({
   modalFooter: {
     backgroundColor: OFF_BLACK_2,
     border: "none"
-  },
-  inputStyle: {
-    backgroundColor: OFF_BLACK_4,
-    color: ICE_BLUE,
-    borderColor: ICE_BLUE,
-    "&:focus": {
-      backgroundColor: OFF_BLACK_4,
-      color: ICE_BLUE,
-      borderColor: ICE_BLUE,
-    }
   },
   button: {
     backgroundColor: ICE_BLUE,
@@ -101,7 +83,6 @@ class PasswordReset extends React.Component {
   componentDidMount = () => {
     validateToken(this.props.token)
       .then(response => {
-        console.log(response)
         if (response.status === 200) {
           this.setState({
             tokenIsValid: true
@@ -109,14 +90,6 @@ class PasswordReset extends React.Component {
         }
       })
   }
-
-  handleChange = e => {
-    const name = e.target.getAttribute("boof");
-    const value = e.target.value;
-    this.setState({
-      [name]: value
-    });
-  };
 
   handleChangePassword = (e, name) => {
     const value = this.state[name] + e.target.value.slice(-1);
@@ -148,7 +121,7 @@ class PasswordReset extends React.Component {
   passwordIsValid = () => {
     return this.state.newPassword === this.state.newPasswordConfirmed
       && this.state.newPassword.length >= 8
-      && validatePassword(this.state.newPassword)
+      && validatePassword(this.state.newPassword, 8)
   }
 
   render() {
@@ -197,6 +170,8 @@ class PasswordReset extends React.Component {
               InputProps={inputProps}
               InputLabelProps={InputLabelProps}
               className={classes.textField}
+              error={(this.state.newPassword !== this.state.newPasswordConfirmed) && this.state.newPasswordConfirmed !== ""}
+              helperText={(this.state.newPassword !== this.state.newPasswordConfirmed) && this.state.newPasswordConfirmed !== "" ? "Passwords Don't Match" : null}
             />
           </ModalBody>
           <ModalFooter className={classes.modalFooter}>
@@ -221,6 +196,11 @@ class PasswordReset extends React.Component {
         {modal}
       </div>)
   }
+}
+
+PasswordReset.propTypes = {
+  token: PropTypes.string,
+  baseURL: PropTypes.string,
 }
 
 export default withStyles(styles)(PasswordReset)

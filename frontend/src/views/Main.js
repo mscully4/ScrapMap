@@ -4,7 +4,7 @@ import { Modal, ModalBody } from 'reactstrap';
 import { withStyles } from '@material-ui/styles';
 import clsx from 'clsx'
 import RingLoader from "react-spinners/RingLoader";
-
+import { PropTypes } from 'prop-types'
 
 import Navigation from '../components/NavBar'
 import Map from '../components/Map/Map.js';
@@ -17,14 +17,13 @@ import AddCity from '../components/Forms/AddCity.js';
 import AddPlace from '../components/Forms/AddPlace.js';
 import ImageUploader from '../components/Images/ImageUploader.js';
 import Error from '../components/Error.js'
-
 import { add, Svg, placeTypeSVGs } from '../utils/SVGs';
 import { place_colors, city_colors, FONT_GREY, ICE_BLUE, OFF_BLACK_1, OFF_BLACK_2, OFF_BLACK_3 } from '../utils/colors';
 import { getDistanceBetweenTwoPoints } from '../utils/Formulas.js';
 
 const PLACE_TYPES = Object.keys(placeTypeSVGs)
-
 const DEFAULT_CENTER = { lat: 33.7490, lng: -84.3880 }
+const GRANULARITY_CUTOFF = 11
 
 const styles = theme => ({
   page: {
@@ -56,17 +55,10 @@ const styles = theme => ({
     height: 100,
     width: 100,
     fill: ICE_BLUE,
-    // position: 'absolute',
-    // right: '7.5%',
-    // marginTop: 40
   },
   factDiv: {
-    // marginTop: 20,
-    // marginBottom: 20,
-    // marginLeft: '10%',
     fontSize: 24,
     color: FONT_GREY,
-    // float: 'left'
   },
   factLine: {
     textIndent: 20,
@@ -76,24 +68,22 @@ const styles = theme => ({
   addSVGText: {
     fontSize: 24,
     marginRight: 20,
-    // marginTop: 80,
-    // float: "right",
-    color: "#f8f8ff",
+    color: FONT_GREY,
     textAlign: 'right',
-
   },
+  modal: {
+    backgroundColor: OFF_BLACK_1
+  },
+  modalBody: { 
+    backgroundColor: OFF_BLACK_2 
+  }
 })
 
 class Main extends React.Component {
-  // static defaultProps = {
-  //   loggedInCities: [],
-  // }
-
   constructor(props) {
     super(props)
     this.state = {
       //General
-      ready: false,
       selectedCity: null,
       selectedPlace: null,
       hoverIndexCity: null,
@@ -103,8 +93,8 @@ class Main extends React.Component {
       granularity: 1,
       mapZoom: 4,
       mapCenter: {
-        lat: this.props.viewCities.length > 0 ? this.props.viewCities[0].latitude : DEFAULT_CENTER.lat,
-        lng: this.props.viewCities.length > 0 ? this.props.viewCities[0].longitude : DEFAULT_CENTER.lng,
+        lat: this.props.viewInfo.cities.length > 0 ? this.props.viewInfo.cities[0].latitude : DEFAULT_CENTER.lat,
+        lng: this.props.viewInfo.cities.length > 0 ? this.props.viewInfo.cities[0].longitude : DEFAULT_CENTER.lng,
       },
       closestCity: null,
 
@@ -115,12 +105,11 @@ class Main extends React.Component {
       //ImageViewer
       imageViewerOpen: false,
       currImg: null,
-      getCurrImg: null,
-      deleteDisabled: null,
 
       //ImageUploader
       uploaderOpen: false,
       uploaderPK: null,
+
       //Editor
       // editorOpen: false,
       // showLoader: false,
@@ -137,21 +126,12 @@ class Main extends React.Component {
       addCityRequestPending: false,
       addPlaceRequestPending: false,
     }
-
-    this.myRef = React.createRef();
   }
 
   componentDidMount = () => {
-    this.props.setPreparedImagesSetter(this.setPreparedImages)
-    this.props.changeMapCenterSetter(this.changeMapCenter)
-    this.props.changeGranularitySetter(this.changeGranularity)
-  }
-
-  //General Functions
-  setSelectedCity = (obj) => {
-    this.setState({
-      selectedCity: obj
-    })
+    this.props.setters.setPreparedImages(this.setPreparedImages)
+    this.props.setters.changeMapCenter(this.changeMapCenter)
+    this.props.setters.changeGranularity(this.changeGranularity)
   }
 
   changeHoverIndexCity = (index) => {
@@ -166,7 +146,7 @@ class Main extends React.Component {
     })
   }
 
-  getClosestCity = (cities, centerLat, centerLong) => {
+  setClosestCity = (cities, centerLat, centerLong) => {
     var lowest = 99999999, lowestIndex = null, distance
 
     if (cities.length > 0)
@@ -178,18 +158,17 @@ class Main extends React.Component {
         }
       })
 
-    return { ...cities[lowestIndex], distanceFromMapCenter: lowest }
-  }
+    const closestCity = { ...cities[lowestIndex], distanceFromMapCenter: lowest }
 
-  setClosestCity = (city) => {
     this.setState({
-      closestCity: city
+      closestCity: closestCity
     })
+
+    return closestCity
   }
 
   //This is passed up to App.js
   setPreparedImages = (images) => {
-    console.log(images)
     this.setState({
       preparedImages: images
     })
@@ -198,7 +177,7 @@ class Main extends React.Component {
   //Map Functions
   changeGranularity = (zoom) => {
     this.setState({
-      granularity: zoom > 11 ? 0 : 1,
+      granularity: zoom > GRANULARITY_CUTOFF ? 0 : 1,
       mapZoom: zoom,
     })
   }
@@ -215,7 +194,7 @@ class Main extends React.Component {
   onMarkerClick = (obj) => {
     if (this.state.granularity === 1) {
       this.changeMapCenter(obj)
-      this.changeGranularity(12)
+      this.changeGranularity(GRANULARITY_CUTOFF + 1)
       this.changeHoverIndexCity(null)
       this.setState({
         selectedCity: obj,
@@ -232,9 +211,9 @@ class Main extends React.Component {
   //Table Functions
   tableRowClick = (obj, e) => {
     if (this.state.granularity === 1) {
-      // this.changeMapCenter(obj.rowData)
       this.setState({
         selectedCity: obj.rowData,
+        //The kill attribute make sure that an icon within the row isn't being clicked
         mapZoom: obj.event.target.getAttribute("value") !== "KILL" ? 12 : this.state.mapZoom,
         granularity: 1,
         hoverIndexCity: null
@@ -243,6 +222,7 @@ class Main extends React.Component {
       this.setState({
         selectedPlace: obj.rowData,
         preparedImages: obj.rowData.images,
+        //The kill attribute make sure that an icon within the row isn't being clicked
         galleryOpen: obj.event.target.getAttribute("value") !== "KILL" ? true : false,
       })
     }
@@ -273,7 +253,7 @@ class Main extends React.Component {
   galleryOnClick = (event, obj) => {
     this.setState({
       galleryOpen: false,
-      currImg: obj.photo.i,
+      currImg: obj.photo.index,
       imageViewerOpen: true
     })
   }
@@ -309,14 +289,14 @@ class Main extends React.Component {
 
 
   //Image Editor Functions
-  toggleEditor = (value) => {
-    const boolean = typeof (value) === 'boolean' ? value : !this.state.editorOpen;
-    this.setState({
-      editorOpen: boolean
-    })
-  }
+  // toggleEditor = (value) => {
+  //   const boolean = typeof (value) === 'boolean' ? value : !this.state.editorOpen;
+  //   this.setState({
+  //     editorOpen: boolean
+  //   })
+  // }
 
-  //Edit Functions
+  //Edit Form Functions
   toggleEditCityForm = (value) => {
     value = typeof (value) === 'boolean' ? value : !this.state.editCityFormOpen;
     this.setState({
@@ -331,7 +311,7 @@ class Main extends React.Component {
     })
   }
 
-  //Add Functions
+  //Add City Functions
   toggleAddCityForm = () => {
     this.setState(prevState => ({
       addCityFormOpen: !prevState.addCityFormOpen
@@ -347,27 +327,27 @@ class Main extends React.Component {
   calculateFacts = (context) => {
     if (context === "cities") {
       const cities = []
-      this.props.viewCities.forEach(obj => {
+      this.props.viewInfo.cities.forEach(obj => {
         cities.push(obj.city)
       })
       return cities.length
     } else if (context === "countries") {
       const countries = []
-      this.props.viewCities.forEach(obj => {
+      this.props.viewInfo.cities.forEach(obj => {
         if (!countries.includes(obj.countryCode.toLowerCase())) {
           countries.push(obj.countryCode.toLowerCase())
         }
       })
       return countries.length
     } else if (context === "places") {
-      return this.props.viewPlaces.length
+      return this.props.viewInfo.places.length
     }
   }
 
   recenter = () => {
     const coords = {
-      latitude: this.props.viewUserCities[0].latitude,
-      longitude: this.props.viewUserCities[0].longitude
+      latitude: this.props.viewInfo.cities[0].latitude,
+      longitude: this.props.viewInfo.cities[0].longitude
     }
     this.changeMapCenter(coords)
     this.changeGranularity(4)
@@ -379,30 +359,24 @@ class Main extends React.Component {
     return (
       <div>
         <Navigation
-          loggedIn={this.props.loggedIn}
-          loggedInUser={this.props.loggedInUser}
-          loggedInUserDataLoaded={this.props.loggedInUserDataLoaded}
-          viewUser={this.props.viewUser}
+          loggedIn={this.props.loggedInInfo.loggedIn}
+          loggedInUser={this.props.loggedInInfo.user}
+          loggedInUserDataLoaded={this.props.loggedInInfo.userDataLoaded}
           handleLogout={this.props.handlers.logout}
           handleLogin={this.props.handlers.login}
           handleSignUp={this.props.handlers.signUp}
           pendingLoginRequest={this.props.pendingRequests.login}
           pendingSignUpRequest={this.props.pendingRequests.signUp}
           history={this.props.history}
-          recenter={this.recenter}
-          signUpError={this.props.signUpError}
           error={this.props.error}
           setError={this.props.setError}
           context={"Main"}
         />
-
         <div className={clsx(classes.page)}>
           <div className={clsx(classes.topBar)}>
-
             <div></div>
-
             <div className={clsx(classes.factDiv)}>
-              <span>{`${this.props.owner ? "You've" : this.props.viewUser[0].toUpperCase() + this.props.viewUser.substring(1) + " Has "} Visited: `}</span><br />
+              <span>{`${this.props.owner ? "You've" : this.props.viewInfo.user[0].toUpperCase() + this.props.viewInfo.user.substring(1) + " Has "} Visited: `}</span><br />
               <p className={clsx(this.props.classes.factLine)}>{`${this.calculateFacts('countries')} Countries`}</p>
               <p className={clsx(this.props.classes.factLine)}>{`${this.calculateFacts("cities")} Cities`}</p>
               <p className={clsx(this.props.classes.factLine)}>{`${this.calculateFacts("places")} Places`}</p>
@@ -425,31 +399,27 @@ class Main extends React.Component {
             <div></div>
           </div>
 
-          <div className={clsx(this.props.classes.main)}>
+          <div className={clsx(classes.main)}>
             <Map
               center={this.state.mapCenter}
               zoom={this.state.mapZoom}
-              cities={this.props.viewCities}
-              places={this.props.viewPlaces}
+              cities={this.props.viewInfo.cities}
+              places={this.props.viewInfo.places}
               hoverIndex={this.state.granularity ? this.state.hoverIndexCity : this.state.hoverIndexPlace}
               changeHoverIndex={this.state.granularity ? this.changeHoverIndexCity : this.changeHoverIndexPlace}
-              getClosestCity={this.getClosestCity}
               setClosestCity={this.setClosestCity}
               markerClick={this.onMarkerClick}
               granularity={this.state.granularity}
               changeMapCenter={this.changeMapCenter}
               changeGranularity={this.changeGranularity}
-              place_colors={place_colors}
-              city_colors={city_colors}
             />
 
             <Table
               owner={this.props.owner}
-              cities={this.props.viewCities}
-              places={this.props.viewPlaces}
+              cities={this.props.viewInfo.cities}
+              places={this.props.viewInfo.places}
               backendURL={this.props.backendURL}
               hoverIndex={this.state.granularity ? this.state.hoverIndexCity : this.state.hoverIndexPlace}
-              // changeHoverIndexCity={this.changeHoverIndexCity}
               changeHoverIndex={this.state.granularity ? this.changeHoverIndexCity : this.changeHoverIndexPlace}
               tableRowClick={this.tableRowClick}
               toggleEditForm={this.state.granularity ? this.toggleEditCityForm : this.toggleEditPlaceForm}
@@ -472,7 +442,7 @@ class Main extends React.Component {
             toggle={this.toggleGallery}
             size={"xl"}
             style={{ backgroundColor: "transparent" }}
-            contentClassName={clsx(this.props.classes.modalContent)}
+            contentClassName={clsx(classes.modalContent)}
             onClick={() => {
               if (this.state.preparedImages.length === 0) {
                 this.toggleGallery(false)
@@ -481,23 +451,17 @@ class Main extends React.Component {
           >
             {/* Only Open Gallery if there are images to show.  If there is an error message, close the gallery */}
             {this.state.preparedImages.length > 0 && !this.props.showError ?
-              <Gallery
-                photos={this.state.preparedImages}
-                onClick={this.galleryOnClick}
-              />
-              :
-              <div
-                style={{
-                  color: FONT_GREY,
-                  fontSize: "80px",
-                  paddingTop: "20%",
-                  paddingBottom: "25%",
-                  textAlign: "center",
-                  backgroundColor: "rgba(40, 40, 40, .6)",
-                  marginTop: "5%",
-                  visibility: this.props.showError ? 'hidden' : 'visible'
-                }}
-              >No Images...</div>}
+              <Gallery photos={this.state.preparedImages} onClick={this.galleryOnClick}/> :
+              <div style={{
+                color: FONT_GREY,
+                fontSize: "80px",
+                paddingTop: "20%",
+                paddingBottom: "25%",
+                textAlign: "center",
+                backgroundColor: "rgba(40, 40, 40, .6)",
+                marginTop: "5%",
+                visibility: this.props.showError ? 'hidden' : 'visible'
+              }}>No Images...</div>}
           </Modal>
 
           {this.state.imageViewerOpen && !this.props.pendingRequests.deleteImage ?
@@ -514,13 +478,8 @@ class Main extends React.Component {
               requestPending={this.props.pendingRequests.deleteImage}
             /> : null}
           {this.props.pendingRequests.deleteImage ?
-            <Modal
-              isOpen={true}
-              style={{
-                backgroundColor: OFF_BLACK_1
-              }}
-            >
-              <ModalBody style={{ backgroundColor: OFF_BLACK_2 }}>
+            <Modal isOpen={true} className={classes.modal}>
+              <ModalBody className={classes.modalBody}>
                 <RingLoader
                   color={ICE_BLUE}
                   loading={true}
@@ -566,8 +525,7 @@ class Main extends React.Component {
               isOpen={this.state.addPlaceFormOpen}
               toggle={this.toggleAddPlaceForm}
               handleAddPlace={this.props.handlers.addPlace}
-              mapCenter={this.props.mapCenter}
-              cities={this.props.viewCities}
+              cities={this.props.viewInfo.cities}
               default={this.state.closestCity}
               placeTypes={PLACE_TYPES}
               requestPending={this.props.pendingRequests.addPlace}
@@ -589,11 +547,22 @@ class Main extends React.Component {
               isOpen={true}
               error={this.props.error}
             /> : null}
-
         </div>
       </div>
     )
   }
+}
+
+Main.propTypes = {
+  viewInfo: PropTypes.object,
+  loggedInInfo: PropTypes.object,
+  handlers: PropTypes.object,
+  setters: PropTypes.object,
+  pendingRequests: PropTypes.object,
+
+  error: PropTypes.object,
+  setError: PropTypes.func,
+  owner: PropTypes.bool
 }
 
 export default withStyles(styles)(Main);
