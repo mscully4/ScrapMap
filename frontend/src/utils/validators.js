@@ -10,14 +10,9 @@ export const validateLongitude = (lng) => {
         && parseFloat(lng) <= 180 ? true : false
 }
 
-// export const validateString = (str, length, canBeBlank) => {
-//     const regex = /^[a-zA-Z.,\' /-]+$/
-//     return canBeBlank ? (regex.test(str) && str.length <= length) || str === "" : regex.test(str) && str.length <= length && str.charAt(0) !== " "
-// }
-
 export const validateString = (str, length) => {
-    const regex = /^[a-zA-Z.,\' /-]+$/
-    return str !== "" ? regex.test(str) && str.length >= length : true
+    const regex = /^[a-zA-Z.,\' /_-]+$/
+    return str !== "" ? regex.test(str) && str.length <= length : true
 }
 
 export const validateUsername = (str, length) => {

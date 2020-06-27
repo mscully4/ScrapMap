@@ -45,6 +45,8 @@ export const pin = {
   ]
 }
 
+export const pinBase = 'M112 316.94v156.69l22.02 33.02c4.75 7.12 15.22 7.12 19.97 0L176 473.63V316.94c-10.39 1.92-21.06 3.06-32 3.06s-21.61-1.14-32-3.06zM144 0C64.47'
+
 export const ellipsis = {
   viewBox: "0 180 512 150",
   path: [
@@ -313,18 +315,22 @@ const cemetery = {
 const lodging = {
   viewBox: "0 0 48 48",
   path: [
-    // "M0 0h48v48h-48z",
     "M14 26c3.31 0 6-2.69 6-6s-2.69-6-6-6-6 2.69-6 6 2.69 6 6 6zm24-12h-16v14h-16v-18h-4v30h4v-6h36v6h4v-18c0-4.42-3.58-8-8-8z"
   ]
 }
 
 export const placeTypeSVGs = {
+  natural_feature,
+  mosque,
+  hindu_temple,
+  church,
+  embassy,
   cemetery,
   lodging,
-  mosque,
-  embassy,
+  art_gallery,
   campground,
   museum,
+  casino,
   food,
   bar,
   store,
@@ -332,16 +338,11 @@ export const placeTypeSVGs = {
   aquarium,
   night_club,
   stadium,
-  church,
-  hindu_temple,
-  art_gallery,
   city_hall,
   university,
-  casino,
   amusement_park,
   park,
   cafe,
-  establishment,
   tourist_attraction,
-  natural_feature
+  establishment,
 }
