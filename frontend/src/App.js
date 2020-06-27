@@ -6,6 +6,7 @@ import {
   Switch,
   Route,
 } from "react-router-dom";
+import queryString from 'query-string'
 import RingLoader from "react-spinners/RingLoader";
 import {
   fetchCurrentUser,
@@ -25,39 +26,12 @@ import {
 
 import Main from './views/Main';
 import Home from './views/Home';
- import PasswordReset from './views/PasswordReset';
-
+import PasswordReset from './views/PasswordReset';
 import { city_colors, ICE_BLUE } from "./utils/colors"
-
 import "./App.css";
 
 const baseURL = window.location.hostname === 'localhost' ? 'http://127.0.0.1:8000/' : `${window.location.origin}/backend/`
 const DEFAULT_CENTER = { lat: 33.7490, lng: -84.3880 }
-
-
-const styles = {
-  space: {
-    height: 200,
-    width: '100%',
-  },
-  quote: {
-    fontFamily: "Parisienne",
-    fontSize: 32,
-    color: '#000',
-    /* color: #429bf5 !important,*/
-    textAlign: 'center',
-    margin: '20px 0',
-  }
-}
-
-const config = {
-  bucketName: 'scrapmap',
-  dirName: 'media', /* optional */
-  region: 'us-east-1',
-  accessKeyId: 'AKIA2WIZHBHNCAZFMXVM',
-  secretKeyAccess: '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',
-  s3Url: 'http://scrapmap.s3.amazonaws.com/', /* optional */
-}
 
 // var AWS = require('aws-sdk/dist/aws-sdk-react-native');
 // AWS.config.update({ accessKeyId: config.accessKeyId, secretAccessKey: config.secretKeyAccess, region: config.region })
@@ -146,6 +120,9 @@ class App extends Component {
     for (var i = 0; i < destinations.length; ++i) {
       for (var z = 0; z < destinations[i].places.length; ++z) {
         var place = destinations[i].places[z];
+        place.images = place.images.map((obj, i) => {
+          return { ...obj, index: i }
+        })
         places.push({ ...place, index })
         ++index
       }
@@ -161,7 +138,7 @@ class App extends Component {
 
   handleErrors = (response) => {
     if (this.state.error.show === true) {
-      throw Error `${response.status}: ${response.statusText}`
+      throw Error`${response.status}: ${response.statusText}`
     } else if (response.status >= 500) {
       this.setState({
         error: {
@@ -222,7 +199,6 @@ class App extends Component {
             }
           })
         }
-
       })
   }
 
@@ -292,6 +268,7 @@ class App extends Component {
           })
         })
         .catch(err => {
+          console.log(err)
           this.setState({
             loadingSignupRequest: false
           })
@@ -343,6 +320,7 @@ class App extends Component {
           })
         })
         .catch(err => {
+          console.log(err)
           this.setState({
             addCityRequestPending: false,
           })
@@ -398,6 +376,7 @@ class App extends Component {
           })
         })
         .catch(err => {
+          console.log(err)
           this.setState({
             addPlaceRequestPending: false
           })
@@ -440,6 +419,7 @@ class App extends Component {
           })
         })
         .catch(err => {
+          console.log(err)
           this.setState({
             editCityRequestPending: false,
           })
@@ -486,6 +466,7 @@ class App extends Component {
           })
         })
         .catch(err => {
+          console.log(err)
           this.setState({
             editPlaceRequestPending: false,
           })
@@ -501,7 +482,6 @@ class App extends Component {
               }
             })
           }
-
         })
     })
   }
@@ -510,7 +490,6 @@ class App extends Component {
     this.setState({
       uploadImageRequestPending: true
     }, () => {
-      console.log(data)
       uploadImage(localStorage.getItem('token'), data, uploadProgress)
         .then(response => {
           console.log(response)
@@ -522,7 +501,7 @@ class App extends Component {
           console.log(err)
           this.setState({
             error: {
-              show: true, 
+              show: true,
               status: 500,
               statusText: 'Interal Server Error',
               message: 'Internal Server Error'
@@ -553,11 +532,22 @@ class App extends Component {
           })
         })
         .catch(err => {
-          //In the case of network errors
+          console.log(err)
           this.setState({
             deleteCityRequestPending: false,
-            // error: typeof err === "string" ? this.state.error : { show: true, status: "NERR", statusText: 'Network Error'},
           })
+
+          //this will only execute if there is a network error
+          if (this.state.error.show === false) {
+            this.setState({
+              error: {
+                show: true,
+                status: "net",
+                statusText: "ERR_CONNECTION_REFUSED",
+                message: "Network Error"
+              }
+            })
+          }
         })
     })
   }
@@ -586,11 +576,21 @@ class App extends Component {
         })
         .catch(err => {
           console.log(err)
-          //In the case of 500 errors
           this.setState({
             deletePlaceRequestPending: false,
-            // error: typeof err === "string" ? this.state.error : { show: true, status: "NERR", statusText: 'Network Error'},
           })
+
+          //this will only execute if there is a network error
+          if (this.state.error.show === false) {
+            this.setState({
+              error: {
+                show: true,
+                status: "net",
+                statusText: "ERR_CONNECTION_REFUSED",
+                message: "Network Error"
+              }
+            })
+          }
         })
     })
   }
@@ -630,11 +630,22 @@ class App extends Component {
         })
         .catch(err => {
           console.log(err)
-          //In the case of 500 errors
           this.setState({
             deleteImageRequestPending: false,
-            // error: typeof err === "string" ? this.state.error : { show: true, status: "NERR", statusText: 'Network Error'},
           })
+
+          //this will only execute if there is a network error
+          if (this.state.error.show === false) {
+            this.setState({
+              error: {
+                show: true,
+                status: "net",
+                statusText: "ERR_CONNECTION_REFUSED",
+                message: "Network Error"
+              }
+            })
+          }
+
         })
     })
   }
@@ -651,40 +662,11 @@ class App extends Component {
     this.changeGranularity = func
   }
 
-
-
-  // handleImageOverwrite = (img, dataURL) => {
-  //   // const username = this.state.username;
-  //   // return new Promise(function(resolve, reject) {
-  //   //   const buf = new Buffer(dataURL.replace(/^data:image\/\w+;base64,/, ""),'base64')
-  //   //   const type = dataURL.split(';')[0].split('/')[1];
-
-
-  //   //   var params = {
-  //   //     Bucket: "scrapmap",
-  //   //     Key: `${username}/${img.name}`, 
-  //   //     Body: buf,
-  //   //     ContentEncoding: 'base64',
-  //   //     ContentType: `image/${type}`
-  //   //   };
-  //   //   s3Bucket.putObject(params, function(err, data){
-  //   //     if (err) return reject(err)
-  //   //     else return resolve(params)
-  //   //   })
-  //   // })
-  // }
-
-  // // changeGranularity = (zoom) => {
-  // //   this.setState({
-  // //     granularity: zoom >   toggleLogin: false,
-  // //     mapZoom: zoom,
-  // //   })
-  // // }
-
   renderPasswordReset = (props) => {
+    const values = queryString.parse(props.location.search)
     return (
       <PasswordReset
-        token={props.match.params.token}
+        token={values.token}
         baseURL={baseURL}
       />
     )
@@ -693,8 +675,11 @@ class App extends Component {
   renderHome = (props) => {
     return (
       <Home
-        loggedIn={this.state.loggedIn}
-        loggedInUser={this.state.loggedInUser}
+        loggedInInfo={{
+          loggedIn: this.state.loggedIn,
+          user: this.state.loggedInUser,
+          dataLoaded: this.state.loggedInUserDataLoaded
+        }}
         handlers={{
           logout: this.handleLogout,
           login: this.handleLogin,
@@ -704,8 +689,6 @@ class App extends Component {
           login: this.state.loginRequestPending,
           signUp: this.state.signUpRequestPending
         }}
-        loggedInUserDataLoaded={this.state.loggedInUserDataLoaded}
-        signUpError={this.state.signUpError}
         error={this.state.error}
         setError={this.setError}
       />
@@ -742,7 +725,7 @@ class App extends Component {
         .then(resp => {
           const response = resp.clone()
           if (this.state.error.show === true) {
-            throw Error `${response.status}: ${response.statusText}`
+            throw Error`${response.status}: ${response.statusText}`
           } else if (response.status === 404 && this.state.error.show !== true) {
             this.setState({
               error: {
@@ -752,7 +735,7 @@ class App extends Component {
                 message: `No User ${user} Exists`
               }
             })
-            throw Error `${response.status}: ${response.statusText}`
+            throw Error`${response.status}: ${response.statusText}`
           }
           return response
         })
@@ -787,11 +770,17 @@ class App extends Component {
         })
         .catch(err => {
           console.log(err)
-          // const error = this.state.error 
-          // error.show = true
-          // this.setState({
-          //   error: error
-          // })
+          //this will only execute if there is a network error
+          if (this.state.error.show === false) {
+            this.setState({
+              error: {
+                show: true,
+                status: "net",
+                statusText: "ERR_CONNECTION_REFUSED",
+                message: "Network Error"
+              }
+            })
+          }
         })
     }
 
@@ -799,11 +788,12 @@ class App extends Component {
       <Main
         {...props}
         owner={this.state.loggedInUser === user}
-        //Navigation Props
-        loggedIn={this.state.loggedIn}
-        loggedInUser={this.state.loggedInUser}
-        loggedInUserDataLoaded={this.state.loggedInUserDataLoaded}
-        loggedInUserCities={this.state.loggedInCities}
+        loggedInInfo={{
+          loggedIn: this.state.loggedIn,
+          user: this.state.loggedInUser,
+          userDataLoaded: this.state.loggedInUserDataLoaded,
+          userCities: this.state.loggedInCities
+        }}
         handlers={{
           logout: this.handleLogout,
           login: this.handleLogin,
@@ -817,22 +807,16 @@ class App extends Component {
           deletePlace: this.handleDeletePlace,
           deleteImage: this.handleDeleteImage
         }}
-        //view info
-        viewUser={user}
-        viewPlaces={this.state.viewPlaces}
-        viewCities={this.state.viewCities}
-        //Handler Functions
-        handleAddCity={this.handleAddCity}
-        handleAddPlace={this.handleAddPlace}
-        handleEditCity={this.handleEditCity}
-        handleEditPlace={this.handleEditPlace}
-        handleDeleteCity={this.handleDeleteCity}
-        handleDeletePlace={this.handleDeletePlace}
-        handleDeleteImage={this.handleDeleteImage}
-        setPreparedImagesSetter={this.setPreparedImagesSetter}
-        changeMapCenterSetter={this.changeMapCenterSetter}
-        changeGranularitySetter={this.changeGranularitySetter}
-        //Pending Requests
+        viewInfo={{
+          user: user,
+          places: this.state.viewPlaces,
+          cities: this.state.viewCities
+        }}
+        setters={{
+          setPreparedImages: this.setPreparedImagesSetter,
+          changeMapCenter: this.changeMapCenterSetter,
+          changeGranularity: this.changeGranularitySetter
+        }}
         pendingRequests={{
           login: this.state.loginRequestPending,
           signUp: this.state.signUpRequestPending,
@@ -847,18 +831,16 @@ class App extends Component {
         }}
         error={this.state.error}
         setError={this.setError}
-        signUpError={this.state.signUpError}
       />)
   }
 
   render = () => {
-    //this.updateWindowDimensions();
     if (this.state.ready) {
       return (
         <React.Fragment>
           <Router>
             <Switch>
-              <Route path="/password_reset/:token" render={(props) => this.renderPasswordReset(props)}></Route>
+              <Route path="/password_reset" render={(props) => this.renderPasswordReset(props)}></Route>
               <Route path="/:username" render={(props) => this.renderMain(props)}></Route>
               <Route path="/" render={(props) => this.renderHome(props)}></Route>
             </Switch>
