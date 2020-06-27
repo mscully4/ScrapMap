@@ -95,7 +95,7 @@ class Map extends Component {
 }
 
 Map.propTypes = {
-  center: PropTypes.array,
+  center: PropTypes.object,
   zoom: PropTypes.number,
   places: PropTypes.array,
   cities: PropTypes.array,

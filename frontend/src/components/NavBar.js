@@ -241,7 +241,7 @@ class Navigation extends React.Component {
               handleSignUp={this.props.handleSignUp}
               isOpen={this.state.showSignUpModal}
               toggle={this.toggleSignUp}
-              loadingSignUpRequest={this.props.loadingSignUpRequest}
+              loadingSignUpRequest={this.props.pendingSignUpRequest}
               signUpError={this.props.signUpError}
               error={this.props.error}
               setError={this.props.setError}
@@ -252,7 +252,7 @@ class Navigation extends React.Component {
               handleLogin={this.props.handleLogin}
               isOpen={this.state.showLoginModal}
               toggle={this.toggleLogin}
-              loadingUserData={this.props.loadingUserData}
+              loadingUserData={this.props.pendingLoginRequest}
               error={this.props.error}
               setError={this.props.setError}
             />
@@ -260,6 +260,23 @@ class Navigation extends React.Component {
       </div>
     )
   }
+}
+
+Navigation.propTypes = {
+  handleLogin: PropTypes.func,
+  handleSignUp: PropTypes.func,
+  handleLogout: PropTypes.func,
+  loadingUserData: PropTypes.bool,
+  error: PropTypes.object,
+  setError: PropTypes.func,
+  context: PropTypes.string,
+  loggedIn: PropTypes.bool,
+  loggedInUser: PropTypes.string,
+  loggedInUserData: PropTypes.object,
+  history: PropTypes.object,
+  viewUser: PropTypes.object,
+  pendingLoginRequest: PropTypes.bool,
+  pendingSignUpRequest: PropTypes.bool,
 }
 
 export default withRouter(withStyles(styles)(Navigation));
