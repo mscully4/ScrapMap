@@ -8,7 +8,7 @@ from django.core.validators import RegexValidator
 from django.core.exceptions import ValidationError
 from django.utils.translation import gettext_lazy as _
 
-alpha = RegexValidator(r'^[a-zA-Z,. -_\']*$', 'Only letters are allowed.')
+alpha = RegexValidator(r'^[a-zA-Z,. /-_\']*$', 'Only letters are allowed.')
 
 def validate_latitude(lat):
     if not (-90 <= lat <= 90):
@@ -45,7 +45,7 @@ class Place(models.Model):
     city = models.CharField(max_length=60, validators=[alpha])
     state = models.CharField(max_length=50, null=True, blank=True, validators=[alpha])
     country = models.CharField(max_length=50, validators=[alpha])
-    zip_code = models.CharField(max_length=6, null=True, blank=True, default="00000")
+    zip_code = models.CharField(max_length=10, null=True, blank=True)
     latitude = models.FloatField(default=0, validators=[validate_latitude])
     longitude = models.FloatField(default=0, validators=[validate_longitude])
     placeId = models.CharField(max_length=150, null=True, blank=True)

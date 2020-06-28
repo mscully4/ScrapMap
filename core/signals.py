@@ -24,30 +24,21 @@ def password_reset_token_created(sender, instance, reset_password_token, *args, 
     :return:
     """
 
-    # send an e-mail to the user
-    context = {
-        'current_user': reset_password_token.user,
-        'username': reset_password_token.user.username,
-        'email': reset_password_token.user.email,
-        'reset_password_url': "{}?token={}".format(reverse('password_reset:reset-password-request'), reset_password_token.key)
-    }
-    IP_ADDRESS = reset_password_token.ip_address
+    IP_ADDRESS = 'http://35.237.65.50/'
 
     EMAIL_ADDRESS = settings.EMAIL_ADDRESS
     EMAIL_PASSWORD = settings.EMAIL_PASSWORD
 
     message = MIMEMultipart("alternative")
-    message["Subject"] = "multipart test"
+    message["Subject"] = "Scrapmap Password Reset"
     message["From"] = EMAIL_ADDRESS
     message["To"] = reset_password_token.user.email
 
     text = """\
 Hi {},
 Reset your password here:
-{}:3000{}{}
-""".format(reset_password_token.user.username, IP_ADDRESS, reverse('password_reset:reset-password-request'), reset_password_token.key)
-
-    print(text)
+{}password_reset?token={}
+""".format(reset_password_token.user.username, IP_ADDRESS, reset_password_token.key)
 
     plain = MIMEText(text, "plain")
     message.attach(plain)

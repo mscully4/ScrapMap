@@ -1,6 +1,5 @@
 from django.urls import path, include
 from .views import CurrentUser, CreateUser, SearchUsers, DestinationListView, DestinationView, PlaceView, PlaceImagesView
-from django.conf.urls.static import static
 from core.utils import ObtainJSONWebToken
 
 urlpatterns = [
@@ -22,6 +21,3 @@ urlpatterns = [
 
     path('image/<int:pk>/', PlaceImagesView.as_view())
 ]
-
-# if settings.DEBUG:
-#     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
