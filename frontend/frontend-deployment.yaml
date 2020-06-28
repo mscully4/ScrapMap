@@ -32,7 +32,7 @@ spec:
         resources:
           # Setting the amount of resources the pod needs to be guaranteed
           requests:
-            cpu: .2
+            cpu: .1
             memory: '256M'
         # securityContext:
           # Run as guest
@@ -67,5 +67,7 @@ spec:
                 - sh
                 - -c 
                 - "sleep 5"
+        ports:
+        - containerPort: 80
 
 
