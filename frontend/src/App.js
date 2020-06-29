@@ -470,18 +470,6 @@ class App extends Component {
           this.setState({
             editPlaceRequestPending: false,
           })
-
-          //this will only execute if there is a network error
-          if (this.state.error.show === false) {
-            this.setState({
-              error: {
-                show: true,
-                status: "net",
-                statusText: "ERR_CONNECTION_REFUSED",
-                message: "Network Error"
-              }
-            })
-          }
         })
     })
   }
@@ -492,9 +480,16 @@ class App extends Component {
     }, () => {
       uploadImage(localStorage.getItem('token'), data, uploadProgress)
         .then(response => {
-          console.log(response)
+          const data = response.data
+          const destinations = this.state.loggedInCities.map(el => {
+            el.places = el.places.map(obj => obj.pk === data.pk ? data : obj)
+            return el
+          })
           this.setState({
-            uploadImageRequestPending: false
+            uploadImageRequestPending: false,
+            loggedInCities: destinations,
+            loggedInPlaces: this.compilePlaces(destinations),
+            dataChanged: true
           })
         })
         .catch(err => {
