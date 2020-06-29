@@ -174,7 +174,7 @@ class EditPlace extends React.Component {
         paper: classes.menuPaper
       }
     }
-
+    console.log(this.state)
     return (
       <Modal isOpen={this.props.isOpen} toggle={this.props.toggle}>
         <ModalHeader className={classes.modalHeader} toggle={this.props.toggle}>Edit Place</ModalHeader>
@@ -226,8 +226,8 @@ class EditPlace extends React.Component {
               InputProps={inputProps}
               InputLabelProps={InputLabelProps}
               className={classes.textField}
-              error={this.state.address.length > 150}
-              helperText={this.state.address.length > 150 ? "Must be either blank or less than 150 characters" : null}
+              error={this.state.address && this.state.address.length > 150}
+              helperText={this.state.address && this.state.address.length > 150 ? "Must be either blank or less than 150 characters" : null}
             />
             <TextField
               label={"City"}
@@ -274,8 +274,8 @@ class EditPlace extends React.Component {
               InputProps={inputProps}
               InputLabelProps={InputLabelProps}
               className={classes.textField}
-              error={this.state.zip_code.length > 6}
-              helperText={this.state.zip_code.length > 6 ? "Must be either blank or less than 6 characters" : null}
+              error={this.state.zip_code && this.state.zip_code.length > 6}
+              helperText={this.state.zip_code && this.state.zip_code.length > 6 ? "Must be either blank or less than 6 characters" : null}
             />
             <TextField
               label={"Latitude"}

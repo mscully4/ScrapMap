@@ -123,7 +123,7 @@ class AddPlace extends React.Component {
       city: "",
       state: "",
       country: "",
-      zip: "",
+      zip_code: "",
       latitude: "",
       longitude: "",
       types: "",
@@ -198,7 +198,7 @@ class AddPlace extends React.Component {
       city: "",
       state: "",
       country: "",
-      zip: "",
+      zip_code: "",
       latitude: "",
       longitude: "",
       types: "",
@@ -419,13 +419,13 @@ class AddPlace extends React.Component {
                 label={"Zip Code"}
                 variant={"outlined"}
                 onChange={e => this.handleChange(e, 'zip')}
-                value={this.state.zip}
+                value={this.state.zip_code}
                 inputProps={{ 'autoComplete': 'new-password' }}
                 InputProps={inputProps}
                 InputLabelProps={InputLabelProps}
                 className={classes.textField}
-                error={this.state.zip.length > 6}
-                helperText={this.state.zip.length > 6 ? "Must be either blank or less than 6 characters" : null}
+                error={this.state.zip_code.length > 6}
+                helperText={this.state.zip_code.length > 6 ? "Must be either blank or less than 6 characters" : null}
               />
               <TextField
                 label={"Latitude"}

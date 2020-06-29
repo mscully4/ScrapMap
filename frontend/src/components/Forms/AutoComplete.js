@@ -187,7 +187,7 @@ class AutoComplete extends React.Component {
       const geocoder = new window.google.maps.Geocoder()
       geocoder.geocode({ placeId: option.place_id }, (results, status) => {
         if (status === 'OK') {
-          var street_number = "", street = "", county = "", city = "", state = "", zip = "", country = "", address = "", countryCode = "";
+          var street_number = "", street = "", county = "", city = "", state = "", zip_code = "", country = "", address = "", countryCode = "";
           results[0].address_components.forEach(el => {
             if (el.types.includes("street_number")) street_number = el.long_name;
             else if (el.types.includes("route")) street = el.long_name;
@@ -199,7 +199,7 @@ class AutoComplete extends React.Component {
               country = el.long_name;
               countryCode = el.short_name === "US" ? "US" : el.short_name;
             }
-            else if (el.types.includes("postal_code")) zip = el.long_name;
+            else if (el.types.includes("postal_code")) zip_code = el.long_name;
           });
           const latitude = parseFloat(results[0].geometry.location.lat().toFixed(4));
           const longitude = parseFloat(results[0].geometry.location.lng().toFixed(4));
@@ -217,7 +217,7 @@ class AutoComplete extends React.Component {
            this.props.changeMainType(main_type)
            address = street_number + " " + street
            //Send the location information back to the form, the fields will be filled with this information
-           this.props.selectAutoSuggest({ name, address, city, state, country, countryCode, county, zip, types, placeId, latitude, longitude })
+           this.props.selectAutoSuggest({ name, address, city, state, country, countryCode, county, zip_code, types, placeId, latitude, longitude })
         }
       })
     }
