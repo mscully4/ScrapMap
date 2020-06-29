@@ -174,7 +174,6 @@ class EditPlace extends React.Component {
         paper: classes.menuPaper
       }
     }
-    console.log(this.state)
     return (
       <Modal isOpen={this.props.isOpen} toggle={this.props.toggle}>
         <ModalHeader className={classes.modalHeader} toggle={this.props.toggle}>Edit Place</ModalHeader>
