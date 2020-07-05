@@ -176,7 +176,7 @@ class AutoComplete extends React.Component {
 
   onChangePlace = (e, option, reason) => {
     if (option) {
-      const name = option.terms[0].value
+      const name = option.structured_formatting.main_text
       //Update the search value
       this.setState({
         searchValue: name
@@ -240,7 +240,7 @@ class AutoComplete extends React.Component {
         //The component will automatically filter some options out if this isn't specified
         filterOptions={(options, state) => options}
         renderOption={(option, state) => {
-          return <div className={clsx(classes.autocompleteOptions)}>{`${option.description}`}</div>
+          return <div className={clsx(classes.autocompleteOptions)}>{`${this.props.context === 'City' ? option.description : option.structured_formatting.main_text}`}</div>
         }}
         classes={{
           option: classes.autocompleteOptions,
