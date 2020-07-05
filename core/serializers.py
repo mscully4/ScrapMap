@@ -160,7 +160,7 @@ class PlaceSerializer(serializers.ModelSerializer):
 
                 # generate a unique name for the image
                 name = "{}/{}".format(self.context['request'].user,hashlib.sha224(image.__dict__['file'].read()).hexdigest() + ".png")
-                print("Image: " + str(i))
+                print("Image: " + name)
 
                 # check to see if the image is already in the database
                 if name not in image_names:
