@@ -273,8 +273,8 @@ class EditPlace extends React.Component {
               InputProps={inputProps}
               InputLabelProps={InputLabelProps}
               className={classes.textField}
-              error={this.state.zip_code && this.state.zip_code.length > 6}
-              helperText={this.state.zip_code && this.state.zip_code.length > 6 ? "Must be either blank or less than 6 characters" : null}
+              error={this.state.zip_code && this.state.zip_code.length > 11}
+              helperText={this.state.zip_code && this.state.zip_code.length > 11 ? "Must be either blank or less than 11 characters" : null}
             />
             <TextField
               label={"Latitude"}
