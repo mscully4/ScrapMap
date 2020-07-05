@@ -162,7 +162,7 @@ class Navigation extends React.Component {
   }
 
   onChange = (e, option, reason) => {
-    if (reason !== 'clear') {
+    if (reason !== 'clear' && reason !== 'create-option') {
       this.setState({
         searchSuggestionsOpen: false,
         suggestions: [],
