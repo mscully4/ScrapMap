@@ -31,7 +31,6 @@ import { city_colors, ICE_BLUE } from "./utils/colors"
 import "./App.css";
 
 const baseURL = window.location.hostname === 'localhost' ? 'http://127.0.0.1:8000/' : `${window.location.origin}/backend/`
-const DEFAULT_CENTER = { lat: 33.7490, lng: -84.3880 }
 
 // var AWS = require('aws-sdk/dist/aws-sdk-react-native');
 // AWS.config.update({ accessKeyId: config.accessKeyId, secretAccessKey: config.secretKeyAccess, region: config.region })
@@ -691,103 +690,20 @@ class App extends Component {
   }
 
   renderMain = (props) => {
-    const user = props.match.params.username;
-    //If redirecting to Logged In User's Page, make sure that viewUser is set to LooggedInUser
-    if (user === this.state.loggedInUser && (user !== this.state.viewUser || this.state.dataChanged)) {
-      const viewUser = this.state.viewUser
-      this.setState({
-        viewUser: user,
-        viewCities: this.state.loggedInCities,
-        viewPlaces: this.state.loggedInPlaces,
-        dataChanged: false
-      })
-
-      if (this.changeMapCenter && user !== viewUser) {
-        this.changeMapCenter({
-          latitude: this.state.loggedInCities.length > 0 ? this.state.loggedInCities[0].latitude : DEFAULT_CENTER.latitude,
-          longitude: this.state.loggedInCities.length > 0 ? this.state.loggedInCities[0].longitude : DEFAULT_CENTER.longitude
-        })
-      }
-      if (this.changeGranularity && user !== viewUser) {
-        this.changeGranularity(4)
-      }
-
-    }
-    //If redirecting to a user's page that is not the viewUser, load this user's data
-    else if (user !== this.state.viewUser && !this.state.showError) {
-      getUserDebounced(localStorage.getItem("token"), user)
-        //Overriding the default error handling behavior, if the user being searched for does not exists, show a pop-up
-        .then(resp => {
-          const response = resp.clone()
-          if (this.state.error.show === true) {
-            throw Error`${response.status}: ${response.statusText}`
-          } else if (response.status === 404 && this.state.error.show !== true) {
-            this.setState({
-              error: {
-                show: true,
-                status: 404,
-                statusText: "Not Found",
-                message: `No User ${user} Exists`
-              }
-            })
-            throw Error`${response.status}: ${response.statusText}`
-          }
-          return response
-        })
-        .then(this.handleErrors)
-        .then(data => {
-          const cities = data.map((el, i) => {
-            return {
-              ...el,
-              index: i,
-              color: city_colors[Math.floor(Math.random() * city_colors.length)]
-            }
-          })
-
-          //Update the user data in state
-          this.setState({
-            viewUser: user,
-            viewCities: cities,
-            viewPlaces: this.compilePlaces(data)
-          })
-
-          //Change the map center to the first city returned for the user
-          if (this.changeMapCenter) {
-            this.changeMapCenter({
-              latitude: cities.length > 0 ? cities[0].latitude : DEFAULT_CENTER.latitude,
-              longitude: cities.length > 0 ? cities[0].longitude : DEFAULT_CENTER.longitude
-            })
-          }
-
-          if (this.changeGranularity) {
-            this.changeGranularity(4)
-          }
-        })
-        .catch(err => {
-          console.log(err)
-          //this will only execute if there is a network error
-          if (this.state.error.show === false) {
-            this.setState({
-              error: {
-                show: true,
-                status: "net",
-                statusText: "ERR_CONNECTION_REFUSED",
-                message: "Network Error"
-              }
-            })
-          }
-        })
-    }
-
+    var viewUser
+    viewUser = props.match.params.username;
     return (
       <Main
+        //When the user changes, this should re-mount
+        key={viewUser}
         {...props}
-        owner={this.state.loggedInUser === user}
+        owner={this.state.loggedInUser === viewUser}
         loggedInInfo={{
           loggedIn: this.state.loggedIn,
           user: this.state.loggedInUser,
           userDataLoaded: this.state.loggedInUserDataLoaded,
-          userCities: this.state.loggedInCities
+          userCities: this.state.loggedInCities,
+          userPlaces: this.state.loggedInPlaces
         }}
         handlers={{
           logout: this.handleLogout,
@@ -802,15 +718,9 @@ class App extends Component {
           deletePlace: this.handleDeletePlace,
           deleteImage: this.handleDeleteImage
         }}
-        viewInfo={{
-          user: user,
-          places: this.state.viewPlaces,
-          cities: this.state.viewCities
-        }}
+        viewUser={viewUser}
         setters={{
           setPreparedImages: this.setPreparedImagesSetter,
-          changeMapCenter: this.changeMapCenterSetter,
-          changeGranularity: this.changeGranularitySetter
         }}
         pendingRequests={{
           login: this.state.loginRequestPending,
@@ -826,6 +736,7 @@ class App extends Component {
         }}
         error={this.state.error}
         setError={this.setError}
+        compilePlaces={this.compilePlaces}
       />)
   }
 
