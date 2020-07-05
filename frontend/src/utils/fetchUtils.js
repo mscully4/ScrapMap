@@ -183,7 +183,7 @@ export function deleteImage(token, data) {
 }
 
 //User Functions
-function getUser(token, username) {
+function getUser(username) {
   return fetch(baseURL + "core/destinations/" + username + "/",{
     method: "GET",
   })
