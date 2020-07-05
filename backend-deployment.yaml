@@ -45,6 +45,12 @@ spec:
           - name: database-credentials
             mountPath: /secrets/cloudsql
             readOnly: true
+          - name: aws
+            mountPath: /secrets/aws
+            readOnly: true
+          - name: gmail
+            mountPath: /secrets/gmail
+            readOnly: true
         #Tests whether the pod is still responsive
         livenessProbe:
           httpGet:
@@ -106,6 +112,12 @@ spec:
         - name: cloudsql-oauth-credentials
           secret:
             secretName: cloudsql-oauth-credentials
+        - name: aws
+          secret:
+            secretName: aws
+        - name: gmail
+          secret:
+            secretName: gmail
         - name: ssl-certs
           hostPath:
             path: /etc/ssl/certs
