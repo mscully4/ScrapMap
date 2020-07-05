@@ -128,13 +128,23 @@ if LOCAL == True:
     PASSWORD = config['GCP'].get('PASSWORD')
     DATABASE_NAME = config['GCP'].get('DATABASE_NAME')
 
-
     DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+        'default': {
+            'ENGINE': 'django.db.backends.postgresql',
+            'NAME': DATABASE_NAME, #database name
+            'USER': USERNAME,
+            'PASSWORD': PASSWORD,
+            'HOST': '127.0.0.1',
+            'PORT': '5432',
         }
     }
+
+    # DATABASES = {
+    # 'default': {
+    #     'ENGINE': 'django.db.backends.sqlite3',
+    #     'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+    #     }
+    # }
 
 else:
     USERNAME = read_secret("/secrets/cloudsql/USERNAME")
@@ -188,14 +198,28 @@ USE_L10N = True
 USE_TZ = True
 
 # Email Information
-EMAIL_ADDRESS = config['GMAIL'].get('EMAIL')
-EMAIL_PASSWORD = config['GMAIL'].get('PASSWORD')
+EMAIL_ADDRESS = read_secret("/secrets/gmail/EMAIL") #config['GMAIL'].get('EMAIL')
+EMAIL_PASSWORD = read_secret("/secrets/gmail/PASSWORD") #config['GMAIL'].get('PASSWORD')
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/2.2/howto/static-files/
-USE_S3 = True
-
-if USE_S3:
+if LOCAL == False:
+    # aws settings
+    AWS_ACCESS_KEY_ID = read_secret("/secrets/aws/ACCESS_KEY")  #readconfig['AWS'].get('ACCESS_KEY')
+    AWS_SECRET_ACCESS_KEY = read_secret("/secrets/aws/SECRET_ACCESS_KEY") #config['AWS'].get('SECRET_ACCESS_KEY')
+    AWS_STORAGE_BUCKET_NAME = read_secret("/secrets/aws/BUCKET_NAME") #config['AWS'].get('BUCKET_NAME')
+    AWS_DEFAULT_ACL = None
+    AWS_S3_CUSTOM_DOMAIN = f'{AWS_STORAGE_BUCKET_NAME}.s3.amazonaws.com'
+    AWS_S3_OBJECT_PARAMETERS = {'CacheControl': 'max-age=86400'}
+    # s3 static settings
+    STATIC_LOCATION = 'static'
+    STATIC_URL = f'https://{AWS_S3_CUSTOM_DOMAIN}/{STATIC_LOCATION}/'
+    STATICFILES_STORAGE = 'ScrapMap.storage_backends.StaticStorage'
+    # s3 public media settings
+    PUBLIC_MEDIA_LOCATION = 'media'
+    MEDIA_URL = f'https://{AWS_S3_CUSTOM_DOMAIN}/{PUBLIC_MEDIA_LOCATION}/'
+    DEFAULT_FILE_STORAGE = 'ScrapMap.storage_backends.PrivateMediaStorage'
+else:
     # aws settings
     AWS_ACCESS_KEY_ID = config['AWS'].get('ACCESS_KEY')
     AWS_SECRET_ACCESS_KEY = config['AWS'].get('SECRET_ACCESS_KEY')
@@ -211,6 +235,7 @@ if USE_S3:
     PUBLIC_MEDIA_LOCATION = 'media'
     MEDIA_URL = f'https://{AWS_S3_CUSTOM_DOMAIN}/{PUBLIC_MEDIA_LOCATION}/'
     DEFAULT_FILE_STORAGE = 'ScrapMap.storage_backends.PrivateMediaStorage'
-else:
-    MEDIA_URL = '/media/'
-    MEDIA_ROOT = os.getcwd() + "/ScrapMap/media"
+
+# else:
+    # MEDIA_URL = '/media/'
+    # MEDIA_ROOT = os.getcwd() + "/ScrapMap/media"
