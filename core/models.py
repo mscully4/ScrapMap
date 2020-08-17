@@ -28,9 +28,9 @@ class User(AbstractUser):
 class Destination(models.Model):
     #this allows one user to be linked to multiple destinations
     user = models.ForeignKey(User, on_delete=models.CASCADE)
-    city = models.CharField(max_length=120, validators=[alpha])
-    country = models.CharField(max_length=120, validators=[alpha])
-    countryCode = models.CharField(max_length=2, validators=[alpha])
+    city = models.CharField(max_length=120)#, validators=[alpha])
+    country = models.CharField(max_length=120)#, validators=[alpha])
+    countryCode = models.CharField(max_length=2)#, validators=[alpha])
     latitude = models.FloatField(default=0, validators=[validate_latitude])
     longitude = models.FloatField(default=0, validators=[validate_longitude])
 
@@ -42,15 +42,15 @@ class Place(models.Model):
     destination = models.ForeignKey(Destination, on_delete=models.CASCADE)
     name = models.CharField(max_length=120) #, validators=[alpha])
     address = models.CharField(max_length=150, blank=True, null=True)
-    city = models.CharField(max_length=60, validators=[alpha])
-    state = models.CharField(max_length=50, null=True, blank=True, validators=[alpha])
-    country = models.CharField(max_length=50, validators=[alpha])
+    city = models.CharField(max_length=60) #, validators=[alpha])
+    state = models.CharField(max_length=50, null=True, blank=True) #, validators=[alpha])
+    country = models.CharField(max_length=50) #, validators=[alpha])
     zip_code = models.CharField(max_length=10, null=True, blank=True)
     latitude = models.FloatField(default=0, validators=[validate_latitude])
     longitude = models.FloatField(default=0, validators=[validate_longitude])
     placeId = models.CharField(max_length=150, null=True, blank=True)
-    types = models.CharField(max_length=500, null=True, blank=True, validators=[alpha])
-    main_type = models.CharField(max_length=100, default="establishment", validators=[alpha])
+    types = models.CharField(max_length=500, null=True, blank=True) #, validators=[alpha])
+    main_type = models.CharField(max_length=100, default="establishment") #, validators=[alpha])
 
 class PlaceImages(models.Model):
     place = models.ForeignKey(Place, on_delete=models.CASCADE)
