@@ -208,12 +208,15 @@ class AddPlace extends React.Component {
   }
 
   allFieldsValid = () => {
-    return validateString(this.state.city, 60, false) &&
-      this.state.name.length <= 120 &&
-      validateString(this.state.country, 50, false) &&
-      this.state.main_type !== "" &&
-      validateLatitude(this.state.latitude) &&
-      validateLongitude(this.state.longitude)
+    return 0 < this.state.city.length <= 60 
+      && 0 < this.state.name.length <= 120
+      && 0 < this.state.country.length <= 50
+      && this.state.zip_code.length <= 11
+      && this.state.address.length <= 150
+      && this.state.state.length <= 25
+      && this.state.main_type !== "" 
+      && validateLatitude(this.state.latitude) 
+      && validateLongitude(this.state.longitude)
   }
 
   changeMainType = (type) => {
@@ -387,8 +390,8 @@ class AddPlace extends React.Component {
                 InputProps={inputProps}
                 InputLabelProps={InputLabelProps}
                 className={classes.textField}
-                error={!validateString(this.state.city, 60, true)}
-                helperText={!validateString(this.state.city, 60, true) ? "Must be shorter than 60 characters and contain only alphabetical characters" : null}
+                error={this.state.city.length > 60}
+                helperText={this.state.city.length > 60 ? "Must be shorter than 60 characters and contain only alphabetical characters" : null}
               />
               <TextField
                 label={"State"}
@@ -399,8 +402,8 @@ class AddPlace extends React.Component {
                 InputProps={inputProps}
                 InputLabelProps={InputLabelProps}
                 className={classes.textField}
-                error={!validateString(this.state.state, 25, true)}
-                helperText={!validateString(this.state.state, 25, true) ? "Must be either blank or shorter than 25 characters and contain only alphabetical characters" : null}
+                error={this.state.state.length > 25}
+                helperText={this.state.state.length > 25 ? "Must be either blank or shorter than 25 characters and contain only alphabetical characters" : null}
               />
               <TextField
                 label={"Country"}
@@ -411,8 +414,8 @@ class AddPlace extends React.Component {
                 InputProps={inputProps}
                 InputLabelProps={InputLabelProps}
                 className={classes.textField}
-                error={!validateString(this.state.country, 50, true)}
-                helperText={!validateString(this.state.country, 50, true) ? "Must be shorter than 50 characters and contain only alphabetical characters" : null}
+                error={this.state.country.length > 50}
+                helperText={this.state.country.length > 50 ? "Must be shorter than 50 characters and contain only alphabetical characters" : null}
               />
 
               <TextField

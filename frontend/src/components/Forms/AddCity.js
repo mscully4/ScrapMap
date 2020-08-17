@@ -103,10 +103,9 @@ class AddCity extends React.Component {
   }
 
   allFieldsValid = () => {
-    return validateString(this.state.city, 120)
-      && validateString(this.state.country, 120)
-      && validateString(this.state.countryCode, 2)
-      && this.state.countryCode.length === 2
+    return 0 < this.state.city.length <= 120
+      && 0 < this.state.country.length <= 120
+      && validateString(this.state.countryCode, 2, true)
       && validateLatitude(this.state.latitude)
       && validateLongitude(this.state.longitude)
   }
@@ -117,7 +116,8 @@ class AddCity extends React.Component {
   }
 
   render() {
-    const disableButtom = !this.allFieldsValid();
+    const disableButton = !this.allFieldsValid();
+   
     const classes = this.props.classes
 
     const inputProps = {
@@ -157,8 +157,8 @@ class AddCity extends React.Component {
                 InputProps={inputProps}
                 InputLabelProps={InputLabelProps}
                 className={classes.textField}
-                error={!validateString(country, 120) && country !== ""}
-                helperText={!validateString(country, 120) && country != "" ? "Must be shorter than 120 characters and contain only alphabetical characters" : null}
+                error={country.length > 120}
+                helperText={country.length > 120 ? "Must be shorter than 120 characters" : null}
               />
               <TextField
                 label={"Country Code"}
@@ -208,7 +208,7 @@ class AddCity extends React.Component {
             </div>
           }
           <ModalFooter className={classes.modalFooter}>
-            <Button onClick={this.handleAddCity} disabled={disableButtom} className={classes.button}>Submit</Button>
+            <Button onClick={this.handleAddCity} disabled={disableButton} className={classes.button}>Submit</Button>
           </ModalFooter>
         </Modal>
       </React.Fragment>

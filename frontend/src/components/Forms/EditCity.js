@@ -96,12 +96,11 @@ class EditCity extends React.Component {
       this.state.longitude !== this.props.data.longitude
     )
   }
-
+  
   allFieldsValid = () => {
-    return validateString(this.state.city, 120)
-      && validateString(this.state.country, 120)
-      && validateString(this.state.countryCode, 2)
-      && this.state.countryCode.length === 2
+    return 0 < this.state.city.length <= 120
+      && 0 < this.state.country.length <= 120
+      && this.state.countryCode !== "" && this.state.countryCode.length === 2
       && validateLatitude(this.state.latitude)
       && validateLongitude(this.state.longitude)
   }
@@ -139,8 +138,8 @@ class EditCity extends React.Component {
               InputProps={inputProps}
               InputLabelProps={InputLabelProps}
               className={classes.textField}
-              error={!validateString(this.state.city, 120) && this.state.city !== ""}
-              helperText={!validateString(this.state.city, 120) && this.state.city != "" ? "Must be shorter than 120 characters and contain only alphabetical characters" : null}
+              error={this.state.city.length > 120}
+              helperText={this.state.city.length > 120 ? "Must be shorter than 120 characters and contain only alphabetical characters" : null}
             />
             <TextField
               label={"Country"}
@@ -151,8 +150,8 @@ class EditCity extends React.Component {
               InputProps={inputProps}
               InputLabelProps={InputLabelProps}
               className={classes.textField}
-              error={!validateString(this.state.country, 120) && this.state.country !== ""}
-              helperText={!validateString(this.state.country, 120) && this.state.country != "" ? "Must be shorter than 120 characters and contain only alphabetical characters" : null}
+              error={this.state.country.length > 120}
+              helperText={this.state.country.length > 120 ? "Must be shorter than 120 characters and contain only alphabetical characters" : null}
             />
             <TextField
               label={"Country Code"}

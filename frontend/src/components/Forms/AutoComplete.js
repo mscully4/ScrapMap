@@ -226,8 +226,8 @@ class AutoComplete extends React.Component {
   render = () => {
     const classes = this.props.classes
 
-    const error = this.props.context === "City" ? !validateString(this.state.searchValue, 120) : this.state.searchValue.length > 120
-    const helperText = this.props.context === "City" ? "Must be shorter than 120 characters and contain only alphabetical characters" : "Must be less than 120 characters"
+    const error = this.state.searchValue.length > 120
+    const helperText = "Must be less than 120 characters"
     return (
       <Autocomplete
         freeSolo
