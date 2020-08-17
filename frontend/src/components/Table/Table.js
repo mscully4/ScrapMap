@@ -16,30 +16,19 @@ import { placeTypeSVGs } from '../../utils/SVGs'
 import OptionsDropdown from './Dropdown';
 
 //Places within these distances of the center of the map will be included in the table
-const DISTANCE_FROM_CITY = 30
-const DISTANCE_FROM_PLACE = 20
+const DISTANCE_FROM_CITY = 200 /*miles*/
+const DISTANCE_FROM_PLACE = 200
 
 const styles = theme => ({
   container: {
     backgroundColor: OFF_BLACK_2,
-    // color: "#d4dada",
     width: '100%'
-    // color: "#000"
   },
-  // scrollBar: {
-  // width: "100% !important",
-  // height: "100%",
-  // },
   tableRow: {
     cursor: 'pointer',
-    // width: "97.5%",
-    // height: "100%",
     '&:focus': {
       outline: "none"
     },
-    // '&:hover': {
-    //   // backgroundColor: "#d4dada",
-    // }
   },
   row_a: {
     backgroundColor: OFF_BLACK_3
