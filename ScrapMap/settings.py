@@ -22,6 +22,21 @@ def read_secret(path):
     with open(path, 'r') as fh:
         return fh.read().strip('\n')
 
+
+import boto3
+
+bucket='elasticbeanstalk-us-east-2-735029168602'
+item = 'secrets.json'
+
+s3 = boto3.resource('s3')
+obj = s3.Object(bucket, item)
+body = obj.get()
+raw = body['Body'].read()
+
+import json
+
+secrets = json.loads(raw)
+
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -121,46 +136,58 @@ AUTH_USER_MODEL = 'core.user'
 # import pymysql
 # pymysql.install_as_MySQLdb()
 
-LOCAL = False
+# LOCAL = True
 
-if LOCAL == True: 
-    USERNAME = config['GCP'].get('USERNAME')
-    PASSWORD = config['GCP'].get('PASSWORD')
-    DATABASE_NAME = config['GCP'].get('DATABASE_NAME')
+# if LOCAL == True: 
+#     USERNAME = config['GCP'].get('USERNAME')
+#     PASSWORD = config['GCP'].get('PASSWORD')
+#     DATABASE_NAME = config['GCP'].get('DATABASE_NAME')
 
-    DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.postgresql',
-            'NAME': DATABASE_NAME, #database name
-            'USER': USERNAME,
-            'PASSWORD': PASSWORD,
-            'HOST': '127.0.0.1',
-            'PORT': '5432',
-        }
-    }
 
-    # DATABASES = {
-    # 'default': {
-    #     'ENGINE': 'django.db.backends.sqlite3',
-    #     'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
-    #     }
-    # }
+#     DATABASES = {
+#         'default': {
+#             'ENGINE': 'django.db.backends.postgresql',
+#             'USER': 'postgres',
+#             'PASSWORD': 'Ditto004&',
+#             'HOST': 'scrapmap.c7znowze6xgs.us-east-2.rds.amazonaws.com',
+#             'PORT': '5432',
+#             'NAME': 'scrapmap'  
+#         }
+#     }
 
-else:
-    USERNAME = read_secret("/secrets/cloudsql/USERNAME")
-    PASSWORD = read_secret("/secrets/cloudsql/PASSWORD")
-    DATABASE_NAME = read_secret('/secrets/cloudsql/DATABASE_NAME')
+#     # DATABASES = {
+#     #     'default': {
+#     #         'ENGINE': 'django.db.backends.postgresql',
+#     #         'NAME': DATABASE_NAME, #database name
+#     #         'USER': USERNAME,
+#     #         'PASSWORD': PASSWORD,
+#     #         'HOST': '127.0.0.1',
+#     #         'PORT': '5432',
+#     #     }
+#     # }
 
-    DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.postgresql',
-            'NAME': DATABASE_NAME, #database name
-            'USER': USERNAME,
-            'PASSWORD': PASSWORD,
-            'HOST': '127.0.0.1',
-            'PORT': '5432',
-        }
-    }
+#     # DATABASES = {
+#     # 'default': {
+#     #     'ENGINE': 'django.db.backends.sqlite3',
+#     #     'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+#     #     }
+#     # }
+
+# else:
+#     USERNAME = read_secret("/secrets/cloudsql/USERNAME")
+#     PASSWORD = read_secret("/secrets/cloudsql/PASSWORD")
+#     DATABASE_NAME = read_secret('/secrets/cloudsql/DATABASE_NAME')
+
+#     DATABASES = {
+#         'default': {
+#             'ENGINE': 'django.db.backends.postgresql',
+#             'NAME': DATABASE_NAME, #database name
+#             'USER': USERNAME,
+#             'PASSWORD': PASSWORD,
+#             'HOST': '127.0.0.1',
+#             'PORT': '5432',
+#         }
+#     }
     
 
 
@@ -197,17 +224,15 @@ USE_L10N = True
 
 USE_TZ = True
 
-# Email Information
-EMAIL_ADDRESS = read_secret("/secrets/gmail/EMAIL") #config['GMAIL'].get('EMAIL')
-EMAIL_PASSWORD = read_secret("/secrets/gmail/PASSWORD") #config['GMAIL'].get('PASSWORD')
-
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/2.2/howto/static-files/
+LOCAL = False
+
 if LOCAL == False:
     # aws settings
-    AWS_ACCESS_KEY_ID = read_secret("/secrets/aws/ACCESS_KEY")  #readconfig['AWS'].get('ACCESS_KEY')
-    AWS_SECRET_ACCESS_KEY = read_secret("/secrets/aws/SECRET_ACCESS_KEY") #config['AWS'].get('SECRET_ACCESS_KEY')
-    AWS_STORAGE_BUCKET_NAME = read_secret("/secrets/aws/BUCKET_NAME") #config['AWS'].get('BUCKET_NAME')
+    AWS_ACCESS_KEY_ID = secrets['AWS'].get('ACCESS_KEY')
+    AWS_SECRET_ACCESS_KEY = secrets['AWS'].get('SECRET_ACCESS_KEY')
+    AWS_STORAGE_BUCKET_NAME = secrets['AWS'].get('BUCKET_NAME')
     AWS_DEFAULT_ACL = None
     AWS_S3_CUSTOM_DOMAIN = f'{AWS_STORAGE_BUCKET_NAME}.s3.amazonaws.com'
     AWS_S3_OBJECT_PARAMETERS = {'CacheControl': 'max-age=86400'}
@@ -219,6 +244,21 @@ if LOCAL == False:
     PUBLIC_MEDIA_LOCATION = 'media'
     MEDIA_URL = f'https://{AWS_S3_CUSTOM_DOMAIN}/{PUBLIC_MEDIA_LOCATION}/'
     DEFAULT_FILE_STORAGE = 'ScrapMap.storage_backends.PrivateMediaStorage'
+    #Email
+    EMAIL_ADDRESS = secrets['GMAIL'].get('EMAIL')
+    EMAIL_PASSWORD = secrets['GMAIL'].get('PASSWORD')
+
+    #Database Information
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.postgresql',
+            'USER': secrets['AWS'].get('DATABASE_USER'),
+            'PASSWORD': secrets['AWS'].get('DATABASE_USER_PASSWORD'),
+            'HOST': secrets['AWS'].get('DATABASE_ENDPOINT'),
+            'PORT': '5432',
+            'NAME': 'scrapmap'  
+        }
+    }
 else:
     # aws settings
     AWS_ACCESS_KEY_ID = config['AWS'].get('ACCESS_KEY')
@@ -235,6 +275,17 @@ else:
     PUBLIC_MEDIA_LOCATION = 'media'
     MEDIA_URL = f'https://{AWS_S3_CUSTOM_DOMAIN}/{PUBLIC_MEDIA_LOCATION}/'
     DEFAULT_FILE_STORAGE = 'ScrapMap.storage_backends.PrivateMediaStorage'
+
+        # Email Information
+    EMAIL_ADDRESS = config['GMAIL'].get('EMAIL')
+    EMAIL_PASSWORD = config['GMAIL'].get('PASSWORD')
+
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+        }
+    }
 
 # else:
     # MEDIA_URL = '/media/'
