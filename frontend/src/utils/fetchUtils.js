@@ -2,8 +2,7 @@
 import axios from 'axios';
 var debounce = require('debounce-promise')
 
-const baseURL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' ? 'http://127.0.0.1:8000/' : `${window.location.origin}/backend/`
-console.log(baseURL)
+const baseURL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' ? 'http://scrapmap-501856803.us-east-2.elb.amazonaws.com/' : `${window.location.origin}/`
 
 //General Functions
 export function fetchCurrentUser(token) {
