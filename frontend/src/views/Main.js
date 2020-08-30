@@ -24,7 +24,7 @@ import { getDistanceBetweenTwoPoints } from '../utils/Formulas.js';
 
 const PLACE_TYPES = Object.keys(placeTypeSVGs)
 const DEFAULT_CENTER = { lat: 33.7490, lng: -84.3880 }
-const GRANULARITY_CUTOFF = 11
+const GRANULARITY_CUTOFF = 9
 
 const styles = theme => ({
   page: {
@@ -419,7 +419,7 @@ class Main extends React.Component {
 
   calculateFacts = (context) => {
     var viewCities = this.props.owner ? this.props.loggedInInfo.userCities : this.state.viewCities
-    var viewPlaces = this.props.owner ? this.props.loggedInInfo.userPlaces: this.state.viewPlaces
+    var viewPlaces = this.props.owner ? this.props.loggedInInfo.userPlaces : this.state.viewPlaces
     if (context === "cities") {
       const cities = []
       viewCities.forEach(obj => {
@@ -453,7 +453,7 @@ class Main extends React.Component {
   render() {
     const classes = this.props.classes;
     var viewCities = this.props.owner ? this.props.loggedInInfo.userCities : this.state.viewCities
-    var viewPlaces = this.props.owner ? this.props.loggedInInfo.userPlaces: this.state.viewPlaces
+    var viewPlaces = this.props.owner ? this.props.loggedInInfo.userPlaces : this.state.viewPlaces
     if (this.state.ready) {
       return (
         <div>
