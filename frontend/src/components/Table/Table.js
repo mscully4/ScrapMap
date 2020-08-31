@@ -51,6 +51,7 @@ const styles = theme => ({
     paddingLeft: "30%",
     paddingRight: '2.5%',
     margin: 'auto',
+    fontWeight: 'bold',
     color: FONT_GREY,
     whiteSpace: 'normal',
     wordWrap: 'break-word'
@@ -120,9 +121,9 @@ class VirtualTable extends Component {
     return (
       <div>
 
-        <div className={clsx(classes.cellText)} style={{ color: color }}>{cellData.rowData.name}</div>
-        <div className={clsx(classes.cellText)} style={{ color: color }}>{cellData.rowData.address}</div>
-        <div className={clsx(classes.cellText)} style={{ color: color }}>{cellData.rowData.city} {cellData.rowData.state ? `, ${cellData.rowData.state}` : ""}</div>
+        <div className={clsx(classes.cellText)} /*style={{ color: color }}*/>{cellData.rowData.name}</div>
+        <div className={clsx(classes.cellText)} /*style={{ color: color }}*/>{cellData.rowData.address}</div>
+        <div className={clsx(classes.cellText)} /*style={{ color: color }}*/>{cellData.rowData.city} {cellData.rowData.state ? `, ${cellData.rowData.state}` : ""}</div>
 
         {this.generateSVG(cellData.rowData.main_type)}
 
@@ -233,7 +234,7 @@ class VirtualTable extends Component {
       <div className={classes.container}>
 
         <Scrollbars
-          // className={clsx(classes.scrollBar)}
+          className={clsx(classes.scrollBar)}
           onScroll={this.handleScroll}
           renderThumbVertical={obj => this.renderThumb(obj)}
           renderView={this.renderView}
