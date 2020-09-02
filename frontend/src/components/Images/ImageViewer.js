@@ -68,11 +68,12 @@ class ImageViewer extends Component {
   }
 
   render() {
+    var currentIndex = this.props.currentIndex >= this.props.views.length ? 0 : this.props.currentIndex
     return (
       <ModalGateway>
         {this.props.isOpen ?
           <Modal isOpen={true} onClose={() => this.props.toggleViewer(false)}>
-            <Carousel views={this.props.views} currentIndex={this.props.currentIndex} components={{ Header: this.CustomHeader }} />
+            <Carousel views={this.props.views} currentIndex={currentIndex} components={{ Header: this.CustomHeader }} />
           </Modal>
           : null}
       </ModalGateway>
